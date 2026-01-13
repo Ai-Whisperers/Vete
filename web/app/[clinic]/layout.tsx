@@ -6,6 +6,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MainNav } from '@/components/layout/main-nav'
+import { HeaderProviders } from '@/components/layout/header-providers'
 import { ToastProvider } from '@/components/ui/Toast'
 import { CartProvider } from '@/context/cart-context'
 import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper'
@@ -310,7 +311,9 @@ export default async function ClinicLayout({
                     <span>{config.name}</span>
                   )}
                 </Link>
-                <MainNav clinic={clinic} config={config} />
+                <HeaderProviders>
+                  <MainNav clinic={clinic} config={config} />
+                </HeaderProviders>
               </div>
             </header>
 

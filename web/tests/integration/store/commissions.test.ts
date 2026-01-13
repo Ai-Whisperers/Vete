@@ -79,6 +79,12 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET as getCommissions } from '@/app/api/store/commissions/route'
+import { GET as getCommissionSummary } from '@/app/api/store/commissions/summary/route'
+import { GET as getInvoices } from '@/app/api/store/commission-invoices/route'
+import { POST as confirmOrder } from '@/app/api/store/orders/[id]/confirm/route'
+
 // Helper to set auth state
 function setAuthUser(user: { id: string; email: string } | null) {
   currentAuthUser = user

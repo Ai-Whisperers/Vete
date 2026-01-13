@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enUS } from 'date-fns/locale'
 import Link from 'next/link'
 import type {
   CalendarEvent,
@@ -32,25 +33,30 @@ interface EventDetailModalProps {
 // HELPER FUNCTIONS
 // =============================================================================
 
-function formatEventTime(start: Date, end: Date, allDay?: boolean): string {
+function formatEventTime(start: Date, end: Date, allDay: boolean | undefined, allDayLabel: string, dateLocale: Locale): string {
   if (allDay) {
-    return 'Todo el día'
+    return allDayLabel
   }
-  const startStr = format(start, 'HH:mm', { locale: es })
-  const endStr = format(end, 'HH:mm', { locale: es })
+  const startStr = format(start, 'HH:mm', { locale: dateLocale })
+  const endStr = format(end, 'HH:mm', { locale: dateLocale })
   return `${startStr} - ${endStr}`
 }
 
-function formatEventDate(start: Date, end: Date, allDay?: boolean): string {
-  const startDate = format(start, "EEEE, d 'de' MMMM", { locale: es })
+function formatEventDate(start: Date, end: Date, allDay: boolean | undefined, dateLocale: Locale): string {
+  const dateFormat = dateLocale === es ? "EEEE, d 'de' MMMM" : "EEEE, MMMM d"
+  const startDate = format(start, dateFormat, { locale: dateLocale })
 
   if (allDay && start.toDateString() !== end.toDateString()) {
-    const endDate = format(end, "d 'de' MMMM", { locale: es })
+    const endFormat = dateLocale === es ? "d 'de' MMMM" : "MMMM d"
+    const endDate = format(end, endFormat, { locale: dateLocale })
     return `${startDate} - ${endDate}`
   }
 
   return startDate
 }
+
+// Import Locale type
+type Locale = typeof es
 
 // =============================================================================
 // STATUS BADGE COMPONENT
@@ -59,23 +65,17 @@ function formatEventDate(start: Date, end: Date, allDay?: boolean): string {
 interface StatusBadgeProps {
   status: string
   type: 'appointment' | 'time_off' | 'shift'
+  t: ReturnType<typeof useTranslations<'calendar.eventDetail'>>
 }
 
-function StatusBadge({ status, type }: StatusBadgeProps) {
+function StatusBadge({ status, type, t }: StatusBadgeProps) {
   let label = status
   let className = 'bg-gray-100 text-gray-800'
 
   if (type === 'appointment' && statusConfig[status]) {
-    label = statusConfig[status].label
+    label = t(`appointmentStatus.${status}` as any) || statusConfig[status].label
     className = statusConfig[status].className
   } else if (type === 'time_off') {
-    const timeOffLabels: Record<string, string> = {
-      pending: 'Pendiente',
-      approved: 'Aprobada',
-      denied: 'Rechazada',
-      cancelled: 'Cancelada',
-      withdrawn: 'Retirada',
-    }
     const timeOffColors: Record<string, string> = {
       pending: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
       approved: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
@@ -83,17 +83,9 @@ function StatusBadge({ status, type }: StatusBadgeProps) {
       cancelled: 'bg-gray-100 text-gray-500',
       withdrawn: 'bg-gray-100 text-gray-500',
     }
-    label = timeOffLabels[status] || status
+    label = t(`timeOffStatus.${status}` as any) || status
     className = timeOffColors[status] || className
   } else if (type === 'shift') {
-    const shiftLabels: Record<string, string> = {
-      scheduled: 'Programado',
-      confirmed: 'Confirmado',
-      in_progress: 'En Progreso',
-      completed: 'Completado',
-      no_show: 'No Asistió',
-      cancelled: 'Cancelado',
-    }
     const shiftColors: Record<string, string> = {
       scheduled: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]',
       confirmed: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
@@ -102,7 +94,7 @@ function StatusBadge({ status, type }: StatusBadgeProps) {
       no_show: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
       cancelled: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
     }
-    label = shiftLabels[status] || status
+    label = t(`shiftStatus.${status}` as any) || status
     className = shiftColors[status] || className
   }
 
@@ -130,6 +122,11 @@ export function EventDetailModal({
   onSendReminder,
   clinicSlug,
 }: EventDetailModalProps) {
+  const t = useTranslations('calendar.eventDetail')
+  const tc = useTranslations('calendar')
+  const locale = useLocale()
+  const dateLocale = locale === 'es' ? es : enUS
+
   const [isDeleting, setIsDeleting] = useState(false)
   const [isChangingStatus, setIsChangingStatus] = useState(false)
   const [isCheckingIn, setIsCheckingIn] = useState(false)
@@ -182,7 +179,7 @@ export function EventDetailModal({
   }
 
   const handleDelete = async () => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este evento?')) {
+    if (!confirm(t('confirmDelete'))) {
       return
     }
 
@@ -279,20 +276,8 @@ export function EventDetailModal({
   }
 
   const getTypeLabel = () => {
-    switch (event.type) {
-      case 'appointment':
-        return 'Cita'
-      case 'shift':
-        return 'Turno'
-      case 'time_off':
-        return 'Ausencia'
-      case 'block':
-        return 'Bloqueo'
-      case 'task':
-        return 'Tarea'
-      default:
-        return 'Evento'
-    }
+    const typeKey = `eventTypes.${event.type}` as const
+    return t(typeKey as any) || t('eventTypes.event')
   }
 
   return (
@@ -327,7 +312,7 @@ export function EventDetailModal({
               <button
                 ref={closeButtonRef}
                 onClick={onClose}
-                aria-label="Cerrar"
+                aria-label={t('close')}
                 className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-secondary)]"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -361,10 +346,10 @@ export function EventDetailModal({
               </svg>
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  {formatEventDate(event.start, event.end, event.allDay)}
+                  {formatEventDate(event.start, event.end, event.allDay, dateLocale)}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {formatEventTime(event.start, event.end, event.allDay)}
+                  {formatEventTime(event.start, event.end, event.allDay, tc('allDay'), dateLocale)}
                 </p>
               </div>
             </div>
@@ -391,19 +376,20 @@ export function EventDetailModal({
                     onChange={(e) => handleStatusChange(e.target.value)}
                     disabled={isChangingStatus}
                     className="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
-                    aria-label="Cambiar estado de la cita"
+                    aria-label={t('changeStatusLabel')}
                   >
-                    <option value="scheduled">Programada</option>
-                    <option value="confirmed">Confirmada</option>
-                    <option value="in_progress">En Progreso</option>
-                    <option value="completed">Completada</option>
-                    <option value="cancelled">Cancelada</option>
-                    <option value="no_show">No Asistió</option>
+                    <option value="scheduled">{t('appointmentStatus.scheduled')}</option>
+                    <option value="confirmed">{t('appointmentStatus.confirmed')}</option>
+                    <option value="in_progress">{t('appointmentStatus.in_progress')}</option>
+                    <option value="completed">{t('appointmentStatus.completed')}</option>
+                    <option value="cancelled">{t('appointmentStatus.cancelled')}</option>
+                    <option value="no_show">{t('appointmentStatus.no_show')}</option>
                   </select>
                 ) : (
                   <StatusBadge
                     status={resource.status}
                     type={event.type as 'appointment' | 'time_off' | 'shift'}
+                    t={t}
                   />
                 )}
               </div>
@@ -464,7 +450,7 @@ export function EventDetailModal({
                     href={`/${clinicSlug}/dashboard/pets/${resource.petId}`}
                     className="text-xs text-gray-400 hover:text-[var(--primary)]"
                     onClick={onClose}
-                    title="Ver perfil de la mascota"
+                    title={t('viewPetProfile')}
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -596,19 +582,7 @@ export function EventDetailModal({
                   />
                 </svg>
                 <p className="text-sm text-gray-900">
-                  {resource.shiftType === 'regular'
-                    ? 'Regular'
-                    : resource.shiftType === 'overtime'
-                      ? 'Horas Extra'
-                      : resource.shiftType === 'on_call'
-                        ? 'Guardia'
-                        : resource.shiftType === 'emergency'
-                          ? 'Emergencia'
-                          : resource.shiftType === 'training'
-                            ? 'Capacitación'
-                            : resource.shiftType === 'meeting'
-                              ? 'Reunión'
-                              : resource.shiftType}
+                  {t(`shiftTypes.${resource.shiftType}` as any) || resource.shiftType}
                 </p>
               </div>
             )}
@@ -654,7 +628,7 @@ export function EventDetailModal({
                       />
                     </svg>
                   )}
-                  Check-in
+                  {t('checkIn')}
                 </button>
               )}
               {onSendReminder && ['scheduled', 'confirmed'].includes(resource?.status || '') && (
@@ -694,7 +668,7 @@ export function EventDetailModal({
                       />
                     </svg>
                   )}
-                  Enviar Recordatorio
+                  {t('sendReminder')}
                 </button>
               )}
             </div>
@@ -731,7 +705,7 @@ export function EventDetailModal({
                     />
                   </svg>
                 )}
-                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                {isDeleting ? t('deleting') : t('delete')}
               </button>
             )}
             {onEdit && (
@@ -740,7 +714,7 @@ export function EventDetailModal({
                 className="rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90"
                 style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
               >
-                Editar
+                {t('edit')}
               </button>
             )}
           </div>

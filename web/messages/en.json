@@ -28,12 +28,15 @@
     "download": "Download",
     "upload": "Upload",
     "noResults": "No results found",
+    "clearSearch": "Clear search",
     "tryAgain": "Try again",
     "copy": "Copy",
     "copied": "Copied!",
     "notRegistered": "Not registered",
     "emailRequired": "Email required",
     "processing": "Processing...",
+    "saving": "Saving...",
+    "closePanel": "Close panel",
     "status": {
       "ariaLabel": "Status: {status}",
       "success": "Success",
@@ -68,6 +71,222 @@
       "draft": "Draft",
       "inactive": "Inactive",
       "unknown": "Unknown"
+    }
+  },
+  "dataTable": {
+    "noData": "No data to display",
+    "showing": "Showing {start} - {end} of {total} results",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageOf": "Page {current} of {total}"
+  },
+  "emptyStates": {
+    "noPets": {
+      "title": "You don't have any pets registered",
+      "description": "Register your first pet to start tracking their medical history.",
+      "action": "Add Pet"
+    },
+    "noAppointments": {
+      "title": "No appointments scheduled",
+      "description": "Book an appointment for your pet with our veterinarians.",
+      "action": "Book Appointment"
+    },
+    "noInvoices": {
+      "title": "No invoices",
+      "description": "Invoices will appear here after each service."
+    },
+    "noVaccines": {
+      "title": "No vaccines registered",
+      "description": "Add your pet's vaccines to keep track.",
+      "action": "Add Vaccine"
+    },
+    "noLabOrders": {
+      "title": "No lab orders",
+      "description": "Lab orders will appear here."
+    },
+    "noClients": {
+      "title": "No clients",
+      "description": "Invite your first clients to get started.",
+      "action": "Invite Client"
+    },
+    "noMessages": {
+      "title": "No messages",
+      "description": "Start a conversation with the clinic.",
+      "action": "New Message"
+    },
+    "noSearchResults": {
+      "title": "No results",
+      "description": "We couldn't find results for \"{query}\". Try another search.",
+      "action": "Clear search"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "description": "We couldn't load the data. Please try again.",
+      "action": "Retry"
+    },
+    "emptyCart": {
+      "title": "Your cart is empty",
+      "description": "Explore our store and add products.",
+      "action": "View Store"
+    }
+  },
+  "calendar": {
+    "today": "Today",
+    "previous": "Previous",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Time",
+    "event": "Event",
+    "allDay": "All day",
+    "noEventsInRange": "No appointments in this range",
+    "showMore": "+ {total} more",
+    "eventDetail": {
+      "close": "Close",
+      "confirmDelete": "Are you sure you want to delete this event?",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "edit": "Edit",
+      "checkIn": "Check-in",
+      "sendReminder": "Send Reminder",
+      "viewPetProfile": "View pet profile",
+      "changeStatusLabel": "Change appointment status",
+      "eventTypes": {
+        "appointment": "Appointment",
+        "shift": "Shift",
+        "time_off": "Time Off",
+        "block": "Block",
+        "task": "Task",
+        "event": "Event"
+      },
+      "timeOffStatus": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "denied": "Denied",
+        "cancelled": "Cancelled",
+        "withdrawn": "Withdrawn"
+      },
+      "shiftStatus": {
+        "scheduled": "Scheduled",
+        "confirmed": "Confirmed",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "no_show": "No Show",
+        "cancelled": "Cancelled"
+      },
+      "appointmentStatus": {
+        "scheduled": "Scheduled",
+        "confirmed": "Confirmed",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "no_show": "No Show"
+      },
+      "shiftTypes": {
+        "regular": "Regular",
+        "overtime": "Overtime",
+        "on_call": "On Call",
+        "emergency": "Emergency",
+        "training": "Training",
+        "meeting": "Meeting"
+      }
+    },
+    "timeOffRequest": {
+      "typeLabel": "Time off type",
+      "startDateLabel": "Start date",
+      "endDateLabel": "End date",
+      "startHalfDay": "Start at half day",
+      "endHalfDay": "End at half day",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Describe the reason for your request...",
+      "available": "Available",
+      "days": "days",
+      "requiresApproval": "Requires approval",
+      "totalDaysRequested": "Total days requested",
+      "daysCount": "{count, plural, one {# day} other {# days}}",
+      "optional": "optional",
+      "day": "day",
+      "daysPlural": "days",
+      "approvalNotice": {
+        "title": "This request requires approval",
+        "description": "Your request will be reviewed by an administrator before being confirmed."
+      },
+      "cancel": "Cancel",
+      "submit": "Submit Request",
+      "submitting": "Submitting...",
+      "errors": {
+        "selectType": "Select a time off type",
+        "selectStartDate": "Select a start date",
+        "selectEndDate": "Select an end date",
+        "startBeforeEnd": "Start date must be before end date",
+        "startNotInPast": "Start date cannot be in the past",
+        "minNoticeDays": "At least {days} days notice is required",
+        "insufficientDays": "You only have {available} days available for {typeName}",
+        "submitError": "Error submitting request"
+      }
+    }
+  },
+  "consents": {
+    "blanket": {
+      "title": "Blanket Consents",
+      "empty": "No blanket consents registered",
+      "addFirst": "Add first consent",
+      "revokePrompt": "Revocation reason (optional):",
+      "revokeError": "Error revoking consent",
+      "types": {
+        "emergency_treatment": "Emergency Treatment",
+        "routine_procedures": "Routine Procedures",
+        "vaccination": "Vaccination",
+        "diagnostic_tests": "Diagnostic Tests",
+        "grooming": "Grooming",
+        "boarding": "Boarding",
+        "other": "Other"
+      }
+    }
+  },
+  "billing": {
+    "invoiceList": {
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "paid": "Paid"
+      },
+      "empty": {
+        "all": "No invoices generated",
+        "pending": "No pending invoices",
+        "paid": "No paid invoices"
+      },
+      "columns": {
+        "invoice": "Invoice",
+        "period": "Period",
+        "total": "Total",
+        "status": "Status"
+      },
+      "dueDate": "Due",
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "void": "Void",
+        "waived": "Waived"
+      },
+      "actions": {
+        "viewDetail": "View detail",
+        "downloadPdf": "Download PDF",
+        "payWithCard": "Pay with card",
+        "reportTransfer": "Report transfer"
+      },
+      "errors": {
+        "unknown": "Unknown error",
+        "loadInvoices": "Error loading invoices",
+        "loadInvoice": "Error loading invoice",
+        "generatePdf": "Error generating PDF",
+        "downloadPdf": "Error downloading PDF"
+      }
     }
   },
   "auth": {
@@ -654,10 +873,21 @@
     "noAppointments": "You have no scheduled appointments",
     "status": {
       "pending": "Pending",
+      "scheduled": "Scheduled",
       "confirmed": "Confirmed",
+      "checked_in": "Checked in",
+      "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "noShow": "No show"
+      "noShow": "No show",
+      "no_show": "No show"
+    },
+    "confirmStatusChange": "Change status to {status}?",
+    "unknownOwner": "Unknown",
+    "reason": "Reason",
+    "actions": {
+      "confirm": "Confirm",
+      "complete": "Complete"
     },
     "tabs": {
       "upcoming": "Upcoming",
@@ -1047,6 +1277,32 @@
       "discount": "Disc. %",
       "subtotal": "Subtotal",
       "remove": "Remove"
+    },
+    "form": {
+      "errorSelectPet": "You must select a pet",
+      "errorAddItem": "You must add at least one item",
+      "errorItemValidation": "All items must have a description and price",
+      "errorSaving": "Error saving",
+      "errorSavingInvoice": "Error saving invoice",
+      "dueDate": "Due date",
+      "required": "required",
+      "dueDateHelp": "Select the invoice due date",
+      "errorSelectDueDate": "You must select a due date",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional notes for the invoice...",
+      "notesHelp": "Optional field for additional notes",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "createInvoice": "Create invoice"
+    }
+  },
+  "inventory": {
+    "deleteModal": {
+      "title": "Delete Product",
+      "message": "Are you sure you want to delete this product? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
     }
   },
   "billing": {
@@ -1073,6 +1329,109 @@
         "saveCard": "Could not save card",
         "confirmSave": "Error saving card"
       }
+    }
+  },
+  "drugDosages": {
+    "clinicalTool": "Clinical Tool",
+    "title": "Drug Dosage Calculator",
+    "description": "Lookup and calculate medication doses based on patient weight. Updatable database for veterinary use.",
+    "searchPlaceholder": "Search medication...",
+    "addMedication": "Add Medication",
+    "resultsCount": "{count, plural, =0 {0 medications found} =1 {1 medication found} other {# medications found}}",
+    "loadingMedications": "Loading medications...",
+    "noMedications": "No medications found",
+    "noMedicationsHint": "Try a different search term or add a new one",
+    "confirmDelete": "Are you sure you want to delete this medication?",
+    "editAria": "Edit {drug}",
+    "deleteAria": "Delete {drug}",
+    "species": {
+      "all": "All species",
+      "dog": "Dogs",
+      "cat": "Cats",
+      "bird": "Birds",
+      "exotic": "Exotic",
+      "general": "General",
+      "dogSingular": "Dog",
+      "catSingular": "Cat",
+      "birdSingular": "Bird",
+      "exoticSingular": "Exotic"
+    },
+    "table": {
+      "medication": "Medication",
+      "species": "Species",
+      "dosePerKg": "Dose/kg",
+      "route": "Route",
+      "frequency": "Frequency"
+    },
+    "routes": {
+      "oral": "Oral",
+      "iv": "Intravenous (IV)",
+      "im": "Intramuscular (IM)",
+      "sc": "Subcutaneous (SC)",
+      "topical": "Topical"
+    },
+    "disclaimer": {
+      "title": "Important Notice",
+      "text": "This tool is for reference only. Always consult updated literature and adjust doses based on patient clinical status, renal/hepatic function, and other individual considerations."
+    },
+    "modal": {
+      "addTitle": "Add Medication",
+      "editTitle": "Edit Medication"
+    },
+    "form": {
+      "drugName": "Medication Name",
+      "drugNamePlaceholder": "Ex: Amoxicillin",
+      "route": "Route of Administration",
+      "dosePerKg": "Dose per kg",
+      "unit": "Unit",
+      "frequencyPlaceholder": "Ex: Every 12 hours",
+      "notes": "Notes",
+      "notesPlaceholder": "Contraindications, precautions, etc.",
+      "saveChanges": "Save Changes"
+    },
+    "calculator": {
+      "title": "Dose Calculator",
+      "calculate": "Calculate dose",
+      "calculateFor": "Calculate dose for {drug}",
+      "patientWeight": "Patient weight (kg)",
+      "weightPlaceholder": "Ex: 10",
+      "calculatedDose": "Calculated Dose"
+    }
+  },
+  "diagnosisCodes": {
+    "clinicalTool": "Clinical Tool",
+    "title": "Diagnosis Codes",
+    "description": "VeNom/SNOMED code database for standardized veterinary diagnoses.",
+    "searchPlaceholder": "Search by code, term, or description...",
+    "allCategories": "All categories",
+    "addCode": "Add Code",
+    "resultsCount": "{count, plural, =0 {0 codes found} =1 {1 code found} other {# codes found}}",
+    "loadingCodes": "Loading codes...",
+    "noCodes": "No codes found",
+    "noCodesHint": "Try a different search term",
+    "confirmDelete": "Are you sure you want to delete this code?",
+    "editCodeAria": "Edit code {code}",
+    "deleteCodeAria": "Delete code {code}",
+    "table": {
+      "code": "Code",
+      "description": "Description",
+      "category": "Category"
+    },
+    "info": {
+      "title": "Standardized Nomenclature",
+      "text": "Use VeNom (Veterinary Nomenclature) or SNOMED-CT codes to maintain consistency in medical records."
+    },
+    "modal": {
+      "addTitle": "Add Diagnosis Code",
+      "editTitle": "Edit Code"
+    },
+    "form": {
+      "code": "Code",
+      "codePlaceholder": "Ex: VN-1234",
+      "term": "Term",
+      "termPlaceholder": "Ex: Allergic dermatitis",
+      "descriptionPlaceholder": "Detailed diagnosis description",
+      "categoryPlaceholder": "Ex: Dermatology, Cardiology, etc."
     }
   },
   "clinical": {
@@ -1580,6 +1939,7 @@
     "analytics": {
       "title": "Analytics",
       "subtitle": "Metrics and statistics for your clinic",
+      "export": "Export",
       "period": {
         "week": "Week",
         "month": "Month",
@@ -1606,6 +1966,90 @@
       "storeAnalytics": {
         "title": "Store Analytics",
         "subtitle": "Sales, best sellers, coupons and more"
+      },
+      "patientAnalytics": {
+        "title": "Patient Analytics",
+        "subtitle": "Demographics and retention"
+      },
+      "operationsAnalytics": {
+        "title": "Operations Metrics",
+        "subtitle": "Efficiency and utilization"
+      }
+    },
+    "patientAnalytics": {
+      "title": "Patient Analytics",
+      "subtitle": "Demographics, vaccination and patient retention",
+      "retry": "Retry",
+      "period": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "Quarter",
+        "year": "Year"
+      },
+      "stats": {
+        "totalPatients": "Total Patients",
+        "vaccineCompliance": "Vaccine Compliance",
+        "upToDate": "up to date",
+        "repeatVisitRate": "Return Rate",
+        "returningPatients": "returning patients",
+        "avgDaysBetween": "Avg Days Between Visits",
+        "days": "days",
+        "patients": "patients",
+        "newPatients": "New Patients",
+        "firstTimeVisitors": "First-Time Visitors",
+        "overdueVaccines": "Overdue Vaccines",
+        "lostPatients": "Lost Patients"
+      },
+      "charts": {
+        "speciesDistribution": "Species Distribution",
+        "ageDistribution": "Age Distribution",
+        "vaccinationCompliance": "Vaccination Compliance",
+        "newPatientsTrend": "New Patients Trend"
+      },
+      "vaccination": {
+        "upToDate": "Up to Date",
+        "overdue": "Overdue",
+        "never": "Never Vaccinated"
+      },
+      "lostPatients": {
+        "title": "Inactive Patients",
+        "description": "You have {count} patients ({percentage}%) who haven't visited in over 6 months",
+        "recentlyLost": "Recently Lost:",
+        "lastVisit": "Last visit"
+      }
+    },
+    "operationsAnalytics": {
+      "title": "Operations Metrics",
+      "subtitle": "Efficiency, timing and team utilization",
+      "retry": "Retry",
+      "period": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "Quarter"
+      },
+      "stats": {
+        "completionRate": "Completion Rate",
+        "noShowRate": "No-Show Rate",
+        "cancellationRate": "Cancellation Rate",
+        "durationAccuracy": "Duration Accuracy",
+        "appointments": "appointments",
+        "noShows": "no-shows",
+        "cancelled": "cancelled",
+        "onSchedule": "on schedule",
+        "revenue": "Revenue",
+        "utilization": "Utilization",
+        "avgActual": "Avg Actual Duration",
+        "avgExpected": "Avg Expected Duration",
+        "overtime": "Overtime",
+        "undertime": "Undertime"
+      },
+      "charts": {
+        "appointmentsByDay": "Appointments & Revenue by Day",
+        "vetUtilization": "Vet Utilization",
+        "peakHours": "Peak Hours (Heatmap)",
+        "hour": "Hour",
+        "low": "Low",
+        "high": "High"
       }
     },
     "appointmentsChart": {
@@ -1633,6 +2077,21 @@
       "complete": "Complete",
       "completeConsultation": "Complete consultation",
       "errorProcessing": "Error processing action"
+    },
+    "team": {
+      "title": "Team Management",
+      "subtitle": "Manage who has access to the veterinary dashboard",
+      "inviteNewMember": "Invite New Member",
+      "teamMembers": "Team Members",
+      "pendingInvites": "Pending Invites",
+      "noTeamMembers": "No team members registered",
+      "noPendingInvites": "No pending invites",
+      "role": "Role",
+      "cancelInvite": "Cancel invite",
+      "roles": {
+        "admin": "Administrator",
+        "vet": "Veterinarian"
+      }
     }
   },
   "petSelector": {
@@ -1758,5 +2217,537 @@
       "previewLoading": "Preview",
       "helpText": "The prescription will be reviewed by a veterinarian before processing the order"
     }
+  },
+  "vaccineReactions": {
+    "pharmacovigilance": "Pharmacovigilance",
+    "title": "Adverse Vaccine Reactions",
+    "description": "Record and monitor post-vaccination adverse events. Pharmacovigilance system to improve patient safety.",
+    "recordsCount": "{count, plural, =0 {0 records} =1 {1 record} other {# records}}",
+    "severeCount": "{count} severe",
+    "moderateCount": "{count} moderate",
+    "searchPlaceholder": "Search by vaccine, pet or detail...",
+    "severityFilterLabel": "Filter by severity",
+    "allSeverities": "All severities",
+    "registerReaction": "Register Reaction",
+    "registerReactionAriaLabel": "Register new adverse reaction",
+    "registerFirstReaction": "Register First Reaction",
+    "showingFiltered": "Showing {filtered} of {total} records",
+    "clearFilters": "Clear filters",
+    "confirmDelete": "Are you sure you want to delete this reaction record?",
+    "editReactionAriaLabel": "Edit reaction for {vaccine}",
+    "deleteReactionAriaLabel": "Delete reaction for {vaccine}",
+    "vaccine": "vaccine",
+    "notSpecified": "Not specified",
+    "register": "Register",
+    "severity": {
+      "leve": "Mild",
+      "moderada": "Moderate",
+      "severa": "Severe"
+    },
+    "reactionTypes": {
+      "local": {
+        "label": "Local Reaction",
+        "desc": "Swelling, pain or redness at the injection site"
+      },
+      "sistemica": {
+        "label": "Systemic Reaction",
+        "desc": "Fever, lethargy, loss of appetite"
+      },
+      "alergica": {
+        "label": "Allergic Reaction",
+        "desc": "Hives, facial edema, difficulty breathing"
+      },
+      "anafilactica": {
+        "label": "Anaphylaxis",
+        "desc": "Severe reaction requiring immediate attention"
+      },
+      "digestiva": {
+        "label": "Digestive Disorder",
+        "desc": "Vomiting, diarrhea"
+      },
+      "neurologica": {
+        "label": "Neurological Disorder",
+        "desc": "Seizures, ataxia, behavioral changes"
+      },
+      "otra": {
+        "label": "Other",
+        "desc": "Other unspecified reaction"
+      }
+    },
+    "empty": {
+      "noResults": "No records found",
+      "noReactions": "No reactions recorded",
+      "tryOtherSearch": "Try different search terms or filters.",
+      "goodNews": "This is good - it means there are no adverse events reported."
+    },
+    "table": {
+      "date": "Date",
+      "vaccine": "Vaccine",
+      "type": "Type",
+      "severity": "Severity",
+      "detail": "Detail"
+    },
+    "info": {
+      "title": "Pharmacovigilance Guide",
+      "whenToReportTitle": "When to report?",
+      "whenToReportText": "Any adverse event occurring after vaccination, even if not sure about the causal relationship.",
+      "observationTimeTitle": "Observation time:",
+      "observationTimeText": "Reactions can occur from minutes to 3-4 weeks post-vaccination.",
+      "commonReactionsTitle": "Common reactions:",
+      "commonReactionsText": "Local pain, mild lethargy and low fever are normal and usually resolve within 24-48 hours.",
+      "urgencyTitle": "Urgency:",
+      "urgencyText": "Facial edema, difficulty breathing or collapse require immediate veterinary attention."
+    },
+    "modal": {
+      "addTitle": "Register Adverse Reaction",
+      "editTitle": "Edit Reaction",
+      "closeAriaLabel": "Close modal",
+      "saveChanges": "Save Changes"
+    },
+    "form": {
+      "vaccineId": "Vaccine ID",
+      "vaccineIdPlaceholder": "ID or lot",
+      "vaccineName": "Vaccine Name",
+      "vaccineNamePlaceholder": "E.g.: Rabies, Multivalent",
+      "reactionType": "Reaction Type",
+      "selectType": "Select type...",
+      "severity": "Severity",
+      "date": "Date",
+      "detailedDescription": "Detailed Description",
+      "detailedDescriptionPlaceholder": "Describe observed symptoms, onset time, progression...",
+      "treatmentApplied": "Treatment Applied",
+      "treatmentPlaceholder": "Medications administered, supportive measures..."
+    }
+  },
+  "growthCharts": {
+    "clinicalTool": "Clinical Tool",
+    "title": "Growth Charts",
+    "description": "Record and monitor your patients' growth. Compare weights by age and breed to detect early anomalies.",
+    "recordsCount": "{count, plural, =0 {0 records} =1 {1 record} other {# records}}",
+    "dogsAndCats": "Dogs and Cats",
+    "searchPlaceholder": "Search by breed or notes...",
+    "speciesFilterLabel": "Filter by species",
+    "addRecord": "Add Record",
+    "addRecordAriaLabel": "Add new growth record",
+    "addFirstRecord": "Add First Record",
+    "showingFiltered": "Showing {filtered} of {total} records",
+    "clearFilters": "Clear filters",
+    "confirmDelete": "Are you sure you want to delete this record?",
+    "editRecordAriaLabel": "Edit {breed} record",
+    "deleteRecordAriaLabel": "Delete {breed} record",
+    "species": {
+      "all": "All species",
+      "dogsEmoji": "🐕 Dogs",
+      "catsEmoji": "🐱 Cats",
+      "dogEmoji": "🐕 Dog",
+      "catEmoji": "🐱 Cat"
+    },
+    "empty": {
+      "noResults": "No records found",
+      "noRecords": "No growth records",
+      "tryOtherSearch": "Try different search terms or filters.",
+      "startAdding": "Start by adding weight and age records for your patients."
+    },
+    "table": {
+      "species": "Species",
+      "breed": "Breed",
+      "ageMonths": "Age (months)",
+      "weightKg": "Weight (kg)",
+      "notes": "Notes"
+    },
+    "info": {
+      "title": "About Growth Charts",
+      "whatForTitle": "What are they for?",
+      "whatForText": "Growth charts allow you to monitor the development of puppies and kittens, comparing their weight with reference values by breed and age.",
+      "frequencyTitle": "Recommended frequency:",
+      "frequencyText": "Record weight weekly during the first 6 months, then monthly until one year of age.",
+      "warningTitle": "Warning signs:",
+      "warningText": "Weight loss, prolonged stagnation, or excessively rapid growth may indicate health problems.",
+      "tipTitle": "Tip:",
+      "tipText": "Always weigh at the same time of day, preferably before feeding the patient."
+    },
+    "modal": {
+      "addTitle": "Add Record",
+      "editTitle": "Edit Record",
+      "closeAriaLabel": "Close modal",
+      "saveChanges": "Save Changes"
+    },
+    "form": {
+      "species": "Species",
+      "breed": "Breed",
+      "breedPlaceholder": "E.g.: Golden Retriever, Siamese",
+      "ageMonths": "Age (months)",
+      "weightKg": "Weight (kg)",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "Additional observations..."
+    }
+  },
+  "prescriptions": {
+    "medicalSystem": "Medical System",
+    "title": "Medical Prescriptions",
+    "description": "Create, manage, and print medical prescriptions for your patients. Control dosages and treatment follow-ups.",
+    "totalPrescriptions": "{count} prescriptions",
+    "activePrescriptions": "{count} active",
+    "completedPrescriptions": "{count} completed",
+    "searchPlaceholder": "Search by medication or patient...",
+    "statusFilterLabel": "Filter by status",
+    "newPrescription": "New Prescription",
+    "newPrescriptionAria": "Create new medical prescription",
+    "showingResults": "Showing {showing} of {total} prescriptions",
+    "clearFilters": "Clear filters",
+    "createFirst": "Create First Prescription",
+    "forPet": "For: {name}",
+    "print": "Print",
+    "printAria": "Print prescription for {drug}",
+    "editAria": "Edit prescription for {drug}",
+    "deleteAria": "Delete prescription for {drug}",
+    "confirmDelete": "Are you sure you want to delete this prescription?",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "filter": {
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "noResults": "No prescriptions found",
+      "noRecords": "No prescriptions registered",
+      "tryOtherSearch": "Try different search terms or filters.",
+      "startCreating": "Start by creating a new medical prescription."
+    },
+    "table": {
+      "date": "Date",
+      "medication": "Medication",
+      "dosage": "Dosage",
+      "instructions": "Instructions",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "info": {
+      "title": "Important Information",
+      "controlledTitle": "Controlled prescriptions:",
+      "controlledText": "Controlled medications require a special prescription with a copy for the owner.",
+      "validityTitle": "Validity:",
+      "validityText": "Prescriptions are valid for 30 days from issuance, except antibiotics (10 days).",
+      "dosageTitle": "Dosing:",
+      "dosageText": "Always verify the patient's current weight before calculating doses.",
+      "followupTitle": "Follow-up:",
+      "followupText": "Schedule a post-treatment review to verify efficacy."
+    },
+    "modal": {
+      "addTitle": "New Prescription",
+      "editTitle": "Edit Prescription",
+      "create": "Create Prescription",
+      "save": "Save Changes"
+    },
+    "form": {
+      "medication": "Medication",
+      "medicationPlaceholder": "Medication name",
+      "dosage": "Dosage",
+      "dosagePlaceholder": "E.g.: 5mg/kg",
+      "frequency": "Frequency",
+      "frequencyPlaceholder": "E.g.: Every 12 hours",
+      "duration": "Treatment Duration",
+      "durationPlaceholder": "E.g.: 7 days",
+      "instructions": "Additional Instructions",
+      "instructionsPlaceholder": "Special instructions, precautions, route of administration..."
+    }
+  },
+  "euthanasiaAssessments": {
+    "title": "HHHHHMM Scale",
+    "subtitle": "Clinical Quality of Life Assessment",
+    "patient": "Patient",
+    "selectPatient": "Select Patient...",
+    "selectPatientFirst": "Please select a patient first",
+    "evaluationCriteria": "Evaluation Criteria",
+    "clinicalObservations": "Clinical Observations",
+    "notesPlaceholder": "Write additional observation details, recent behavior, or notes for the owner here...",
+    "historyTitle": "Assessment History",
+    "qualityIndex": "Quality Index",
+    "outOfPoints": "out of 70 Points",
+    "points": "Points",
+    "pointsCount": "{count} pts",
+    "criticalState": "Critical State (0)",
+    "optimalState": "Optimal State (10)",
+    "finishEvaluation": "Finish Evaluation",
+    "saving": "Saving...",
+    "savedSuccessfully": "Assessment saved successfully",
+    "saveFailed": "Could not save the assessment",
+    "breakdownTitle": "HHHHHMM BREAKDOWN",
+    "additionalNotesTitle": "ADDITIONAL NOTES",
+    "disclaimer": "\"This metric is complementary to the medical diagnosis. The final decision always rests with the consensus between the professional and the family.\"",
+    "interpretation": {
+      "excellent": "Excellent Quality of Life",
+      "acceptable": "Acceptable Quality of Life",
+      "compromised": "Compromised Quality of Life",
+      "consider": "Consider Humane Euthanasia"
+    },
+    "criteria": {
+      "hurt": {
+        "label": "Hurt",
+        "desc": "Adequate pain control and ability to breathe. 0 (Severe pain) - 10 (No pain)"
+      },
+      "hunger": {
+        "label": "Hunger",
+        "desc": "Interest in food and ability to eat. 0 (No interest) - 10 (Eats well)"
+      },
+      "hydration": {
+        "label": "Hydration",
+        "desc": "Fluid intake and hydration status. 0 (Dehydrated) - 10 (Well hydrated)"
+      },
+      "hygiene": {
+        "label": "Hygiene",
+        "desc": "Ability to stay clean or be cleaned. 0 (Dirty/Sores) - 10 (Clean)"
+      },
+      "happiness": {
+        "label": "Happiness",
+        "desc": "Interest in surroundings, play, family. 0 (Depressed) - 10 (Happy)"
+      },
+      "mobility": {
+        "label": "Mobility",
+        "desc": "Ability to move independently. 0 (Immobile) - 10 (Active)"
+      },
+      "more_good_days": {
+        "label": "More Good Days",
+        "desc": "Overall balance of good vs bad days. 0 (All bad) - 10 (All good)"
+      }
+    }
+  },
+  "reproductiveCycles": {
+    "title": "Reproductive Monitor",
+    "subtitle": "Cycle and Heat Tracking",
+    "patientFemales": "Patient (Females)",
+    "selectPatient": "Select Patient...",
+    "currentStatus": "Current Status",
+    "activeHeat": "Active Heat",
+    "endsApprox": "Ends approx. on {date}",
+    "inactive": "Inactive",
+    "nextHeatEstimate": "Next heat estimated for:",
+    "noHistoricalData": "No historical data to predict.",
+    "registerNewCycle": "Register New Cycle",
+    "heatStart": "Heat Start",
+    "endEstimatedReal": "Estimated/Actual End",
+    "notes": "Notes",
+    "notesPlaceholder": "Observations about bleeding, behavior, etc.",
+    "saving": "Saving...",
+    "registerCycle": "Register Cycle",
+    "cycleHistory": "Cycle History",
+    "current": "Current",
+    "noAdditionalNotes": "No additional notes.",
+    "noCyclesRegistered": "No cycles registered for this patient.",
+    "reproductionMonitor": "Reproduction Monitor",
+    "selectFemalePatient": "Select a female patient to view their reproductive history, trends, and heat predictions.",
+    "cycleSaved": "Cycle registered successfully",
+    "saveError": "Error saving the cycle",
+    "confirmDelete": "Delete this cycle record?",
+    "recordDeleted": "Record deleted"
+  },
+  "checkout": {
+    "title": "Order Summary",
+    "emptyCart": "No items in the cart.",
+    "subtotal": "Subtotal",
+    "tax": "Tax (10%)",
+    "total": "Total",
+    "print": "Print",
+    "backToCart": "Back to cart",
+    "confirmOrder": "Confirm Order",
+    "selectPet": "Select pet",
+    "missingPrescriptions": "Missing {count, plural, one {# prescription} other {# prescriptions}}",
+    "prescription": "Prescription",
+    "stockError": "Requested {requested}, available {available}",
+    "itemType": {
+      "service": "Service",
+      "product": "Product"
+    },
+    "petSelector": {
+      "label": "Pet for prescription products",
+      "helpText": "Select the pet you are purchasing these products for. The prescription must correspond to this pet."
+    },
+    "errors": {
+      "petRequired": "You must select a pet for prescription products.",
+      "prescriptionsRequired": "Please upload the required prescriptions to continue.",
+      "processingError": "Error processing the order",
+      "connectionError": "Connection error. Please try again."
+    },
+    "success": {
+      "title": "Order Confirmed!",
+      "message": "Your order has been processed successfully.",
+      "orderNumber": "Order number",
+      "totalToPay": "Total to pay",
+      "whatsappButton": "Coordinate delivery via WhatsApp",
+      "continueShopping": "Continue shopping",
+      "goToPortal": "Go to portal"
+    },
+    "whatsapp": {
+      "withOrder": "Hello *{clinicName}*, I just placed order *{orderNumber}*.\n\n",
+      "newOrder": "Hello *{clinicName}*, I would like to place the following order:\n\n",
+      "myData": "My details"
+    }
+  },
+  "billing": {
+    "invoiceList": {
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "paid": "Paid"
+      },
+      "columns": {
+        "invoice": "Invoice",
+        "period": "Period",
+        "total": "Total",
+        "status": "Status"
+      },
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "void": "Void",
+        "waived": "Waived"
+      },
+      "dueDate": "Due",
+      "empty": {
+        "all": "You don't have any invoices yet",
+        "pending": "You don't have pending invoices",
+        "paid": "You don't have paid invoices"
+      },
+      "actions": {
+        "viewDetail": "View detail",
+        "downloadPdf": "Download PDF",
+        "payWithCard": "Pay with card",
+        "reportTransfer": "Report transfer"
+      },
+      "errors": {
+        "loadInvoices": "Error loading invoices",
+        "loadInvoice": "Error loading the invoice",
+        "generatePdf": "Error generating PDF",
+        "downloadPdf": "Error downloading PDF",
+        "unknown": "Unknown error"
+      }
+    },
+    "invoiceDetail": {
+      "title": "Invoice",
+      "notFound": "Invoice not found",
+      "dueDate": "Due",
+      "paidDate": "Paid",
+      "billingPeriod": "Billing period",
+      "gracePeriod": "Grace period: {days} days",
+      "paymentMethod": "Payment method",
+      "paymentReference": "Reference",
+      "downloadPdf": "Download PDF",
+      "reportTransfer": "Report Transfer",
+      "payNow": "Pay Now",
+      "errors": {
+        "generatePdf": "Error generating PDF",
+        "downloadPdf": "Error downloading PDF"
+      },
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "void": "Void",
+        "waived": "Waived"
+      }
+    },
+    "commissions": {
+      "title": "Period Commissions",
+      "thisMonth": "This month",
+      "noCommissions": "No commissions generated this period.",
+      "commissionsInfo": "Commissions are calculated on store sales and billed services.",
+      "storeOnline": "Online Store",
+      "services": "Services",
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "appointments": "{count, plural, one {# appointment} other {# appointments}}",
+      "noOrdersThisPeriod": "No orders this period",
+      "noAppointmentsThisPeriod": "No billed appointments this period",
+      "totalCommissions": "Total Commissions",
+      "summary": "Commissions"
+    },
+    "paymentMethods": {
+      "cards": "Cards",
+      "cardsDescription": "For automatic payments",
+      "addCard": "Add Card",
+      "noCardsRegistered": "You don't have any cards registered",
+      "addCardHint": "Add a card to enable automatic payments",
+      "bankTransfer": "Bank Transfer",
+      "bankTransferDescription": "Manual payment by transfer",
+      "viewInstructions": "View Instructions",
+      "bankTransferInfo": "You can pay your invoices via bank transfer. Click \"View Instructions\" to get account details and how to report your payment.",
+      "autoPayEnabled": "Automatic payment enabled",
+      "autoPayInfo": "Your invoices will be automatically charged to your primary card on the due date.",
+      "errors": {
+        "loadMethods": "Error loading payment methods",
+        "setDefault": "Error setting default method",
+        "deleteFailed": "Error deleting payment method",
+        "unknown": "Unknown error"
+      },
+      "confirmDelete": "Are you sure you want to delete this payment method?"
+    },
+    "addCard": {
+      "title": "Add Card",
+      "subscriptionSummary": "Subscription Summary",
+      "currentPlan": "Current plan",
+      "nextPayment": "Next payment",
+      "monthlyCharge": "Monthly charge",
+      "cardDetails": "Card details",
+      "cardNumber": "Card number",
+      "expiryDate": "MM/YY",
+      "cvc": "CVC",
+      "cardholderName": "Cardholder name",
+      "cardholderNamePlaceholder": "As it appears on the card",
+      "setAsDefault": "Set as primary payment method",
+      "cancel": "Cancel",
+      "addCard": "Add Card",
+      "processing": "Processing...",
+      "errors": {
+        "loadStripe": "Error loading payment form",
+        "cardIncomplete": "Please complete card details",
+        "processingError": "Error processing card",
+        "unknown": "Unknown error"
+      }
+    }
+  },
+  "toxicFoods": {
+    "searchPlaceholder": "Search food (e.g.: chocolate, grapes, onion...)",
+    "searchAriaLabel": "Search toxic foods",
+    "aiSearchQuery": "Is {food} toxic to {species}? If toxic, explain the toxic component, symptoms, lethal dose if any, and recommended treatment. Answer in English.",
+    "notFoundInDatabase": "{food} not found in our database",
+    "needMoreInfo": "Need more information",
+    "aiSearchDescription": "This food is not in our verified database. You can ask AI for information, but always verify with a veterinarian.",
+    "askAi": "Ask AI",
+    "filterBySpecies": "Filter by species",
+    "allPetsOption": "All pets",
+    "filterByToxicity": "Filter by toxicity",
+    "allToxicity": "All",
+    "toxicity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "clearFilters": "Clear filters",
+    "resultsCount": "{count} results",
+    "toxicComponent": "Toxic component",
+    "symptoms": "Symptoms",
+    "onset": "Onset",
+    "attention": "Attention",
+    "lethalDose": "Lethal dose",
+    "seeLess": "See less",
+    "seeMechanismAndSources": "See mechanism of action and sources",
+    "mechanismOfAction": "Mechanism of action",
+    "sources": "Sources",
+    "notFound": "No toxic foods found.",
+    "tryOtherTerm": "Try a different search term.",
+    "askAiAbout": "Would you like to ask AI about \"{query}\"?",
+    "authorizedSources": "Authorized sources",
+    "emergency": {
+      "title": "Poisoning emergency?",
+      "message": "Contact your veterinarian or the nearest animal poison control center immediately."
+    },
+    "allPets": "All pets"
   }
 }

@@ -5,10 +5,17 @@
  *
  * Dashboard component for clinics to manage their referral program.
  * Shows referral code, statistics, and list of referrals.
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Code regeneration uses useMutation
  */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Gift, Copy, Share2, Users, TrendingUp, Percent, RefreshCw, Check, ExternalLink } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ReferralCode {
   id: string
@@ -48,42 +55,58 @@ interface Referral {
 }
 
 export function ReferralDashboard() {
-  const [code, setCode] = useState<ReferralCode | null>(null)
-  const [stats, setStats] = useState<ReferralStats | null>(null)
-  const [referrals, setReferrals] = useState<Referral[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [copied, setCopied] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  // React Query: Fetch referral code
+  const { data: code } = useQuery({
+    queryKey: queryKeys.referrals.code('current'),
+    queryFn: async (): Promise<ReferralCode | null> => {
+      const res = await fetch('/api/referrals/code')
+      if (!res.ok) return null
+      return res.json()
+    },
+    staleTime: staleTimes.LONG,
+    gcTime: gcTimes.LONG,
+  })
 
-  const fetchData = async () => {
-    setIsLoading(true)
-    try {
-      const [codeRes, statsRes, referralsRes] = await Promise.all([
-        fetch('/api/referrals/code'),
-        fetch('/api/referrals/stats'),
-        fetch('/api/referrals?limit=10'),
-      ])
+  // React Query: Fetch referral stats
+  const { data: stats } = useQuery({
+    queryKey: queryKeys.referrals.stats('current'),
+    queryFn: async (): Promise<ReferralStats | null> => {
+      const res = await fetch('/api/referrals/stats')
+      if (!res.ok) return null
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      if (codeRes.ok) {
-        setCode(await codeRes.json())
-      }
-      if (statsRes.ok) {
-        setStats(await statsRes.json())
-      }
-      if (referralsRes.ok) {
-        const data = await referralsRes.json()
-        setReferrals(data.referrals || [])
-      }
-    } catch (error) {
-      console.error('Error fetching referral data:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // React Query: Fetch referrals list
+  const { data: referralsData, isLoading } = useQuery({
+    queryKey: queryKeys.referrals.list('current'),
+    queryFn: async (): Promise<{ referrals: Referral[] }> => {
+      const res = await fetch('/api/referrals?limit=10')
+      if (!res.ok) return { referrals: [] }
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  const referrals = referralsData?.referrals ?? []
+
+  // Mutation: Regenerate code
+  const regenerateMutation = useMutation({
+    mutationFn: async (): Promise<ReferralCode> => {
+      const res = await fetch('/api/referrals/code', { method: 'POST' })
+      if (!res.ok) throw new Error('Error al regenerar código')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.referrals.code('current') })
+    },
+  })
 
   const copyCode = async () => {
     if (!code) return
@@ -124,19 +147,9 @@ export function ReferralDashboard() {
     }
   }
 
-  const regenerateCode = async () => {
-    if (isRegenerating) return
-    setIsRegenerating(true)
-    try {
-      const res = await fetch('/api/referrals/code', { method: 'POST' })
-      if (res.ok) {
-        setCode(await res.json())
-      }
-    } catch (error) {
-      console.error('Error regenerating code:', error)
-    } finally {
-      setIsRegenerating(false)
-    }
+  const regenerateCode = () => {
+    if (regenerateMutation.isPending) return
+    regenerateMutation.mutate()
   }
 
   const formatDate = (dateStr: string) => {
@@ -196,10 +209,10 @@ export function ReferralDashboard() {
           </div>
           <button
             onClick={regenerateCode}
-            disabled={isRegenerating}
+            disabled={regenerateMutation.isPending}
             className="flex items-center gap-1 rounded-lg px-3 py-1 text-sm text-gray-600 hover:bg-white/50 disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${regenerateMutation.isPending ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Regenerar</span>
           </button>
         </div>

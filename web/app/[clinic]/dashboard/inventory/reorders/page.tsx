@@ -24,7 +24,7 @@ export default async function ReorderSuggestionsPage({ params }: PageProps): Pro
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/${clinic}/auth/login?redirect=/${clinic}/dashboard/inventory/reorders`)
+    redirect(`/${clinic}/portal/login?redirect=/${clinic}/dashboard/inventory/reorders`)
   }
 
   // Verify staff access

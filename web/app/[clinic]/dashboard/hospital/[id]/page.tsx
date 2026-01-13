@@ -1,8 +1,15 @@
 'use client'
 
+/**
+ * Hospitalization Detail Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
 import type { JSX } from 'react'
-import { useState, useEffect, use } from 'react'
+import { useState, use } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, FileText, Heart, Activity, Utensils, Clock } from 'lucide-react'
 import { PatientHeader } from '@/components/hospital/patient-header'
 import { PatientInfoCard } from '@/components/hospital/patient-info-card'
@@ -11,6 +18,8 @@ import { VitalsPanel } from '@/components/hospital/vitals-panel'
 import { FeedingsPanel } from '@/components/hospital/feedings-panel'
 import { TimelinePanel } from '@/components/hospital/timeline-panel'
 import TreatmentSheet from '@/components/hospital/treatment-sheet'
+import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface HospitalizationDetail {
   id: string
@@ -134,37 +143,109 @@ export default function HospitalizationDetailPage({
   const resolvedParams = use(params)
   const { id } = resolvedParams
 
-  const [hospitalization, setHospitalization] = useState<HospitalizationDetail | null>(null)
-  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<
     'overview' | 'vitals' | 'treatments' | 'feedings' | 'timeline'
   >('overview')
-  const [saving, setSaving] = useState(false)
 
   const router = useRouter()
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    fetchHospitalization()
-  }, [id])
-
-  const fetchHospitalization = async (): Promise<void> => {
-    setLoading(true)
-    try {
+  // React Query: Fetch hospitalization
+  const {
+    data: hospitalization,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['hospitalization', id],
+    queryFn: async (): Promise<HospitalizationDetail> => {
       const response = await fetch(`/api/hospitalizations/${id}`)
       if (!response.ok) throw new Error('Error al cargar hospitalización')
+      return response.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
+
+  // Mutation: Discharge patient
+  const dischargeMutation = useMutation({
+    mutationFn: async (dischargeNotes?: string) => {
+      const response = await fetch(`/api/hospitalizations/${id}/discharge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          discharge_notes: dischargeNotes || undefined,
+        }),
+      })
 
       const data = await response.json()
-      setHospitalization(data)
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching hospitalization:', error)
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al dar de alta')
       }
-      alert('Error al cargar los datos de hospitalización')
-    } finally {
-      setLoading(false)
-    }
-  }
+
+      return data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['hospitalization'] })
+      showToast({
+        title: `Paciente dado de alta exitosamente. Factura ${data.invoice?.invoice_number || ''} generada.`,
+        variant: 'success',
+      })
+
+      if (data.invoice?.id && confirm('¿Desea ver la factura generada ahora?')) {
+        router.push(`/dashboard/invoices/${data.invoice.id}`)
+      } else {
+        router.push('/dashboard/hospital')
+      }
+    },
+    onError: (error) => {
+      showToast({ title: error instanceof Error ? error.message : 'Error al dar de alta al paciente', variant: 'error' })
+    },
+  })
+
+  // Mutation: Generate invoice
+  const invoiceMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/hospitalizations/${id}/invoice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.invoice_id) {
+          // Return special case for existing invoice
+          return { existing: true, invoice_id: data.invoice_id, error: data.error }
+        }
+        throw new Error(data.error || 'Error al generar factura')
+      }
+
+      return { existing: false, invoice: data.invoice }
+    },
+    onSuccess: (data) => {
+      if (data.existing) {
+        if (confirm(`${data.error}. ¿Desea ver la factura existente?`)) {
+          router.push(`/dashboard/invoices/${data.invoice_id}`)
+        }
+      } else {
+        showToast({
+          title: `Factura ${data.invoice.invoice_number} generada exitosamente. Total: ${new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(data.invoice.total)}`,
+          variant: 'success',
+        })
+
+        if (confirm('¿Desea ir a la factura?')) {
+          router.push(`/dashboard/invoices/${data.invoice.id}`)
+        }
+      }
+    },
+    onError: (error) => {
+      showToast({ title: error instanceof Error ? error.message : 'Error al generar factura', variant: 'error' })
+    },
+  })
+
+  const saving = dischargeMutation.isPending || invoiceMutation.isPending
 
   const handleDischarge = async (): Promise<void> => {
     if (
@@ -175,88 +256,16 @@ export default function HospitalizationDetailPage({
       return
 
     const dischargeNotes = prompt('Notas de alta (opcional):')
-    // const dischargeInstructions = prompt('Instrucciones de alta (opcional):');
-
-    setSaving(true)
-    try {
-      // Use the new atomic Discharge & Bill endpoint
-      const response = await fetch(`/api/hospitalizations/${id}/discharge`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          discharge_notes: dischargeNotes || undefined,
-          // discharge_instructions: dischargeInstructions || undefined,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al dar de alta')
-      }
-
-      alert(
-        `Paciente dado de alta exitosamente. Factura ${data.invoice?.invoice_number || ''} generada.`
-      )
-
-      // Redirect to invoice or dash?
-      // User likely wants to clear the bed, so back to dash is fine.
-      // But maybe ask to see invoice
-      if (data.invoice?.id && confirm('¿Desea ver la factura generada ahora?')) {
-        router.push(`/dashboard/invoices/${data.invoice.id}`)
-      } else {
-        router.push('/dashboard/hospital')
-      }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error discharging patient:', error)
-      }
-      alert(error instanceof Error ? error.message : 'Error al dar de alta al paciente')
-    } finally {
-      setSaving(false)
-    }
+    dischargeMutation.mutate(dischargeNotes || undefined)
   }
 
   const handleGenerateInvoice = async (): Promise<void> => {
     if (!confirm('¿Generar factura para esta hospitalización?')) return
+    invoiceMutation.mutate()
+  }
 
-    setSaving(true)
-    try {
-      const response = await fetch(`/api/hospitalizations/${id}/invoice`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (data.invoice_id) {
-          if (confirm(`${data.error}. ¿Desea ver la factura existente?`)) {
-            router.push(`/dashboard/invoices/${data.invoice_id}`)
-          }
-        } else {
-          throw new Error(data.error || 'Error al generar factura')
-        }
-        return
-      }
-
-      alert(
-        `Factura ${data.invoice.invoice_number} generada exitosamente.\nTotal: ${new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(data.invoice.total)}`
-      )
-
-      if (confirm('¿Desea ir a la factura?')) {
-        router.push(`/dashboard/invoices/${data.invoice.id}`)
-      }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error generating invoice:', error)
-      }
-      alert(error instanceof Error ? error.message : 'Error al generar factura')
-    } finally {
-      setSaving(false)
-    }
+  const fetchHospitalization = async (): Promise<void> => {
+    await refetch()
   }
 
   if (loading) {

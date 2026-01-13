@@ -3,6 +3,7 @@
 import type { JSX } from 'react'
 import { useState, useRef, useEffect } from 'react'
 import { X, Check, Edit3, Type, RotateCcw } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface AddConsentModalProps {
   isOpen: boolean
@@ -21,6 +22,7 @@ export default function AddConsentModal({
   onClose,
   onSubmit,
 }: AddConsentModalProps): JSX.Element | null {
+  const { showToast } = useToast()
   const [consentType, setConsentType] = useState('')
   const [scope, setScope] = useState('')
   const [conditions, setConditions] = useState('')
@@ -131,7 +133,11 @@ export default function AddConsentModal({
 
     const signatureData = getSignatureData()
     if (!signatureData) {
-      alert('Debe proporcionar una firma')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: 'Debe proporcionar una firma',
+        variant: 'warning',
+      })
       return
     }
 
@@ -155,7 +161,11 @@ export default function AddConsentModal({
       clearSignature()
       onClose()
     } catch (error) {
-      alert('Error al crear el consentimiento permanente')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: 'Error al crear el consentimiento permanente',
+        variant: 'error',
+      })
     } finally {
       setSubmitting(false)
     }

@@ -1,6 +1,14 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Catalog Approvals Client
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Shield,
   Search,
@@ -123,40 +131,28 @@ function formatCurrency(amount: number): string {
 export default function CatalogApprovalsClient({
   clinic,
 }: CatalogApprovalsClientProps): React.ReactElement {
-  const [products, setProducts] = useState<Product[]>([])
-  const [summary, setSummary] = useState<Summary>({
-    pending: 0,
-    verified: 0,
-    rejected: 0,
-    needs_review: 0,
-  })
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: 25,
-    total: 0,
-    pages: 0,
-    hasNext: false,
-    hasPrev: false,
-  })
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
+  const [page, setPage] = useState(1)
+  const [limit] = useState(25)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<VerificationStatus>('pending')
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showDetail, setShowDetail] = useState(false)
-  const [processing, setProcessing] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const fetchProducts = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch products
+  const {
+    data: productsData,
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['catalog-approvals', statusFilter, page, limit, search],
+    queryFn: async (): Promise<{ products: Product[]; summary: Summary; pagination: Pagination }> => {
       const params = new URLSearchParams({
         status: statusFilter,
-        page: String(pagination.page),
-        limit: String(pagination.limit),
+        page: String(page),
+        limit: String(limit),
       })
 
       if (search) {
@@ -170,36 +166,25 @@ export default function CatalogApprovalsClient({
       }
 
       const data = await response.json()
-      setProducts(data.products || [])
-      setSummary(data.summary || {})
-      setPagination(data.pagination)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching products:', err)
+      return {
+        products: data.products || [],
+        summary: data.summary || { pending: 0, verified: 0, rejected: 0, needs_review: 0 },
+        pagination: data.pagination || { page: 1, limit: 25, total: 0, pages: 0, hasNext: false, hasPrev: false },
       }
-      setError('Error al cargar los productos pendientes')
-    } finally {
-      setLoading(false)
-    }
-  }, [pagination.page, pagination.limit, statusFilter, search])
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  useEffect(() => {
-    fetchProducts()
-  }, [fetchProducts])
-
-  const handleApprove = async (
-    productId: string,
-    action: 'verify' | 'reject' | 'needs_review'
-  ): Promise<void> => {
-    setProcessing(true)
-    try {
-      const body: Record<string, string> = { action }
-      if (action === 'reject' && rejectionReason) {
-        body.rejection_reason = rejectionReason
+  // Mutation: Approve/reject product
+  const approveMutation = useMutation({
+    mutationFn: async (params: { productId: string; action: 'verify' | 'reject' | 'needs_review'; reason?: string }) => {
+      const body: Record<string, string> = { action: params.action }
+      if (params.action === 'reject' && params.reason) {
+        body.rejection_reason = params.reason
       }
 
-      const response = await fetch(`/api/admin/products/${productId}/approve`, {
+      const response = await fetch(`/api/admin/products/${params.productId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -209,24 +194,36 @@ export default function CatalogApprovalsClient({
         throw new Error('Error al procesar producto')
       }
 
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['catalog-approvals'] })
       setShowRejectModal(false)
       setRejectionReason('')
       setShowDetail(false)
-      fetchProducts()
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error approving product:', err)
-      }
-      setError('Error al procesar el producto')
-    } finally {
-      setProcessing(false)
-    }
+    },
+  })
+
+  const products = productsData?.products || []
+  const summary = productsData?.summary || { pending: 0, verified: 0, rejected: 0, needs_review: 0 }
+  const pagination = productsData?.pagination || { page: 1, limit: 25, total: 0, pages: 0, hasNext: false, hasPrev: false }
+  const error = queryError?.message || approveMutation.error?.message || null
+  const processing = approveMutation.isPending
+
+  const handleApprove = async (
+    productId: string,
+    action: 'verify' | 'reject' | 'needs_review'
+  ): Promise<void> => {
+    await approveMutation.mutateAsync({
+      productId,
+      action,
+      reason: action === 'reject' ? rejectionReason : undefined,
+    })
   }
 
   const handleSearch = (e: React.FormEvent): void => {
     e.preventDefault()
-    setPagination((prev) => ({ ...prev, page: 1 }))
+    setPage(1)
   }
 
   return (
@@ -249,7 +246,7 @@ export default function CatalogApprovalsClient({
         <button
           onClick={() => {
             setStatusFilter('pending')
-            setPagination((prev) => ({ ...prev, page: 1 }))
+            setPage(1)
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'pending'
@@ -271,7 +268,7 @@ export default function CatalogApprovalsClient({
         <button
           onClick={() => {
             setStatusFilter('verified')
-            setPagination((prev) => ({ ...prev, page: 1 }))
+            setPage(1)
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'verified'
@@ -293,7 +290,7 @@ export default function CatalogApprovalsClient({
         <button
           onClick={() => {
             setStatusFilter('rejected')
-            setPagination((prev) => ({ ...prev, page: 1 }))
+            setPage(1)
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'rejected'
@@ -315,7 +312,7 @@ export default function CatalogApprovalsClient({
         <button
           onClick={() => {
             setStatusFilter('needs_review')
-            setPagination((prev) => ({ ...prev, page: 1 }))
+            setPage(1)
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'needs_review'
@@ -352,7 +349,7 @@ export default function CatalogApprovalsClient({
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value as VerificationStatus)
-              setPagination((prev) => ({ ...prev, page: 1 }))
+              setPage(1)
             }}
             className="focus:ring-[var(--primary)]/20 rounded-xl border border-gray-200 bg-white px-4 py-2.5 focus:border-[var(--primary)] focus:ring-2"
           >
@@ -511,7 +508,7 @@ export default function CatalogApprovalsClient({
                 </p>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+                    onClick={() => setPage((prev) => prev - 1)}
                     disabled={!pagination.hasPrev}
                     className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -521,7 +518,7 @@ export default function CatalogApprovalsClient({
                     {pagination.page} / {pagination.pages}
                   </span>
                   <button
-                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+                    onClick={() => setPage((prev) => prev + 1)}
                     disabled={!pagination.hasNext}
                     className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >

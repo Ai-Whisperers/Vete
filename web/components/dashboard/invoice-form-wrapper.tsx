@@ -1,9 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Invoice Form Wrapper Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hooks
+ */
+
 import { Loader2 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { InvoiceForm } from '@/components/invoices/invoice-form'
 import { getClinicServices, getClinicPets } from '@/app/actions/invoices'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Pet {
   id: string
@@ -37,44 +45,36 @@ export function InvoiceFormWrapper({
   onSuccess,
   onCancel,
 }: InvoiceFormWrapperProps): React.ReactElement {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [pets, setPets] = useState<Pet[]>([])
-  const [services, setServices] = useState<Service[]>([])
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const [servicesResult, petsResult] = await Promise.all([
-          getClinicServices(clinic),
-          getClinicPets(clinic),
-        ])
-
-        if ('error' in servicesResult && servicesResult.error) {
-          setError(servicesResult.error)
-          return
-        }
-
-        if ('error' in petsResult && petsResult.error) {
-          setError(petsResult.error)
-          return
-        }
-
-        setPets(('data' in petsResult ? petsResult.data : []) as Pet[])
-        setServices(('data' in servicesResult ? servicesResult.data : []) as Service[])
-      } catch (err) {
-        setError('Error al cargar datos')
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error(err)
-        }
-      } finally {
-        setLoading(false)
+  // React Query: Fetch services
+  const { data: services = [], isLoading: loadingServices, error: servicesError } = useQuery({
+    queryKey: ['services', clinic],
+    queryFn: async (): Promise<Service[]> => {
+      const result = await getClinicServices(clinic)
+      if ('error' in result && result.error) {
+        throw new Error(result.error)
       }
-    }
+      return ('data' in result ? result.data : []) as Service[]
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    fetchData()
-  }, [clinic])
+  // React Query: Fetch pets
+  const { data: pets = [], isLoading: loadingPets, error: petsError } = useQuery({
+    queryKey: ['pets', clinic, 'for-invoice'],
+    queryFn: async (): Promise<Pet[]> => {
+      const result = await getClinicPets(clinic)
+      if ('error' in result && result.error) {
+        throw new Error(result.error)
+      }
+      return ('data' in result ? result.data : []) as Pet[]
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  const loading = loadingServices || loadingPets
+  const error = servicesError?.message || petsError?.message || null
 
   if (loading) {
     return (

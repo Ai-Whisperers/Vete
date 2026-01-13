@@ -27,7 +27,7 @@ export default async function PrescriptionOrdersPage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/auth/login?returnTo=/${clinic}/dashboard/orders/prescriptions`)
+    redirect(`/${clinic}/portal/login?returnTo=/${clinic}/dashboard/orders/prescriptions`)
   }
 
   // Check if user is staff

@@ -1,8 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Upcoming Vaccines Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Mutation remains as manual action with state
+ */
+
+import { useState, useMemo } from 'react'
 import { Syringe, ChevronRight, Bell, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface VaccineReminder {
   pet_id: string
@@ -21,32 +32,27 @@ interface UpcomingVaccinesProps {
 }
 
 export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
-  const [vaccines, setVaccines] = useState<VaccineReminder[]>([])
-  const [loading, setLoading] = useState(true)
   const [sendingReminders, setSendingReminders] = useState(false)
   const [reminderResult, setReminderResult] = useState<{
     success: boolean
     message: string
   } | null>(null)
 
-  useEffect(() => {
-    const fetchVaccines = async () => {
-      try {
-        // Using existing vaccine endpoint or dashboard-specific endpoint
-        const res = await fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=14`)
-        if (res.ok) {
-          const data = await res.json()
-          setVaccines(data)
-        }
-      } catch {
-        // Error fetching vaccine reminders - silently fail
-      } finally {
-        setLoading(false)
-      }
-    }
+  // React Query: Fetch upcoming vaccines
+  const { data: vaccines = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.vaccines.upcoming(clinic, 14),
+    queryFn: async (): Promise<VaccineReminder[]> => {
+      const res = await fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=14`)
+      if (!res.ok) throw new Error('Error al cargar vacunas')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM, // 2 minutes
+    gcTime: gcTimes.MEDIUM, // 15 minutes
+  })
 
-    fetchVaccines()
-  }, [clinic])
+  // Memoized filtering
+  const overdue = useMemo(() => vaccines.filter((v) => v.is_overdue), [vaccines])
+  const upcoming = useMemo(() => vaccines.filter((v) => !v.is_overdue), [vaccines])
 
   if (loading) {
     return (
@@ -68,9 +74,6 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
       </div>
     )
   }
-
-  const overdue = vaccines.filter((v) => v.is_overdue)
-  const upcoming = vaccines.filter((v) => !v.is_overdue)
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('es-PY', {

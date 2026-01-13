@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { DrugSearch } from '@/components/clinical/drug-search'
 import { DosageCalculator } from '@/components/clinical/dosage-calculator'
 import { DigitalSignature } from '@/components/clinical/digital-signature'
+import { useToast } from '@/components/ui/Toast'
 
 // Dynamic import for PDF Button to avoid SSR issues
 const PrescriptionDownloadButton = dynamic(
@@ -23,6 +24,7 @@ interface PrescriptionFormProps {
 
 export default function NewPrescriptionForm({ clinic, patient, vetName }: PrescriptionFormProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [drugs, setDrugs] = useState<Array<{ name: string; dose: string; instructions: string }>>(
     []
   )
@@ -44,8 +46,14 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
   }
 
   const handleSave = async () => {
-    if (!patient) return alert('Seleccione un paciente')
-    if (!signatureDataUrl) return alert('Por favor, firme la receta para continuar')
+    if (!patient) {
+      showToast({ title: 'Seleccione un paciente', variant: 'warning' })
+      return
+    }
+    if (!signatureDataUrl) {
+      showToast({ title: 'Por favor, firme la receta para continuar', variant: 'warning' })
+      return
+    }
     setIsSaving(true)
 
     try {
@@ -78,7 +86,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
       if (process.env.NODE_ENV === 'development') {
         console.error(e)
       }
-      alert('Error al guardar receta')
+      showToast({ title: 'Error al guardar receta', variant: 'error' })
     } finally {
       setIsSaving(false)
     }

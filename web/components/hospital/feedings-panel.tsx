@@ -3,6 +3,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Save } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface Feeding {
   id: string
@@ -36,6 +37,7 @@ export function FeedingsPanel({
   feedings,
   onFeedingSaved,
 }: FeedingsPanelProps): JSX.Element {
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FeedingForm>({
@@ -76,7 +78,10 @@ export function FeedingsPanel({
       onFeedingSaved()
     } catch (error) {
       console.error('Error saving feeding:', error)
-      alert('Error al guardar alimentación')
+      showToast({
+        title: 'Error al guardar alimentación',
+        variant: 'error',
+      })
     } finally {
       setSaving(false)
     }

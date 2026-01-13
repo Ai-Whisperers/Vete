@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { PetSelector } from './pet-selector'
 import { LineItems } from './line-items'
 import { TotalsSummary } from './totals-summary'
@@ -62,6 +63,7 @@ export function InvoiceForm({
   initialData,
   mode = 'create',
 }: InvoiceFormProps) {
+  const t = useTranslations('invoices.form')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -91,13 +93,13 @@ export function InvoiceForm({
     setError(null)
 
     if (!selectedPetId) {
-      setError('Debe seleccionar una mascota')
+      setError(t('errorSelectPet'))
       setLoading(false)
       return
     }
 
     if (items.length === 0) {
-      setError('Debe agregar al menos un artículo')
+      setError(t('errorAddItem'))
       setLoading(false)
       return
     }
@@ -105,7 +107,7 @@ export function InvoiceForm({
     // Validate items
     const invalidItems = items.filter((i) => !i.description || i.unit_price <= 0)
     if (invalidItems.length > 0) {
-      setError('Todos los artículos deben tener descripción y precio')
+      setError(t('errorItemValidation'))
       setLoading(false)
       return
     }
@@ -134,7 +136,7 @@ export function InvoiceForm({
       }
 
       if (!result.success) {
-        setError(result.error || 'Error al guardar')
+        setError(result.error || t('errorSaving'))
         setLoading(false)
         return
       }
@@ -145,7 +147,7 @@ export function InvoiceForm({
         router.push(`/${clinic}/dashboard/invoices`)
       }
     } catch (e) {
-      setError('Error al guardar la factura')
+      setError(t('errorSavingInvoice'))
       setLoading(false)
     }
   }
@@ -181,8 +183,8 @@ export function InvoiceForm({
               htmlFor="due-date-field"
               className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
             >
-              Fecha de vencimiento{' '}
-              <span className="text-red-600" aria-label="requerido">
+              {t('dueDate')}{' '}
+              <span className="text-red-600" aria-label={t('required')}>
                 *
               </span>
             </label>
@@ -198,11 +200,11 @@ export function InvoiceForm({
               className="focus:ring-[var(--primary)]/20 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             />
             <p id="due-date-help" className="sr-only">
-              Seleccione la fecha de vencimiento de la factura
+              {t('dueDateHelp')}
             </p>
             {error && !dueDate && (
               <p id="due-date-error" role="alert" className="mt-1 text-sm text-red-600">
-                Debe seleccionar una fecha de vencimiento
+                {t('errorSelectDueDate')}
               </p>
             )}
           </div>
@@ -213,7 +215,7 @@ export function InvoiceForm({
               htmlFor="notes-field"
               className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
             >
-              Notas
+              {t('notes')}
             </label>
             <textarea
               id="notes-field"
@@ -221,13 +223,13 @@ export function InvoiceForm({
               onChange={(e) => setNotes(e.target.value)}
               disabled={loading}
               rows={3}
-              placeholder="Notas adicionales para la factura..."
+              placeholder={t('notesPlaceholder')}
               aria-invalid="false"
               aria-describedby="notes-help"
               className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             />
             <p id="notes-help" className="sr-only">
-              Campo opcional para notas adicionales
+              {t('notesHelp')}
             </p>
           </div>
         </div>
@@ -251,7 +253,7 @@ export function InvoiceForm({
           disabled={loading}
           className="rounded-lg px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
         >
-          Cancelar
+          {t('cancel')}
         </button>
         <button
           type="submit"
@@ -261,12 +263,12 @@ export function InvoiceForm({
           {loading ? (
             <>
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
-              Guardando...
+              {t('saving')}
             </>
           ) : (
             <>
               <Icons.Save className="h-4 w-4" />
-              {mode === 'edit' ? 'Guardar cambios' : 'Crear factura'}
+              {mode === 'edit' ? t('saveChanges') : t('createInvoice')}
             </>
           )}
         </button>

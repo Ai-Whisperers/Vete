@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { Search, X, Loader2 } from 'lucide-react'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -42,16 +43,19 @@ interface SearchFieldProps<T> {
 }
 
 export function SearchField<T>({
-  placeholder = 'Buscar...',
+  placeholder,
   onSearch,
   renderItem,
   onSelect,
   minChars = 2,
   debounceMs = 300,
-  emptyMessage = 'No se encontraron resultados',
+  emptyMessage,
   className = '',
   autoFocus = false,
 }: SearchFieldProps<T>) {
+  const t = useTranslations('common')
+  const resolvedPlaceholder = placeholder ?? t('search') + '...'
+  const resolvedEmptyMessage = emptyMessage ?? t('noResults')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<T[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -154,9 +158,9 @@ export function SearchField<T>({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setIsOpen(true)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           className="pl-10 pr-10"
-          aria-label={placeholder}
+          aria-label={resolvedPlaceholder}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           role="combobox"
@@ -169,7 +173,7 @@ export function SearchField<T>({
           <button
             onClick={clearSearch}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-            aria-label="Limpiar búsqueda"
+            aria-label={t('clearSearch')}
           >
             <X className="h-4 w-4" />
           </button>
@@ -199,7 +203,7 @@ export function SearchField<T>({
               </li>
             ))
           ) : (
-            <li className="px-4 py-2 text-[var(--text-secondary)]">{emptyMessage}</li>
+            <li className="px-4 py-2 text-[var(--text-secondary)]">{resolvedEmptyMessage}</li>
           )}
         </ul>
       )}

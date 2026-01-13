@@ -65,6 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!dueSubscriptions || dueSubscriptions.length === 0) {
       logger.info('No subscriptions due for processing')
       return NextResponse.json({
+        success: true,
         message: 'No subscriptions to process',
         ...results,
       })
@@ -345,7 +346,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           total,
         })
 
-        // TODO: Send order confirmation email to customer
+        // Send order confirmation email to customer
+        try {
+          await sendNotification({
+            type: 'order_confirmation',
+            recipientId: subscription.customer_id,
+            recipientType: 'owner',
+            tenantId: subscription.tenant_id,
+            title: '¡Pedido de suscripción confirmado!',
+            message: `Tu pedido automático ${orderNumber} ha sido procesado por ₲ ${total.toLocaleString('es-PY')}.`,
+            channels: ['in_app', 'email'],
+            data: {
+              orderNumber,
+              total,
+              productName: product.name,
+              quantity: subscription.quantity,
+              nextRenewal: nextOrderDate.toISOString().split('T')[0],
+            },
+            actionUrl: `/${subscription.tenant_id}/portal/orders`,
+          })
+        } catch (notifError) {
+          // Don't fail the subscription processing if notification fails
+          logger.warn(`Failed to send subscription order notification for ${subscription.id}`, {
+            error: notifError instanceof Error ? notifError.message : 'Unknown',
+          })
+        }
       } catch (e) {
         results.failed++
         const message = e instanceof Error ? e.message : 'Unknown error'

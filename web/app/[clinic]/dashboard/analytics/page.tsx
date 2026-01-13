@@ -17,6 +17,7 @@ import {
   ArrowDownRight,
   ShoppingCart,
   ArrowRight,
+  Download,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -36,6 +37,7 @@ import {
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
 import { useFeatureFlags, FeatureGate, UpgradePrompt } from '@/lib/features'
+import { AnalyticsExportModal } from '@/components/analytics/analytics-pdf'
 
 interface Stats {
   revenue: {
@@ -75,6 +77,7 @@ export default function AnalyticsPage(): React.ReactElement {
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<Stats | null>(null)
   const [chartData, setChartData] = useState<ChartData | null>(null)
+  const [showExportModal, setShowExportModal] = useState(false)
   const t = useTranslations('dashboard.analytics')
   const locale = useLocale()
   const { hasFeature, isLoading: featuresLoading, tierId } = useFeatureFlags()
@@ -227,24 +230,35 @@ export default function AnalyticsPage(): React.ReactElement {
           </div>
         </div>
 
-        {/* Period Selector */}
-        <div
-          className="flex items-center gap-2 rounded-lg p-1"
-          style={{ backgroundColor: 'var(--bg-subtle)' }}
-        >
-          {(['week', 'month', 'quarter'] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                period === p
-                  ? 'bg-white text-[var(--text-primary)] shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              {t(`period.${p}`)}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          {/* Export Button */}
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="flex items-center gap-2 rounded-lg border border-[var(--border-color)] bg-white px-4 py-2 text-sm font-medium text-[var(--text-primary)] shadow-sm transition-colors hover:bg-gray-50"
+          >
+            <Download className="h-4 w-4" />
+            {t('export')}
+          </button>
+
+          {/* Period Selector */}
+          <div
+            className="flex items-center gap-2 rounded-lg p-1"
+            style={{ backgroundColor: 'var(--bg-subtle)' }}
+          >
+            {(['week', 'month', 'quarter'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  period === p
+                    ? 'bg-white text-[var(--text-primary)] shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {t(`period.${p}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -423,28 +437,84 @@ export default function AnalyticsPage(): React.ReactElement {
         </div>
       </div>
 
-      {/* Store Analytics Link */}
-      <Link
-        href={`/${clinic}/dashboard/analytics/store`}
-        className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-[var(--primary)] bg-opacity-10 p-3">
-              <ShoppingCart className="h-8 w-8 text-[var(--primary)]" />
+      {/* Analytics Navigation Links */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Store Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/store`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-[var(--primary)] bg-opacity-10 p-3">
+                <ShoppingCart className="h-8 w-8 text-[var(--primary)]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('storeAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('storeAnalytics.subtitle')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                {t('storeAnalytics.title')}
-              </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
-                {t('storeAnalytics.subtitle')}
-              </p>
-            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--primary)]" />
           </div>
-          <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--primary)]" />
-        </div>
-      </Link>
+        </Link>
+
+        {/* Patient Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/patients`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-green-100 p-3">
+                <PawPrint className="h-8 w-8 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('patientAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('patientAnalytics.subtitle')}
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-green-600" />
+          </div>
+        </Link>
+
+        {/* Operations Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/operations`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-purple-100 p-3">
+                <Activity className="h-8 w-8 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('operationsAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('operationsAnalytics.subtitle')}
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-purple-600" />
+          </div>
+        </Link>
+      </div>
+
+      {/* Export Modal */}
+      <AnalyticsExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        clinicName={clinic}
+      />
     </div>
   )
 }

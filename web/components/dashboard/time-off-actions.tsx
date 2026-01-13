@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/Toast'
 
 interface TimeOffActionsProps {
   requestId: string
@@ -12,6 +13,7 @@ interface TimeOffActionsProps {
 export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): React.ReactElement {
   const [isLoading, setIsLoading] = useState<'approve' | 'reject' | null>(null)
   const router = useRouter()
+  const { showToast } = useToast()
 
   const handleAction = async (action: 'approved' | 'rejected'): Promise<void> => {
     setIsLoading(action === 'approved' ? 'approve' : 'reject')
@@ -26,10 +28,18 @@ export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): Reac
       if (response.ok) {
         router.refresh()
       } else {
-        alert('Error al actualizar la solicitud')
+        // BUG-009: Replace alert with toast notification
+        showToast({
+          title: 'Error al actualizar la solicitud',
+          variant: 'error',
+        })
       }
     } catch {
-      alert('Error de conexión')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: 'Error de conexión',
+        variant: 'error',
+      })
     } finally {
       setIsLoading(null)
     }

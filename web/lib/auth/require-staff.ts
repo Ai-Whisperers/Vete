@@ -21,7 +21,7 @@ interface StaffUser {
  * Requires user to be authenticated staff (vet or admin).
  * Optionally verifies they belong to a specific tenant.
  *
- * @param tenantId - Optional tenant ID to verify access
+ * @param tenantId - Tenant ID for redirect URL and access verification
  * @returns Staff user data with profile information
  * @throws Redirects to login if not authenticated, or to portal if not staff
  */
@@ -34,7 +34,8 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
     error,
   } = await supabase.auth.getUser()
   if (error || !user) {
-    redirect('/auth/login')
+    // Redirect to clinic-specific login if tenantId provided, otherwise home
+    redirect(tenantId ? `/${tenantId}/portal/login` : '/')
   }
 
   // Get user profile
@@ -45,7 +46,8 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
     .single()
 
   if (!profile) {
-    redirect('/auth/login')
+    // Redirect to clinic-specific login if tenantId provided, otherwise home
+    redirect(tenantId ? `/${tenantId}/portal/login` : '/')
   }
 
   // Verify staff role (vet or admin)

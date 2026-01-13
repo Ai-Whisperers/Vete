@@ -1,8 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Add to PO Modal Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hooks
+ * - Replaced manual mutation with useMutation hook
+ */
+
+import { useState } from 'react'
 import { X, Loader2, Building2, Package, Plus, ShoppingCart, FileText } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Supplier {
   id: string
@@ -38,10 +48,7 @@ export function AddToPOModal({
   suggestedQuantity = 10,
 }: AddToPOModalProps): React.ReactElement | null {
   const { toast } = useToast()
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [draftOrders, setDraftOrders] = useState<DraftOrder[]>([])
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const queryClient = useQueryClient()
 
   // Form state
   const [selectedOrderId, setSelectedOrderId] = useState<string>('')
@@ -50,42 +57,147 @@ export function AddToPOModal({
   const [quantity, setQuantity] = useState(suggestedQuantity)
   const [unitCost, setUnitCost] = useState(0)
 
-  // Fetch draft orders and suppliers
-  useEffect(() => {
-    if (!isOpen) return
+  // React Query: Fetch draft orders
+  const { data: ordersData, isLoading: loadingOrders } = useQuery({
+    queryKey: ['procurement', 'orders', 'draft'],
+    queryFn: async (): Promise<{ orders: DraftOrder[] }> => {
+      const res = await fetch('/api/procurement/orders?status=draft')
+      if (!res.ok) throw new Error('Error al cargar órdenes')
+      return res.json()
+    },
+    enabled: isOpen,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const [ordersRes, suppliersRes] = await Promise.all([
-          fetch('/api/procurement/orders?status=draft'),
-          fetch('/api/suppliers?status=verified'),
-        ])
+  // React Query: Fetch suppliers
+  const { data: suppliersData, isLoading: loadingSuppliers } = useQuery({
+    queryKey: ['suppliers', 'verified'],
+    queryFn: async (): Promise<{ suppliers: Supplier[] }> => {
+      const res = await fetch('/api/suppliers?status=verified')
+      if (!res.ok) throw new Error('Error al cargar proveedores')
+      return res.json()
+    },
+    enabled: isOpen,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-        if (ordersRes.ok) {
-          const ordersData = await ordersRes.json()
-          setDraftOrders(ordersData.orders || [])
-        }
+  const draftOrders = ordersData?.orders || []
+  const suppliers = suppliersData?.suppliers || []
+  const loading = loadingOrders || loadingSuppliers
 
-        if (suppliersRes.ok) {
-          const suppliersData = await suppliersRes.json()
-          setSuppliers(suppliersData.suppliers || [])
-        }
-      } catch {
-        toast({
-          title: 'Error',
-          description: 'No se pudieron cargar los datos',
-          variant: 'destructive',
+  // Mutation: Add to PO
+  const addMutation = useMutation({
+    mutationFn: async (params: {
+      createNew: boolean
+      orderId?: string
+      supplierId?: string
+      productId: string
+      quantity: number
+      unitCost: number
+    }) => {
+      if (params.createNew || !params.orderId) {
+        // Create new PO with this item
+        const res = await fetch('/api/procurement/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            supplier_id: params.supplierId,
+            items: [
+              {
+                catalog_product_id: params.productId,
+                quantity: params.quantity,
+                unit_cost: params.unitCost,
+              },
+            ],
+          }),
         })
-      } finally {
-        setLoading(false)
+
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || 'Error al crear la orden')
+        }
+
+        return { type: 'created' as const }
+      } else {
+        // Add to existing draft order
+        const orderRes = await fetch(`/api/procurement/orders/${params.orderId}`)
+        if (!orderRes.ok) {
+          throw new Error('Error al cargar la orden')
+        }
+        const order = await orderRes.json()
+
+        // Check if product already exists
+        const existingItem = order.purchase_order_items?.find(
+          (item: { catalog_product_id: string }) => item.catalog_product_id === params.productId
+        )
+
+        if (existingItem) {
+          throw new Error('Este producto ya está en la orden de compra')
+        }
+
+        // Delete and recreate with new item
+        const currentItems = order.purchase_order_items.map(
+          (item: { catalog_product_id: string; quantity: number; unit_cost: number }) => ({
+            catalog_product_id: item.catalog_product_id,
+            quantity: item.quantity,
+            unit_cost: item.unit_cost,
+          })
+        )
+
+        await fetch(`/api/procurement/orders/${params.orderId}`, {
+          method: 'DELETE',
+        })
+
+        const createRes = await fetch('/api/procurement/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            supplier_id: order.supplier_id,
+            items: [
+              ...currentItems,
+              {
+                catalog_product_id: params.productId,
+                quantity: params.quantity,
+                unit_cost: params.unitCost,
+              },
+            ],
+            expected_delivery_date: order.expected_delivery_date,
+            shipping_address: order.shipping_address,
+            notes: order.notes,
+          }),
+        })
+
+        if (!createRes.ok) {
+          const data = await createRes.json()
+          throw new Error(data.error || 'Error al actualizar la orden')
+        }
+
+        return { type: 'added' as const }
       }
-    }
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['procurement', 'orders'] })
+      toast({
+        title: result.type === 'created' ? 'Orden Creada' : 'Producto Agregado',
+        description: result.type === 'created'
+          ? `Se creó una nueva orden de compra con ${productName}`
+          : `Se agregó ${productName} a la orden de compra`,
+      })
+      onSuccess()
+      onClose()
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Error al procesar la solicitud',
+        variant: 'destructive',
+      })
+    },
+  })
 
-    fetchData()
-  }, [isOpen, toast])
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (quantity <= 0) {
@@ -106,126 +218,23 @@ export function AddToPOModal({
       return
     }
 
-    setSubmitting(true)
-
-    try {
-      if (createNew || !selectedOrderId) {
-        // Create new PO with this item
-        if (!newSupplierId) {
-          toast({
-            title: 'Error',
-            description: 'Selecciona un proveedor',
-            variant: 'destructive',
-          })
-          setSubmitting(false)
-          return
-        }
-
-        const res = await fetch('/api/procurement/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            supplier_id: newSupplierId,
-            items: [
-              {
-                catalog_product_id: productId,
-                quantity,
-                unit_cost: unitCost,
-              },
-            ],
-          }),
-        })
-
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || 'Error al crear la orden')
-        }
-
-        toast({
-          title: 'Orden Creada',
-          description: `Se creó una nueva orden de compra con ${productName}`,
-        })
-      } else {
-        // Add to existing draft order
-        // First, get the order details to check current items
-        const orderRes = await fetch(`/api/procurement/orders/${selectedOrderId}`)
-        if (!orderRes.ok) {
-          throw new Error('Error al cargar la orden')
-        }
-        const order = await orderRes.json()
-
-        // Check if product already exists in order
-        const existingItem = order.purchase_order_items?.find(
-          (item: { catalog_product_id: string }) => item.catalog_product_id === productId
-        )
-
-        if (existingItem) {
-          toast({
-            title: 'Producto ya existe',
-            description: 'Este producto ya está en la orden de compra',
-            variant: 'destructive',
-          })
-          setSubmitting(false)
-          return
-        }
-
-        // Add item via direct insertion (need API support)
-        // For now, we'll use a workaround: delete and recreate the order with new item
-        const currentItems = order.purchase_order_items.map(
-          (item: { catalog_product_id: string; quantity: number; unit_cost: number }) => ({
-            catalog_product_id: item.catalog_product_id,
-            quantity: item.quantity,
-            unit_cost: item.unit_cost,
-          })
-        )
-
-        // Delete old order
-        await fetch(`/api/procurement/orders/${selectedOrderId}`, {
-          method: 'DELETE',
-        })
-
-        // Create new order with all items
-        const createRes = await fetch('/api/procurement/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            supplier_id: order.supplier_id,
-            items: [
-              ...currentItems,
-              {
-                catalog_product_id: productId,
-                quantity,
-                unit_cost: unitCost,
-              },
-            ],
-            expected_delivery_date: order.expected_delivery_date,
-            shipping_address: order.shipping_address,
-            notes: order.notes,
-          }),
-        })
-
-        if (!createRes.ok) {
-          const data = await createRes.json()
-          throw new Error(data.error || 'Error al actualizar la orden')
-        }
-
-        toast({
-          title: 'Producto Agregado',
-          description: `Se agregó ${productName} a la orden de compra`,
-        })
-      }
-
-      onSuccess()
-      onClose()
-    } catch (err) {
+    if ((createNew || !selectedOrderId) && !newSupplierId) {
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Error al procesar la solicitud',
+        description: 'Selecciona un proveedor',
         variant: 'destructive',
       })
-    } finally {
-      setSubmitting(false)
+      return
     }
+
+    addMutation.mutate({
+      createNew: createNew || !selectedOrderId,
+      orderId: selectedOrderId,
+      supplierId: newSupplierId,
+      productId,
+      quantity,
+      unitCost,
+    })
   }
 
   if (!isOpen) return null
@@ -409,16 +418,16 @@ export function AddToPOModal({
                 type="button"
                 onClick={onClose}
                 className="rounded-lg border border-gray-200 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                disabled={submitting}
+                disabled={addMutation.isPending}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                disabled={submitting || (!createNew && !selectedOrderId) || (createNew && !newSupplierId)}
+                disabled={addMutation.isPending || (!createNew && !selectedOrderId) || (createNew && !newSupplierId)}
                 className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {addMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 Agregar a OC
               </button>
             </div>

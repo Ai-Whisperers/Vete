@@ -4,6 +4,7 @@ import { useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useTranslations } from 'next-intl'
 
 export interface SlideOverProps {
   isOpen: boolean
@@ -34,6 +35,7 @@ export function SlideOver({
   className,
   footer,
 }: SlideOverProps): React.ReactElement | null {
+  const t = useTranslations('common')
   const panelRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<Element | null>(null)
 
@@ -179,7 +181,7 @@ export function SlideOver({
                   <button
                     onClick={onClose}
                     className="-mr-2 shrink-0 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-                    aria-label="Cerrar panel"
+                    aria-label={t('closePanel')}
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -217,12 +219,15 @@ interface SlideOverFooterProps {
 export function SlideOverFooter({
   onCancel,
   onSubmit,
-  cancelLabel = 'Cancelar',
-  submitLabel = 'Guardar',
+  cancelLabel,
+  submitLabel,
   isSubmitting = false,
   submitDisabled = false,
   submitVariant = 'primary',
 }: SlideOverFooterProps): React.ReactElement {
+  const t = useTranslations('common')
+  const cancel = cancelLabel || t('cancel')
+  const submit = submitLabel || t('save')
   const submitStyles = {
     primary:
       'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 shadow-lg hover:shadow-xl',
@@ -237,7 +242,7 @@ export function SlideOverFooter({
         disabled={isSubmitting}
         className="rounded-xl px-4 py-2.5 font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
       >
-        {cancelLabel}
+        {cancel}
       </button>
       {onSubmit && (
         <button
@@ -249,7 +254,7 @@ export function SlideOverFooter({
             submitStyles[submitVariant]
           )}
         >
-          {isSubmitting ? 'Guardando...' : submitLabel}
+          {isSubmitting ? t('saving') : submit}
         </button>
       )}
     </div>

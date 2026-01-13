@@ -3,16 +3,7 @@ import { withApiAuth, isStaff, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { logger } from '@/lib/logger'
-
-interface InvoiceItem {
-  service_id?: string
-  product_id?: string
-  description: string
-  quantity: number
-  unit_price: number
-  discount_percent?: number
-  line_total?: number
-}
+import { createInvoiceSchema } from '@/lib/schemas/invoice'
 
 // GET /api/invoices - List invoices for a clinic
 export const GET = withApiAuth(async ({ user, profile, supabase, request }) => {
@@ -122,14 +113,27 @@ export const POST = withApiAuth(
         }
       }
 
-      const body = await request.json()
-      const { pet_id, items, notes, due_date } = body
+      let body
+      try {
+        body = await request.json()
+      } catch {
+        return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+      }
 
-      if (!pet_id || !items || !Array.isArray(items) || items.length === 0) {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-          details: { required: ['pet_id', 'items'] },
+      // VALID-004: Validate with Zod schema
+      const validation = createInvoiceSchema.safeParse(body)
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            errors: validation.error.issues.map((i) => ({
+              field: i.path.join('.'),
+              message: i.message,
+            })),
+          },
         })
       }
+
+      const { pet_id, items, notes, due_date, tax_rate: bodyTaxRate } = validation.data
 
       // Verify pet belongs to clinic
       const { data: pet } = await supabase
@@ -148,33 +152,30 @@ export const POST = withApiAuth(
         p_tenant_id: profile.tenant_id,
       })
 
-      // SEC-022: Validate discount percentage bounds for all items
-      for (const item of items) {
-        const discount = item.discount_percent || 0
-        if (discount < 0 || discount > 100) {
-          return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-            details: { field: 'discount_percent', message: 'El descuento debe estar entre 0 y 100%' },
-          })
-        }
-      }
+      // SEC-022: Discount percentage bounds now validated by Zod schema (0-100)
 
       // Calculate totals with proper rounding
       const { roundCurrency } = await import('@/lib/types/invoicing')
 
       let subtotal = 0
-      const processedItems = items.map((item: InvoiceItem) => {
+      const processedItems = items.map((item) => {
         const discount = item.discount_percent || 0
         const lineTotal = roundCurrency(item.quantity * item.unit_price * (1 - discount / 100))
         subtotal += lineTotal
         return {
-          ...item,
+          service_id: item.service_id || null,
+          product_id: item.product_id || null,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount_percent: item.discount_percent || 0,
           line_total: lineTotal,
         }
       })
 
       subtotal = roundCurrency(subtotal)
 
-      const taxRate = body.tax_rate || 10 // Default 10% IVA
+      const taxRate = bodyTaxRate ?? 10 // Default 10% IVA from schema
       const taxAmount = roundCurrency(subtotal * (taxRate / 100))
       const total = roundCurrency(subtotal + taxAmount)
 
@@ -203,16 +204,10 @@ export const POST = withApiAuth(
 
       if (invoiceError) throw invoiceError
 
-      // Create invoice items
-      const invoiceItems = processedItems.map((item: InvoiceItem) => ({
+      // Create invoice items (add invoice_id to each processed item)
+      const invoiceItems = processedItems.map((item) => ({
+        ...item,
         invoice_id: invoice.id,
-        service_id: item.service_id || null,
-        product_id: item.product_id || null,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        discount_percent: item.discount_percent || 0,
-        line_total: item.line_total,
       }))
 
       const { error: itemsError } = await supabase.from('invoice_items').insert(invoiceItems)

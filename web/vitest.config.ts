@@ -9,6 +9,8 @@ export default defineConfig({
       '@': resolve(__dirname, './'),
       // Mock redis module for tests (optional dependency)
       redis: resolve(__dirname, './tests/__mocks__/redis.ts'),
+      // Mock server-only to allow testing server components/routes
+      'server-only': resolve(__dirname, './tests/__mocks__/server-only.ts'),
     },
   },
   test: {

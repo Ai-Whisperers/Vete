@@ -1,8 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Notification Settings Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   Bell,
@@ -26,67 +34,70 @@ interface NotificationSettings {
   whatsapp_enabled: boolean
 }
 
+const defaultSettings: NotificationSettings = {
+  email_vaccine_reminders: true,
+  email_appointment_reminders: true,
+  email_promotions: false,
+  sms_vaccine_reminders: false,
+  sms_appointment_reminders: true,
+  whatsapp_enabled: true,
+}
+
 export default function NotificationSettingsPage(): React.ReactElement {
   const params = useParams()
   const router = useRouter()
   const clinic = params?.clinic as string
+  const queryClient = useQueryClient()
 
-  const [settings, setSettings] = useState<NotificationSettings>({
-    email_vaccine_reminders: true,
-    email_appointment_reminders: true,
-    email_promotions: false,
-    sms_vaccine_reminders: false,
-    sms_appointment_reminders: true,
-    whatsapp_enabled: true,
-  })
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [localSettings, setLocalSettings] = useState<NotificationSettings | null>(null)
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await fetch(`/api/user/notification-settings?clinic=${clinic}`)
-        if (res.ok) {
-          const data = await res.json()
-          setSettings(data)
-        }
-      } catch (err) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching settings:', err)
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchSettings()
-  }, [clinic])
+  // React Query: Fetch notification settings
+  const { data: fetchedSettings, isLoading: loading } = useQuery({
+    queryKey: ['notification-settings', clinic],
+    queryFn: async (): Promise<NotificationSettings> => {
+      const res = await fetch(`/api/user/notification-settings?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar configuración')
+      return res.json()
+    },
+    staleTime: staleTimes.LONG,
+    gcTime: gcTimes.LONG,
+  })
 
-  const handleToggle = (key: keyof NotificationSettings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
-    setSaved(false)
-  }
+  // Use local settings if modified, otherwise use fetched data
+  const settings = localSettings || fetchedSettings || defaultSettings
 
-  const handleSave = async () => {
-    setSaving(true)
-    setError(null)
-    try {
+  // Mutation: Save settings
+  const saveMutation = useMutation({
+    mutationFn: async (newSettings: NotificationSettings) => {
       const res = await fetch('/api/user/notification-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clinic, settings }),
+        body: JSON.stringify({ clinic, settings: newSettings }),
       })
       if (!res.ok) throw new Error('Failed to save')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notification-settings', clinic] })
+      setLocalSettings(null)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      setError('Error al guardar. Intenta de nuevo.')
-    } finally {
-      setSaving(false)
-    }
+    },
+  })
+
+  const handleToggle = (key: keyof NotificationSettings) => {
+    const newSettings = { ...settings, [key]: !settings[key] }
+    setLocalSettings(newSettings)
+    setSaved(false)
   }
+
+  const handleSave = () => {
+    saveMutation.mutate(settings)
+  }
+
+  const saving = saveMutation.isPending
+  const error = saveMutation.error ? 'Error al guardar. Intenta de nuevo.' : null
 
   if (loading) {
     return (

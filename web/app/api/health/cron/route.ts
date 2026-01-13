@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getCronJobStatus } from '@/lib/services/cron-tracker'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 30
@@ -150,28 +150,19 @@ function checkJobHealth(
 
 export async function GET() {
   try {
-    const supabase = await createClient()
+    // Get actual job status from cron tracking table
+    const cronStatus = await getCronJobStatus()
+    const statusByName = new Map(cronStatus.map((s) => [s.job_name, s]))
 
-    // In a production system, you'd have a cron_job_runs table
-    // For now, we return static definitions with unknown status
-    // since we don't have execution history tracking yet
-
-    // TODO: Add cron_job_runs table and track executions
-    // const { data: lastRuns } = await supabase
-    //   .from('cron_job_runs')
-    //   .select('job_name, completed_at')
-    //   .order('completed_at', { ascending: false })
-
-    // Build health status for each job
+    // Build health status for each job using real tracking data
     const jobs: JobHealth[] = CRON_JOBS.map((jobDef) => {
-      // Since we don't have run tracking yet, return unknown status
-      return {
-        name: jobDef.name,
-        description: jobDef.description,
-        healthy: true, // Assume healthy until we have tracking
-        status: 'unknown' as const,
-        message: 'Tracking de ejecución no implementado',
+      const status = statusByName.get(jobDef.name)
+
+      if (!status || !status.last_run_at) {
+        return checkJobHealth(jobDef, null)
       }
+
+      return checkJobHealth(jobDef, new Date(status.last_run_at))
     })
 
     // Check if any critical jobs are unhealthy

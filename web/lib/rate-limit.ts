@@ -44,6 +44,18 @@ export const RATE_LIMITS = {
     maxRequests: 5,
     message: 'Demasiados intentos de pago. Intente de nuevo en',
   },
+  // SEC-026: Cart operations (higher limit for frequent syncs)
+  cart: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 60, // Allow frequent cart updates
+    message: 'Demasiadas operaciones de carrito. Intente de nuevo en',
+  },
+  // SEC-027: Booking request rate limit
+  booking: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 5, // 5 bookings per hour is generous
+    message: 'Demasiadas solicitudes de reserva. Intente de nuevo en',
+  },
   default: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,
@@ -437,6 +449,51 @@ export function withRateLimit<T>(
 
     return response
   }
+}
+
+/**
+ * Rate limit result for server actions (without NextResponse)
+ */
+export interface ActionRateLimitResult {
+  success: boolean
+  error?: string
+  retryAfter?: number
+}
+
+/**
+ * Apply rate limiting to a server action using user ID
+ * SEC-027: Rate limiting for server actions where NextRequest is not available
+ *
+ * @param userId - User ID to rate limit
+ * @param limitType - Type of rate limit to apply
+ * @returns Result object with success flag and optional error message
+ *
+ * @example
+ * ```typescript
+ * // In a server action
+ * const rateLimitResult = await rateLimitByUser(user.id, 'booking');
+ * if (!rateLimitResult.success) {
+ *   return { success: false, error: rateLimitResult.error };
+ * }
+ * ```
+ */
+export async function rateLimitByUser(
+  userId: string,
+  limitType: RateLimitType = 'default'
+): Promise<ActionRateLimitResult> {
+  const identifier = `user:${userId}`
+  const { isLimited, retryAfter } = await checkRateLimit(identifier, limitType)
+
+  if (isLimited) {
+    const config = RATE_LIMITS[limitType]
+    return {
+      success: false,
+      error: `${config.message} ${retryAfter} segundos.`,
+      retryAfter,
+    }
+  }
+
+  return { success: true }
 }
 
 /**

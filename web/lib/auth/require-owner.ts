@@ -20,7 +20,7 @@ interface OwnerUser {
  * Requires user to be authenticated as a pet owner.
  * Optionally verifies they belong to a specific tenant.
  *
- * @param tenantId - Optional tenant ID to verify access
+ * @param tenantId - Tenant ID for redirect URL and access verification
  * @returns Owner user data with profile information
  * @throws Redirects to login if not authenticated, or to clinic home if wrong tenant
  */
@@ -33,7 +33,8 @@ export async function requireOwner(tenantId?: string): Promise<OwnerUser> {
     error,
   } = await supabase.auth.getUser()
   if (error || !user) {
-    redirect('/auth/login')
+    // Redirect to clinic-specific login if tenantId provided, otherwise home
+    redirect(tenantId ? `/${tenantId}/portal/login` : '/')
   }
 
   // Get user profile
@@ -44,7 +45,8 @@ export async function requireOwner(tenantId?: string): Promise<OwnerUser> {
     .single()
 
   if (!profile) {
-    redirect('/auth/login')
+    // Redirect to clinic-specific login if tenantId provided, otherwise home
+    redirect(tenantId ? `/${tenantId}/portal/login` : '/')
   }
 
   // Verify tenant access if specified

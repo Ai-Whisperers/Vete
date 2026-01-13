@@ -7,6 +7,8 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useToast } from '@/components/ui/Toast'
 import { CreditCard, Plus, Building2, Loader2, AlertCircle } from 'lucide-react'
 import { PaymentMethodCard, PaymentMethodCardSkeleton } from './payment-method-card'
 import type { TenantPaymentMethod } from '@/lib/billing/types'
@@ -28,6 +30,8 @@ export function PaymentMethodsManager({
   onShowBankDetails,
   onRefresh,
 }: PaymentMethodsManagerProps): React.ReactElement {
+  const t = useTranslations('billing.paymentMethods')
+  const { showToast } = useToast()
   const [methods, setMethods] = useState<TenantPaymentMethod[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,13 +50,13 @@ export function PaymentMethodsManager({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al cargar metodos de pago')
+        throw new Error(data.error?.message || t('errors.loadMethods'))
       }
 
       const data = await response.json()
       setMethods(data.methods || [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error desconocido')
+      setError(e instanceof Error ? e.message : t('errors.unknown'))
     } finally {
       setIsLoading(false)
     }
@@ -66,18 +70,22 @@ export function PaymentMethodsManager({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al establecer metodo principal')
+        throw new Error(data.error?.message || t('errors.setDefault'))
       }
 
       await loadPaymentMethods()
       onRefresh()
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error desconocido')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: e instanceof Error ? e.message : t('errors.unknown'),
+        variant: 'error',
+      })
     }
   }
 
   async function handleDelete(methodId: string): Promise<void> {
-    if (!confirm('¿Estas seguro de eliminar este metodo de pago?')) return
+    if (!confirm(t('confirmDelete'))) return
 
     try {
       setDeletingId(methodId)
@@ -88,13 +96,17 @@ export function PaymentMethodsManager({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al eliminar metodo de pago')
+        throw new Error(data.error?.message || t('errors.deleteFailed'))
       }
 
       await loadPaymentMethods()
       onRefresh()
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error desconocido')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: e instanceof Error ? e.message : t('errors.unknown'),
+        variant: 'error',
+      })
     } finally {
       setDeletingId(null)
     }
@@ -110,8 +122,8 @@ export function PaymentMethodsManager({
               <CreditCard className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div>
-              <h2 className="font-semibold text-[var(--text-primary)]">Tarjetas</h2>
-              <p className="text-sm text-[var(--text-muted)]">Para pagos automaticos</p>
+              <h2 className="font-semibold text-[var(--text-primary)]">{t('cards')}</h2>
+              <p className="text-sm text-[var(--text-muted)]">{t('cardsDescription')}</p>
             </div>
           </div>
 
@@ -120,7 +132,7 @@ export function PaymentMethodsManager({
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-dark)]"
           >
             <Plus className="h-4 w-4" />
-            Agregar Tarjeta
+            {t('addCard')}
           </button>
         </div>
 
@@ -139,10 +151,10 @@ export function PaymentMethodsManager({
             <div className="py-8 text-center">
               <CreditCard className="mx-auto h-12 w-12 text-[var(--text-muted)]" />
               <p className="mt-4 text-[var(--text-secondary)]">
-                No tienes tarjetas registradas
+                {t('noCardsRegistered')}
               </p>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                Agrega una tarjeta para habilitar pagos automaticos
+                {t('addCardHint')}
               </p>
             </div>
           ) : (
@@ -171,8 +183,8 @@ export function PaymentMethodsManager({
               <Building2 className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-[var(--text-primary)]">Transferencia Bancaria</h2>
-              <p className="text-sm text-[var(--text-muted)]">Pago manual por transferencia</p>
+              <h2 className="font-semibold text-[var(--text-primary)]">{t('bankTransfer')}</h2>
+              <p className="text-sm text-[var(--text-muted)]">{t('bankTransferDescription')}</p>
             </div>
           </div>
 
@@ -180,15 +192,14 @@ export function PaymentMethodsManager({
             onClick={onShowBankDetails}
             className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
           >
-            Ver Instrucciones
+            {t('viewInstructions')}
           </button>
         </div>
 
         <div className="p-6">
           <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
             <p className="text-sm text-[var(--text-secondary)]">
-              Puedes pagar tus facturas mediante transferencia bancaria. Haz clic en "Ver Instrucciones"
-              para obtener los datos de la cuenta y como reportar tu pago.
+              {t('bankTransferInfo')}
             </p>
           </div>
         </div>
@@ -202,9 +213,9 @@ export function PaymentMethodsManager({
               <CreditCard className="h-4 w-4 text-green-600" />
             </div>
             <div>
-              <p className="font-medium text-green-800">Pago automatico activado</p>
+              <p className="font-medium text-green-800">{t('autoPayEnabled')}</p>
               <p className="mt-1 text-sm text-green-700">
-                Tus facturas se cobraran automaticamente a tu tarjeta principal el dia de vencimiento.
+                {t('autoPayInfo')}
               </p>
             </div>
           </div>

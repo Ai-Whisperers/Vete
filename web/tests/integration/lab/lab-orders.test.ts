@@ -109,6 +109,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET, POST } from '@/app/api/lab-orders/route'
+
 // Helper to create GET request with query params
 function createGetRequest(params?: Record<string, string>): NextRequest {
   const searchParams = new URLSearchParams(params)

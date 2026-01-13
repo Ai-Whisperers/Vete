@@ -1,9 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+/**
+ * Insurance Dashboard Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   FileText,
   DollarSign,
@@ -49,91 +56,75 @@ interface DashboardStats {
 }
 
 export default function InsuranceDashboardPage() {
-  const supabase = createClient()
   const router = useRouter()
-
-  const [loading, setLoading] = useState(true)
-  const [claims, setClaims] = useState<Claim[]>([])
-  const [stats, setStats] = useState<DashboardStats>({
-    pending_count: 0,
-    pending_value: 0,
-    awaiting_docs_count: 0,
-    recently_paid_count: 0,
-    recently_paid_value: 0,
-  })
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [searchTrigger, setSearchTrigger] = useState(0)
 
-  useEffect(() => {
-    checkAuth()
-    loadData()
-  }, [statusFilter])
+  // React Query: Fetch claims with filters
+  const { data: claimsData, isLoading: claimsLoading, refetch: refetchClaims } = useQuery({
+    queryKey: ['insurance-claims', statusFilter, searchTrigger],
+    queryFn: async (): Promise<{ data: Claim[] }> => {
+      const url = new URL('/api/insurance/claims', window.location.origin)
+      if (statusFilter) {
+        url.searchParams.set('status', statusFilter)
+      }
+      if (searchQuery) {
+        url.searchParams.set('search', searchQuery)
+      }
+      const response = await fetch(url.toString())
+      if (!response.ok) throw new Error('Error al cargar reclamos')
+      return response.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  const checkAuth = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) {
-      router.push('/')
-    }
-  }
-
-  const loadData = async () => {
-    setLoading(true)
-
-    // Load claims
-    const url = new URL('/api/insurance/claims', window.location.origin)
-    if (statusFilter) {
-      url.searchParams.set('status', statusFilter)
-    }
-    if (searchQuery) {
-      url.searchParams.set('search', searchQuery)
-    }
-
-    const response = await fetch(url.toString())
-    if (response.ok) {
+  // React Query: Fetch all claims for stats calculation
+  const { data: statsData } = useQuery({
+    queryKey: ['insurance-claims-stats'],
+    queryFn: async (): Promise<DashboardStats> => {
+      const response = await fetch('/api/insurance/claims?limit=1000')
+      if (!response.ok) throw new Error('Error al cargar estadísticas')
       const result = await response.json()
-      setClaims(result.data || [])
-    }
+      const allClaims: Claim[] = result.data || []
 
-    // Calculate stats from claims
-    const allClaimsResponse = await fetch('/api/insurance/claims?limit=1000')
-    if (allClaimsResponse.ok) {
-      const allClaimsResult = await allClaimsResponse.json()
-      const allClaims = allClaimsResult.data || []
-
-      const pendingClaims = allClaims.filter((c: Claim) =>
+      const pendingClaims = allClaims.filter((c) =>
         ['submitted', 'under_review'].includes(c.status)
       )
-      const awaitingDocsClaims = allClaims.filter((c: Claim) => c.status === 'pending_documents')
-      const recentlyPaidClaims = allClaims.filter((c: Claim) => {
+      const awaitingDocsClaims = allClaims.filter((c) => c.status === 'pending_documents')
+      const recentlyPaidClaims = allClaims.filter((c) => {
         if (c.status !== 'paid') return false
         const thirtyDaysAgo = new Date()
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
         return new Date(c.created_at) >= thirtyDaysAgo
       })
 
-      setStats({
+      return {
         pending_count: pendingClaims.length,
-        pending_value: pendingClaims.reduce(
-          (sum: number, c: Claim) => sum + (c.claimed_amount || 0),
-          0
-        ),
+        pending_value: pendingClaims.reduce((sum, c) => sum + (c.claimed_amount || 0), 0),
         awaiting_docs_count: awaitingDocsClaims.length,
         recently_paid_count: recentlyPaidClaims.length,
-        recently_paid_value: recentlyPaidClaims.reduce(
-          (sum: number, c: Claim) => sum + (c.paid_amount || 0),
-          0
-        ),
-      })
-    }
+        recently_paid_value: recentlyPaidClaims.reduce((sum, c) => sum + (c.paid_amount || 0), 0),
+      }
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    setLoading(false)
+  const claims = claimsData?.data || []
+  const stats = statsData || {
+    pending_count: 0,
+    pending_value: 0,
+    awaiting_docs_count: 0,
+    recently_paid_count: 0,
+    recently_paid_value: 0,
   }
+  const loading = claimsLoading
 
   const handleSearch = () => {
-    loadData()
+    setSearchTrigger((prev) => prev + 1)
   }
 
   if (loading) {

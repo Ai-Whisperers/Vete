@@ -1,8 +1,18 @@
 'use client'
 
+/**
+ * Offer Slot Modal Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Replaced manual mutation with useMutation hook
+ */
+
 import { useState, useEffect } from 'react'
 import { X, Calendar, Clock, Send, Loader2, AlertCircle } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface WaitlistEntry {
   id: string
@@ -33,63 +43,77 @@ export function OfferSlotModal({
   onSuccess,
 }: OfferSlotModalProps): React.ReactElement {
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [loadingSlots, setLoadingSlots] = useState(true)
-  const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([])
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [expiresInHours, setExpiresInHours] = useState(2)
 
-  // Fetch available cancelled/rescheduled appointments
-  useEffect(() => {
-    const fetchSlots = async () => {
-      setLoadingSlots(true)
-      try {
-        // Fetch cancelled appointments for the same date/service
-        const res = await fetch(
-          `/api/appointments?` +
-            new URLSearchParams({
-              date: entry.preferred_date,
-              service_id: entry.service.id,
-              status: 'cancelled',
-            })
-        )
-
-        if (!res.ok) throw new Error('Error loading slots')
-
-        const data = await res.json()
-
-        // Transform appointments to slots
-        const slots: AvailableSlot[] = (data.appointments || []).map(
-          (apt: {
-            id: string
-            start_time: string
-            end_time: string
-            vet?: { full_name: string }
-          }) => ({
-            id: apt.id,
-            start_time: apt.start_time,
-            end_time: apt.end_time,
-            vet_name: apt.vet?.full_name || 'Sin asignar',
+  // React Query: Fetch available cancelled/rescheduled appointments
+  const { data: slotsData, isLoading: loadingSlots } = useQuery({
+    queryKey: ['appointments', 'available-slots', entry.preferred_date, entry.service.id],
+    queryFn: async (): Promise<{ appointments: Array<{ id: string; start_time: string; end_time: string; vet?: { full_name: string } }> }> => {
+      const res = await fetch(
+        `/api/appointments?` +
+          new URLSearchParams({
+            date: entry.preferred_date,
+            service_id: entry.service.id,
+            status: 'cancelled',
           })
-        )
+      )
+      if (!res.ok) throw new Error('Error loading slots')
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-        setAvailableSlots(slots)
+  // Transform appointments to slots
+  const availableSlots: AvailableSlot[] = (slotsData?.appointments || []).map((apt) => ({
+    id: apt.id,
+    start_time: apt.start_time,
+    end_time: apt.end_time,
+    vet_name: apt.vet?.full_name || 'Sin asignar',
+  }))
 
-        // Auto-select first slot
-        if (slots.length > 0) {
-          setSelectedSlot(slots[0].id)
-        }
-      } catch (error) {
-        console.error('Error fetching slots:', error)
-      } finally {
-        setLoadingSlots(false)
-      }
+  // Auto-select first slot when data loads
+  useEffect(() => {
+    if (availableSlots.length > 0 && !selectedSlot) {
+      setSelectedSlot(availableSlots[0].id)
     }
+  }, [availableSlots, selectedSlot])
 
-    fetchSlots()
-  }, [entry])
+  // Mutation: Offer slot to waitlist entry
+  const offerMutation = useMutation({
+    mutationFn: async (params: { appointmentId: string; expiresInHours: number }) => {
+      const res = await fetch(`/api/appointments/waitlist/${entry.id}/offer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointment_id: params.appointmentId,
+          expires_in_hours: params.expiresInHours,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al ofrecer')
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Oferta enviada',
+        description: `Se notificó al cliente. Tiene ${expiresInHours} horas para responder.`,
+      })
+      onSuccess()
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'No se pudo enviar la oferta',
+        variant: 'destructive',
+      })
+    },
+  })
 
-  const handleOffer = async () => {
+  const handleOffer = () => {
     if (!selectedSlot) {
       toast({
         title: 'Selecciona una cita',
@@ -98,37 +122,7 @@ export function OfferSlotModal({
       })
       return
     }
-
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/appointments/waitlist/${entry.id}/offer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          appointment_id: selectedSlot,
-          expires_in_hours: expiresInHours,
-        }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Error al ofrecer')
-      }
-
-      toast({
-        title: 'Oferta enviada',
-        description: `Se notificó al cliente. Tiene ${expiresInHours} horas para responder.`,
-      })
-      onSuccess()
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'No se pudo enviar la oferta',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
-    }
+    offerMutation.mutate({ appointmentId: selectedSlot, expiresInHours })
   }
 
   const formatTime = (dateStr: string): string => {
@@ -273,10 +267,10 @@ export function OfferSlotModal({
           </button>
           <button
             onClick={handleOffer}
-            disabled={loading || !selectedSlot}
+            disabled={offerMutation.isPending || !selectedSlot}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? (
+            {offerMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />

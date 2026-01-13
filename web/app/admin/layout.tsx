@@ -21,7 +21,9 @@ export default async function AdminLayout({
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/auth/login?redirect=/admin')
+    // Platform admins should log in through their clinic's portal first
+    // then navigate to /admin. Redirect to home for guidance.
+    redirect('/?returnTo=/admin')
   }
 
   // Check for platform_admin role

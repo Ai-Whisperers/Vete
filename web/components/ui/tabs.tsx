@@ -24,7 +24,10 @@ function useTabsContext(): TabsContextValue {
 
 // Main Tabs Container
 interface TabsProps {
-  defaultTab: string
+  /** Default active tab ID */
+  defaultTab?: string
+  /** Alias for defaultTab (shadcn compatibility) */
+  defaultValue?: string
   variant?: 'underline' | 'pills' | 'cards' | 'minimal'
   size?: 'sm' | 'md' | 'lg'
   onChange?: (tabId: string) => void
@@ -34,13 +37,15 @@ interface TabsProps {
 
 export function Tabs({
   defaultTab,
+  defaultValue,
   variant = 'underline',
   size = 'md',
   onChange,
   className,
   children,
 }: TabsProps): React.ReactElement {
-  const [activeTab, setActiveTab] = useState(defaultTab)
+  const initialTab = defaultTab ?? defaultValue ?? ''
+  const [activeTab, setActiveTab] = useState(initialTab)
 
   const handleTabChange = (id: string): void => {
     setActiveTab(id)
@@ -94,7 +99,10 @@ export function TabList({
 
 // Individual Tab Trigger
 interface TabTriggerProps {
-  id: string
+  /** Tab ID */
+  id?: string
+  /** Alias for id (shadcn compatibility) */
+  value?: string
   icon?: keyof typeof Icons
   count?: number
   disabled?: boolean
@@ -104,6 +112,7 @@ interface TabTriggerProps {
 
 export function TabTrigger({
   id,
+  value,
   icon,
   count,
   disabled = false,
@@ -111,7 +120,8 @@ export function TabTrigger({
   children,
 }: TabTriggerProps): React.ReactElement {
   const { activeTab, setActiveTab, variant, size } = useTabsContext()
-  const isActive = activeTab === id
+  const tabId = id ?? value ?? ''
+  const isActive = activeTab === tabId
 
   const IconComponent = icon ? (Icons[icon] as React.ComponentType<{ className?: string }>) : null
 
@@ -151,10 +161,10 @@ export function TabTrigger({
     <button
       role="tab"
       aria-selected={isActive}
-      aria-controls={`panel-${id}`}
-      id={`tab-${id}`}
+      aria-controls={`panel-${tabId}`}
+      id={`tab-${tabId}`}
       disabled={disabled}
-      onClick={() => !disabled && setActiveTab(id)}
+      onClick={() => !disabled && setActiveTab(tabId)}
       className={cn(
         'flex min-h-[44px] snap-start items-center whitespace-nowrap font-bold',
         sizes.padding,
@@ -184,22 +194,26 @@ export function TabTrigger({
 
 // Tab Panel (content container)
 interface TabPanelProps {
-  id: string
+  /** Panel ID */
+  id?: string
+  /** Alias for id (shadcn compatibility) */
+  value?: string
   className?: string
   children: ReactNode
 }
 
-export function TabPanel({ id, className, children }: TabPanelProps): React.ReactElement | null {
+export function TabPanel({ id, value, className, children }: TabPanelProps): React.ReactElement | null {
   const { activeTab } = useTabsContext()
-  const isActive = activeTab === id
+  const panelId = id ?? value ?? ''
+  const isActive = activeTab === panelId
 
   if (!isActive) return null
 
   return (
     <div
       role="tabpanel"
-      id={`panel-${id}`}
-      aria-labelledby={`tab-${id}`}
+      id={`panel-${panelId}`}
+      aria-labelledby={`tab-${panelId}`}
       className={cn('animate-in fade-in-0 duration-200', className)}
     >
       {children}
@@ -262,6 +276,11 @@ export function PetProfileTabs({
 
 // Convenience export for tab panels
 export { TabPanel as PetTabPanel }
+
+// Shadcn-style aliases for compatibility
+export { TabList as TabsList }
+export { TabTrigger as TabsTrigger }
+export { TabPanel as TabsContent }
 
 // ============================================
 // Dashboard Specific Tabs

@@ -84,7 +84,7 @@ export type ProductQueryParams = z.infer<typeof productQuerySchema>
 // ============================================
 
 /**
- * Schema for cart item
+ * Schema for basic cart item (product_id + quantity only)
  */
 export const cartItemSchema = z.object({
   product_id: uuidSchema,
@@ -92,6 +92,47 @@ export const cartItemSchema = z.object({
 })
 
 export type CartItem = z.infer<typeof cartItemSchema>
+
+/**
+ * SEC-028: Schema for full cart item structure (used in cart sync/merge)
+ * This validates the complete cart item as stored in localStorage/database
+ */
+export const fullCartItemSchema = z.object({
+  id: uuidSchema,
+  name: z.string().min(1, 'Nombre requerido').max(255, 'Nombre muy largo'),
+  price: z.coerce.number().nonnegative('Precio debe ser positivo').finite(),
+  quantity: z.coerce.number().int().min(1, 'Cantidad mínima es 1').max(100, 'Cantidad máxima es 100'),
+  type: z.enum(['service', 'product']),
+  image_url: z.string().url().optional().nullable(),
+  stock: z.coerce.number().int().nonnegative().optional().nullable(),
+  sku: z.string().max(100).optional().nullable(),
+  requires_prescription: z.coerce.boolean().optional(),
+  pet_id: uuidSchema.optional().nullable(),
+  pet_name: z.string().max(100).optional().nullable(),
+  service_id: uuidSchema.optional().nullable(),
+  variant_name: z.string().max(100).optional().nullable(),
+  prescription_file_url: z.string().url().optional().nullable(),
+})
+
+export type FullCartItem = z.infer<typeof fullCartItemSchema>
+
+/**
+ * SEC-028: Schema for cart PUT request (sync cart items)
+ */
+export const cartSyncSchema = z.object({
+  items: z.array(fullCartItemSchema).max(50, 'Máximo 50 items en el carrito'),
+})
+
+export type CartSyncInput = z.infer<typeof cartSyncSchema>
+
+/**
+ * SEC-028: Schema for cart POST request (merge carts)
+ */
+export const cartMergeSchema = z.object({
+  items: z.array(fullCartItemSchema).max(50, 'Máximo 50 items en el carrito'),
+})
+
+export type CartMergeInput = z.infer<typeof cartMergeSchema>
 
 /**
  * Schema for adding to cart

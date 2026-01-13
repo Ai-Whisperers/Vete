@@ -90,6 +90,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET, PATCH } from '@/app/api/lost-pets/route'
+
 // Helper to create GET request
 function createGetRequest(status?: string): NextRequest {
   const params = new URLSearchParams()

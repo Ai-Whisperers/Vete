@@ -1,11 +1,19 @@
 'use client'
 
+/**
+ * Consent Detail Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
 import type { JSX } from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import { pdf } from '@react-pdf/renderer'
 import { ConsentPDF } from '@/components/consents/consent-pdf'
+import { useToast } from '@/components/ui/Toast'
 import {
   FileText,
   Calendar,
@@ -76,64 +84,45 @@ interface ConsentDocument {
 }
 
 export default function ConsentDetailPage(): JSX.Element {
-  const [consent, setConsent] = useState<ConsentDocument | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [revoking, setRevoking] = useState(false)
   const [showRevokeModal, setShowRevokeModal] = useState(false)
   const [revocationReason, setRevocationReason] = useState('')
   const router = useRouter()
   const params = useParams()
-  const supabase = createClient()
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
   const consentId = params?.id as string
 
-  useEffect(() => {
-    if (consentId) {
-      fetchConsent()
-    }
-  }, [consentId])
-
-  const fetchConsent = async (): Promise<void> => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session?.user) {
-        router.push('/')
-        return
-      }
-
+  // React Query: Fetch consent
+  const {
+    data: consent,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['consent', consentId],
+    queryFn: async (): Promise<ConsentDocument> => {
       const response = await fetch(`/api/consents/${consentId}`)
       if (!response.ok) {
         throw new Error('Error al cargar consentimiento')
       }
+      return response.json()
+    },
+    enabled: !!consentId,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-      const data = await response.json()
-      setConsent(data)
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching consent:', error)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRevoke = async (): Promise<void> => {
-    if (!consent) return
-
-    setRevoking(true)
-
-    try {
-      const response = await fetch(`/api/consents/${consent.id}`, {
+  // Mutation: Revoke consent
+  const revokeMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      const response = await fetch(`/api/consents/${consentId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           action: 'revoke',
-          reason: revocationReason,
+          reason,
         }),
       })
 
@@ -141,19 +130,27 @@ export default function ConsentDetailPage(): JSX.Element {
         throw new Error('Error al revocar consentimiento')
       }
 
-      // Refresh consent data
-      await fetchConsent()
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consent', consentId] })
       setShowRevokeModal(false)
       setRevocationReason('')
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error revoking consent:', error)
-      }
-      alert('Error al revocar el consentimiento')
-    } finally {
-      setRevoking(false)
-    }
+    },
+    onError: () => {
+      showToast({ title: 'Error al revocar el consentimiento', variant: 'error' })
+    },
+  })
+
+  const revoking = revokeMutation.isPending
+
+  const handleRevoke = async (): Promise<void> => {
+    if (!consent) return
+    await revokeMutation.mutateAsync(revocationReason)
+  }
+
+  const fetchConsent = async (): Promise<void> => {
+    await refetch()
   }
 
   const handleDownloadPDF = async (): Promise<void> => {
@@ -210,13 +207,13 @@ export default function ConsentDetailPage(): JSX.Element {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error generating PDF:', error)
       }
-      alert('Error al generar el PDF')
+      showToast({ title: 'Error al generar el PDF', variant: 'error' })
     }
   }
 
   const handleSendEmail = async (): Promise<void> => {
     if (!consent?.owner?.email) {
-      alert('El propietario no tiene correo electrónico registrado')
+      showToast({ title: 'El propietario no tiene correo electrónico registrado', variant: 'warning' })
       return
     }
 
@@ -236,7 +233,7 @@ export default function ConsentDetailPage(): JSX.Element {
         throw new Error(data.error || 'Error al enviar email')
       }
 
-      alert(`Email enviado exitosamente a ${consent.owner.email}`)
+      showToast({ title: `Email enviado exitosamente a ${consent.owner.email}`, variant: 'success' })
 
       // Refresh to update audit log
       fetchConsent()
@@ -245,7 +242,7 @@ export default function ConsentDetailPage(): JSX.Element {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error sending email:', error)
       }
-      alert(error instanceof Error ? error.message : 'Error al enviar email')
+      showToast({ title: error instanceof Error ? error.message : 'Error al enviar email', variant: 'error' })
     }
   }
 

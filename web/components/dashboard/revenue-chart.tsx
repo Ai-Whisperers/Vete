@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Revenue Chart Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ */
+
+import { useMemo } from 'react'
 import {
   BarChart,
   Bar,
@@ -12,6 +19,9 @@ import {
   Cell,
 } from 'recharts'
 import { DollarSign, TrendingUp } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface RevenueData {
   period_month: string
@@ -25,27 +35,49 @@ interface RevenueChartProps {
   clinic: string
 }
 
+function formatMonth(monthStr: string): string {
+  const [year, month] = monthStr.split('-')
+  const date = new Date(parseInt(year), parseInt(month) - 1)
+  return date.toLocaleDateString('es-PY', { month: 'short' })
+}
+
+const colors = ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#EDE9FE', '#F5F3FF']
+
 export function RevenueChart({ clinic }: RevenueChartProps) {
-  const [data, setData] = useState<RevenueData[]>([])
-  const [loading, setLoading] = useState(true)
+  // React Query: Fetch revenue chart data
+  const { data = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.dashboard.revenueChart(clinic, 6),
+    queryFn: async (): Promise<RevenueData[]> => {
+      const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}&months=6`)
+      if (!res.ok) throw new Error('Error al cargar ingresos')
+      const result = await res.json()
+      return result.reverse() // Oldest first for chart
+    },
+    staleTime: staleTimes.LONG, // 10 minutes
+    gcTime: gcTimes.LONG, // 30 minutes
+  })
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}&months=6`)
-        if (res.ok) {
-          const result = await res.json()
-          setData(result.reverse()) // Oldest first for chart
-        }
-      } catch {
-        // Error fetching revenue data - silently fail
-      } finally {
-        setLoading(false)
-      }
+  // Memoized chart data transformations
+  const chartData = useMemo(() => {
+    return data.map((d) => ({
+      ...d,
+      month: formatMonth(d.period_month),
+      revenue: d.total_revenue,
+    }))
+  }, [data])
+
+  const totalRevenue = useMemo(() => data.reduce((sum, d) => sum + d.total_revenue, 0), [data])
+  const avgMonthly = useMemo(() => (data.length > 0 ? totalRevenue / data.length : 0), [data, totalRevenue])
+
+  // Calculate growth
+  const growth = useMemo(() => {
+    if (data.length >= 2) {
+      const current = data[data.length - 1]?.total_revenue || 0
+      const previous = data[data.length - 2]?.total_revenue || 1
+      return ((current - previous) / previous) * 100
     }
-
-    fetchData()
-  }, [clinic])
+    return 0
+  }, [data])
 
   if (loading) {
     return (
@@ -57,31 +89,6 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
       </div>
     )
   }
-
-  const formatMonth = (monthStr: string) => {
-    const [year, month] = monthStr.split('-')
-    const date = new Date(parseInt(year), parseInt(month) - 1)
-    return date.toLocaleDateString('es-PY', { month: 'short' })
-  }
-
-  const chartData = data.map((d) => ({
-    ...d,
-    month: formatMonth(d.period_month),
-    revenue: d.total_revenue,
-  }))
-
-  const totalRevenue = data.reduce((sum, d) => sum + d.total_revenue, 0)
-  const avgMonthly = data.length > 0 ? totalRevenue / data.length : 0
-
-  // Calculate growth
-  let growth = 0
-  if (data.length >= 2) {
-    const current = data[data.length - 1]?.total_revenue || 0
-    const previous = data[data.length - 2]?.total_revenue || 1
-    growth = ((current - previous) / previous) * 100
-  }
-
-  const colors = ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#EDE9FE', '#F5F3FF']
 
   return (
     <div className="rounded-xl bg-[var(--bg-paper)] p-6 shadow-sm">

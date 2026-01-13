@@ -78,6 +78,9 @@ vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi.fn().mockResolvedValue({ success: true }),
 }))
 
+// Import routes AFTER mocks
+import { POST as processRefund } from '@/app/api/invoices/[id]/refund/route'
+
 describe('Refund Workflow API', () => {
   beforeEach(() => {
     vi.clearAllMocks()

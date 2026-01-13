@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useCopyTimeout } from '@/lib/hooks'
 import {
   Gift,
   Copy,
@@ -92,6 +93,9 @@ export function AmbassadorDashboard() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // BUG-008: Safe timeout with cleanup for copy feedback
+  useCopyTimeout(copied, () => setCopied(false))
+
   useEffect(() => {
     fetchData()
   }, [])
@@ -133,7 +137,7 @@ export function AmbassadorDashboard() {
     try {
       await navigator.clipboard.writeText(ambassador.referral_code)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      // BUG-008: Timer handled by useCopyTimeout hook
     } catch {
       const textArea = document.createElement('textarea')
       textArea.value = ambassador.referral_code
@@ -142,7 +146,7 @@ export function AmbassadorDashboard() {
       document.execCommand('copy')
       document.body.removeChild(textArea)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      // BUG-008: Timer handled by useCopyTimeout hook
     }
   }
 
@@ -161,7 +165,7 @@ export function AmbassadorDashboard() {
     } else {
       await navigator.clipboard.writeText(ambassador.share_message)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      // BUG-008: Timer handled by useCopyTimeout hook
     }
   }
 

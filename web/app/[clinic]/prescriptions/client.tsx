@@ -1,6 +1,20 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+
+/**
+ * Prescriptions CRUD Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Added useMutation for CRUD operations
+ * - Automatic cache invalidation on mutations
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   FileText,
   Plus,
@@ -33,16 +47,18 @@ interface Prescription {
 type SortField = 'drug_name' | 'pet_name' | 'prescribed_at' | 'status'
 type SortDirection = 'asc' | 'desc'
 
-const STATUS_CONFIG = {
-  active: { label: 'Activa', color: 'bg-green-100 text-green-700' },
-  completed: { label: 'Completada', color: 'bg-gray-100 text-gray-700' },
-  cancelled: { label: 'Cancelada', color: 'bg-red-100 text-red-700' },
+const STATUS_COLORS = {
+  active: 'bg-green-100 text-green-700',
+  completed: 'bg-gray-100 text-gray-700',
+  cancelled: 'bg-red-100 text-red-700',
 }
 
 export default function PrescriptionsClient() {
+  const t = useTranslations('prescriptions')
+  const tc = useTranslations('common')
   const { user, loading } = useAuthRedirect()
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('prescribed_at')
@@ -60,29 +76,68 @@ export default function PrescriptionsClient() {
   const [formDuration, setFormDuration] = useState('')
   const [formInstructions, setFormInstructions] = useState('')
 
-  const fetchPrescriptions = async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch('/api/prescriptions')
-      if (res.ok) {
-        const data = await res.json()
-        setPrescriptions(data)
+  // React Query for data fetching
+  const { data: prescriptions = [], isLoading } = useQuery({
+    queryKey: queryKeys.clinical.prescriptions(),
+    queryFn: async (): Promise<Prescription[]> => {
+      const response = await fetch('/api/prescriptions')
+      if (!response.ok) {
+        throw new Error('Error al cargar recetas')
       }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching prescriptions:', error)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      return response.json()
+    },
+    enabled: !loading && !!user,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  useEffect(() => {
-    if (!loading && user) {
-      fetchPrescriptions()
-    }
-  }, [loading, user])
+  // Mutation for adding prescriptions
+  const addMutation = useMutation({
+    mutationFn: async (payload: Omit<Prescription, 'id'>) => {
+      const response = await fetch('/api/prescriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al crear receta')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.prescriptions() })
+    },
+  })
+
+  // Mutation for updating prescriptions
+  const updateMutation = useMutation({
+    mutationFn: async (payload: Partial<Prescription> & { id: string }) => {
+      const response = await fetch('/api/prescriptions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al actualizar receta')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.prescriptions() })
+    },
+  })
+
+  // Mutation for deleting prescriptions
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch('/api/prescriptions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!response.ok) throw new Error('Error al eliminar receta')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.prescriptions() })
+    },
+  })
 
   // Filter and sort
   const filteredPrescriptions = useMemo(() => {
@@ -178,21 +233,17 @@ export default function PrescriptionsClient() {
     const payload = {
       drug_name: formDrugName,
       dosage: formDosage,
-      frequency: formFrequency || null,
-      duration: formDuration || null,
-      instructions: formInstructions || null,
-      status: 'active',
+      frequency: formFrequency || undefined,
+      duration: formDuration || undefined,
+      instructions: formInstructions || undefined,
+      status: 'active' as const,
     }
-    const res = await fetch('/api/prescriptions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    addMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowAddModal(false)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowAddModal(false)
-      resetForm()
-      fetchPrescriptions()
-    }
   }
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -203,39 +254,29 @@ export default function PrescriptionsClient() {
       id: editingPrescription.id,
       drug_name: formDrugName,
       dosage: formDosage,
-      frequency: formFrequency || null,
-      duration: formDuration || null,
-      instructions: formInstructions || null,
+      frequency: formFrequency || undefined,
+      duration: formDuration || undefined,
+      instructions: formInstructions || undefined,
     }
-    const res = await fetch('/api/prescriptions', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowEditModal(false)
+        setEditingPrescription(null)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowEditModal(false)
-      setEditingPrescription(null)
-      resetForm()
-      fetchPrescriptions()
-    }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta receta?')) return
-
-    await fetch('/api/prescriptions', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    fetchPrescriptions()
+    if (!confirm(t('confirmDelete'))) return
+    deleteMutation.mutate(id)
   }
 
   const getStatusBadge = (status?: string) => {
-    const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.active
+    const colorClass = STATUS_COLORS[status as keyof typeof STATUS_COLORS] || STATUS_COLORS.active
     return (
-      <span className={`rounded-full px-2 py-1 text-xs font-bold ${config.color}`}>
-        {config.label}
+      <span className={`rounded-full px-2 py-1 text-xs font-bold ${colorClass}`}>
+        {t(`status.${status || 'active'}`)}
       </span>
     )
   }
@@ -272,28 +313,25 @@ export default function PrescriptionsClient() {
               <FileText className="h-8 w-8" />
             </div>
             <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium backdrop-blur-sm">
-              Sistema Médico
+              {t('medicalSystem')}
             </span>
           </div>
 
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Recetas Médicas</h1>
-          <p className="max-w-2xl text-xl text-white/90">
-            Crea, gestiona e imprime recetas médicas para tus pacientes. Controla dosificaciones y
-            seguimiento de tratamientos.
-          </p>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{t('title')}</h1>
+          <p className="max-w-2xl text-xl text-white/90">{t('description')}</p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <div className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
               <FileText className="h-5 w-5" />
-              <span>{stats.total} recetas</span>
+              <span>{t('totalPrescriptions', { count: stats.total })}</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl bg-green-500/50 px-4 py-2 backdrop-blur-sm">
               <Clock className="h-5 w-5" />
-              <span>{stats.active} activas</span>
+              <span>{t('activePrescriptions', { count: stats.active })}</span>
             </div>
             {stats.completed > 0 && (
               <div className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <span>{stats.completed} completadas</span>
+                <span>{t('completedPrescriptions', { count: stats.completed })}</span>
               </div>
             )}
           </div>
@@ -310,7 +348,7 @@ export default function PrescriptionsClient() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar por medicamento o paciente..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500"
@@ -323,22 +361,22 @@ export default function PrescriptionsClient() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                aria-label="Filtrar por estado"
+                aria-label={t('statusFilterLabel')}
               >
-                <option value="all">Todos los estados</option>
-                <option value="active">Activas</option>
-                <option value="completed">Completadas</option>
-                <option value="cancelled">Canceladas</option>
+                <option value="all">{t('filter.allStatuses')}</option>
+                <option value="active">{t('filter.active')}</option>
+                <option value="completed">{t('filter.completed')}</option>
+                <option value="cancelled">{t('filter.cancelled')}</option>
               </select>
 
               {/* Add Button */}
               <button
                 onClick={openAddModal}
                 className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-700"
-                aria-label="Crear nueva receta médica"
+                aria-label={t('newPrescriptionAria')}
               >
                 <Plus className="h-5 w-5" />
-                <span className="hidden sm:inline">Nueva Receta</span>
+                <span className="hidden sm:inline">{t('newPrescription')}</span>
               </button>
             </div>
           </div>
@@ -347,7 +385,7 @@ export default function PrescriptionsClient() {
           {(searchTerm || statusFilter !== 'all') && (
             <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
               <span>
-                Mostrando {filteredPrescriptions.length} de {prescriptions.length} recetas
+                {t('showingResults', { showing: filteredPrescriptions.length, total: prescriptions.length })}
               </span>
               <button
                 onClick={() => {
@@ -356,7 +394,7 @@ export default function PrescriptionsClient() {
                 }}
                 className="text-blue-600 hover:underline"
               >
-                Limpiar filtros
+                {t('clearFilters')}
               </button>
             </div>
           )}
@@ -378,13 +416,13 @@ export default function PrescriptionsClient() {
             </div>
             <h3 className="mb-2 text-lg font-bold text-gray-900">
               {searchTerm || statusFilter !== 'all'
-                ? 'No se encontraron recetas'
-                : 'Sin recetas registradas'}
+                ? t('empty.noResults')
+                : t('empty.noRecords')}
             </h3>
             <p className="mb-6 text-gray-600">
               {searchTerm || statusFilter !== 'all'
-                ? 'Intenta con otros términos de búsqueda o filtros.'
-                : 'Comienza creando una nueva receta médica.'}
+                ? t('empty.tryOtherSearch')
+                : t('empty.startCreating')}
             </p>
             {!searchTerm && statusFilter === 'all' && (
               <button
@@ -392,7 +430,7 @@ export default function PrescriptionsClient() {
                 className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-700"
               >
                 <Plus className="h-5 w-5" />
-                Crear Primera Receta
+                {t('createFirst')}
               </button>
             )}
           </div>
@@ -408,7 +446,7 @@ export default function PrescriptionsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        Fecha
+                        {t('table.date')}
                         <SortIcon field="prescribed_at" />
                       </span>
                     </th>
@@ -418,22 +456,22 @@ export default function PrescriptionsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Pill className="h-4 w-4" />
-                        Medicamento
+                        {t('table.medication')}
                         <SortIcon field="drug_name" />
                       </span>
                     </th>
-                    <th className="p-4 text-left font-bold text-gray-700">Dosis</th>
-                    <th className="p-4 text-left font-bold text-gray-700">Indicaciones</th>
+                    <th className="p-4 text-left font-bold text-gray-700">{t('table.dosage')}</th>
+                    <th className="p-4 text-left font-bold text-gray-700">{t('table.instructions')}</th>
                     <th
                       className="cursor-pointer p-4 text-left font-bold text-gray-700 transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('status')}
                     >
                       <span className="flex items-center gap-2">
-                        Estado
+                        {t('table.status')}
                         <SortIcon field="status" />
                       </span>
                     </th>
-                    <th className="p-4 text-right font-bold text-gray-700">Acciones</th>
+                    <th className="p-4 text-right font-bold text-gray-700">{t('table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -456,7 +494,7 @@ export default function PrescriptionsClient() {
                       <td className="p-4">
                         <div className="font-medium text-gray-900">{prescription.drug_name}</div>
                         {prescription.pet_name && (
-                          <div className="text-xs text-gray-500">Para: {prescription.pet_name}</div>
+                          <div className="text-xs text-gray-500">{t('forPet', { name: prescription.pet_name })}</div>
                         )}
                       </td>
                       <td className="p-4">
@@ -474,22 +512,22 @@ export default function PrescriptionsClient() {
                           <button
                             onClick={() => window.print()}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
-                            aria-label={`Imprimir receta de ${prescription.drug_name}`}
-                            title="Imprimir"
+                            aria-label={t('printAria', { drug: prescription.drug_name })}
+                            title={t('print')}
                           >
                             <Printer className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => openEditModal(prescription)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
-                            aria-label={`Editar receta de ${prescription.drug_name}`}
+                            aria-label={t('editAria', { drug: prescription.drug_name })}
                           >
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(prescription.id)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
-                            aria-label={`Eliminar receta de ${prescription.drug_name}`}
+                            aria-label={t('deleteAria', { drug: prescription.drug_name })}
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -507,27 +545,23 @@ export default function PrescriptionsClient() {
         <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 p-6">
           <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-900">
             <AlertCircle className="h-5 w-5 text-blue-600" />
-            Información Importante
+            {t('info.title')}
           </h3>
           <div className="grid gap-4 text-sm text-gray-600 md:grid-cols-2">
             <div>
               <p className="mb-2">
-                <strong>Recetas controladas:</strong> Medicamentos controlados requieren receta
-                especial con copia para el propietario.
+                <strong>{t('info.controlledTitle')}</strong> {t('info.controlledText')}
               </p>
               <p>
-                <strong>Validez:</strong> Las recetas tienen validez de 30 días desde su emisión,
-                excepto antibióticos (10 días).
+                <strong>{t('info.validityTitle')}</strong> {t('info.validityText')}
               </p>
             </div>
             <div>
               <p className="mb-2">
-                <strong>Dosificación:</strong> Siempre verificar peso actual del paciente antes de
-                calcular dosis.
+                <strong>{t('info.dosageTitle')}</strong> {t('info.dosageText')}
               </p>
               <p>
-                <strong>Seguimiento:</strong> Programar revisión post-tratamiento para verificar
-                eficacia.
+                <strong>{t('info.followupTitle')}</strong> {t('info.followupText')}
               </p>
             </div>
           </div>
@@ -544,12 +578,12 @@ export default function PrescriptionsClient() {
                   <div className="rounded-xl bg-blue-100 p-2">
                     <FileText className="h-5 w-5 text-blue-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Nueva Receta</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{t('modal.addTitle')}</h2>
                 </div>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="rounded-lg p-2 transition-colors hover:bg-blue-100"
-                  aria-label="Cerrar modal"
+                  aria-label={tc('close')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -558,12 +592,12 @@ export default function PrescriptionsClient() {
 
             <form onSubmit={handleAdd} className="space-y-4 p-6">
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Medicamento *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.medication')} *</label>
                 <input
                   type="text"
                   value={formDrugName}
                   onChange={(e) => setFormDrugName(e.target.value)}
-                  placeholder="Nombre del medicamento"
+                  placeholder={t('form.medicationPlaceholder')}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -571,24 +605,24 @@ export default function PrescriptionsClient() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Dosis *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.dosage')} *</label>
                   <input
                     type="text"
                     value={formDosage}
                     onChange={(e) => setFormDosage(e.target.value)}
-                    placeholder="Ej: 5mg/kg"
+                    placeholder={t('form.dosagePlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Frecuencia</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.frequency')}</label>
                   <input
                     type="text"
                     value={formFrequency}
                     onChange={(e) => setFormFrequency(e.target.value)}
-                    placeholder="Ej: Cada 12 horas"
+                    placeholder={t('form.frequencyPlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -596,25 +630,25 @@ export default function PrescriptionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Duración del Tratamiento
+                  {t('form.duration')}
                 </label>
                 <input
                   type="text"
                   value={formDuration}
                   onChange={(e) => setFormDuration(e.target.value)}
-                  placeholder="Ej: 7 días"
+                  placeholder={t('form.durationPlaceholder')}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Indicaciones Adicionales
+                  {t('form.instructions')}
                 </label>
                 <textarea
                   value={formInstructions}
                   onChange={(e) => setFormInstructions(e.target.value)}
-                  placeholder="Instrucciones especiales, precauciones, vía de administración..."
+                  placeholder={t('form.instructionsPlaceholder')}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 />
@@ -626,13 +660,13 @@ export default function PrescriptionsClient() {
                   onClick={() => setShowAddModal(false)}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-700"
                 >
-                  Crear Receta
+                  {t('modal.create')}
                 </button>
               </div>
             </form>
@@ -650,7 +684,7 @@ export default function PrescriptionsClient() {
                   <div className="rounded-xl bg-blue-100 p-2">
                     <Edit2 className="h-5 w-5 text-blue-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Editar Receta</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{t('modal.editTitle')}</h2>
                 </div>
                 <button
                   onClick={() => {
@@ -658,7 +692,7 @@ export default function PrescriptionsClient() {
                     setEditingPrescription(null)
                   }}
                   className="rounded-lg p-2 transition-colors hover:bg-blue-100"
-                  aria-label="Cerrar modal"
+                  aria-label={tc('close')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -667,7 +701,7 @@ export default function PrescriptionsClient() {
 
             <form onSubmit={handleEdit} className="space-y-4 p-6">
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Medicamento *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.medication')} *</label>
                 <input
                   type="text"
                   value={formDrugName}
@@ -679,7 +713,7 @@ export default function PrescriptionsClient() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Dosis *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.dosage')} *</label>
                   <input
                     type="text"
                     value={formDosage}
@@ -690,7 +724,7 @@ export default function PrescriptionsClient() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Frecuencia</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.frequency')}</label>
                   <input
                     type="text"
                     value={formFrequency}
@@ -702,7 +736,7 @@ export default function PrescriptionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Duración del Tratamiento
+                  {t('form.duration')}
                 </label>
                 <input
                   type="text"
@@ -714,7 +748,7 @@ export default function PrescriptionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Indicaciones Adicionales
+                  {t('form.instructions')}
                 </label>
                 <textarea
                   value={formInstructions}
@@ -733,13 +767,13 @@ export default function PrescriptionsClient() {
                   }}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-700"
                 >
-                  Guardar Cambios
+                  {t('modal.save')}
                 </button>
               </div>
             </form>

@@ -142,6 +142,54 @@ export const updatePrescriptionStatusSchema = z.object({
 export type UpdatePrescriptionStatusInput = z.infer<typeof updatePrescriptionStatusSchema>
 
 // ============================================
+// API Prescription Schemas (for route handlers)
+// ============================================
+
+/**
+ * Schema for drug item in prescription (API format)
+ * Used when drugs are passed as a JSON array
+ */
+export const prescriptionDrugItemSchema = z.object({
+  name: z.string().min(1, 'Nombre del medicamento requerido').max(200),
+  dosage: z.string().min(1, 'Dosis requerida').max(100),
+  frequency: z.string().min(1, 'Frecuencia requerida').max(100),
+  duration: z.string().max(100).optional(),
+  route: z.string().max(50).optional(),
+  instructions: z.string().max(1000).optional(),
+})
+
+export type PrescriptionDrugItem = z.infer<typeof prescriptionDrugItemSchema>
+
+/**
+ * Schema for creating a prescription via API (multi-drug format)
+ * VALID-004: Used by POST /api/prescriptions
+ */
+export const apiCreatePrescriptionSchema = z.object({
+  pet_id: uuidSchema,
+  drugs: z.array(prescriptionDrugItemSchema)
+    .min(1, 'Debe incluir al menos un medicamento')
+    .max(20, 'Máximo 20 medicamentos por receta'),
+  notes: optionalString(2000),
+  signature_hash: z.string().max(500).optional().nullable(),
+  qr_code_url: z.string().url().max(500).optional().nullable(),
+})
+
+export type ApiCreatePrescriptionInput = z.infer<typeof apiCreatePrescriptionSchema>
+
+/**
+ * Schema for updating a prescription via API
+ * VALID-004: Used by PUT /api/prescriptions
+ */
+export const apiUpdatePrescriptionSchema = z.object({
+  id: uuidSchema,
+  drugs: z.array(prescriptionDrugItemSchema).min(1).max(20).optional(),
+  notes: optionalString(2000),
+  status: enumSchema(PRESCRIPTION_STATUSES, 'Estado').optional(),
+})
+
+export type ApiUpdatePrescriptionInput = z.infer<typeof apiUpdatePrescriptionSchema>
+
+// ============================================
 // Diagnosis Codes
 // ============================================
 

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Printer, Download, Loader2 } from 'lucide-react'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
+import { useToast } from '@/components/ui/Toast'
 
 interface InvoiceItem {
   id: string
@@ -290,6 +291,7 @@ function PortalInvoicePDF({
 
 export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): React.ReactElement {
   const t = useTranslations('portal.invoiceActions')
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const handlePrint = (): void => {
@@ -334,7 +336,7 @@ export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): Re
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch {
-      alert(t('pdfError'))
+      showToast({ title: t('pdfError'), variant: 'error' })
     } finally {
       setLoading(false)
     }

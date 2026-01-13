@@ -6,6 +6,8 @@
  * Displays full invoice details in a modal with actions.
  */
 
+import { useLocale, useTranslations } from 'next-intl'
+import { useToast } from '@/components/ui/Toast'
 import { Modal, ModalFooter } from '@/components/ui/modal'
 import { InvoiceLineItems } from './invoice-line-items'
 import {
@@ -30,42 +32,22 @@ interface InvoiceDetailModalProps {
 }
 
 /**
- * Format currency
+ * Get status icon and styles (label comes from translations)
  */
-function formatCurrency(amount: number): string {
-  return `₲${amount.toLocaleString('es-PY')}`
-}
-
-/**
- * Format date
- */
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-PY', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-/**
- * Get status info
- */
-function getStatusInfo(status: PlatformInvoiceStatus): {
-  label: string
+function getStatusConfig(status: PlatformInvoiceStatus): {
   icon: React.ComponentType<{ className?: string }>
   className: string
 } {
   const configs: Record<PlatformInvoiceStatus, {
-    label: string
     icon: React.ComponentType<{ className?: string }>
     className: string
   }> = {
-    draft: { label: 'Borrador', icon: FileText, className: 'bg-gray-100 text-gray-700' },
-    sent: { label: 'Enviada', icon: Clock, className: 'bg-blue-100 text-blue-700' },
-    paid: { label: 'Pagada', icon: CheckCircle, className: 'bg-green-100 text-green-700' },
-    overdue: { label: 'Vencida', icon: AlertTriangle, className: 'bg-red-100 text-red-700' },
-    void: { label: 'Anulada', icon: FileText, className: 'bg-gray-100 text-gray-500' },
-    waived: { label: 'Condonada', icon: CheckCircle, className: 'bg-purple-100 text-purple-700' },
+    draft: { icon: FileText, className: 'bg-gray-100 text-gray-700' },
+    sent: { icon: Clock, className: 'bg-blue-100 text-blue-700' },
+    paid: { icon: CheckCircle, className: 'bg-green-100 text-green-700' },
+    overdue: { icon: AlertTriangle, className: 'bg-red-100 text-red-700' },
+    void: { icon: FileText, className: 'bg-gray-100 text-gray-500' },
+    waived: { icon: CheckCircle, className: 'bg-purple-100 text-purple-700' },
   }
   return configs[status]
 }
@@ -78,18 +60,36 @@ export function InvoiceDetailModal({
   onPay,
   onReportTransfer,
 }: InvoiceDetailModalProps): React.ReactElement {
+  const t = useTranslations('billing.invoiceDetail')
+  const locale = useLocale()
+  const { showToast } = useToast()
+
+  // Format currency in Paraguayan Guaranies
+  const formatCurrency = (amount: number): string => {
+    return `₲${amount.toLocaleString(locale === 'es' ? 'es-PY' : 'en-US')}`
+  }
+
+  // Format date
+  const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  }
+
   if (!invoice) {
     return (
-      <Modal isOpen={isOpen} onClose={onClose} title="Factura" size="lg">
+      <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="lg">
         <div className="py-8 text-center text-[var(--text-muted)]">
-          No se encontro la factura
+          {t('notFound')}
         </div>
       </Modal>
     )
   }
 
-  const statusInfo = getStatusInfo(invoice.status)
-  const StatusIcon = statusInfo.icon
+  const statusConfig = getStatusConfig(invoice.status)
+  const StatusIcon = statusConfig.icon
   const canPay = ['sent', 'overdue'].includes(invoice.status)
 
   async function handleDownloadPdf(): Promise<void> {
@@ -98,7 +98,7 @@ export function InvoiceDetailModal({
       const response = await fetch(`/api/billing/invoices/${invoice.id}/pdf?clinic=${clinic}`)
 
       if (!response.ok) {
-        throw new Error('Error al generar PDF')
+        throw new Error(t('errors.generatePdf'))
       }
 
       const blob = await response.blob()
@@ -111,7 +111,11 @@ export function InvoiceDetailModal({
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error al descargar PDF')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: e instanceof Error ? e.message : t('errors.downloadPdf'),
+        variant: 'error',
+      })
     }
   }
 
@@ -119,37 +123,37 @@ export function InvoiceDetailModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Factura ${invoice.invoice_number}`}
+      title={`${t('title')} ${invoice.invoice_number}`}
       size="lg"
     >
       {/* Header Info */}
       <div className="mb-6 flex flex-wrap items-center gap-4">
         {/* Status Badge */}
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${statusInfo.className}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${statusConfig.className}`}
         >
           <StatusIcon className="h-4 w-4" />
-          {statusInfo.label}
+          {t(`status.${invoice.status}`)}
         </span>
 
         {/* Due Date */}
         <div className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
           <Calendar className="h-4 w-4" />
-          <span>Vence: {formatDate(invoice.due_date)}</span>
+          <span>{t('dueDate')}: {formatDate(invoice.due_date)}</span>
         </div>
 
         {/* Paid Date */}
         {invoice.paid_at && (
           <div className="flex items-center gap-1.5 text-sm text-green-600">
             <CheckCircle className="h-4 w-4" />
-            <span>Pagada: {formatDate(invoice.paid_at)}</span>
+            <span>{t('paidDate')}: {formatDate(invoice.paid_at)}</span>
           </div>
         )}
       </div>
 
       {/* Period */}
       <div className="mb-6 rounded-lg bg-[var(--bg-subtle)] p-4">
-        <p className="text-sm text-[var(--text-muted)]">Periodo de facturacion</p>
+        <p className="text-sm text-[var(--text-muted)]">{t('billingPeriod')}</p>
         <p className="font-medium text-[var(--text-primary)]">
           {formatDate(invoice.period_start)} - {formatDate(invoice.period_end)}
         </p>
@@ -168,7 +172,7 @@ export function InvoiceDetailModal({
       {invoice.grace_period_days && invoice.status === 'overdue' && (
         <div className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-4">
           <p className="text-sm font-medium text-orange-800">
-            Periodo de gracia: {invoice.grace_period_days} dias
+            {t('gracePeriod', { days: invoice.grace_period_days })}
           </p>
           {invoice.grace_reason && (
             <p className="mt-1 text-sm text-orange-700">{invoice.grace_reason}</p>
@@ -180,11 +184,11 @@ export function InvoiceDetailModal({
       {invoice.status === 'paid' && invoice.payment_method && (
         <div className="mt-4 rounded-lg bg-green-50 p-4">
           <p className="text-sm text-green-800">
-            <span className="font-medium">Metodo de pago:</span> {invoice.payment_method}
+            <span className="font-medium">{t('paymentMethod')}:</span> {invoice.payment_method}
           </p>
           {invoice.payment_reference && (
             <p className="mt-1 text-sm text-green-700">
-              <span className="font-medium">Referencia:</span> {invoice.payment_reference}
+              <span className="font-medium">{t('paymentReference')}:</span> {invoice.payment_reference}
             </p>
           )}
         </div>
@@ -197,7 +201,7 @@ export function InvoiceDetailModal({
           className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
         >
           <Download className="h-4 w-4" />
-          Descargar PDF
+          {t('downloadPdf')}
         </button>
 
         {canPay && (
@@ -210,7 +214,7 @@ export function InvoiceDetailModal({
               className="inline-flex items-center gap-2 rounded-xl border border-green-500 px-4 py-2 font-medium text-green-600 transition-colors hover:bg-green-50"
             >
               <Building2 className="h-4 w-4" />
-              Reportar Transferencia
+              {t('reportTransfer')}
             </button>
             <button
               onClick={() => {
@@ -220,7 +224,7 @@ export function InvoiceDetailModal({
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 font-bold text-white transition-colors hover:bg-[var(--primary-dark)]"
             >
               <CreditCard className="h-4 w-4" />
-              Pagar Ahora
+              {t('payNow')}
             </button>
           </>
         )}

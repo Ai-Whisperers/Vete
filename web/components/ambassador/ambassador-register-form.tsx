@@ -105,7 +105,7 @@ export function AmbassadorRegisterForm() {
           Revisa tu bandeja de entrada para verificar tu email.
         </p>
         <button
-          onClick={() => router.push('/auth/login')}
+          onClick={() => router.push('/ambassador/login')}
           className="mt-6 rounded-lg bg-green-600 px-6 py-3 font-medium text-white hover:bg-green-700"
         >
           Ir a Iniciar Sesión

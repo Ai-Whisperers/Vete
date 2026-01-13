@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Search,
   AlertTriangle,
@@ -25,6 +26,8 @@ interface ToxicFoodSearchProps {
 type SpeciesFilter = Species | 'all'
 
 export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactElement {
+  const t = useTranslations('toxicFoods')
+  const tc = useTranslations('common')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSpecies, setSelectedSpecies] = useState<SpeciesFilter>('all')
   const [selectedToxicity, setSelectedToxicity] = useState<string>('all')
@@ -68,15 +71,15 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
   // Generate Google AI search URL
   const generateAiSearchUrl = useCallback(
     (query: string): string => {
-      const speciesName = selectedSpecies !== 'all' ? SPECIES_LABELS[selectedSpecies] : 'mascotas'
+      const speciesName = selectedSpecies !== 'all' ? SPECIES_LABELS[selectedSpecies] : t('allPets')
 
       const searchQuery = encodeURIComponent(
-        `es ${query} toxico o malo para ${speciesName}? que sintomas causa y que hacer`
+        t('aiSearchQuery', { query, species: speciesName })
       )
 
       return `https://www.google.com/search?q=${searchQuery}`
     },
-    [selectedSpecies]
+    [selectedSpecies, t]
   )
 
   // Handle AI search redirect
@@ -155,14 +158,14 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
           </div>
           <input
             type="text"
-            placeholder="Buscar alimento (ej: chocolate, uvas, cebolla...)"
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value)
               setShowAiPrompt(e.target.value.length > 2)
             }}
             className="w-full rounded-2xl border border-gray-200 py-4 pl-12 pr-6 text-base shadow-sm outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-red-500"
-            aria-label="Buscar alimentos tóxicos"
+            aria-label={t('searchAriaLabel')}
           />
         </div>
 
@@ -176,18 +179,18 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
               <div className="flex-1">
                 <p className="mb-1 font-medium text-gray-800">
                   {filteredItems.length === 0
-                    ? `No encontramos "${searchTerm}" en nuestra base de datos`
-                    : '¿Necesitas más información?'}
+                    ? t('notFoundInDatabase', { term: searchTerm })
+                    : t('needMoreInfo')}
                 </p>
                 <p className="mb-3 text-sm text-gray-600">
-                  Obtén una respuesta detallada de IA sobre la toxicidad de este alimento
+                  {t('aiSearchDescription')}
                 </p>
                 <button
                   onClick={handleAiSearch}
                   className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Preguntar a IA
+                  {t('askAi')}
                   <ExternalLink className="h-3 w-3" />
                 </button>
               </div>
@@ -199,7 +202,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Filter className="h-4 w-4" />
-            <span>Filtrar:</span>
+            <span>{tc('filter')}:</span>
           </div>
 
           {/* Species Filter */}
@@ -207,9 +210,9 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
             value={selectedSpecies}
             onChange={(e) => setSelectedSpecies(e.target.value as SpeciesFilter)}
             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-red-500"
-            aria-label="Filtrar por especie"
+            aria-label={t('filterBySpecies')}
           >
-            <option value="all">Todas las mascotas</option>
+            <option value="all">{t('allPetsOption')}</option>
             {(Object.entries(SPECIES_LABELS) as [Species, string][]).map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
@@ -222,12 +225,12 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
             value={selectedToxicity}
             onChange={(e) => setSelectedToxicity(e.target.value)}
             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-red-500"
-            aria-label="Filtrar por nivel de toxicidad"
+            aria-label={t('filterByToxicity')}
           >
-            <option value="all">Toda toxicidad</option>
-            <option value="Alta">Alta</option>
-            <option value="Media">Media</option>
-            <option value="Baja">Baja</option>
+            <option value="all">{t('allToxicity')}</option>
+            <option value="Alta">{t('toxicity.high')}</option>
+            <option value="Media">{t('toxicity.medium')}</option>
+            <option value="Baja">{t('toxicity.low')}</option>
           </select>
 
           {/* Clear Filters */}
@@ -237,13 +240,13 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
               className="inline-flex items-center gap-1 px-3 py-2 text-sm text-gray-500 transition-colors hover:text-gray-700"
             >
               <X className="h-4 w-4" />
-              Limpiar filtros
+              {t('clearFilters')}
             </button>
           )}
 
           {/* Results Count */}
           <span className="ml-auto text-sm text-gray-400">
-            {filteredItems.length} {filteredItems.length === 1 ? 'resultado' : 'resultados'}
+            {t('resultsCount', { count: filteredItems.length })}
           </span>
         </div>
       </div>
@@ -289,7 +292,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                   <div className="flex items-start gap-2 text-gray-600">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                     <p>
-                      <span className="font-medium">Componente tóxico:</span> {item.toxicComponent}
+                      <span className="font-medium">{t('toxicComponent')}:</span> {item.toxicComponent}
                     </p>
                   </div>
 
@@ -297,21 +300,21 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                   <div className="flex items-start gap-2 text-gray-600">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                     <p>
-                      <span className="font-medium">Síntomas:</span> {item.symptoms}
+                      <span className="font-medium">{t('symptoms')}:</span> {item.symptoms}
                     </p>
                   </div>
 
                   {/* Onset Time */}
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Clock className="h-3 w-3" />
-                    <span>Aparición: {item.onsetTime}</span>
+                    <span>{t('onset')}: {item.onsetTime}</span>
                   </div>
 
                   {/* Urgency */}
                   <div className={`flex items-center gap-2 ${urgency.bg} rounded-lg px-2.5 py-1.5`}>
                     <Clock className={`h-4 w-4 ${urgency.color}`} />
                     <span className={`font-medium ${urgency.color}`}>
-                      Atención {item.treatmentUrgency.toLowerCase()}
+                      {t('attention')} {item.treatmentUrgency.toLowerCase()}
                     </span>
                   </div>
 
@@ -325,7 +328,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                   {/* Lethal Dose if available */}
                   {item.lethalDose && (
                     <p className="rounded bg-red-50 px-2 py-1 text-xs text-red-600">
-                      <span className="font-medium">Dosis peligrosa:</span> {item.lethalDose}
+                      <span className="font-medium">{t('lethalDose')}:</span> {item.lethalDose}
                     </p>
                   )}
                 </div>
@@ -339,7 +342,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                 >
                   <span className="flex items-center gap-2">
                     <Beaker className="h-4 w-4" />
-                    {isExpanded ? 'Ver menos' : 'Ver mecanismo y fuentes'}
+                    {isExpanded ? t('seeLess') : t('seeMechanismAndSources')}
                   </span>
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4" />
@@ -353,7 +356,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                     {/* Mechanism of Action */}
                     <div>
                       <p className="mb-1 text-xs font-bold uppercase tracking-wider text-gray-400">
-                        Mecanismo de acción
+                        {t('mechanismOfAction')}
                       </p>
                       <p className="text-sm text-gray-600">{item.mechanismOfAction}</p>
                     </div>
@@ -362,7 +365,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
                     <div>
                       <p className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-gray-400">
                         <BookOpen className="h-3 w-3" />
-                        Fuentes
+                        {t('sources')}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {item.sources.map((source, idx) => (
@@ -388,15 +391,15 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
         <div className="rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center">
           <Search className="mx-auto mb-4 h-12 w-12 text-gray-300" />
           <h3 className="mb-2 text-lg font-bold text-gray-600">
-            No encontramos &quot;{searchTerm}&quot;
+            {t('notFound', { term: searchTerm })}
           </h3>
-          <p className="mb-4 text-gray-500">Prueba con otro término o usa la búsqueda con IA</p>
+          <p className="mb-4 text-gray-500">{t('tryOtherTerm')}</p>
           <button
             onClick={handleAiSearch}
             className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 font-medium text-white transition-colors hover:bg-purple-700"
           >
             <Sparkles className="h-4 w-4" />
-            Preguntar a IA sobre &quot;{searchTerm}&quot;
+            {t('askAiAbout', { term: searchTerm })}
             <ExternalLink className="h-4 w-4" />
           </button>
         </div>
@@ -406,7 +409,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
       <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
         <p className="mb-2 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-blue-800">
           <BookOpen className="h-4 w-4" />
-          Fuentes Autorizadas
+          {t('authorizedSources')}
         </p>
         <div className="flex flex-wrap gap-2">
           {DATA_SOURCES.map((source) => (
@@ -431,10 +434,9 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps): React.ReactEle
             <Phone className="h-5 w-5 text-red-600" />
           </div>
           <div>
-            <p className="font-bold text-red-800">¿Tu mascota ingirió algo tóxico?</p>
+            <p className="font-bold text-red-800">{t('emergency.title')}</p>
             <p className="text-sm text-red-700">
-              Contacta inmediatamente a tu veterinario o al centro de emergencias más cercano. No
-              induzcas el vómito sin consultar primero.
+              {t('emergency.message')}
             </p>
             <div className="mt-2 flex flex-wrap gap-3 text-sm">
               <span className="font-medium text-red-600">ASPCA Poison Control: (888) 426-4435</span>

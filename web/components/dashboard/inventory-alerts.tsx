@@ -1,7 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Inventory Alerts Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ */
+
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle, Package, Clock, XCircle } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface InventoryAlert {
   product_id: string
@@ -24,30 +35,20 @@ interface InventoryAlertsProps {
 }
 
 export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
-  const [alerts, setAlerts] = useState<AlertsData | null>(null)
-  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'low_stock' | 'expiring'>('all')
 
-  useEffect(() => {
-    const fetchAlerts = async () => {
-      try {
-        const res = await fetch(`/api/dashboard/inventory-alerts?clinic=${clinic}`)
-        if (res.ok) {
-          const data = await res.json()
-          setAlerts(data)
-        }
-      } catch {
-        // Error fetching inventory alerts - silently fail
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAlerts()
-    // Refresh every 10 minutes
-    const interval = setInterval(fetchAlerts, 10 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic])
+  // React Query: Fetch inventory alerts with 10-minute auto-refresh
+  const { data: alerts, isLoading: loading } = useQuery({
+    queryKey: queryKeys.inventory.alerts(clinic),
+    queryFn: async (): Promise<AlertsData> => {
+      const res = await fetch(`/api/dashboard/inventory-alerts?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar alertas de inventario')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM, // 2 minutes
+    gcTime: gcTimes.MEDIUM, // 15 minutes
+    refetchInterval: 10 * 60 * 1000, // Refresh every 10 minutes
+  })
 
   if (loading) {
     return (

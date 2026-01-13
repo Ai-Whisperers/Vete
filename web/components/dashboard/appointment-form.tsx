@@ -1,9 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Appointment Form Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+Supabase with useQuery hooks
+ * - Replaced manual mutation with useMutation hook
+ */
+
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar, Clock, User, Stethoscope, Loader2, PawPrint } from 'lucide-react'
+import { Calendar, Clock, User, Stethoscope, Loader2 } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Pet {
   id: string
@@ -54,14 +64,7 @@ export function AppointmentForm({
   preselectedPetId,
 }: AppointmentFormProps): React.ReactElement {
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Data states
-  const [clients, setClients] = useState<Client[]>([])
-  const [staff, setStaff] = useState<StaffMember[]>([])
-  const [services, setServices] = useState<Service[]>([])
-  const [loading, setLoading] = useState(true)
 
   // Form states
   const [selectedClientId, setSelectedClientId] = useState(preselectedClientId || '')
@@ -74,9 +77,10 @@ export function AppointmentForm({
   const [reason, setReason] = useState('Consulta General')
   const [notes, setNotes] = useState('')
 
-  // Fetch data on mount
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
+  // React Query: Fetch form data (clients, staff, services)
+  const { data: formData, isLoading: loading } = useQuery({
+    queryKey: ['appointment-form-data', clinic],
+    queryFn: async (): Promise<{ clients: Client[]; staff: StaffMember[]; services: Service[] }> => {
       const supabase = createClient()
 
       const [clientsRes, staffRes, servicesRes] = await Promise.all([
@@ -99,27 +103,38 @@ export function AppointmentForm({
           .order('name'),
       ])
 
-      setClients((clientsRes.data || []) as unknown as Client[])
-      setStaff((staffRes.data || []) as unknown as StaffMember[])
-      setServices((servicesRes.data || []) as Service[])
-      setLoading(false)
-    }
+      return {
+        clients: (clientsRes.data || []) as unknown as Client[],
+        staff: (staffRes.data || []) as unknown as StaffMember[],
+        services: (servicesRes.data || []) as Service[],
+      }
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    fetchData()
-  }, [clinic])
+  const clients = formData?.clients || []
+  const staff = formData?.staff || []
+  const services = formData?.services || []
 
   // Get pets for selected client
   const availablePets = selectedClientId
     ? clients.find((c) => c.id === selectedClientId)?.pets || []
     : clients.flatMap((c) => c.pets || [])
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
-    try {
+  // Mutation: Create appointment
+  const createMutation = useMutation({
+    mutationFn: async (params: {
+      clinic: string
+      petId: string
+      vetId: string
+      serviceId: string
+      startTime: string
+      duration: number
+      status: string
+      reason: string
+      notes: string
+    }) => {
       const supabase = createClient()
 
       // Get current user
@@ -131,39 +146,52 @@ export function AppointmentForm({
       }
 
       // Calculate end time
-      const start = new Date(startTime)
-      const end = new Date(start.getTime() + parseInt(duration) * 60000)
+      const start = new Date(params.startTime)
+      const end = new Date(start.getTime() + params.duration * 60000)
 
       // Create appointment
       const { error: insertError } = await supabase.from('appointments').insert({
-        tenant_id: clinic,
-        pet_id: selectedPetId,
-        vet_id: vetId || null,
-        service_id: serviceId || null,
+        tenant_id: params.clinic,
+        pet_id: params.petId,
+        vet_id: params.vetId || null,
+        service_id: params.serviceId || null,
         start_time: start.toISOString(),
         end_time: end.toISOString(),
-        status: status,
-        reason: reason,
-        notes: notes || null,
+        status: params.status,
+        reason: params.reason,
+        notes: params.notes || null,
         created_by: user.id,
       })
 
       if (insertError) {
         throw insertError
       }
-
-      // Refresh and close
+    },
+    onSuccess: () => {
       router.refresh()
       onSuccess?.()
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error creating appointment:', err)
-      }
+    },
+    onError: (err) => {
       setError(err instanceof Error ? err.message : 'Error al crear la cita')
-    } finally {
-      setIsSubmitting(false)
-    }
+    },
+  })
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault()
+    setError(null)
+
+    createMutation.mutate({
+      clinic,
+      petId: selectedPetId,
+      vetId,
+      serviceId,
+      startTime,
+      duration: parseInt(duration),
+      status,
+      reason,
+      notes,
+    })
   }
 
   const formatPrice = (price: number): string => {
@@ -375,17 +403,17 @@ export function AppointmentForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSubmitting}
+          disabled={createMutation.isPending}
           className="flex-1 rounded-xl px-4 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || !selectedPetId || !startTime}
+          disabled={createMutation.isPending || !selectedPetId || !startTime}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-3 font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {isSubmitting ? (
+          {createMutation.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Creando...

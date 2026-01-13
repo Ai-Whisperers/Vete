@@ -1,5 +1,12 @@
 'use client'
 
+/**
+ * Stock History Modal Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ */
+
 import { useState, useEffect, useRef } from 'react'
 import {
   X,
@@ -14,6 +21,8 @@ import {
   Settings,
   Loader2,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Transaction {
   id: string
@@ -114,19 +123,30 @@ export function StockHistoryModal({
   onClose,
   clinic,
 }: StockHistoryModalProps) {
-  const [data, setData] = useState<HistoryData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('')
   const modalRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Fetch history when modal opens
-  useEffect(() => {
-    if (isOpen && productId) {
-      fetchHistory()
-    }
-  }, [isOpen, productId, typeFilter])
+  // React Query: Fetch stock history
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['inventory', productId, 'history', { type: typeFilter }],
+    queryFn: async (): Promise<HistoryData> => {
+      const params = new URLSearchParams({ limit: '50' })
+      if (typeFilter) params.set('type', typeFilter)
+
+      const response = await fetch(`/api/inventory/${productId}/history?${params}`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.details?.message || 'Error al cargar historial')
+      }
+
+      return result
+    },
+    enabled: isOpen && !!productId,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
   // Accessibility: Keyboard handling and focus trap
   useEffect(() => {
@@ -162,29 +182,6 @@ export function StockHistoryModal({
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
-
-  const fetchHistory = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const params = new URLSearchParams({ limit: '50' })
-      if (typeFilter) params.set('type', typeFilter)
-
-      const response = await fetch(`/api/inventory/${productId}/history?${params}`)
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.details?.message || 'Error al cargar historial')
-      }
-
-      setData(result)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -298,14 +295,14 @@ export function StockHistoryModal({
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[50vh] p-4">
-          {loading ? (
+          {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
             </div>
           ) : error ? (
             <div className="text-center py-12 text-[var(--status-error)]">
               <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-              <p>{error}</p>
+              <p>{error instanceof Error ? error.message : 'Error al cargar historial'}</p>
             </div>
           ) : data?.transactions.length === 0 ? (
             <div className="text-center py-12 text-[var(--text-secondary)]">

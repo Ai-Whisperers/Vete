@@ -1,6 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Epidemiology Dashboard Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hooks
+ * - Replaced manual mutation with useMutation
+ * - Automatic cache invalidation on report creation
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Download,
   Activity,
@@ -9,8 +19,6 @@ import {
   BarChart2,
   Map,
   Plus,
-  Calendar,
-  Filter,
   RefreshCw,
   FileText,
   Bug,
@@ -27,6 +35,9 @@ import {
   LineChart,
   Line,
 } from 'recharts'
+import { useToast } from '@/components/ui/Toast'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface HeatmapPoint {
   diagnosis_code: string
@@ -64,13 +75,11 @@ interface Props {
 }
 
 export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes }: Props) {
-  const [data, setData] = useState<HeatmapPoint[]>([])
-  const [reports, setReports] = useState<DiseaseReport[]>([])
-  const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
   const [speciesFilter, setSpeciesFilter] = useState<string>('all')
   const [showReportForm, setShowReportForm] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'reports' | 'trends'>('overview')
-  const [submitting, setSubmitting] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -83,14 +92,15 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
     reported_date: new Date().toISOString().split('T')[0],
   })
 
-  useEffect(() => {
-    fetchData()
-    fetchReports()
-  }, [speciesFilter])
-
-  const fetchData = async () => {
-    setLoading(true)
-    try {
+  // React Query: Fetch heatmap data
+  const speciesParam = speciesFilter === 'all' ? undefined : speciesFilter
+  const {
+    data: rawData = [],
+    isLoading: loadingHeatmap,
+    refetch: refetchHeatmap,
+  } = useQuery({
+    queryKey: queryKeys.epidemiology.heatmap(tenantId, speciesParam),
+    queryFn: async (): Promise<HeatmapPoint[]> => {
       const url = new URL('/api/epidemiology/heatmap', window.location.origin)
       if (speciesFilter !== 'all') {
         url.searchParams.set('species', speciesFilter)
@@ -98,84 +108,102 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
       url.searchParams.set('tenant', tenantId)
 
       const res = await fetch(url.toString())
+      if (!res.ok) throw new Error('Error al cargar datos epidemiológicos')
       const json = await res.json()
+      return Array.isArray(json) ? json : []
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      if (Array.isArray(json)) {
-        setData(json.sort((a, b) => b.case_count - a.case_count))
-      }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching epidemiology data:', e)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Sort data by case count (memoized)
+  const data = useMemo(
+    () => [...rawData].sort((a, b) => b.case_count - a.case_count),
+    [rawData]
+  )
 
-  const fetchReports = async () => {
-    try {
+  // React Query: Fetch reports
+  const {
+    data: reports = [],
+    isLoading: loadingReports,
+    refetch: refetchReports,
+  } = useQuery({
+    queryKey: queryKeys.epidemiology.reports(speciesParam),
+    queryFn: async (): Promise<DiseaseReport[]> => {
       const url = new URL('/api/epidemiology/reports', window.location.origin)
       if (speciesFilter !== 'all') {
         url.searchParams.set('species', speciesFilter)
       }
 
       const res = await fetch(url.toString())
+      if (!res.ok) throw new Error('Error al cargar reportes')
       const json = await res.json()
+      return json.data || []
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      if (json.data) {
-        setReports(json.data)
-      }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching reports:', e)
-      }
-    }
-  }
+  const loading = loadingHeatmap || loadingReports
 
-  const handleSubmitReport = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-
-    try {
+  // React Query: Create report mutation
+  const createReportMutation = useMutation({
+    mutationFn: async (payload: {
+      diagnosis_code_id: string | null
+      species: string
+      age_months: number | null
+      is_vaccinated: boolean | null
+      location_zone: string
+      severity: string
+      reported_date: string
+    }) => {
       const res = await fetch('/api/epidemiology/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          age_months: formData.age_months ? parseInt(formData.age_months) : null,
-          is_vaccinated: formData.is_vaccinated === '' ? null : formData.is_vaccinated === 'true',
-          diagnosis_code_id: formData.diagnosis_code_id || null,
-        }),
+        body: JSON.stringify(payload),
       })
 
-      if (res.ok) {
-        setShowReportForm(false)
-        setFormData({
-          diagnosis_code_id: '',
-          species: 'dog',
-          age_months: '',
-          is_vaccinated: '',
-          location_zone: '',
-          severity: 'moderate',
-          reported_date: new Date().toISOString().split('T')[0],
-        })
-        fetchReports()
-        fetchData()
-      } else {
+      if (!res.ok) {
         const json = await res.json()
-        alert(json.error || 'Error al crear reporte')
+        throw new Error(json.error || 'Error al crear reporte')
       }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error submitting report:', e)
-      }
-      alert('Error al crear reporte')
-    } finally {
-      setSubmitting(false)
-    }
+      return res.json()
+    },
+    onSuccess: () => {
+      // Invalidate both queries to refresh data
+      queryClient.invalidateQueries({ queryKey: queryKeys.epidemiology.all })
+      setShowReportForm(false)
+      setFormData({
+        diagnosis_code_id: '',
+        species: 'dog',
+        age_months: '',
+        is_vaccinated: '',
+        location_zone: '',
+        severity: 'moderate',
+        reported_date: new Date().toISOString().split('T')[0],
+      })
+    },
+    onError: (error: Error) => {
+      showToast({ title: error.message, variant: 'error' })
+    },
+  })
+
+  const handleSubmitReport = (e: React.FormEvent) => {
+    e.preventDefault()
+    createReportMutation.mutate({
+      diagnosis_code_id: formData.diagnosis_code_id || null,
+      species: formData.species,
+      age_months: formData.age_months ? parseInt(formData.age_months) : null,
+      is_vaccinated: formData.is_vaccinated === '' ? null : formData.is_vaccinated === 'true',
+      location_zone: formData.location_zone,
+      severity: formData.severity,
+      reported_date: formData.reported_date,
+    })
+  }
+
+  const handleRefresh = () => {
+    refetchHeatmap()
+    refetchReports()
   }
 
   // Aggregate data for visualization
@@ -270,10 +298,7 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
           </select>
 
           <button
-            onClick={() => {
-              fetchData()
-              fetchReports()
-            }}
+            onClick={handleRefresh}
             className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
           >
             <RefreshCw className="h-4 w-4" />
@@ -682,10 +707,10 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={createReportMutation.isPending}
                   className="flex-1 rounded-xl bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
                 >
-                  {submitting ? 'Guardando...' : 'Crear Reporte'}
+                  {createReportMutation.isPending ? 'Guardando...' : 'Crear Reporte'}
                 </button>
               </div>
             </form>

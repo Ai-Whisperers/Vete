@@ -113,6 +113,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn().mockImplementation(() => Promise.resolve(createMockSupabase() as any)),
 }))
 
+// Import routes AFTER mocks
+import { GET as getPendingProducts } from '@/app/api/admin/products/pending/route'
+import { POST as approveProduct } from '@/app/api/admin/products/[id]/approve/route'
+
 describe('Admin Role Authorization', () => {
   beforeEach(() => {
     vi.clearAllMocks()

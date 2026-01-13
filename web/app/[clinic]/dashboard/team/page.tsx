@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { removeInvite } from '@/app/actions/invite-staff'
 import { InviteStaffForm } from '@/components/team/invite-staff-form'
 
@@ -11,6 +12,7 @@ interface Props {
 
 export default async function DashboardTeamPage({ params }: Props) {
   const { clinic } = await params
+  const t = await getTranslations('dashboard.team')
   const supabase = await createClient()
 
   // Auth check
@@ -51,9 +53,9 @@ export default async function DashboardTeamPage({ params }: Props) {
     <div className="mx-auto max-w-4xl p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Gestión de Equipo</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('title')}</h1>
         <p className="text-[var(--text-secondary)]">
-          Administra quién tiene acceso al dashboard veterinario
+          {t('subtitle')}
         </p>
       </div>
 
@@ -61,7 +63,7 @@ export default async function DashboardTeamPage({ params }: Props) {
       <div className="mb-8 rounded-xl border border-[var(--border)] bg-white p-6">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
           <Icons.UserPlus className="h-5 w-5 text-[var(--primary)]" />
-          Invitar Nuevo Miembro
+          {t('inviteNewMember')}
         </h2>
         <InviteStaffForm clinic={clinic} />
       </div>
@@ -71,7 +73,7 @@ export default async function DashboardTeamPage({ params }: Props) {
         <div className="border-b border-[var(--border-light)] p-4">
           <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <Icons.Users className="h-5 w-5 text-[var(--primary)]" />
-            Miembros del Equipo
+            {t('teamMembers')}
           </h3>
         </div>
         <div className="divide-y divide-[var(--border-light)]">
@@ -101,13 +103,13 @@ export default async function DashboardTeamPage({ params }: Props) {
                         }
                   }
                 >
-                  {member.role === 'admin' ? 'Administrador' : 'Veterinario'}
+                  {member.role === 'admin' ? t('roles.admin') : t('roles.vet')}
                 </span>
               </div>
             ))
           ) : (
             <div className="p-8 text-center text-[var(--text-secondary)]">
-              No hay miembros del equipo registrados
+              {t('noTeamMembers')}
             </div>
           )}
         </div>
@@ -118,7 +120,7 @@ export default async function DashboardTeamPage({ params }: Props) {
         <div className="border-b border-[var(--border-light)] p-4">
           <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <Icons.Mail className="h-5 w-5 text-[var(--primary)]" />
-            Invitaciones Pendientes
+            {t('pendingInvites')}
           </h3>
         </div>
         <div className="divide-y divide-[var(--border-light)]">
@@ -138,7 +140,7 @@ export default async function DashboardTeamPage({ params }: Props) {
                   <div>
                     <p className="font-medium text-[var(--text-primary)]">{invite.email}</p>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Rol: {invite.role === 'admin' ? 'Administrador' : 'Veterinario'}
+                      {t('role')}: {invite.role === 'admin' ? t('roles.admin') : t('roles.vet')}
                     </p>
                   </div>
                 </div>
@@ -150,7 +152,7 @@ export default async function DashboardTeamPage({ params }: Props) {
                     type="submit"
                     className="rounded-lg p-2 transition-colors hover:opacity-80"
                     style={{ color: 'var(--status-error)' }}
-                    title="Cancelar invitación"
+                    title={t('cancelInvite')}
                   >
                     <Icons.Trash2 className="h-4 w-4" />
                   </button>
@@ -159,7 +161,7 @@ export default async function DashboardTeamPage({ params }: Props) {
             ))
           ) : (
             <div className="p-8 text-center text-[var(--text-secondary)]">
-              No hay invitaciones pendientes
+              {t('noPendingInvites')}
             </div>
           )}
         </div>

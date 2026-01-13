@@ -1,6 +1,7 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useCart } from '@/context/cart-context'
 import Link from 'next/link'
@@ -45,13 +46,20 @@ interface CheckoutClientProps {
 
 export default function CheckoutClient({ config }: CheckoutClientProps) {
   const { clinic } = useParams() as { clinic: string }
+  const t = useTranslations('checkout')
+  const tc = useTranslations('common')
   const { user, loading } = useAuthRedirect()
   const { items, total, clearCart, discount } = useCart()
   const labels = config.ui_labels?.checkout || {}
   const currency = config.settings?.currency || 'PYG'
   const whatsappNumber = config.contact?.whatsapp_number
+  // BUG-015: Tax rate from config, default 10% (IVA Paraguay)
+  const taxRate = config.settings?.tax_rate ?? 0.1
+  const taxName = config.settings?.tax_name ?? 'IVA'
 
   const [isProcessing, setIsProcessing] = useState(false)
+  // BUG-014: Ref for immediate double-click prevention (before React state update)
+  const isSubmittingRef = useRef(false)
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [stockErrors, setStockErrors] = useState<StockError[]>([])
@@ -93,19 +101,25 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     })
   }
 
-  if (loading) return <div className="p-4">Loading...</div>
+  if (loading) return <div className="p-4">{tc('loading')}</div>
   if (!user) return null
 
   const handleCheckout = async () => {
+    // BUG-014: Immediate blocking before React state update
+    if (isSubmittingRef.current) return
+    isSubmittingRef.current = true
+
     // FEAT-013: Validate pet selection for prescription items
     if (needsPetSelection && !selectedPetId) {
-      setCheckoutError('Debe seleccionar una mascota para productos con receta médica.')
+      setCheckoutError(t('errors.petRequired'))
+      isSubmittingRef.current = false
       return
     }
 
     // Validate prescriptions before checkout
     if (missingPrescriptions.length > 0) {
-      setCheckoutError('Por favor, sube las recetas médicas requeridas para continuar.')
+      setCheckoutError(t('errors.prescriptionsRequired'))
+      isSubmittingRef.current = false
       return
     }
 
@@ -140,14 +154,15 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
         setCheckoutResult(result)
         clearCart()
       } else {
-        setCheckoutError(result.error || 'Error al procesar el pedido')
+        setCheckoutError(result.error || t('errors.processingError'))
         if (result.stockErrors) {
           setStockErrors(result.stockErrors)
         }
       }
     } catch (e) {
-      setCheckoutError('Error de conexión. Por favor intenta de nuevo.')
+      setCheckoutError(t('errors.connectionError'))
     } finally {
+      isSubmittingRef.current = false
       setIsProcessing(false)
     }
   }
@@ -160,12 +175,12 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     if (!whatsappNumber) return '#'
 
     let message = invoiceNumber
-      ? `Hola *${config.name}*, acabo de realizar el pedido *${invoiceNumber}*.\n\n`
-      : `Hola *${config.name}*, me gustaría realizar el siguiente pedido:\n\n`
+      ? t('whatsapp.withOrder', { clinicName: config.name, orderNumber: invoiceNumber })
+      : t('whatsapp.newOrder', { clinicName: config.name })
 
     if (!invoiceNumber) {
       items.forEach((item) => {
-        message += `• ${item.quantity}x ${item.name} (${item.type === 'service' ? 'Servicio' : 'Producto'})\n`
+        message += `• ${item.quantity}x ${item.name} (${item.type === 'service' ? t('itemType.service') : t('itemType.product')})\n`
       })
     }
 
@@ -173,8 +188,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
       style: 'currency',
       currency: currency,
     }).format(total)
-    message += `\n*Total: ${formattedTotal}*\n`
-    message += `\nMis datos: ${user.email}`
+    message += `\n*${t('total')}: ${formattedTotal}*\n`
+    message += `\n${t('whatsapp.myData')}: ${user.email}`
 
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
   }
@@ -188,17 +203,17 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
           <h1 className="mb-4 text-3xl font-bold text-[var(--text-primary)]">
-            ¡Pedido Confirmado!
+            {t('success.title')}
           </h1>
           <p className="mb-2 text-[var(--text-secondary)]">
-            Tu pedido ha sido procesado exitosamente.
+            {t('success.message')}
           </p>
           <p className="mb-6 text-lg font-bold text-[var(--primary)]">
-            Número de pedido: {checkoutResult.invoice?.invoice_number}
+            {t('success.orderNumber')}: {checkoutResult.invoice?.invoice_number}
           </p>
 
           <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
-            <p className="mb-4 text-[var(--text-secondary)]">Total a pagar:</p>
+            <p className="mb-4 text-[var(--text-secondary)]">{t('success.totalToPay')}:</p>
             <p className="text-3xl font-bold text-[var(--primary)]">
               {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
                 checkoutResult.invoice?.total || 0
@@ -214,20 +229,20 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 font-bold text-white shadow-md transition hover:brightness-110"
               >
-                <MessageCircle className="h-5 w-5" /> Coordinar entrega por WhatsApp
+                <MessageCircle className="h-5 w-5" /> {t('success.whatsappButton')}
               </a>
             )}
             <Link
               href={`/${clinic}/store`}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition hover:brightness-110"
             >
-              Seguir comprando
+              {t('success.continueShopping')}
             </Link>
             <Link
               href={`/${clinic}/portal/dashboard`}
               className="text-[var(--text-secondary)] hover:text-[var(--primary)]"
             >
-              Ir al portal
+              {t('success.goToPortal')}
             </Link>
           </div>
         </div>
@@ -238,7 +253,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   return (
     <div className="min-h-screen bg-[var(--bg-default)] p-8">
       <h1 className="mb-6 text-3xl font-bold text-[var(--text-primary)]">
-        {labels.title || 'Resumen del Pedido'}
+        {labels.title || t('title')}
       </h1>
 
       {/* Error display */}
@@ -254,7 +269,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               <ul className="mt-2 text-sm text-red-600">
                 {stockErrors.map((err) => (
                   <li key={err.id}>
-                    {err.name}: Solicitado {err.requested}, disponible {err.available}
+                    {err.name}: {t('stockError', { requested: err.requested, available: err.available })}
                   </li>
                 ))}
               </ul>
@@ -265,7 +280,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
 
       {items.length === 0 ? (
         <p className="text-[var(--text-secondary)]">
-          {labels.empty || 'No hay items en el carrito.'}
+          {labels.empty || t('emptyCart')}
         </p>
       ) : (
         <div className="space-y-4">
@@ -285,8 +300,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                 onSelect={setSelectedPetId}
                 clinic={clinic}
                 required={true}
-                label="Mascota para productos con receta"
-                helpText="Seleccione la mascota para la cual está comprando estos productos. La receta debe corresponder a esta mascota."
+                label={t('petSelector.label')}
+                helpText={t('petSelector.helpText')}
               />
             </div>
           )}
@@ -313,12 +328,12 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                       {item.requires_prescription && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                           <FileWarning className="h-3 w-3" />
-                          Receta
+                          {t('prescription')}
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      {item.type === 'service' ? 'Servicio' : 'Producto'} × {item.quantity}
+                      {item.type === 'service' ? t('itemType.service') : t('itemType.product')} × {item.quantity}
                     </p>
                   </div>
                 </div>
@@ -347,7 +362,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
 
           <div className="rounded-xl bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[var(--text-secondary)]">Subtotal</span>
+              <span className="text-[var(--text-secondary)]">{t('subtotal')}</span>
               <span className="font-medium">
                 {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
                   total
@@ -355,18 +370,19 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               </span>
             </div>
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[var(--text-secondary)]">IVA (10%)</span>
+              {/* BUG-015: Tax rate from config */}
+              <span className="text-[var(--text-secondary)]">{taxName} ({(taxRate * 100).toFixed(0)}%)</span>
               <span className="font-medium">
                 {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
-                  total * 0.1
+                  total * taxRate
                 )}
               </span>
             </div>
             <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-xl font-bold text-[var(--text-primary)]">Total</span>
+              <span className="text-xl font-bold text-[var(--text-primary)]">{t('total')}</span>
               <span className="text-xl font-bold text-[var(--primary)]">
                 {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
-                  Math.max(0, total - discount) * 1.1
+                  Math.max(0, total - discount) * (1 + taxRate)
                 )}
               </span>
             </div>
@@ -380,20 +396,19 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" /> Procesando...
+                  <Loader2 className="h-5 w-5 animate-spin" /> {tc('processing')}
                 </>
               ) : needsPetSelection && !selectedPetId ? (
                 <>
-                  <FileWarning className="h-5 w-5" /> Seleccione mascota
+                  <FileWarning className="h-5 w-5" /> {t('selectPet')}
                 </>
               ) : missingPrescriptions.length > 0 ? (
                 <>
-                  <FileWarning className="h-5 w-5" /> Faltan {missingPrescriptions.length} receta
-                  {missingPrescriptions.length > 1 ? 's' : ''}
+                  <FileWarning className="h-5 w-5" /> {t('missingPrescriptions', { count: missingPrescriptions.length })}
                 </>
               ) : (
                 <>
-                  <CheckCircle className="h-5 w-5" /> Confirmar Pedido
+                  <CheckCircle className="h-5 w-5" /> {t('confirmOrder')}
                 </>
               )}
             </button>
@@ -402,13 +417,13 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               onClick={handlePrint}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-4 py-3 font-bold text-gray-800 transition hover:bg-gray-300"
             >
-              <Printer className="h-5 w-5" /> {labels.print_btn || 'Imprimir'}
+              <Printer className="h-5 w-5" /> {labels.print_btn || t('print')}
             </button>
           </div>
         </div>
       )}
       <Link href={`/${clinic}/cart`} className="mt-6 inline-block text-blue-600 hover:underline">
-        {labels.back_cart || 'Volver al carrito'}
+        {labels.back_cart || t('backToCart')}
       </Link>
     </div>
   )

@@ -3,6 +3,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Save, Heart, Thermometer, Activity, Weight } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface Vital {
   id: string
@@ -46,6 +47,7 @@ export function VitalsPanel({
   vitals,
   onVitalsSaved,
 }: VitalsPanelProps): JSX.Element {
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<VitalsForm>({
@@ -104,7 +106,10 @@ export function VitalsPanel({
       onVitalsSaved()
     } catch (error) {
       console.error('Error saving vitals:', error)
-      alert('Error al guardar signos vitales')
+      showToast({
+        title: 'Error al guardar signos vitales',
+        variant: 'error',
+      })
     } finally {
       setSaving(false)
     }

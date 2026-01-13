@@ -1,8 +1,18 @@
 'use client'
 
-import { useAsyncData } from '@/lib/hooks'
+/**
+ * My Patients Widget
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useAsyncData with useQuery hook
+ * - Auto-refresh every 30 seconds
+ */
+
+import { useQuery } from '@tanstack/react-query'
 import { Dog, Cat, PawPrint, Clock, AlertCircle, User } from 'lucide-react'
 import Link from 'next/link'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Patient {
   id: string
@@ -20,15 +30,18 @@ interface MyPatientsWidgetProps {
 }
 
 export function MyPatientsWidget({ vetId, clinic }: MyPatientsWidgetProps): React.ReactElement {
-  const { data, isLoading, error } = useAsyncData<{ patients: Patient[] }>(
-    async () => {
+  // React Query: Fetch my patients with auto-refresh
+  const { data, isLoading, error } = useQuery({
+    queryKey: queryKeys.dashboard.myPatients(vetId),
+    queryFn: async (): Promise<{ patients: Patient[] }> => {
       const res = await fetch(`/api/dashboard/my-patients?vetId=${vetId}`)
       if (!res.ok) throw new Error('Error al cargar pacientes')
       return res.json()
     },
-    [vetId],
-    { refetchInterval: 30000 }
-  )
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+  })
 
   const patients = data?.patients || []
 

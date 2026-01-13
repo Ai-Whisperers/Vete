@@ -1,8 +1,16 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+/**
+ * Conversation Detail Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   Send,
@@ -20,6 +28,7 @@ import {
 } from 'lucide-react'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useToast } from '@/components/ui/Toast'
 
 interface Attachment {
   url: string
@@ -79,15 +88,12 @@ interface ConversationData {
 export default function ConversationPage() {
   const params = useParams()
   const router = useRouter()
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
   const clinic = params.clinic as string
   const conversationId = params.id as string
 
-  const [data, setData] = useState<ConversationData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useState('')
-  const [sending, setSending] = useState(false)
-  const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null)
   const [showActions, setShowActions] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
@@ -96,46 +102,33 @@ export default function ConversationPage() {
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Fetch conversation data
-  const fetchConversation = async () => {
-    try {
+  // React Query: Fetch conversation data with polling
+  const { data, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ['conversation', conversationId],
+    queryFn: async (): Promise<ConversationData> => {
       const response = await fetch(`/api/conversations/${conversationId}`)
-      if (!response.ok) {
-        throw new Error('Error al cargar la conversación')
-      }
-      const result = await response.json()
-      setData(result)
-      setLoading(false)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido')
-      setLoading(false)
-    }
-  }
+      if (!response.ok) throw new Error('Error al cargar la conversación')
+      return response.json()
+    },
+    refetchInterval: 5000, // Poll every 5 seconds
+    staleTime: 1000,
+    gcTime: gcTimes.SHORT,
+  })
 
-  // Get current user profile
-  const fetchCurrentUser = async () => {
-    try {
+  const error = queryError?.message || null
+
+  // React Query: Fetch current user
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async (): Promise<{ id: string; role: string } | null> => {
       const response = await fetch('/api/auth/me')
-      if (response.ok) {
-        const userData = await response.json()
-        setCurrentUser({ id: userData.id, role: userData.role })
-      }
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching user:', err)
-      }
-    }
-  }
-
-  useEffect(() => {
-    fetchConversation()
-    fetchCurrentUser()
-
-    // Poll for new messages every 5 seconds
-    const interval = setInterval(fetchConversation, 5000)
-    return () => clearInterval(interval)
-  }, [conversationId])
+      if (!response.ok) return null
+      const userData = await response.json()
+      return { id: userData.id, role: userData.role }
+    },
+    staleTime: staleTimes.LONG,
+    gcTime: gcTimes.LONG,
+  })
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -153,7 +146,7 @@ export default function ConversationPage() {
 
     // Limit to 5 files
     if (selectedFiles.length + files.length > 5) {
-      alert('Máximo 5 archivos por mensaje')
+      showToast({ title: 'Máximo 5 archivos por mensaje', variant: 'warning' })
       return
     }
 
@@ -172,11 +165,11 @@ export default function ConversationPage() {
 
     for (const file of files) {
       if (!allowedTypes.includes(file.type)) {
-        alert(`Tipo de archivo no permitido: ${file.name}`)
+        showToast({ title: `Tipo de archivo no permitido: ${file.name}`, variant: 'error' })
         return
       }
       if (file.size > maxSize) {
-        alert(`Archivo muy grande: ${file.name} (máximo 10MB)`)
+        showToast({ title: `Archivo muy grande: ${file.name} (máximo 10MB)`, variant: 'error' })
         return
       }
     }
@@ -200,11 +193,38 @@ export default function ConversationPage() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
+  // Mutation: Send message
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ content, attachments }: { content: string; attachments: Attachment[] }) => {
+      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: content.trim(),
+          content_type: 'text',
+          attachments,
+        }),
+      })
+      if (!response.ok) throw new Error('Error al enviar mensaje')
+      return response.json()
+    },
+    onSuccess: () => {
+      setNewMessage('')
+      setSelectedFiles([])
+      queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] })
+      messageInputRef.current?.focus()
+    },
+    onError: (err) => {
+      showToast({ title: err instanceof Error ? err.message : 'Error al enviar mensaje', variant: 'error' })
+    },
+  })
+
+  const sending = sendMessageMutation.isPending
+
   // Send message
   const handleSendMessage = async () => {
     if ((!newMessage.trim() && selectedFiles.length === 0) || sending) return
 
-    setSending(true)
     setUploading(selectedFiles.length > 0)
 
     try {
@@ -233,28 +253,9 @@ export default function ConversationPage() {
       setUploading(false)
 
       // Send message with attachments
-      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: newMessage.trim(),
-          content_type: 'text',
-          attachments: uploadedAttachments,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al enviar mensaje')
-      }
-
-      setNewMessage('')
-      setSelectedFiles([])
-      await fetchConversation()
-      messageInputRef.current?.focus()
+      sendMessageMutation.mutate({ content: newMessage, attachments: uploadedAttachments })
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al enviar mensaje')
-    } finally {
-      setSending(false)
+      showToast({ title: err instanceof Error ? err.message : 'Error al subir archivos', variant: 'error' })
       setUploading(false)
     }
   }
@@ -267,24 +268,29 @@ export default function ConversationPage() {
     }
   }
 
-  // Update conversation status
-  const updateStatus = async (newStatus: 'open' | 'pending' | 'closed') => {
-    try {
+  // Mutation: Update conversation status
+  const statusMutation = useMutation({
+    mutationFn: async (newStatus: 'open' | 'pending' | 'closed') => {
       const response = await fetch(`/api/conversations/${conversationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       })
-
-      if (!response.ok) {
-        throw new Error('Error al actualizar estado')
-      }
-
-      await fetchConversation()
+      if (!response.ok) throw new Error('Error al actualizar estado')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] })
       setShowActions(false)
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al actualizar estado')
-    }
+    },
+    onError: (err) => {
+      showToast({ title: err instanceof Error ? err.message : 'Error al actualizar estado', variant: 'error' })
+    },
+  })
+
+  // Update conversation status
+  const updateStatus = (newStatus: 'open' | 'pending' | 'closed') => {
+    statusMutation.mutate(newStatus)
   }
 
   // Format date for message grouping

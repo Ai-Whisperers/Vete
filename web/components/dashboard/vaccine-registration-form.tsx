@@ -1,9 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Vaccine Registration Form Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+Supabase with useQuery hook
+ * - Replaced manual mutation with useMutation hook
+ */
+
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Syringe, Calendar, PawPrint, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Pet {
   id: string
@@ -43,11 +53,8 @@ export function VaccineRegistrationForm({
   onCancel,
 }: VaccineRegistrationFormProps): React.ReactElement {
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [pets, setPets] = useState<Pet[]>([])
 
   // Form state
   const [selectedPetId, setSelectedPetId] = useState(preselectedPetId || '')
@@ -59,9 +66,10 @@ export function VaccineRegistrationForm({
   const [manufacturer, setManufacturer] = useState('')
   const [notes, setNotes] = useState('')
 
-  // Fetch pets on mount
-  useEffect(() => {
-    const fetchPets = async (): Promise<void> => {
+  // React Query: Fetch pets
+  const { data: pets = [], isLoading: loading } = useQuery({
+    queryKey: ['pets', clinic, 'for-vaccine'],
+    queryFn: async (): Promise<Pet[]> => {
       const supabase = createClient()
 
       const { data, error: fetchError } = await supabase
@@ -71,19 +79,14 @@ export function VaccineRegistrationForm({
         .order('name')
 
       if (fetchError) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching pets:', fetchError)
-        }
-        setError('Error al cargar mascotas')
-      } else {
-        setPets((data || []) as unknown as Pet[])
+        throw new Error('Error al cargar mascotas')
       }
-      setLoading(false)
-    }
 
-    fetchPets()
-  }, [clinic])
+      return (data || []) as unknown as Pet[]
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
   // Auto-calculate next due date based on vaccine type
   const handleVaccineChange = (vaccine: string): void => {
@@ -108,12 +111,19 @@ export function VaccineRegistrationForm({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
-    try {
+  // Mutation: Register vaccine
+  const registerMutation = useMutation({
+    mutationFn: async (params: {
+      clinic: string
+      petId: string
+      vaccineName: string
+      customVaccineName: string
+      administeredDate: string
+      nextDueDate: string
+      batchNumber: string
+      manufacturer: string
+      notes: string
+    }) => {
       const supabase = createClient()
 
       // Get current user
@@ -124,7 +134,7 @@ export function VaccineRegistrationForm({
         throw new Error('No autorizado')
       }
 
-      const finalVaccineName = vaccineName === 'Otra' ? customVaccineName : vaccineName
+      const finalVaccineName = params.vaccineName === 'Otra' ? params.customVaccineName : params.vaccineName
 
       if (!finalVaccineName) {
         throw new Error('Debe especificar el nombre de la vacuna')
@@ -132,26 +142,23 @@ export function VaccineRegistrationForm({
 
       // Create vaccine record
       const { error: insertError } = await supabase.from('vaccines').insert({
-        tenant_id: clinic,
-        pet_id: selectedPetId,
+        tenant_id: params.clinic,
+        pet_id: params.petId,
         vaccine_name: finalVaccineName,
-        administered_date: administeredDate,
-        next_due_date: nextDueDate || null,
-        batch_number: batchNumber || null,
-        manufacturer: manufacturer || null,
-        notes: notes || null,
+        administered_date: params.administeredDate,
+        next_due_date: params.nextDueDate || null,
+        batch_number: params.batchNumber || null,
+        manufacturer: params.manufacturer || null,
+        notes: params.notes || null,
         administered_by: user.id,
         status: 'verified',
       })
 
       if (insertError) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Vaccine insert error:', insertError)
-        }
         throw new Error('Error al registrar la vacuna')
       }
-
+    },
+    onSuccess: () => {
       setSuccess(true)
       router.refresh()
 
@@ -159,15 +166,27 @@ export function VaccineRegistrationForm({
       setTimeout(() => {
         onSuccess?.()
       }, 1500)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error registering vaccine:', err)
-      }
+    },
+    onError: (err) => {
       setError(err instanceof Error ? err.message : 'Error al registrar vacuna')
-    } finally {
-      setIsSubmitting(false)
-    }
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault()
+    setError(null)
+
+    registerMutation.mutate({
+      clinic,
+      petId: selectedPetId,
+      vaccineName,
+      customVaccineName,
+      administeredDate,
+      nextDueDate,
+      batchNumber,
+      manufacturer,
+      notes,
+    })
   }
 
   if (loading) {
@@ -369,17 +388,17 @@ export function VaccineRegistrationForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSubmitting}
+          disabled={registerMutation.isPending}
           className="flex-1 rounded-xl px-4 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || !selectedPetId || !vaccineName}
+          disabled={registerMutation.isPending || !selectedPetId || !vaccineName}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-3 font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {isSubmitting ? (
+          {registerMutation.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Registrando...

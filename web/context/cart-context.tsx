@@ -95,6 +95,14 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // BUG-012: Ref for latest items to avoid stale closure in debounced sync
+  const itemsRef = useRef(items)
+
+  // BUG-012: Keep itemsRef in sync with items state
+  useEffect(() => {
+    itemsRef.current = items
+  }, [items])
+
   // Load cart from local storage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('vete_cart')
@@ -186,6 +194,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
   }, [items, isInitialized, isLoggedIn])
 
   // Sync cart to database
+  // BUG-012: Uses itemsRef to always get latest items, avoiding stale closure
   const syncToDatabase = useCallback(async () => {
     if (!isLoggedIn) return
 
@@ -193,10 +202,12 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
     setSyncError(null)
 
     try {
+      // BUG-012: Read from ref to get latest items, not closure
+      const currentItems = itemsRef.current
       const response = await fetch('/api/store/cart', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: currentItems }),
       })
 
       if (response.ok) {
@@ -211,7 +222,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
       setSyncError('Error de conexión')
       setSyncStatus('error')
     }
-  }, [items, isLoggedIn])
+  }, [isLoggedIn]) // BUG-012: Removed items from deps - using ref instead
 
   // Load cart from database
   const loadFromDatabase = useCallback(async () => {

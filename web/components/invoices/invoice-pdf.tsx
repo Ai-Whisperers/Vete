@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Download } from 'lucide-react'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
+import { useToast } from '@/components/ui/Toast'
 import {
   formatCurrency,
   formatDate,
@@ -261,6 +262,7 @@ export function InvoicePDFButton({
   clinicName,
   variant = 'button',
 }: InvoicePDFButtonProps) {
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const handleDownload = async () => {
@@ -279,7 +281,7 @@ export function InvoicePDFButton({
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch {
-      alert('Error al generar PDF')
+      showToast({ title: 'Error al generar PDF', variant: 'error' })
     } finally {
       setLoading(false)
     }

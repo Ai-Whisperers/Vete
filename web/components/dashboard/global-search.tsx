@@ -26,6 +26,7 @@ interface SearchResult {
   subtitle: string
   href: string
   meta?: string
+  url?: string
 }
 
 interface GlobalSearchProps {
@@ -38,7 +39,11 @@ const searchGlobalData = async (query: string, clinic: string): Promise<SearchRe
     const response = await fetch(`/api/search?clinic=${clinic}&q=${encodeURIComponent(query)}`)
     if (response.ok) {
       const data = await response.json()
-      return data.results || []
+      // Map API results to component format (url -> href)
+      return (data.results || []).map((r: SearchResult & { url?: string }) => ({
+        ...r,
+        href: r.href || r.url || '',
+      }))
     } else {
       // Mock results for demo
       const mockResults: SearchResult[] = [

@@ -17,6 +17,14 @@ export {
   SkeletonProductCard,
   SkeletonPetCard,
   SkeletonTable,
+  SkeletonStatCard,
+  SkeletonAppointmentCard,
+  SkeletonInvoiceRow,
+  SkeletonAvatar,
+  SkeletonButton,
+  SkeletonDashboard,
+  SkeletonForm,
+  SkeletonList,
 } from './skeleton'
 export type { SkeletonProps } from './skeleton'
 
@@ -63,7 +71,9 @@ export {
 } from './tabs'
 
 // Utility Components
-export { ProgressStepper } from './progress-stepper'
+export { ProgressStepper, ProgressIndicator, DotProgress } from './progress-stepper'
+export { Progress, CircularProgress, ProgressOverlay } from './progress'
+export type { ProgressProps, CircularProgressProps, ProgressOverlayProps } from './progress'
 export { PasswordInput } from './password-input'
 export { CommandPalette } from './command-palette'
 export { NotificationBanner } from './notification-banner'

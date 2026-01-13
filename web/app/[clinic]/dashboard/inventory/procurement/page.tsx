@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ShoppingCart, FileText, TrendingDown } from 'lucide-react'
 import { PurchaseOrderList, PurchaseOrderForm, PriceComparison, OrderDetailModal, OrderEditForm } from '@/components/dashboard/procurement'
+import { useToast } from '@/components/ui/Toast'
 
 type TabId = 'orders' | 'compare'
 
@@ -22,6 +23,7 @@ const TABS: Tab[] = [
 export default function ProcurementPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
+  const { toast } = useToast()
 
   const [activeTab, setActiveTab] = useState<TabId>('orders')
   const [showOrderForm, setShowOrderForm] = useState(false)
@@ -123,8 +125,16 @@ export default function ProcurementPage(): React.ReactElement {
 
           <PriceComparison
             productIds={selectedProducts}
-            onSelectSupplier={(_supplierId, _productId, _unitCost) => {
-              // TODO: Add to purchase order
+            onSelectSupplier={(supplierId, _productId, unitCost) => {
+              // Open order form and notify user
+              setShowOrderForm(true)
+              toast({
+                title: 'Crear orden de compra',
+                description: `Proveedor seleccionado con costo unitario ₲ ${unitCost?.toLocaleString('es-PY') || 0}. Agrega el producto a la orden.`,
+                variant: 'default',
+              })
+              // Store selected supplier for future enhancement (pre-fill form)
+              void supplierId // Consumed but not yet used for pre-fill
             }}
           />
         </div>

@@ -1,10 +1,21 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+/**
+ * Notification Bell Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Mark as read uses useMutation with cache update
+ */
+
+import { useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Bell } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Notification {
   id: string
@@ -16,22 +27,20 @@ interface Notification {
   read_at: string | null
 }
 
+interface NotificationsResponse {
+  notifications: Notification[]
+  unreadCount: number
+}
+
 interface NotificationBellProps {
   clinic: string
 }
 
 export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
   const t = useTranslations('notifications')
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState<number>(0)
+  const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // Fetch notifications on mount
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -40,91 +49,89 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
         setIsOpen(false)
       }
     }
-
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isOpen])
 
-  const fetchNotifications = async () => {
-    try {
+  // React Query: Fetch notifications
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.notifications.bell(),
+    queryFn: async (): Promise<NotificationsResponse> => {
       const response = await fetch('/api/notifications')
-      if (!response.ok) {
-        throw new Error('Error al cargar notificaciones')
-      }
+      if (!response.ok) throw new Error('Error al cargar notificaciones')
+      return response.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+    refetchInterval: 60000, // Refresh every minute
+  })
 
-      const data = await response.json()
-      setNotifications(data.notifications || [])
-      setUnreadCount(data.unreadCount || 0)
-    } catch {
-      // Error fetching notifications - silently fail and show empty state
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const notifications = data?.notifications || []
+  const unreadCount = data?.unreadCount || 0
 
-  const markAsRead = async (notificationIds: string[]) => {
-    if (notificationIds.length === 0) return
-
-    try {
+  // Mutation: Mark notifications as read
+  const markAsReadMutation = useMutation({
+    mutationFn: async (notificationIds: string[]): Promise<void> => {
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationIds }),
       })
-
-      if (!response.ok) {
-        throw new Error('Error al marcar notificaciones como leídas')
-      }
-
-      // Update local state
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notificationIds.includes(notif.id)
-            ? { ...notif, status: 'read' as const, read_at: new Date().toISOString() }
-            : notif
-        )
+      if (!response.ok) throw new Error('Error al marcar como leída')
+    },
+    onSuccess: (_, notificationIds) => {
+      // Optimistic update
+      queryClient.setQueryData(
+        queryKeys.notifications.bell(),
+        (old: NotificationsResponse | undefined) => {
+          if (!old) return old
+          return {
+            notifications: old.notifications.map((notif) =>
+              notificationIds.includes(notif.id)
+                ? { ...notif, status: 'read' as const, read_at: new Date().toISOString() }
+                : notif
+            ),
+            unreadCount: Math.max(0, old.unreadCount - notificationIds.length),
+          }
+        }
       )
-      setUnreadCount((prev) => Math.max(0, prev - notificationIds.length))
-    } catch {
-      // Error marking as read - silently fail
-    }
-  }
+    },
+  })
 
-  const markAllAsRead = async () => {
-    try {
+  // Mutation: Mark all as read
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
       const response = await fetch('/api/notifications/mark-all-read', {
         method: 'POST',
       })
-
-      if (!response.ok) {
-        throw new Error('Error al marcar todas las notificaciones como leídas')
-      }
-
-      // Update local state
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.status === 'queued' || notif.status === 'delivered'
-            ? { ...notif, status: 'read' as const, read_at: new Date().toISOString() }
-            : notif
-        )
+      if (!response.ok) throw new Error('Error al marcar todas como leídas')
+    },
+    onSuccess: () => {
+      // Optimistic update
+      queryClient.setQueryData(
+        queryKeys.notifications.bell(),
+        (old: NotificationsResponse | undefined) => {
+          if (!old) return old
+          return {
+            notifications: old.notifications.map((notif) =>
+              notif.status === 'queued' || notif.status === 'delivered'
+                ? { ...notif, status: 'read' as const, read_at: new Date().toISOString() }
+                : notif
+            ),
+            unreadCount: 0,
+          }
+        }
       )
-      setUnreadCount(0)
-    } catch {
-      // Error marking all as read - silently fail
-    }
-  }
+    },
+  })
 
-  const handleNotificationClick = async (notificationId: string, status: string) => {
-    // Mark as read if not already read
+  const handleNotificationClick = (notificationId: string, status: string) => {
     if (status !== 'read') {
-      await markAsRead([notificationId])
+      markAsReadMutation.mutate([notificationId])
     }
   }
 
@@ -197,8 +204,9 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
                 <h3 className="text-lg font-bold">{t('title')}</h3>
                 {unreadCount > 0 && (
                   <button
-                    onClick={markAllAsRead}
-                    className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-white/30"
+                    onClick={() => markAllAsReadMutation.mutate()}
+                    disabled={markAllAsReadMutation.isPending}
+                    className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-white/30 disabled:opacity-50"
                   >
                     {t('markAllRead')}
                   </button>

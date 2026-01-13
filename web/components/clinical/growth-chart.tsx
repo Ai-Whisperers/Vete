@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Growth Chart Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Automatic caching of growth standards by breed/gender
+ */
+
+import { useEffect, useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   LineChart,
   Line,
@@ -13,6 +22,8 @@ import {
 } from 'recharts'
 import { AlertTriangle, TrendingUp, Info, Loader2, AlertCircle } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface GrowthStandard {
   age_weeks: number
@@ -145,11 +156,6 @@ function getBreedCategory(breed: string): {
 export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps) {
   const t = useTranslations('clinical.growthChart')
   const locale = useLocale()
-  const [standardData, setStandardData] = useState<GrowthStandard[]>([])
-  const [loading, setLoading] = useState(true)
-  const [usingFallback, setUsingFallback] = useState(false)
-  const [actualBreedUsed, setActualBreedUsed] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
 
   // Wait for client-side mount to avoid ResponsiveContainer SSR issues
@@ -157,33 +163,30 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    const fetchStandard = async () => {
-      setLoading(true)
-      setError(null)
+  // Determine breed category (memoized to avoid recalculation)
+  const { category, displayName, isExact } = useMemo(() => getBreedCategory(breed), [breed])
+  const usingFallback = !isExact
+  const actualBreedUsed = displayName
 
-      // Determine which breed category to search for
-      const { category, displayName, isExact } = getBreedCategory(breed)
-      setActualBreedUsed(displayName)
-      setUsingFallback(!isExact)
-
-      try {
-        // Fetch by breed_category (not breed name)
-        const res = await fetch(
-          `/api/growth_standards?breed_category=${encodeURIComponent(category)}&gender=${gender}`
-        )
-        const data = res.ok ? await res.json() : []
-
-        setStandardData(data || [])
-      } catch {
-        // Error message will be displayed using translation
-        setError('errorLoading')
-      } finally {
-        setLoading(false)
+  // React Query for fetching growth standards
+  const {
+    data: standardData = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.clinical.growthStandards(category, gender),
+    queryFn: async (): Promise<GrowthStandard[]> => {
+      const response = await fetch(
+        `/api/growth_standards?breed_category=${encodeURIComponent(category)}&gender=${gender}`
+      )
+      if (!response.ok) {
+        throw new Error('errorLoading')
       }
-    }
-    fetchStandard()
-  }, [breed, gender])
+      return response.json()
+    },
+    staleTime: staleTimes.STATIC,
+    gcTime: gcTimes.LONG,
+  })
 
   // Determine max age from patient records or default to 52 weeks
   const patientMaxAge = Math.max(
@@ -281,7 +284,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-3 text-[var(--status-error)]">
           <AlertCircle className="h-5 w-5" />
-          <p>{t(error)}</p>
+          <p>{t('errorLoading')}</p>
         </div>
       </div>
     )

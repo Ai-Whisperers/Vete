@@ -1,7 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Alerts Panel Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ */
+
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import {
   AlertTriangle,
   Package,
@@ -13,6 +22,8 @@ import {
   X,
   ExternalLink,
 } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 type AlertType = 'inventory' | 'vaccine' | 'appointment' | 'system'
 type AlertSeverity = 'critical' | 'warning' | 'info'
@@ -162,108 +173,99 @@ function EmptyState() {
 }
 
 export function AlertsPanel({ clinic }: AlertsPanelProps) {
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
 
-  useEffect(() => {
-    const fetchAlerts = async () => {
-      try {
-        // Fetch alerts from multiple sources in parallel
-        const [inventoryRes, vaccinesRes] = await Promise.all([
-          fetch(`/api/dashboard/inventory-alerts?clinic=${clinic}`),
-          fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=7`),
-        ])
+  // React Query: Fetch alerts with 5-minute auto-refresh
+  const { data: rawAlerts = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.dashboard.alerts(clinic),
+    queryFn: async (): Promise<Alert[]> => {
+      // Fetch alerts from multiple sources in parallel
+      const [inventoryRes, vaccinesRes] = await Promise.all([
+        fetch(`/api/dashboard/inventory-alerts?clinic=${clinic}`),
+        fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=7`),
+      ])
 
-        const alertItems: Alert[] = []
+      const alertItems: Alert[] = []
 
-        // Process inventory alerts
-        // API returns { low_stock: [], expiring_soon: [], out_of_stock: [] }
-        if (inventoryRes.ok) {
-          const inventoryData = await inventoryRes.json()
-          const lowStockCount = (inventoryData.low_stock || []).length
-          const outOfStockCount = (inventoryData.out_of_stock || []).length
-          const expiringCount = (inventoryData.expiring_soon || []).length
-          const criticalCount = lowStockCount + outOfStockCount
+      // Process inventory alerts
+      // API returns { low_stock: [], expiring_soon: [], out_of_stock: [] }
+      if (inventoryRes.ok) {
+        const inventoryData = await inventoryRes.json()
+        const lowStockCount = (inventoryData.low_stock || []).length
+        const outOfStockCount = (inventoryData.out_of_stock || []).length
+        const expiringCount = (inventoryData.expiring_soon || []).length
+        const criticalCount = lowStockCount + outOfStockCount
 
-          if (criticalCount > 0) {
-            alertItems.push({
-              id: 'inventory-low',
-              type: 'inventory',
-              severity: 'critical',
-              title: 'Stock bajo',
-              description: `${criticalCount} productos necesitan reposición urgente`,
-              count: criticalCount,
-              href: `/${clinic}/dashboard/inventory?filter=low_stock`,
-            })
-          }
-
-          if (expiringCount > 0) {
-            alertItems.push({
-              id: 'inventory-expiring',
-              type: 'inventory',
-              severity: 'warning',
-              title: 'Productos por vencer',
-              description: `${expiringCount} productos vencen pronto`,
-              count: expiringCount,
-              href: `/${clinic}/dashboard/inventory?filter=expiring`,
-            })
-          }
+        if (criticalCount > 0) {
+          alertItems.push({
+            id: 'inventory-low',
+            type: 'inventory',
+            severity: 'critical',
+            title: 'Stock bajo',
+            description: `${criticalCount} productos necesitan reposición urgente`,
+            count: criticalCount,
+            href: `/${clinic}/dashboard/inventory?filter=low_stock`,
+          })
         }
 
-        // Process vaccine alerts
-        // API returns array with is_overdue flag
-        if (vaccinesRes.ok) {
-          const vaccinesData = await vaccinesRes.json()
-          const vaccines = Array.isArray(vaccinesData) ? vaccinesData : []
-          const overdueCount = vaccines.filter((v: Vaccine) => v.is_overdue).length
-          const upcomingCount = vaccines.filter((v: Vaccine) => !v.is_overdue).length
-
-          if (overdueCount > 0) {
-            alertItems.push({
-              id: 'vaccines-overdue',
-              type: 'vaccine',
-              severity: 'critical',
-              title: 'Vacunas vencidas',
-              description: `${overdueCount} mascotas con vacunas vencidas`,
-              count: overdueCount,
-              href: `/${clinic}/dashboard/vaccines?filter=overdue`,
-            })
-          }
-
-          if (upcomingCount > 0) {
-            alertItems.push({
-              id: 'vaccines-upcoming',
-              type: 'vaccine',
-              severity: 'warning',
-              title: 'Vacunas próximas',
-              description: `${upcomingCount} vacunaciones programadas esta semana`,
-              count: upcomingCount,
-              href: `/${clinic}/dashboard/vaccines`,
-            })
-          }
+        if (expiringCount > 0) {
+          alertItems.push({
+            id: 'inventory-expiring',
+            type: 'inventory',
+            severity: 'warning',
+            title: 'Productos por vencer',
+            description: `${expiringCount} productos vencen pronto`,
+            count: expiringCount,
+            href: `/${clinic}/dashboard/inventory?filter=expiring`,
+          })
         }
-
-        // Sort by severity
-        const severityOrder = { critical: 0, warning: 1, info: 2 }
-        alertItems.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
-
-        setAlerts(alertItems)
-      } catch (error) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching alerts:', error)
-        }
-      } finally {
-        setLoading(false)
       }
-    }
 
-    fetchAlerts()
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchAlerts, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic])
+      // Process vaccine alerts
+      // API returns array with is_overdue flag
+      if (vaccinesRes.ok) {
+        const vaccinesData = await vaccinesRes.json()
+        const vaccines = Array.isArray(vaccinesData) ? vaccinesData : []
+        const overdueCount = vaccines.filter((v: Vaccine) => v.is_overdue).length
+        const upcomingCount = vaccines.filter((v: Vaccine) => !v.is_overdue).length
+
+        if (overdueCount > 0) {
+          alertItems.push({
+            id: 'vaccines-overdue',
+            type: 'vaccine',
+            severity: 'critical',
+            title: 'Vacunas vencidas',
+            description: `${overdueCount} mascotas con vacunas vencidas`,
+            count: overdueCount,
+            href: `/${clinic}/dashboard/vaccines?filter=overdue`,
+          })
+        }
+
+        if (upcomingCount > 0) {
+          alertItems.push({
+            id: 'vaccines-upcoming',
+            type: 'vaccine',
+            severity: 'warning',
+            title: 'Vacunas próximas',
+            description: `${upcomingCount} vacunaciones programadas esta semana`,
+            count: upcomingCount,
+            href: `/${clinic}/dashboard/vaccines`,
+          })
+        }
+      }
+
+      return alertItems
+    },
+    staleTime: staleTimes.MEDIUM, // 2 minutes
+    gcTime: gcTimes.MEDIUM, // 15 minutes
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  })
+
+  // Sort by severity (memoized)
+  const alerts = useMemo(() => {
+    const severityOrder = { critical: 0, warning: 1, info: 2 }
+    return [...rawAlerts].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
+  }, [rawAlerts])
 
   const handleDismiss = (id: string) => {
     setDismissed((prev) => new Set([...prev, id]))

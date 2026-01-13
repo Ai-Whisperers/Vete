@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { createPetSchema, PET_SPECIES } from '@/lib/schemas/pet'
+import { z } from 'zod'
+
+// VALID-004: Schema for API endpoint (simplified for onboarding wizard)
+const apiCreatePetSchema = z.object({
+  name: z.string().min(1, 'Nombre es requerido').max(50),
+  species: z.enum(PET_SPECIES, { message: 'Especie inválida' }),
+  breed: z.string().max(100).nullable().optional(),
+  clinic: z.string().min(1, 'La clínica es requerida'),
+})
 
 /**
  * POST /api/pets - Create a new pet (used by onboarding wizard)
@@ -10,40 +20,45 @@ export const POST = withApiAuth(async ({ user, supabase, request }: ApiHandlerCo
   try {
     // Handle FormData or JSON
     const contentType = request.headers.get('content-type') || ''
-    let name: string
-    let species: string
-    let breed: string | null = null
-    let clinic: string
+    let rawData: Record<string, unknown>
     let photoFile: File | null = null
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
-      name = formData.get('name') as string
-      species = formData.get('species') as string
-      breed = (formData.get('breed') as string) || null
-      clinic = formData.get('clinic') as string
+      rawData = {
+        name: formData.get('name') as string,
+        species: formData.get('species') as string,
+        breed: (formData.get('breed') as string) || null,
+        clinic: formData.get('clinic') as string,
+      }
       const photo = formData.get('photo')
       if (photo instanceof File && photo.size > 0) {
         photoFile = photo
       }
     } else {
       const body = await request.json()
-      name = body.name
-      species = body.species
-      breed = body.breed || null
-      clinic = body.clinic
+      rawData = {
+        name: body.name,
+        species: body.species,
+        breed: body.breed || null,
+        clinic: body.clinic,
+      }
     }
 
-    // Validate required fields
-    if (!name || !species || !clinic) {
-      const missing: string[] = []
-      if (!name) missing.push('name')
-      if (!species) missing.push('species')
-      if (!clinic) missing.push('clinic')
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { missing },
+    // VALID-004: Validate with Zod schema
+    const result = apiCreatePetSchema.safeParse(rawData)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: result.error.issues.map((i) => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
       })
     }
+
+    const { name, species, breed, clinic } = result.data
 
     // Handle photo upload if provided
     let photoUrl: string | null = null

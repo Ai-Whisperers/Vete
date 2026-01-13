@@ -2,6 +2,8 @@
 
 import type { JSX } from 'react'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useToast } from '@/components/ui/Toast'
 import { createClient } from '@/lib/supabase/client'
 import { Shield, Plus } from 'lucide-react'
 import ConsentCard from './consent-card'
@@ -19,6 +21,9 @@ export default function BlanketConsents({
   ownerId,
   onUpdate,
 }: BlanketConsentsProps): JSX.Element {
+  const t = useTranslations('consents.blanket')
+  const tc = useTranslations('common')
+  const { showToast } = useToast()
   const [consents, setConsents] = useState<BlanketConsent[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -104,21 +109,17 @@ export default function BlanketConsents({
         onUpdate()
       }
     } catch {
-      alert('Error al revocar el consentimiento')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: 'Error al revocar el consentimiento',
+        variant: 'error',
+      })
     }
   }
 
   const getTypeLabel = (type: string): string => {
-    const labels: Record<string, string> = {
-      emergency_treatment: 'Tratamiento de Emergencia',
-      routine_procedures: 'Procedimientos de Rutina',
-      vaccination: 'Vacunación',
-      diagnostic_tests: 'Pruebas Diagnósticas',
-      grooming: 'Peluquería',
-      boarding: 'Hospedaje',
-      other: 'Otro',
-    }
-    return labels[type] || type
+    const typeKey = `types.${type}` as const
+    return t.has(typeKey) ? t(typeKey) : type
   }
 
   if (loading) {
@@ -126,7 +127,7 @@ export default function BlanketConsents({
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-[var(--primary)]"></div>
-          <p className="mt-2 text-sm text-[var(--text-secondary)]">Cargando...</p>
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">{tc('loading')}</p>
         </div>
       </div>
     )
@@ -138,7 +139,7 @@ export default function BlanketConsents({
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-[var(--primary)]" />
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-            Consentimientos Permanentes
+            {t('title')}
           </h3>
         </div>
         <button
@@ -146,7 +147,7 @@ export default function BlanketConsents({
           className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3 py-2 text-sm text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          Agregar
+          {tc('add')}
         </button>
       </div>
 
@@ -154,14 +155,14 @@ export default function BlanketConsents({
         <div className="border-[var(--primary)]/20 rounded-lg border bg-[var(--bg-paper)] p-8 text-center">
           <Shield className="mx-auto mb-3 h-12 w-12 text-[var(--text-secondary)]" />
           <p className="text-[var(--text-secondary)]">
-            No hay consentimientos permanentes registrados
+            {t('empty')}
           </p>
           <button
             onClick={() => setShowAddModal(true)}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm text-white transition-opacity hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
-            Agregar primer consentimiento
+            {t('addFirst')}
           </button>
         </div>
       ) : (

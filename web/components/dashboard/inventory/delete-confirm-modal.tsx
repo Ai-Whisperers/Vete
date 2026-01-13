@@ -1,6 +1,7 @@
 'use client'
 
 import { Loader2, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface DeleteConfirmModalProps {
   isOpen: boolean
@@ -16,9 +17,10 @@ export function DeleteConfirmModal({
   onClose,
   onConfirm,
   isDeleting,
-  title = 'Eliminar Producto',
-  message = '¿Estás seguro de eliminar este producto? Esta acción no se puede deshacer.',
+  title,
+  message,
 }: DeleteConfirmModalProps) {
+  const t = useTranslations('inventory.deleteModal')
   if (!isOpen) return null
 
   return (
@@ -28,22 +30,22 @@ export function DeleteConfirmModal({
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-error-bg)]">
             <Trash2 className="h-8 w-8 text-[var(--status-error)]" />
           </div>
-          <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">{title}</h3>
-          <p className="text-sm text-[var(--text-muted)]">{message}</p>
+          <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">{title || t('title')}</h3>
+          <p className="text-sm text-[var(--text-muted)]">{message || t('message')}</p>
         </div>
         <div className="flex gap-3 bg-[var(--bg-subtle)] p-6">
           <button
             onClick={onClose}
             className="flex-1 py-3 font-bold text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
           >
-            Cancelar
+            {t('cancel')}
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--status-error)] py-3 font-bold text-white transition hover:bg-[var(--status-error-dark)] disabled:opacity-50"
           >
-            {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Eliminar'}
+            {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : t('delete')}
           </button>
         </div>
       </div>

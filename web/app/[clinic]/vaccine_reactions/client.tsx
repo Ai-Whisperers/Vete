@@ -1,6 +1,20 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+
+/**
+ * Vaccine Reactions CRUD Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Added useMutation for CRUD operations
+ * - Automatic cache invalidation on mutations
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
+import { useTranslations } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   AlertTriangle,
   Plus,
@@ -67,8 +81,10 @@ const SEVERITY_OPTIONS = [
 
 export default function VaccineReactionsClient() {
   const { user, loading } = useAuthRedirect()
-  const [reactions, setReactions] = useState<VaccineReaction[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const t = useTranslations('vaccineReactions')
+  const tc = useTranslations('common')
+  const queryClient = useQueryClient()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [severityFilter, setSeverityFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('occurred_at')
@@ -88,29 +104,68 @@ export default function VaccineReactionsClient() {
   const [formDate, setFormDate] = useState('')
   const [formTreatment, setFormTreatment] = useState('')
 
-  const fetchReactions = async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch('/api/vaccine_reactions')
-      if (res.ok) {
-        const data = await res.json()
-        setReactions(data)
+  // React Query for data fetching
+  const { data: reactions = [], isLoading } = useQuery({
+    queryKey: queryKeys.clinical.vaccineReactions(),
+    queryFn: async (): Promise<VaccineReaction[]> => {
+      const response = await fetch('/api/vaccine_reactions')
+      if (!response.ok) {
+        throw new Error('Error al cargar reacciones a vacunas')
       }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching vaccine reactions:', error)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      return response.json()
+    },
+    enabled: !loading && !!user,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  useEffect(() => {
-    if (!loading && user) {
-      fetchReactions()
-    }
-  }, [loading, user])
+  // Mutation for adding vaccine reactions
+  const addMutation = useMutation({
+    mutationFn: async (payload: Omit<VaccineReaction, 'id'>) => {
+      const response = await fetch('/api/vaccine_reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al registrar reacción')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.vaccineReactions() })
+    },
+  })
+
+  // Mutation for updating vaccine reactions
+  const updateMutation = useMutation({
+    mutationFn: async (payload: VaccineReaction) => {
+      const response = await fetch('/api/vaccine_reactions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al actualizar reacción')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.vaccineReactions() })
+    },
+  })
+
+  // Mutation for deleting vaccine reactions
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch('/api/vaccine_reactions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!response.ok) throw new Error('Error al eliminar reacción')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.vaccineReactions() })
+    },
+  })
 
   // Filter and sort
   const filteredReactions = useMemo(() => {
@@ -206,18 +261,14 @@ export default function VaccineReactionsClient() {
       reaction_detail: formDetail,
       severity: formSeverity,
       occurred_at: formDate,
-      treatment: formTreatment || null,
+      treatment: formTreatment || undefined,
     }
-    const res = await fetch('/api/vaccine_reactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    addMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowAddModal(false)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowAddModal(false)
-      resetForm()
-      fetchReactions()
-    }
   }
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -232,45 +283,39 @@ export default function VaccineReactionsClient() {
       reaction_detail: formDetail,
       severity: formSeverity,
       occurred_at: formDate,
-      treatment: formTreatment || null,
+      treatment: formTreatment || undefined,
     }
-    const res = await fetch('/api/vaccine_reactions', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowEditModal(false)
+        setEditingReaction(null)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowEditModal(false)
-      setEditingReaction(null)
-      resetForm()
-      fetchReactions()
-    }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este registro de reacción?')) return
-
-    await fetch('/api/vaccine_reactions', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    fetchReactions()
+    if (!confirm(t('confirmDelete'))) return
+    deleteMutation.mutate(id)
   }
 
   const getSeverityBadge = (severity?: string) => {
-    const option = SEVERITY_OPTIONS.find((s) => s.value === severity)
-    if (!option) return null
+    if (!severity) return null
+    const colorMap: Record<string, string> = {
+      leve: 'bg-yellow-100 text-yellow-700',
+      moderada: 'bg-orange-100 text-orange-700',
+      severa: 'bg-red-100 text-red-700',
+    }
     return (
-      <span className={`rounded-full px-2 py-1 text-xs font-bold ${option.color}`}>
-        {option.label}
+      <span className={`rounded-full px-2 py-1 text-xs font-bold ${colorMap[severity] || ''}`}>
+        {t(`severity.${severity}`)}
       </span>
     )
   }
 
   const getReactionTypeLabel = (type?: string) => {
-    const option = REACTION_TYPES.find((r) => r.value === type)
-    return option?.label || type || 'No especificado'
+    if (!type) return t('notSpecified')
+    return t(`reactionTypes.${type}.label`)
   }
 
   // Stats
@@ -314,30 +359,29 @@ export default function VaccineReactionsClient() {
               <AlertTriangle className="h-8 w-8" />
             </div>
             <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium backdrop-blur-sm">
-              Farmacovigilancia
+              {t('pharmacovigilance')}
             </span>
           </div>
 
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Reacciones Adversas a Vacunas</h1>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{t('title')}</h1>
           <p className="max-w-2xl text-xl text-white/90">
-            Registra y monitorea eventos adversos post-vacunación. Sistema de farmacovigilancia para
-            mejorar la seguridad de tus pacientes.
+            {t('description')}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <div className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
               <FileText className="h-5 w-5" />
-              <span>{stats.total} registros</span>
+              <span>{t('recordsCount', { count: stats.total })}</span>
             </div>
             {stats.severas > 0 && (
               <div className="flex items-center gap-2 rounded-xl bg-red-600/50 px-4 py-2 backdrop-blur-sm">
                 <AlertCircle className="h-5 w-5" />
-                <span>{stats.severas} severas</span>
+                <span>{t('severeCount', { count: stats.severas })}</span>
               </div>
             )}
             {stats.moderadas > 0 && (
               <div className="flex items-center gap-2 rounded-xl bg-orange-600/50 px-4 py-2 backdrop-blur-sm">
-                <span>{stats.moderadas} moderadas</span>
+                <span>{t('moderateCount', { count: stats.moderadas })}</span>
               </div>
             )}
           </div>
@@ -354,7 +398,7 @@ export default function VaccineReactionsClient() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar por vacuna, mascota o detalle..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 transition-all focus:border-transparent focus:ring-2 focus:ring-red-500"
@@ -367,22 +411,22 @@ export default function VaccineReactionsClient() {
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
                 className="rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                aria-label="Filtrar por severidad"
+                aria-label={t('severityFilterLabel')}
               >
-                <option value="all">Todas las severidades</option>
-                <option value="leve">Leves</option>
-                <option value="moderada">Moderadas</option>
-                <option value="severa">Severas</option>
+                <option value="all">{t('allSeverities')}</option>
+                <option value="leve">{t('severity.leve')}</option>
+                <option value="moderada">{t('severity.moderada')}</option>
+                <option value="severa">{t('severity.severa')}</option>
               </select>
 
               {/* Add Button */}
               <button
                 onClick={openAddModal}
                 className="flex items-center gap-2 rounded-xl bg-red-500 px-6 py-3 font-bold text-white transition-colors hover:bg-red-600"
-                aria-label="Registrar nueva reacción adversa"
+                aria-label={t('registerReactionAriaLabel')}
               >
                 <Plus className="h-5 w-5" />
-                <span className="hidden sm:inline">Registrar Reacción</span>
+                <span className="hidden sm:inline">{t('registerReaction')}</span>
               </button>
             </div>
           </div>
@@ -391,7 +435,7 @@ export default function VaccineReactionsClient() {
           {(searchTerm || severityFilter !== 'all') && (
             <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
               <span>
-                Mostrando {filteredReactions.length} de {reactions.length} registros
+                {t('showingFiltered', { filtered: filteredReactions.length, total: reactions.length })}
               </span>
               <button
                 onClick={() => {
@@ -400,7 +444,7 @@ export default function VaccineReactionsClient() {
                 }}
                 className="text-red-500 hover:underline"
               >
-                Limpiar filtros
+                {t('clearFilters')}
               </button>
             </div>
           )}
@@ -422,13 +466,13 @@ export default function VaccineReactionsClient() {
             </div>
             <h3 className="mb-2 text-lg font-bold text-gray-900">
               {searchTerm || severityFilter !== 'all'
-                ? 'No se encontraron registros'
-                : 'Sin reacciones registradas'}
+                ? t('empty.noResults')
+                : t('empty.noReactions')}
             </h3>
             <p className="mb-6 text-gray-600">
               {searchTerm || severityFilter !== 'all'
-                ? 'Intenta con otros términos de búsqueda o filtros.'
-                : 'Esto es bueno - significa que no hay eventos adversos reportados.'}
+                ? t('empty.tryOtherSearch')
+                : t('empty.goodNews')}
             </p>
             {!searchTerm && severityFilter === 'all' && (
               <button
@@ -436,7 +480,7 @@ export default function VaccineReactionsClient() {
                 className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-6 py-3 font-bold text-white transition-colors hover:bg-red-600"
               >
                 <Plus className="h-5 w-5" />
-                Registrar Primera Reacción
+                {t('registerFirstReaction')}
               </button>
             )}
           </div>
@@ -452,7 +496,7 @@ export default function VaccineReactionsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        Fecha
+                        {t('table.date')}
                         <SortIcon field="occurred_at" />
                       </span>
                     </th>
@@ -462,7 +506,7 @@ export default function VaccineReactionsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Syringe className="h-4 w-4" />
-                        Vacuna
+                        {t('table.vaccine')}
                         <SortIcon field="vaccine_name" />
                       </span>
                     </th>
@@ -471,7 +515,7 @@ export default function VaccineReactionsClient() {
                       onClick={() => handleSort('reaction_type')}
                     >
                       <span className="flex items-center gap-2">
-                        Tipo
+                        {t('table.type')}
                         <SortIcon field="reaction_type" />
                       </span>
                     </th>
@@ -480,12 +524,12 @@ export default function VaccineReactionsClient() {
                       onClick={() => handleSort('severity')}
                     >
                       <span className="flex items-center gap-2">
-                        Severidad
+                        {t('table.severity')}
                         <SortIcon field="severity" />
                       </span>
                     </th>
-                    <th className="p-4 text-left font-bold text-gray-700">Detalle</th>
-                    <th className="p-4 text-right font-bold text-gray-700">Acciones</th>
+                    <th className="p-4 text-left font-bold text-gray-700">{t('table.detail')}</th>
+                    <th className="p-4 text-right font-bold text-gray-700">{tc('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -526,14 +570,14 @@ export default function VaccineReactionsClient() {
                           <button
                             onClick={() => openEditModal(reaction)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-500"
-                            aria-label={`Editar reacción de ${reaction.vaccine_name || 'vacuna'}`}
+                            aria-label={t('editReactionAriaLabel', { vaccine: reaction.vaccine_name || t('vaccine') })}
                           >
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(reaction.id)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
-                            aria-label={`Eliminar reacción de ${reaction.vaccine_name || 'vacuna'}`}
+                            aria-label={t('deleteReactionAriaLabel', { vaccine: reaction.vaccine_name || t('vaccine') })}
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -551,27 +595,23 @@ export default function VaccineReactionsClient() {
         <div className="mt-8 rounded-2xl border border-red-100 bg-gradient-to-r from-red-50 to-orange-50 p-6">
           <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-900">
             <AlertTriangle className="h-5 w-5 text-red-500" />
-            Guía de Farmacovigilancia
+            {t('info.title')}
           </h3>
           <div className="grid gap-4 text-sm text-gray-600 md:grid-cols-2">
             <div>
               <p className="mb-2">
-                <strong>¿Cuándo reportar?</strong> Cualquier evento adverso que ocurra después de la
-                vacunación, incluso si no está seguro de la relación causal.
+                <strong>{t('info.whenToReportTitle')}</strong> {t('info.whenToReportText')}
               </p>
               <p>
-                <strong>Tiempo de observación:</strong> Las reacciones pueden ocurrir desde minutos
-                hasta 3-4 semanas post-vacunación.
+                <strong>{t('info.observationTimeTitle')}</strong> {t('info.observationTimeText')}
               </p>
             </div>
             <div>
               <p className="mb-2">
-                <strong>Reacciones comunes:</strong> Dolor local, letargia leve y fiebre baja son
-                normales y suelen resolverse en 24-48 horas.
+                <strong>{t('info.commonReactionsTitle')}</strong> {t('info.commonReactionsText')}
               </p>
               <p>
-                <strong>Urgencia:</strong> Edema facial, dificultad respiratoria o colapso requieren
-                atención veterinaria inmediata.
+                <strong>{t('info.urgencyTitle')}</strong> {t('info.urgencyText')}
               </p>
             </div>
           </div>
@@ -588,12 +628,12 @@ export default function VaccineReactionsClient() {
                   <div className="rounded-xl bg-red-100 p-2">
                     <AlertTriangle className="h-5 w-5 text-red-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Registrar Reacción Adversa</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{t('modal.addTitle')}</h2>
                 </div>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="rounded-lg p-2 transition-colors hover:bg-red-100"
-                  aria-label="Cerrar modal"
+                  aria-label={t('modal.closeAriaLabel')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -603,12 +643,12 @@ export default function VaccineReactionsClient() {
             <form onSubmit={handleAdd} className="space-y-4 p-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">ID Vacuna *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.vaccineId')} *</label>
                   <input
                     type="text"
                     value={formVaccineId}
                     onChange={(e) => setFormVaccineId(e.target.value)}
-                    placeholder="ID o lote"
+                    placeholder={t('form.vaccineIdPlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                     required
                   />
@@ -616,13 +656,13 @@ export default function VaccineReactionsClient() {
 
                 <div>
                   <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Nombre Vacuna
+                    {t('form.vaccineName')}
                   </label>
                   <input
                     type="text"
                     value={formVaccineName}
                     onChange={(e) => setFormVaccineName(e.target.value)}
-                    placeholder="Ej: Rabia, Séxtuple"
+                    placeholder={t('form.vaccineNamePlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   />
                 </div>
@@ -630,7 +670,7 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Tipo de Reacción *
+                  {t('form.reactionType')} *
                 </label>
                 <select
                   value={formReactionType}
@@ -638,10 +678,10 @@ export default function VaccineReactionsClient() {
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   required
                 >
-                  <option value="">Seleccionar tipo...</option>
+                  <option value="">{t('form.selectType')}</option>
                   {REACTION_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
-                      {type.label}
+                      {t(`reactionTypes.${type.value}.label`)}
                     </option>
                   ))}
                 </select>
@@ -649,7 +689,7 @@ export default function VaccineReactionsClient() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Severidad *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.severity')} *</label>
                   <select
                     value={formSeverity}
                     onChange={(e) =>
@@ -660,14 +700,14 @@ export default function VaccineReactionsClient() {
                   >
                     {SEVERITY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {t(`severity.${opt.value}`)}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Fecha *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.date')} *</label>
                   <input
                     type="date"
                     value={formDate}
@@ -680,12 +720,12 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Descripción Detallada *
+                  {t('form.detailedDescription')} *
                 </label>
                 <textarea
                   value={formDetail}
                   onChange={(e) => setFormDetail(e.target.value)}
-                  placeholder="Describa los síntomas observados, tiempo de aparición, evolución..."
+                  placeholder={t('form.detailedDescriptionPlaceholder')}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   required
@@ -694,12 +734,12 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Tratamiento Aplicado
+                  {t('form.treatmentApplied')}
                 </label>
                 <textarea
                   value={formTreatment}
                   onChange={(e) => setFormTreatment(e.target.value)}
-                  placeholder="Medicamentos administrados, medidas de soporte..."
+                  placeholder={t('form.treatmentPlaceholder')}
                   rows={2}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                 />
@@ -711,13 +751,13 @@ export default function VaccineReactionsClient() {
                   onClick={() => setShowAddModal(false)}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-red-500 px-6 py-3 font-bold text-white transition-colors hover:bg-red-600"
                 >
-                  Registrar
+                  {t('register')}
                 </button>
               </div>
             </form>
@@ -735,7 +775,7 @@ export default function VaccineReactionsClient() {
                   <div className="rounded-xl bg-red-100 p-2">
                     <Edit2 className="h-5 w-5 text-red-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Editar Reacción</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{t('modal.editTitle')}</h2>
                 </div>
                 <button
                   onClick={() => {
@@ -743,7 +783,7 @@ export default function VaccineReactionsClient() {
                     setEditingReaction(null)
                   }}
                   className="rounded-lg p-2 transition-colors hover:bg-red-100"
-                  aria-label="Cerrar modal"
+                  aria-label={t('modal.closeAriaLabel')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -753,12 +793,12 @@ export default function VaccineReactionsClient() {
             <form onSubmit={handleEdit} className="space-y-4 p-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">ID Vacuna *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.vaccineId')} *</label>
                   <input
                     type="text"
                     value={formVaccineId}
                     onChange={(e) => setFormVaccineId(e.target.value)}
-                    placeholder="ID o lote"
+                    placeholder={t('form.vaccineIdPlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                     required
                   />
@@ -766,13 +806,13 @@ export default function VaccineReactionsClient() {
 
                 <div>
                   <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Nombre Vacuna
+                    {t('form.vaccineName')}
                   </label>
                   <input
                     type="text"
                     value={formVaccineName}
                     onChange={(e) => setFormVaccineName(e.target.value)}
-                    placeholder="Ej: Rabia, Séxtuple"
+                    placeholder={t('form.vaccineNamePlaceholder')}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   />
                 </div>
@@ -780,7 +820,7 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Tipo de Reacción *
+                  {t('form.reactionType')} *
                 </label>
                 <select
                   value={formReactionType}
@@ -788,10 +828,10 @@ export default function VaccineReactionsClient() {
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   required
                 >
-                  <option value="">Seleccionar tipo...</option>
+                  <option value="">{t('form.selectType')}</option>
                   {REACTION_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
-                      {type.label}
+                      {t(`reactionTypes.${type.value}.label`)}
                     </option>
                   ))}
                 </select>
@@ -799,7 +839,7 @@ export default function VaccineReactionsClient() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Severidad *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.severity')} *</label>
                   <select
                     value={formSeverity}
                     onChange={(e) =>
@@ -810,14 +850,14 @@ export default function VaccineReactionsClient() {
                   >
                     {SEVERITY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {t(`severity.${opt.value}`)}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Fecha *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.date')} *</label>
                   <input
                     type="date"
                     value={formDate}
@@ -830,12 +870,12 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Descripción Detallada *
+                  {t('form.detailedDescription')} *
                 </label>
                 <textarea
                   value={formDetail}
                   onChange={(e) => setFormDetail(e.target.value)}
-                  placeholder="Describa los síntomas observados, tiempo de aparición, evolución..."
+                  placeholder={t('form.detailedDescriptionPlaceholder')}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                   required
@@ -844,12 +884,12 @@ export default function VaccineReactionsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Tratamiento Aplicado
+                  {t('form.treatmentApplied')}
                 </label>
                 <textarea
                   value={formTreatment}
                   onChange={(e) => setFormTreatment(e.target.value)}
-                  placeholder="Medicamentos administrados, medidas de soporte..."
+                  placeholder={t('form.treatmentPlaceholder')}
                   rows={2}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-red-500"
                 />
@@ -864,13 +904,13 @@ export default function VaccineReactionsClient() {
                   }}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-red-500 px-6 py-3 font-bold text-white transition-colors hover:bg-red-600"
                 >
-                  Guardar Cambios
+                  {t('modal.saveChanges')}
                 </button>
               </div>
             </form>

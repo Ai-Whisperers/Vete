@@ -7,7 +7,7 @@ import { createSearchPattern, MIN_SEARCH_LENGTH } from '@/lib/utils/search'
 
 interface SearchResult {
   id: string
-  type: 'pet' | 'appointment' | 'product' | 'client'
+  type: 'pet' | 'appointment' | 'product' | 'client' | 'invoice'
   title: string
   subtitle?: string
   icon?: string
@@ -152,6 +152,39 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
           icon: 'package',
           url: `/${clinic}/store/products/${product.id}`,
         })
+      }
+    }
+
+    // Search invoices (staff only)
+    if (['vet', 'admin'].includes(profile.role)) {
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('id, invoice_number, total, status, created_at, client:profiles(full_name)')
+        .eq('tenant_id', clinic)
+        .or(`invoice_number.ilike.${searchPattern}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (invoices) {
+        for (const invoice of invoices) {
+          const clientData = invoice.client as unknown as { full_name: string } | null
+          const statusLabels: Record<string, string> = {
+            draft: 'Borrador',
+            sent: 'Enviada',
+            partial: 'Pago parcial',
+            paid: 'Pagada',
+            overdue: 'Vencida',
+            void: 'Anulada',
+          }
+          results.push({
+            id: invoice.id,
+            type: 'invoice',
+            title: `Factura ${invoice.invoice_number}`,
+            subtitle: `${clientData?.full_name || 'Cliente'} • ${invoice.total?.toLocaleString('es-PY')} Gs • ${statusLabels[invoice.status] || invoice.status}`,
+            icon: 'file-text',
+            url: `/${clinic}/dashboard/invoices/${invoice.id}`,
+          })
+        }
       }
     }
 

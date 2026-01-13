@@ -67,6 +67,12 @@ export {
   getSupabaseServerMock,
   // Auth module mock
   getAuthMock,
+  // Features mock (for @/lib/features/server)
+  getFeaturesMock,
+  // Mock helper factories (for use inside vi.mock with dynamic imports)
+  createMockLogger,
+  createMockPerfTracker,
+  createMockScopedQueries,
   // Convenience functions
   resetMockState,
   setupApiTestMocks,

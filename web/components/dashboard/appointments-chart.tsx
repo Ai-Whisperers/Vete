@@ -1,5 +1,12 @@
 'use client'
 
+/**
+ * Appointments Chart
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useAsyncData with useQuery hook
+ */
+
 import { useState, useMemo } from 'react'
 import {
   AreaChart,
@@ -13,8 +20,10 @@ import {
 } from 'recharts'
 import { Calendar } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
-import { useAsyncData } from '@/hooks/use-async-data'
+import { useQuery } from '@tanstack/react-query'
 import { ErrorBoundary, LoadingSpinner } from '@/components/shared'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface AppointmentData {
   period_start: string
@@ -34,20 +43,19 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
   const locale = useLocale()
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week')
 
-  const { data, isLoading, error, refetch } = useAsyncData<AppointmentData[]>(
-    async () => {
+  // React Query: Fetch appointment chart data
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.dashboard.appointmentsChart(clinic, period),
+    queryFn: async (): Promise<AppointmentData[]> => {
       const res = await fetch(`/api/dashboard/appointments?clinic=${clinic}&period=${period}`)
       if (!res.ok) {
         throw new Error('Failed to fetch appointment data')
       }
       return res.json()
     },
-    [clinic, period],
-    {
-      enabled: true,
-      retryCount: 2,
-    }
-  )
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
   const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
 

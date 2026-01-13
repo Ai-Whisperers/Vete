@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
 import { requestAccess } from '@/app/actions/network-actions'
+import { useToast } from '@/components/ui/Toast'
 
 interface Props {
   petId: string
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function PatientRequestButton({ petId, clinicId }: Props) {
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const handleRequest = async () => {
@@ -20,9 +22,9 @@ export default function PatientRequestButton({ petId, clinicId }: Props) {
     setLoading(false)
 
     if (!result.success) {
-      alert('Error solicitando acceso: ' + result.error)
+      showToast({ title: 'Error solicitando acceso: ' + result.error, variant: 'error' })
     } else {
-      // Success - page will likely revalidate, but we can alert just in case
+      // Success - page will likely revalidate
     }
   }
 

@@ -1,7 +1,14 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Lost Pets Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
 import Link from 'next/link'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Search,
   AlertTriangle,
@@ -9,7 +16,6 @@ import {
   CheckCircle,
   Eye,
   Phone,
-  Mail,
   MapPin,
   Clock,
   ChevronLeft,
@@ -17,8 +23,8 @@ import {
   Filter,
   RefreshCw,
   MessageCircle,
-  X,
 } from 'lucide-react'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface LostPetReport {
   id: string
@@ -153,38 +159,25 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 export default function LostPetsClient({ clinic }: LostPetsClientProps): React.ReactElement {
-  const [reports, setReports] = useState<LostPetReport[]>([])
-  const [summary, setSummary] = useState<Summary>({
-    lost: 0,
-    found: 0,
-    reunited: 0,
-    total: 0,
-  })
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: 20,
-    total: 0,
-    pages: 0,
-    hasNext: false,
-    hasPrev: false,
-  })
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusTab>('all')
-  const [selectedReport, setSelectedReport] = useState<LostPetReport | null>(null)
-  const [showDetail, setShowDetail] = useState(false)
-  const [updating, setUpdating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [limit] = useState(20)
 
-  const fetchReports = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch reports
+  const {
+    data: reportsData,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['lost-pets', clinic, page, limit, statusFilter, search],
+    queryFn: async (): Promise<{ reports: LostPetReport[]; summary: Summary; pagination: Pagination }> => {
       const params = new URLSearchParams({
         clinic,
-        page: String(pagination.page),
-        limit: String(pagination.limit),
+        page: String(page),
+        limit: String(limit),
       })
 
       if (statusFilter !== 'all') {
@@ -202,52 +195,49 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
       }
 
       const data = await response.json()
-      setReports(data.reports || [])
-      setSummary(data.summary || { lost: 0, found: 0, reunited: 0, total: 0 })
-      if (data.pagination) {
-        setPagination(data.pagination)
+      return {
+        reports: data.reports || [],
+        summary: data.summary || { lost: 0, found: 0, reunited: 0, total: 0 },
+        pagination: data.pagination || { page: 1, limit: 20, total: 0, pages: 0, hasNext: false, hasPrev: false },
       }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching lost pets:', err)
-      }
-      setError('Error al cargar los reportes de mascotas perdidas')
-    } finally {
-      setLoading(false)
-    }
-  }, [clinic, pagination.page, pagination.limit, statusFilter, search])
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  useEffect(() => {
-    fetchReports()
-  }, [fetchReports])
+  const reports = reportsData?.reports || []
+  const summary = reportsData?.summary || { lost: 0, found: 0, reunited: 0, total: 0 }
+  const pagination = reportsData?.pagination || { page: 1, limit: 20, total: 0, pages: 0, hasNext: false, hasPrev: false }
+  const error = queryError?.message || null
 
-  const updateStatus = async (reportId: string, newStatus: 'lost' | 'found' | 'reunited', notes?: string): Promise<void> => {
-    setUpdating(true)
-    try {
-      const response = await fetch(`/api/dashboard/lost-pets/${reportId}`, {
+  // Mutation: Update status
+  const statusMutation = useMutation({
+    mutationFn: async (params: { reportId: string; newStatus: 'lost' | 'found' | 'reunited'; notes?: string }) => {
+      const response = await fetch(`/api/dashboard/lost-pets/${params.reportId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus, notes }),
+        body: JSON.stringify({ status: params.newStatus, notes: params.notes }),
       })
 
       if (!response.ok) {
         throw new Error('Error al actualizar estado')
       }
 
-      await fetchReports()
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lost-pets', clinic] })
+    },
+  })
 
-      if (selectedReport?.id === reportId) {
-        const data = await response.json()
-        setSelectedReport(data.report)
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error updating status:', err)
-      }
-      setError('Error al actualizar el estado')
-    } finally {
-      setUpdating(false)
-    }
+  const updating = statusMutation.isPending
+
+  const updateStatus = async (reportId: string, newStatus: 'lost' | 'found' | 'reunited', notes?: string): Promise<void> => {
+    await statusMutation.mutateAsync({ reportId, newStatus, notes })
+  }
+
+  const fetchReports = async (): Promise<void> => {
+    await refetch()
   }
 
   const handleMarkReunited = async (report: LostPetReport): Promise<void> => {
@@ -257,7 +247,7 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
 
   const handleSearch = (e: React.FormEvent): void => {
     e.preventDefault()
-    setPagination((prev) => ({ ...prev, page: 1 }))
+    setPage(1)
   }
 
   const openWhatsApp = (phone: string | null): void => {
@@ -298,7 +288,7 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
             key={item.key}
             onClick={() => {
               setStatusFilter(item.key as StatusTab)
-              setPagination((prev) => ({ ...prev, page: 1 }))
+              setPage(1)
             }}
             className={`rounded-xl border p-4 text-center transition-all ${
               statusFilter === item.key
@@ -348,7 +338,7 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value as StatusTab)
-                setPagination((prev) => ({ ...prev, page: 1 }))
+                setPage(1)
               }}
               className="focus:ring-[var(--primary)]/20 rounded-xl border border-gray-200 bg-white px-4 py-2.5 focus:border-[var(--primary)] focus:ring-2"
             >
@@ -517,7 +507,7 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
                 </p>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+                    onClick={() => setPage((prev) => prev - 1)}
                     disabled={!pagination.hasPrev}
                     className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -527,7 +517,7 @@ export default function LostPetsClient({ clinic }: LostPetsClientProps): React.R
                     {pagination.page} / {pagination.pages}
                   </span>
                   <button
-                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+                    onClick={() => setPage((prev) => prev + 1)}
                     disabled={!pagination.hasNext}
                     className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >

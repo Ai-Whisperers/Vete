@@ -52,6 +52,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET } from '@/app/api/inventory/reorder-suggestions/route'
+
 // Helper to create request with query params
 function createRequest(groupBySupplier?: boolean): NextRequest {
   const params = new URLSearchParams()

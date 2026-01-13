@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Reminders Dashboard Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Bell,
   Calendar,
@@ -13,12 +20,11 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertTriangle,
   Syringe,
   TrendingUp,
-  Filter,
-  Plus,
 } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ReminderStats {
   reminders: {
@@ -79,90 +85,123 @@ interface Props {
 }
 
 export default function RemindersDashboard({ clinic, isAdmin }: Props) {
-  const [stats, setStats] = useState<ReminderStats | null>(null)
-  const [reminders, setReminders] = useState<Reminder[]>([])
-  const [rules, setRules] = useState<ReminderRule[]>([])
-  const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'overview' | 'reminders' | 'rules'>('overview')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [triggering, setTriggering] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchData()
-  }, [statusFilter])
+  // React Query: Fetch stats
+  const {
+    data: stats,
+    isLoading: loadingStats,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ['reminders', 'stats'],
+    queryFn: async (): Promise<ReminderStats> => {
+      const res = await fetch('/api/reminders/stats')
+      if (!res.ok) throw new Error('Error al cargar estadísticas')
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const [statsRes, remindersRes, rulesRes] = await Promise.all([
-        fetch('/api/reminders/stats'),
-        fetch(`/api/reminders?status=${statusFilter}&limit=50`),
-        isAdmin
-          ? fetch('/api/reminders/rules')
-          : Promise.resolve({ ok: true, json: () => ({ data: [] }) }),
-      ])
+  // React Query: Fetch reminders list
+  const {
+    data: remindersData,
+    isLoading: loadingReminders,
+    refetch: refetchReminders,
+  } = useQuery({
+    queryKey: ['reminders', 'list', statusFilter],
+    queryFn: async (): Promise<Reminder[]> => {
+      const res = await fetch(`/api/reminders?status=${statusFilter}&limit=50`)
+      if (!res.ok) throw new Error('Error al cargar recordatorios')
+      const data = await res.json()
+      return data.data || []
+    },
+    enabled: activeTab === 'reminders' || activeTab === 'overview',
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-      if (statsRes.ok) {
-        setStats(await statsRes.json())
-      }
-      if (remindersRes.ok) {
-        const data = await remindersRes.json()
-        setReminders(data.data || [])
-      }
-      if (rulesRes.ok) {
-        const data = await rulesRes.json()
-        setRules(data.data || [])
-      }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching data:', e)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  // React Query: Fetch rules (admin only)
+  const {
+    data: rulesData,
+    isLoading: loadingRules,
+    refetch: refetchRules,
+  } = useQuery({
+    queryKey: ['reminders', 'rules'],
+    queryFn: async (): Promise<ReminderRule[]> => {
+      const res = await fetch('/api/reminders/rules')
+      if (!res.ok) throw new Error('Error al cargar reglas')
+      const data = await res.json()
+      return data.data || []
+    },
+    enabled: isAdmin && activeTab === 'rules',
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  const triggerJob = async (jobType: string) => {
-    setTriggering(jobType)
-    try {
+  const reminders = remindersData || []
+  const rules = rulesData || []
+  const loading = loadingStats || loadingReminders || loadingRules
+
+  // Mutation: Trigger job
+  const triggerMutation = useMutation({
+    mutationFn: async (jobType: string) => {
       const res = await fetch('/api/reminders/stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ job_type: jobType }),
       })
 
-      if (res.ok) {
-        await fetchData()
-      } else {
+      if (!res.ok) {
         const json = await res.json()
-        alert(json.error || 'Error al ejecutar')
+        throw new Error(json.error || 'Error al ejecutar')
       }
-    } catch (e) {
-      alert('Error al ejecutar job')
-    } finally {
-      setTriggering(null)
-    }
-  }
 
-  const toggleRule = async (rule: ReminderRule) => {
-    try {
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminders'] })
+    },
+    onError: (err) => {
+      showToast({ title: err instanceof Error ? err.message : 'Error al ejecutar job', variant: 'error' })
+    },
+  })
+
+  // Mutation: Toggle rule
+  const toggleRuleMutation = useMutation({
+    mutationFn: async (rule: ReminderRule) => {
       const res = await fetch('/api/reminders/rules', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: rule.id, is_active: !rule.is_active }),
       })
 
-      if (res.ok) {
-        setRules(rules.map((r) => (r.id === rule.id ? { ...r, is_active: !r.is_active } : r)))
-      }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error toggling rule:', e)
-      }
-    }
+      if (!res.ok) throw new Error('Error al actualizar regla')
+      return { ...rule, is_active: !rule.is_active }
+    },
+    onSuccess: (updatedRule) => {
+      queryClient.setQueryData<ReminderRule[]>(['reminders', 'rules'], (old) =>
+        old?.map((r) => (r.id === updatedRule.id ? updatedRule : r)) || []
+      )
+    },
+  })
+
+  const fetchData = async () => {
+    await Promise.all([refetchStats(), refetchReminders(), isAdmin ? refetchRules() : Promise.resolve()])
   }
+
+  const triggerJob = (jobType: string) => {
+    triggerMutation.mutate(jobType)
+  }
+
+  const toggleRule = (rule: ReminderRule) => {
+    toggleRuleMutation.mutate(rule)
+  }
+
+  const triggering = triggerMutation.isPending ? triggerMutation.variables : null
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {

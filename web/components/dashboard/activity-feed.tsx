@@ -1,7 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Activity Feed Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ * - Manual refetch via refetch() method
+ */
+
+import { useMemo } from 'react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import {
   CheckCircle2,
   PawPrint,
@@ -14,6 +24,8 @@ import {
   RefreshCw,
   LucideIcon,
 } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 type ActivityType =
   | 'appointment_completed'
@@ -165,15 +177,15 @@ function EmptyState() {
 }
 
 export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
-  const [activities, setActivities] = useState<ActivityItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-
-  const fetchActivities = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true)
-    else setLoading(true)
-
-    try {
+  // React Query: Fetch activities with 30-second auto-refresh
+  const {
+    data: rawActivities = [],
+    isLoading: loading,
+    isFetching: refreshing,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.dashboard.activity(clinic, maxItems),
+    queryFn: async (): Promise<ActivityItem[]> => {
       // Fetch recent activities from multiple sources
       const [appointmentsRes, petsRes] = await Promise.all([
         fetch(`/api/dashboard/today-appointments?clinic=${clinic}`),
@@ -235,29 +247,19 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
         })
       }
 
-      // Sort by timestamp (most recent first)
-      activityItems.sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )
+      return activityItems
+    },
+    staleTime: staleTimes.SHORT, // 30 seconds
+    gcTime: gcTimes.SHORT, // 5 minutes
+    refetchInterval: 30 * 1000, // Refresh every 30 seconds
+  })
 
-      setActivities(activityItems.slice(0, maxItems))
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching activities:', error)
-      }
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchActivities()
-    // Refresh every 30 seconds
-    const interval = setInterval(() => fetchActivities(true), 30 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic, maxItems])
+  // Sort by timestamp and limit (memoized)
+  const activities = useMemo(() => {
+    return [...rawActivities]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, maxItems)
+  }, [rawActivities, maxItems])
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border-light)] bg-[var(--bg-paper)] shadow-sm">
@@ -273,7 +275,7 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
           </div>
         </div>
         <button
-          onClick={() => fetchActivities(true)}
+          onClick={() => refetch()}
           disabled={refreshing}
           className="rounded-lg p-2 transition-colors hover:bg-[var(--bg-subtle)] disabled:opacity-50"
           title="Actualizar"

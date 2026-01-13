@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Client Notes Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Add/Edit/Delete operations use useMutation with cache invalidation
+ */
+
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   StickyNote,
@@ -15,8 +23,11 @@ import {
   Unlock,
 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/Toast'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Note {
   id: string
@@ -41,138 +52,136 @@ export function ClientNotes({
   currentUserId,
   initialNotes = [],
 }: ClientNotesProps): React.ReactElement {
-  const [notes, setNotes] = useState<Note[]>(initialNotes)
-  const [isLoading, setIsLoading] = useState(initialNotes.length === 0)
+  const queryClient = useQueryClient()
   const [isAdding, setIsAdding] = useState(false)
   const [newNote, setNewNote] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
-  const [deletingId, setDeletingId] = useState<string | null>(null)
   const t = useTranslations('dashboard.clientNotes')
   const tCommon = useTranslations('common')
   const locale = useLocale()
   const { showToast } = useToast()
 
-  useEffect(() => {
-    if (initialNotes.length > 0) {
-      setIsLoading(false)
-      return
-    }
+  // React Query: Fetch notes
+  const {
+    data: notes = initialNotes,
+    isLoading,
+  } = useQuery({
+    queryKey: queryKeys.clients.notes(clientId, clinic),
+    queryFn: async (): Promise<Note[]> => {
+      const response = await fetch(`/api/clients/${clientId}/notes?clinic=${clinic}`)
+      if (!response.ok) throw new Error('Error al cargar notas')
+      const data = await response.json()
+      return data.notes || []
+    },
+    initialData: initialNotes.length > 0 ? initialNotes : undefined,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    const fetchNotes = async (): Promise<void> => {
-      try {
-        const response = await fetch(`/api/clients/${clientId}/notes?clinic=${clinic}`)
-        if (response.ok) {
-          const data = await response.json()
-          setNotes(data.notes || [])
-        }
-      } catch (error) {
-        // UX-011: Show toast on network error
-        showToast(t('errors.loadNotes'))
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching notes:', error)
-        }
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchNotes()
-  }, [clientId, clinic, initialNotes.length, t])
-
-  const handleAddNote = async (): Promise<void> => {
-    if (!newNote.trim()) return
-
-    setIsSaving(true)
-    try {
+  // Mutation: Add note
+  const addNoteMutation = useMutation({
+    mutationFn: async ({ content, isPrivate }: { content: string; isPrivate: boolean }): Promise<Note> => {
       const response = await fetch(`/api/clients/${clientId}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clinic,
-          content: newNote,
+          content,
           is_private: isPrivate,
         }),
       })
-
-      if (response.ok) {
-        const data = await response.json()
-        setNotes((prev) => [data.note, ...prev])
-        setNewNote('')
-        setIsPrivate(false)
-        setIsAdding(false)
-      }
-    } catch (error) {
-      // UX-011: Show toast on network error
+      if (!response.ok) throw new Error('Error al guardar nota')
+      const data = await response.json()
+      return data.note
+    },
+    onSuccess: (newNote) => {
+      // Optimistic update: prepend new note to existing list
+      queryClient.setQueryData(
+        queryKeys.clients.notes(clientId, clinic),
+        (old: Note[] | undefined) => [newNote, ...(old || [])]
+      )
+      setNewNote('')
+      setIsPrivate(false)
+      setIsAdding(false)
+    },
+    onError: () => {
       showToast(t('errors.saveNote'))
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error adding note:', error)
-      }
-    } finally {
-      setIsSaving(false)
-    }
-  }
+    },
+  })
 
-  const handleEditNote = async (noteId: string): Promise<void> => {
-    if (!editContent.trim()) return
-
-    setIsSaving(true)
-    try {
+  // Mutation: Edit note
+  const editNoteMutation = useMutation({
+    mutationFn: async ({ noteId, content }: { noteId: string; content: string }): Promise<void> => {
       const response = await fetch(`/api/clients/${clientId}/notes/${noteId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clinic,
-          content: editContent,
+          content,
         }),
       })
-
-      if (response.ok) {
-        setNotes((prev) =>
-          prev.map((note) =>
+      if (!response.ok) throw new Error('Error al editar nota')
+    },
+    onSuccess: (_, { noteId, content }) => {
+      // Optimistic update: update note in cache
+      queryClient.setQueryData(
+        queryKeys.clients.notes(clientId, clinic),
+        (old: Note[] | undefined) =>
+          (old || []).map((note) =>
             note.id === noteId
-              ? { ...note, content: editContent, updated_at: new Date().toISOString() }
+              ? { ...note, content, updated_at: new Date().toISOString() }
               : note
           )
-        )
-        setEditingId(null)
-        setEditContent('')
-      }
-    } catch (error) {
-      // UX-011: Show toast on network error
+      )
+      setEditingId(null)
+      setEditContent('')
+    },
+    onError: () => {
       showToast(t('errors.editNote'))
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error editing note:', error)
-      }
-    } finally {
-      setIsSaving(false)
-    }
-  }
+    },
+  })
 
-  const handleDeleteNote = async (noteId: string): Promise<void> => {
-    setDeletingId(noteId)
-    try {
+  // Mutation: Delete note
+  const deleteNoteMutation = useMutation({
+    mutationFn: async (noteId: string): Promise<void> => {
       const response = await fetch(`/api/clients/${clientId}/notes/${noteId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clinic }),
       })
-
-      if (response.ok) {
-        setNotes((prev) => prev.filter((note) => note.id !== noteId))
-      }
-    } catch (error) {
-      // UX-011: Show toast on network error
+      if (!response.ok) throw new Error('Error al eliminar nota')
+    },
+    onSuccess: (_, noteId) => {
+      // Optimistic update: remove note from cache
+      queryClient.setQueryData(
+        queryKeys.clients.notes(clientId, clinic),
+        (old: Note[] | undefined) => (old || []).filter((note) => note.id !== noteId)
+      )
+    },
+    onError: () => {
       showToast(t('errors.deleteNote'))
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error deleting note:', error)
-      }
-    } finally {
-      setDeletingId(null)
-    }
+    },
+  })
+
+  const handleAddNote = (): void => {
+    if (!newNote.trim() || addNoteMutation.isPending) return
+    addNoteMutation.mutate({ content: newNote, isPrivate })
   }
+
+  const handleEditNote = (noteId: string): void => {
+    if (!editContent.trim() || editNoteMutation.isPending) return
+    editNoteMutation.mutate({ noteId, content: editContent })
+  }
+
+  const handleDeleteNote = (noteId: string): void => {
+    if (deleteNoteMutation.isPending) return
+    deleteNoteMutation.mutate(noteId)
+  }
+
+  const isSaving = addNoteMutation.isPending || editNoteMutation.isPending
+  const deletingId = deleteNoteMutation.isPending ? deleteNoteMutation.variables : null
 
   const formatDate = (date: string): string => {
     const d = new Date(date)

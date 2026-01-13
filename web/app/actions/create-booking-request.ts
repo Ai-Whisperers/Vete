@@ -8,6 +8,7 @@ import { sendConfirmationEmail } from '@/lib/notification-service'
 import { generateBookingRequestEmail } from '@/lib/email-templates'
 import { ERROR_MESSAGES } from '@/lib/constants'
 import { logger } from '@/lib/logger'
+import { rateLimitByUser } from '@/lib/rate-limit'
 
 /**
  * REF-005: Migrated to withActionAuth
@@ -72,6 +73,15 @@ export const createBookingRequest = withActionAuth(
     { user, profile, supabase },
     input: BookingRequestInput
   ): Promise<ActionResult<{ appointment_id: string }>> => {
+    // SEC-027: Rate limit booking requests (5 per hour per user)
+    const rateLimitResult = await rateLimitByUser(user.id, 'booking')
+    if (!rateLimitResult.success) {
+      return {
+        success: false,
+        error: rateLimitResult.error || 'Demasiadas solicitudes. Intente más tarde.',
+      }
+    }
+
     // Validate
     const validation = createBookingRequestSchema.safeParse(input)
 
@@ -185,6 +195,22 @@ export const createBookingRequest = withActionAuth(
     })
 
     if (rpcError) {
+      // AUDIT-107: Handle unique constraint violation (duplicate pending booking)
+      if (rpcError.code === '23505') {
+        logger.warn('Duplicate pending booking attempt blocked by constraint', {
+          userId: user.id,
+          tenantId: pet.tenant_id,
+          petId: pet_id,
+        })
+        return {
+          success: false,
+          error: `${pet.name} ya tiene una solicitud de cita pendiente. Actualiza la página para verla.`,
+          fieldErrors: {
+            pet_id: 'Ya existe una solicitud pendiente',
+          },
+        }
+      }
+
       logger.error('Failed to create booking request (RPC error)', {
         error: rpcError,
         userId: user.id,

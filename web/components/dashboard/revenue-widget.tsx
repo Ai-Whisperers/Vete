@@ -1,7 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Revenue Widget Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ */
+
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import {
   DollarSign,
   TrendingUp,
@@ -9,9 +17,10 @@ import {
   Minus,
   ArrowUpRight,
   CreditCard,
-  Receipt,
   Clock,
 } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface RevenueData {
   today: number
@@ -90,32 +99,18 @@ function LoadingSkeleton() {
 }
 
 export function RevenueWidget({ clinic }: RevenueWidgetProps) {
-  const [data, setData] = useState<RevenueData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchRevenue = async () => {
-      try {
-        const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}`)
-        if (res.ok) {
-          const revenueData = await res.json()
-          setData(revenueData)
-        }
-      } catch (error) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching revenue:', error)
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchRevenue()
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchRevenue, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic])
+  // React Query: Fetch revenue data with 5-minute auto-refresh
+  const { data, isLoading: loading } = useQuery({
+    queryKey: queryKeys.dashboard.revenue(clinic, 'overview'),
+    queryFn: async (): Promise<RevenueData> => {
+      const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar datos de ingresos')
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT, // 30 seconds
+    gcTime: gcTimes.MEDIUM, // 15 minutes
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  })
 
   return (
     <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">

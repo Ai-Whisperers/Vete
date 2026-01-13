@@ -38,6 +38,9 @@ vi.mock('@/lib/billing/hospitalization', () => ({
   generateHospitalizationInvoice: vi.fn(),
 }))
 
+// Import routes AFTER mocks
+import { POST } from '@/app/api/hospitalizations/[id]/invoice/route'
+
 // Helper to create POST request
 function createRequest(): NextRequest {
   return new NextRequest('http://localhost:3000/api/hospitalizations/hosp-active/invoice', {

@@ -5,9 +5,11 @@
  *
  * Dashboard component for clinics to view their e-commerce commission obligations.
  * Shows current rate, monthly stats, pending payments, and recent commissions.
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hooks
  */
 
-import { useState, useEffect } from 'react'
 import {
   TrendingUp,
   DollarSign,
@@ -18,6 +20,8 @@ import {
   CheckCircle2,
   Info,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface CommissionSummary {
   current_month: {
@@ -76,43 +80,41 @@ interface CommissionDashboardProps {
 }
 
 export function CommissionDashboard({ clinic }: CommissionDashboardProps) {
-  const [summary, setSummary] = useState<CommissionSummary | null>(null)
-  const [commissions, setCommissions] = useState<Commission[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetchData()
-  }, [clinic])
-
-  const fetchData = async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const [summaryRes, commissionsRes] = await Promise.all([
-        fetch(`/api/store/commissions/summary?clinic=${clinic}`),
-        fetch(`/api/store/commissions?clinic=${clinic}&limit=5`),
-      ])
-
-      if (summaryRes.ok) {
-        setSummary(await summaryRes.json())
-      } else {
-        const err = await summaryRes.json()
-        setError(err.error?.message || 'Error al cargar resumen')
+  // React Query: Fetch commission summary
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    error: summaryError,
+    refetch: refetchSummary,
+  } = useQuery({
+    queryKey: ['commissions', 'summary', clinic],
+    queryFn: async (): Promise<CommissionSummary> => {
+      const res = await fetch(`/api/store/commissions/summary?clinic=${clinic}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error?.message || 'Error al cargar resumen')
       }
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      if (commissionsRes.ok) {
-        const data = await commissionsRes.json()
-        setCommissions(data.commissions || [])
-      }
-    } catch (err) {
-      setError('Error de conexión')
-      console.error('Error fetching commission data:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // React Query: Fetch commissions list
+  const { data: commissionsData } = useQuery({
+    queryKey: ['commissions', 'list', clinic],
+    queryFn: async (): Promise<{ commissions: Commission[] }> => {
+      const res = await fetch(`/api/store/commissions?clinic=${clinic}&limit=5`)
+      if (!res.ok) return { commissions: [] }
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  const commissions = commissionsData?.commissions ?? []
+  const isLoading = summaryLoading
+  const error = summaryError?.message ?? null
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-PY', {
@@ -186,7 +188,7 @@ export function CommissionDashboard({ clinic }: CommissionDashboardProps) {
         <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
         <p className="mt-4 text-red-700">{error}</p>
         <button
-          onClick={fetchData}
+          onClick={() => refetchSummary()}
           className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
           Reintentar

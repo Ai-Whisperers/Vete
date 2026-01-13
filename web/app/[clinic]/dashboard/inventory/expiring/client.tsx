@@ -1,6 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Expiring Products Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Clock,
   AlertCircle,
@@ -19,6 +26,7 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ExpiringProduct {
   id: string
@@ -101,17 +109,7 @@ const urgencyConfig = {
 export default function ExpiringProductsClient({
   clinic,
 }: ExpiringProductsClientProps): React.ReactElement {
-  const [products, setProducts] = useState<ExpiringProduct[]>([])
-  const [totals, setTotals] = useState<ExpiryTotals>({
-    expired: 0,
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-    total: 0,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [filter, setFilter] = useState<UrgencyFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
@@ -120,11 +118,15 @@ export default function ExpiringProductsClient({
     new Set(['expired', 'critical', 'high'])
   )
 
-  const fetchProducts = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch expiring products
+  const {
+    data: productsData,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['expiring-products'],
+    queryFn: async (): Promise<{ products: ExpiringProduct[]; totals: ExpiryTotals }> => {
       const response = await fetch('/api/dashboard/expiring-products?days=90')
 
       if (!response.ok) {
@@ -132,22 +134,22 @@ export default function ExpiringProductsClient({
       }
 
       const data = await response.json()
-      setProducts(data.products || [])
-      setTotals(data.totals || {})
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching expiring products:', err)
+      return {
+        products: data.products || [],
+        totals: data.totals || { expired: 0, critical: 0, high: 0, medium: 0, low: 0, total: 0 },
       }
-      setError('Error al cargar los productos por vencer')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  useEffect(() => {
-    fetchProducts()
-  }, [fetchProducts])
+  const products = productsData?.products || []
+  const totals = productsData?.totals || { expired: 0, critical: 0, high: 0, medium: 0, low: 0, total: 0 }
+  const error = queryError?.message || null
+
+  const fetchProducts = async (): Promise<void> => {
+    await refetch()
+  }
 
   const toggleSection = (section: string): void => {
     setExpandedSections((prev) => {

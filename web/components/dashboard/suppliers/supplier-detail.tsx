@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Supplier Detail Modal Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Replaced manual mutation with useMutation hook
+ */
+
 import {
   X,
   Building2,
@@ -17,8 +24,11 @@ import {
   Loader2,
   ShieldCheck,
 } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
 import { useToast } from '@/components/ui/Toast'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface SupplierProduct {
   id: string
@@ -70,65 +80,62 @@ const VERIFICATION_STATUS = {
 
 export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierDetailModalProps): React.ReactElement {
   const { toast } = useToast()
-  const [supplier, setSupplier] = useState<SupplierDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [verifying, setVerifying] = useState(false)
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    const fetchSupplier = async () => {
-      try {
-        const res = await fetch(`/api/suppliers/${supplierId}`)
-        if (!res.ok) throw new Error('Error al cargar proveedor')
-        const data = await res.json()
-        setSupplier(data)
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'No se pudo cargar el proveedor',
-          variant: 'destructive',
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
+  // React Query: Fetch supplier details
+  const { data: supplier, isLoading, error } = useQuery({
+    queryKey: queryKeys.suppliers.detail(supplierId),
+    queryFn: async (): Promise<SupplierDetail> => {
+      const res = await fetch(`/api/suppliers/${supplierId}`)
+      if (!res.ok) throw new Error('Error al cargar proveedor')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    fetchSupplier()
-  }, [supplierId, toast])
-
-  const handleVerify = async (status: 'verified' | 'rejected') => {
-    if (!supplier) return
-
-    setVerifying(true)
-    try {
+  // Mutation: Verify/reject supplier
+  const verifyMutation = useMutation({
+    mutationFn: async (status: 'verified' | 'rejected') => {
       const res = await fetch(`/api/suppliers/${supplierId}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       })
-
       if (!res.ok) throw new Error('Error al verificar proveedor')
-
-      const data = await res.json()
-      setSupplier(prev => prev ? { ...prev, verification_status: status } : null)
+      return { data: await res.json(), status }
+    },
+    onSuccess: ({ data, status }) => {
+      // Optimistic update for detail
+      queryClient.setQueryData(
+        queryKeys.suppliers.detail(supplierId),
+        (old: SupplierDetail | undefined) =>
+          old ? { ...old, verification_status: status } : old
+      )
+      // Invalidate list to refresh statuses
+      queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all })
 
       toast({
         title: status === 'verified' ? 'Proveedor Verificado' : 'Proveedor Rechazado',
         description: data.message,
       })
-
       onVerify?.()
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: 'Error',
         description: 'No se pudo verificar el proveedor',
         variant: 'destructive',
       })
-    } finally {
-      setVerifying(false)
-    }
+    },
+  })
+
+  const handleVerify = (status: 'verified' | 'rejected') => {
+    if (!supplier) return
+    verifyMutation.mutate(status)
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="rounded-2xl bg-white p-8">
@@ -138,7 +145,7 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
     )
   }
 
-  if (!supplier) {
+  if (error || !supplier) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="rounded-2xl bg-white p-8 text-center">
@@ -191,17 +198,17 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
               <div className="flex gap-2">
                 <button
                   onClick={() => handleVerify('rejected')}
-                  disabled={verifying}
+                  disabled={verifyMutation.isPending}
                   className="rounded-lg border border-[var(--status-error-border)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                 >
                   Rechazar
                 </button>
                 <button
                   onClick={() => handleVerify('verified')}
-                  disabled={verifying}
+                  disabled={verifyMutation.isPending}
                   className="flex items-center gap-1 rounded-lg bg-[var(--status-success)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--status-success)]/90 disabled:opacity-50"
                 >
-                  {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                  {verifyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                   Verificar
                 </button>
               </div>

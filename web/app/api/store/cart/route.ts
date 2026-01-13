@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { checkFeatureAccess } from '@/lib/features/server'
+import { rateLimit } from '@/lib/rate-limit'
+import { cartSyncSchema, cartMergeSchema } from '@/lib/schemas/store'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,7 +103,13 @@ export async function GET() {
  * PUT /api/store/cart
  * Save cart to database
  */
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
+  // SEC-026: Rate limit cart operations to prevent abuse
+  const rateLimitResult = await rateLimit(request, 'cart')
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -112,29 +120,33 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true, local_only: true })
   }
 
-  const { items, clinic } = await request.json()
+  // SEC-028: Validate cart items with Zod schema
+  const body = await request.json()
+  const validation = cartSyncSchema.safeParse(body)
 
-  if (!Array.isArray(items)) {
+  if (!validation.success) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Items inválidos' },
+      details: {
+        message: 'Items inválidos',
+        errors: validation.error.flatten().fieldErrors,
+      },
     })
   }
 
-  // Determine tenant_id
-  let tenantId = clinic
-  if (!tenantId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
+  const { items } = validation.data
 
-    // If no profile, just acknowledge (cart stays in localStorage)
-    if (!profile) {
-      return NextResponse.json({ success: true, local_only: true, no_profile: true })
-    }
-    tenantId = profile.tenant_id
+  // SEC-025: Always get tenant_id from user's profile, never trust client input
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .single()
+
+  // If no profile, just acknowledge (cart stays in localStorage)
+  if (!profile) {
+    return NextResponse.json({ success: true, local_only: true, no_profile: true })
   }
+  const tenantId = profile.tenant_id
 
   // Check if tenant has ecommerce feature enabled
   const featureCheck = await checkEcommerceAccess(tenantId)
@@ -230,45 +242,55 @@ export async function DELETE() {
  * POST /api/store/cart/merge
  * Merge localStorage cart with database cart (called on login)
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // SEC-026: Rate limit cart operations to prevent abuse
+  const rateLimitResult = await rateLimit(request, 'cart')
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { items: localItems, clinic } = await request.json()
+  // SEC-028: Validate cart items with Zod schema
+  const body = await request.json()
+  const validation = cartMergeSchema.safeParse(body)
 
-  if (!Array.isArray(localItems)) {
+  if (!validation.success) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Items inválidos' },
+      details: {
+        message: 'Items inválidos',
+        errors: validation.error.flatten().fieldErrors,
+      },
     })
   }
+
+  const { items: localItems } = validation.data
 
   // For unauthenticated users, return local items
   if (!user) {
     return NextResponse.json({ success: true, items: localItems, local_only: true })
   }
 
-  // Determine tenant_id
-  let tenantId = clinic
-  if (!tenantId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
+  // SEC-025: Always get tenant_id from user's profile, never trust client input
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .single()
 
-    // If no profile, return local items
-    if (!profile) {
-      return NextResponse.json({
-        success: true,
-        items: localItems,
-        local_only: true,
-        no_profile: true,
-      })
-    }
-    tenantId = profile.tenant_id
+  // If no profile, return local items
+  if (!profile) {
+    return NextResponse.json({
+      success: true,
+      items: localItems,
+      local_only: true,
+      no_profile: true,
+    })
   }
+  const tenantId = profile.tenant_id
 
   // Check if tenant has ecommerce feature enabled
   const featureCheck = await checkEcommerceAccess(tenantId)

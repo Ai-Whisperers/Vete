@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { notifyStaff } from '@/lib/notifications'
 
 /**
  * POST /api/admin/products/[id]/approve
@@ -67,7 +68,38 @@ export const POST = withApiAuthParams(
 
       if (error) throw error
 
-      // TODO: Send notification to the clinic that submitted the product
+      // Send notification to the clinic that submitted the product
+      if (product.created_by_tenant_id) {
+        try {
+          const notificationType = action === 'verify' ? 'product_approved' : 'product_rejected'
+          const notificationTitle = action === 'verify'
+            ? 'Producto aprobado'
+            : 'Producto no aprobado'
+          const notificationMessage = action === 'verify'
+            ? `Tu producto "${product.name}" ha sido aprobado y está disponible en el catálogo global.`
+            : `Tu producto "${product.name}" no fue aprobado. ${rejection_reason || ''}`
+
+          await notifyStaff({
+            tenantId: product.created_by_tenant_id,
+            title: notificationTitle,
+            message: notificationMessage,
+            type: notificationType,
+            channels: ['in_app', 'email'],
+            roles: ['admin'],
+            data: {
+              productName: product.name,
+              productId: product.id,
+              reason: rejection_reason,
+            },
+          })
+        } catch (notifError) {
+          // Don't fail the main operation if notification fails
+          logger.warn('Failed to send product approval notification', {
+            productId: id,
+            error: notifError instanceof Error ? notifError.message : 'Unknown',
+          })
+        }
+      }
 
       return NextResponse.json({
         success: true,

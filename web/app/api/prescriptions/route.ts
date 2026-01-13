@@ -3,6 +3,7 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { rateLimit } from '@/lib/rate-limit'
+import { apiCreatePrescriptionSchema, apiUpdatePrescriptionSchema } from '@/lib/schemas/medical'
 
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
@@ -64,14 +65,20 @@ export const POST = withApiAuth(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { pet_id, drugs, notes, signature_hash, qr_code_url } = body
-
-    // Validate required fields
-    if (!pet_id || !drugs || drugs.length === 0) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['pet_id', 'drugs'] },
+    // VALID-004: Validate with Zod schema
+    const validation = apiCreatePrescriptionSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((i) => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
       })
     }
+
+    const { pet_id, drugs, notes, signature_hash, qr_code_url } = validation.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase
@@ -133,11 +140,20 @@ export const PUT = withApiAuth(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { id, drugs, notes, status } = body
-
-    if (!id) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } })
+    // VALID-004: Validate with Zod schema
+    const validation = apiUpdatePrescriptionSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((i) => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
+      })
     }
+
+    const { id, drugs, notes, status } = validation.data
 
     // Verify prescription belongs to staff's clinic
     const { data: existing } = await supabase

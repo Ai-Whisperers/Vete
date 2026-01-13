@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * SMS Settings Client
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Phone,
   Save,
@@ -39,11 +47,7 @@ interface Props {
 }
 
 export default function SmsSettings({ clinic, userPhone }: Props) {
-  const [config, setConfig] = useState<SmsConfig | null>(null)
-  const [stats, setStats] = useState<SmsStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [testing, setTesting] = useState(false)
+  const queryClient = useQueryClient()
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
   const [activeTab, setActiveTab] = useState<'config' | 'stats'>('config')
 
@@ -55,90 +59,99 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
     test_phone: userPhone || '',
   })
 
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    setLoading(true)
-    try {
+  // React Query: Fetch config and stats
+  const {
+    data: dataResult,
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ['sms-settings'],
+    queryFn: async (): Promise<{ config: SmsConfig | null; stats: SmsStats | null }> => {
       const [configRes, statsRes] = await Promise.all([
         fetch('/api/sms/config'),
         fetch('/api/sms?view=stats&days=30'),
       ])
 
-      if (configRes.ok) {
-        setConfig(await configRes.json())
-      }
-      if (statsRes.ok) {
-        setStats(await statsRes.json())
-      }
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching data:', e)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+      const config = configRes.ok ? await configRes.json() : null
+      const stats = statsRes.ok ? await statsRes.json() : null
 
-  const handleSave = async () => {
-    setSaving(true)
-    setTestResult(null)
+      return { config, stats }
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    try {
+  const config = dataResult?.config || null
+  const stats = dataResult?.stats || null
+
+  // Mutation: Save config
+  const saveMutation = useMutation({
+    mutationFn: async (data: { sms_api_key?: string; sms_api_secret?: string; sms_from?: string }) => {
       const res = await fetch('/api/sms/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sms_api_key: formData.sms_api_key || undefined,
-          sms_api_secret: formData.sms_api_secret || undefined,
-          sms_from: formData.sms_from || undefined,
-        }),
+        body: JSON.stringify(data),
       })
 
       const json = await res.json()
 
-      if (res.ok) {
-        setTestResult({
-          success: true,
-          message: json.warning || 'Configuración guardada correctamente',
-        })
-        fetchData()
-        setFormData({ ...formData, sms_api_key: '', sms_api_secret: '' })
-      } else {
-        setTestResult({ success: false, message: json.error })
+      if (!res.ok) {
+        throw new Error(json.error || 'Error al guardar')
       }
-    } catch (e) {
-      setTestResult({ success: false, message: 'Error al guardar' })
-    } finally {
-      setSaving(false)
-    }
-  }
 
-  const handleTest = async () => {
-    setTesting(true)
-    setTestResult(null)
+      return { json, warning: json.warning }
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['sms-settings'] })
+      setTestResult({
+        success: true,
+        message: result.warning || 'Configuración guardada correctamente',
+      })
+      setFormData({ ...formData, sms_api_key: '', sms_api_secret: '' })
+    },
+    onError: (err) => {
+      setTestResult({ success: false, message: err instanceof Error ? err.message : 'Error al guardar' })
+    },
+  })
 
-    try {
+  // Mutation: Test SMS
+  const testMutation = useMutation({
+    mutationFn: async (testPhone: string) => {
       const res = await fetch('/api/sms/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test_phone: formData.test_phone }),
+        body: JSON.stringify({ test_phone: testPhone }),
       })
 
       const json = await res.json()
 
-      setTestResult({
+      return {
         success: res.ok,
         message: json.message || json.error,
-      })
-    } catch (e) {
+      }
+    },
+    onSuccess: (result) => {
+      setTestResult(result)
+    },
+    onError: () => {
       setTestResult({ success: false, message: 'Error al enviar prueba' })
-    } finally {
-      setTesting(false)
-    }
+    },
+  })
+
+  const saving = saveMutation.isPending
+  const testing = testMutation.isPending
+
+  const handleSave = async () => {
+    setTestResult(null)
+    await saveMutation.mutateAsync({
+      sms_api_key: formData.sms_api_key || undefined,
+      sms_api_secret: formData.sms_api_secret || undefined,
+      sms_from: formData.sms_from || undefined,
+    })
+  }
+
+  const handleTest = async () => {
+    setTestResult(null)
+    await testMutation.mutateAsync(formData.test_phone)
   }
 
   return (

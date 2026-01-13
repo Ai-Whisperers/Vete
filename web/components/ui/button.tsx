@@ -6,6 +6,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
+  loadingLabel?: string
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
 }
@@ -17,6 +18,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       isLoading = false,
+      loadingLabel = 'Loading...',
       leftIcon,
       rightIcon,
       children,
@@ -63,7 +65,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-            <span className="sr-only">Cargando...</span>
+            <span className="sr-only">{loadingLabel}</span>
           </>
         ) : (
           <>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { ArrowLeft, Activity, History, ChevronRight, Loader2, Save } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -17,43 +18,15 @@ interface AssessmentScore {
   more_good_days: number
 }
 
-const CRITERIA = [
-  {
-    key: 'hurt',
-    label: 'Dolor (Hurt)',
-    desc: 'Control adecuado del dolor y capacidad de respirar. 0 (Mucho dolor) - 10 (Sin dolor)',
-  },
-  {
-    key: 'hunger',
-    label: 'Hambre (Hunger)',
-    desc: 'Interés por la comida y capacidad de comer. 0 (Sin interés) - 10 (Come bien)',
-  },
-  {
-    key: 'hydration',
-    label: 'Hidratación (Hydration)',
-    desc: 'Ingesta de líquidos y estado de hidratación. 0 (Deshidratado) - 10 (Bien hidratado)',
-  },
-  {
-    key: 'hygiene',
-    label: 'Higiene (Hygiene)',
-    desc: 'Capacidad de mantenerse limpio o ser limpiado. 0 (Sucio/Llagas) - 10 (Limpio)',
-  },
-  {
-    key: 'happiness',
-    label: 'Felicidad (Happiness)',
-    desc: 'Interés por el entorno, juegos, familia. 0 (Deprimido) - 10 (Feliz)',
-  },
-  {
-    key: 'mobility',
-    label: 'Movilidad (Mobility)',
-    desc: 'Capacidad de moverse independientemente. 0 (Inmóvil) - 10 (Activo)',
-  },
-  {
-    key: 'more_good_days',
-    label: 'Más días buenos (More Good Days)',
-    desc: 'Balance general de días buenos vs malos. 0 (Todos malos) - 10 (Todos buenos)',
-  },
-]
+const CRITERIA_KEYS = [
+  'hurt',
+  'hunger',
+  'hydration',
+  'hygiene',
+  'happiness',
+  'mobility',
+  'more_good_days',
+] as const
 
 export default function EuthanasiaAssessmentClient({
   clinic,
@@ -62,6 +35,7 @@ export default function EuthanasiaAssessmentClient({
   clinic: string
   initialPetId?: string
 }) {
+  const t = useTranslations('euthanasiaAssessments')
   const supabase = createClient()
   const { showToast } = useToast()
   const router = useRouter()
@@ -109,12 +83,12 @@ export default function EuthanasiaAssessmentClient({
 
   const getInterpretation = (score: number) => {
     if (score > 50)
-      return { text: 'Excelente Calidad de Vida', color: 'text-green-600', bg: 'bg-green-50' }
+      return { text: t('interpretation.excellent'), color: 'text-green-600', bg: 'bg-green-50' }
     if (score > 35)
-      return { text: 'Calidad de Vida Aceptable', color: 'text-blue-600', bg: 'bg-blue-50' }
+      return { text: t('interpretation.acceptable'), color: 'text-blue-600', bg: 'bg-blue-50' }
     if (score > 25)
-      return { text: 'Calidad de Vida Comprometida', color: 'text-yellow-600', bg: 'bg-yellow-50' }
-    return { text: 'Considerar Eutanasia Humanitaria', color: 'text-red-600', bg: 'bg-red-50' }
+      return { text: t('interpretation.compromised'), color: 'text-yellow-600', bg: 'bg-yellow-50' }
+    return { text: t('interpretation.consider'), color: 'text-red-600', bg: 'bg-red-50' }
   }
 
   const status = getInterpretation(totalScore)
@@ -125,7 +99,7 @@ export default function EuthanasiaAssessmentClient({
 
   const handleSave = async () => {
     if (!petId) {
-      showToast('Seleccione un paciente primero')
+      showToast(t('selectPatientFirst'))
       return
     }
 
@@ -136,10 +110,10 @@ export default function EuthanasiaAssessmentClient({
       } = await supabase.auth.getUser()
 
       // Generate details string for notes
-      const breakdown = CRITERIA.map(
-        (c) => `${c.label}: ${scores[c.key as keyof AssessmentScore]}/10`
+      const breakdown = CRITERIA_KEYS.map(
+        (key) => `${t(`criteria.${key}.label`)}: ${scores[key as keyof AssessmentScore]}/10`
       ).join('\n')
-      const finalNotes = `--- DESGLOSE HHHHHMM ---\n${breakdown}\n\n--- NOTAS ADICIONALES ---\n${notes}`
+      const finalNotes = `--- ${t('breakdownTitle')} ---\n${breakdown}\n\n--- ${t('additionalNotesTitle')} ---\n${notes}`
 
       const payload = {
         pet_id: petId,
@@ -155,7 +129,7 @@ export default function EuthanasiaAssessmentClient({
       })
 
       if (response.ok) {
-        showToast('Evaluación guardada correctamente')
+        showToast(t('savedSuccessfully'))
         router.refresh() // Refresh history
         setNotes('')
       } else {
@@ -164,7 +138,7 @@ export default function EuthanasiaAssessmentClient({
       }
     } catch (error) {
       // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'No se pudo guardar la evaluación')
+      showToast(error instanceof Error ? error.message : t('saveFailed'))
     } finally {
       setIsSaving(false)
     }
@@ -183,9 +157,9 @@ export default function EuthanasiaAssessmentClient({
               <ArrowLeft className="h-5 w-5 text-gray-500" />
             </Link>
             <div>
-              <h1 className="text-2xl font-black text-[var(--text-primary)]">Escala HHHHHMM</h1>
+              <h1 className="text-2xl font-black text-[var(--text-primary)]">{t('title')}</h1>
               <p className="text-sm font-medium text-gray-500">
-                Evaluación Clínica de Calidad de Vida
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -193,14 +167,14 @@ export default function EuthanasiaAssessmentClient({
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                Paciente
+                {t('patient')}
               </span>
               <select
                 value={petId}
                 onChange={(e) => setPetId(e.target.value)}
                 className="rounded-xl border-none bg-gray-50 px-4 py-2 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
-                <option value="">Seleccionar Paciente...</option>
+                <option value="">{t('selectPatient')}</option>
                 {pets.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.species})
@@ -223,30 +197,30 @@ export default function EuthanasiaAssessmentClient({
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)] text-sm text-white">
                   1
                 </span>
-                Criterios de Evaluación
+                {t('evaluationCriteria')}
               </h2>
 
-              {CRITERIA.map((item) => (
-                <div key={item.key} className="group mb-10 last:mb-0">
+              {CRITERIA_KEYS.map((key) => (
+                <div key={key} className="group mb-10 last:mb-0">
                   <div className="mb-4 flex items-start justify-between">
                     <div className="max-w-md">
                       <label className="block text-lg font-bold text-gray-800 transition-colors group-hover:text-[var(--primary)]">
-                        {item.label}
+                        {t(`criteria.${key}.label`)}
                       </label>
-                      <p className="mt-1 text-sm leading-relaxed text-gray-500">{item.desc}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-gray-500">{t(`criteria.${key}.desc`)}</p>
                     </div>
                     <div className="flex flex-col items-end">
                       <span
                         className={`text-4xl font-black tabular-nums ${
-                          scores[item.key as keyof AssessmentScore] < 5
+                          scores[key as keyof AssessmentScore] < 5
                             ? 'text-red-500'
                             : 'text-[var(--primary)]'
                         }`}
                       >
-                        {scores[item.key as keyof AssessmentScore]}
+                        {scores[key as keyof AssessmentScore]}
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-tighter text-gray-300">
-                        Puntos
+                        {t('points')}
                       </span>
                     </div>
                   </div>
@@ -255,15 +229,15 @@ export default function EuthanasiaAssessmentClient({
                     min="0"
                     max="10"
                     step="1"
-                    value={scores[item.key as keyof AssessmentScore]}
+                    value={scores[key as keyof AssessmentScore]}
                     onChange={(e) =>
-                      handleSliderChange(item.key as keyof AssessmentScore, e.target.value)
+                      handleSliderChange(key as keyof AssessmentScore, e.target.value)
                     }
                     className="h-3 w-full cursor-pointer appearance-none rounded-2xl bg-gray-100 accent-[var(--primary)] focus:outline-none"
                   />
                   <div className="mt-3 flex justify-between px-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                    <span className="text-red-400">Estado Crítico (0)</span>
-                    <span className="text-green-500">Estado Óptimo (10)</span>
+                    <span className="text-red-400">{t('criticalState')}</span>
+                    <span className="text-green-500">{t('optimalState')}</span>
                   </div>
                 </div>
               ))}
@@ -275,12 +249,12 @@ export default function EuthanasiaAssessmentClient({
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)] text-sm text-white">
                   2
                 </span>
-                Observaciones Clínicas
+                {t('clinicalObservations')}
               </h2>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Escriba aquí los detalles adicionales de la observación, comportamiento reciente, o notas para el propietario..."
+                placeholder={t('notesPlaceholder')}
                 className="h-40 w-full rounded-3xl border-none bg-gray-50 p-6 font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[var(--primary)]"
               />
             </div>
@@ -290,7 +264,7 @@ export default function EuthanasiaAssessmentClient({
               <div className="rounded-[40px] border border-gray-100 bg-white p-10 shadow-xl shadow-gray-200/50">
                 <h2 className="mb-6 flex items-center gap-3 text-xl font-black text-gray-900">
                   <History className="h-6 w-6 text-gray-400" />
-                  Historial de Evaluaciones
+                  {t('historyTitle')}
                 </h2>
                 <div className="space-y-4">
                   {history.map((h) => (
@@ -300,7 +274,7 @@ export default function EuthanasiaAssessmentClient({
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-gray-800">{h.score} pts</span>
+                          <span className="text-lg font-black text-gray-800">{t('pointsCount', { count: h.score })}</span>
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${getInterpretation(h.score).bg} ${getInterpretation(h.score).color}`}
                           >
@@ -327,7 +301,7 @@ export default function EuthanasiaAssessmentClient({
               <div className="absolute left-0 top-0 h-2 w-full bg-[var(--primary)]"></div>
 
               <h2 className="mb-8 text-center text-xl text-xs font-black uppercase tracking-widest text-gray-900 opacity-50">
-                Índice de Calidad
+                {t('qualityIndex')}
               </h2>
 
               <div className="relative mb-10 scale-110 text-center">
@@ -335,7 +309,7 @@ export default function EuthanasiaAssessmentClient({
                   {totalScore}
                 </div>
                 <div className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
-                  de 70 Puntos
+                  {t('outOfPoints')}
                 </div>
               </div>
 
@@ -360,13 +334,12 @@ export default function EuthanasiaAssessmentClient({
                 ) : (
                   <Save className="h-6 w-6" />
                 )}
-                {isSaving ? 'Guardando...' : 'Finalizar Evaluación'}
+                {isSaving ? t('saving') : t('finishEvaluation')}
               </button>
 
               <div className="mt-8 rounded-3xl border border-blue-100/50 bg-blue-50/50 p-6">
                 <p className="text-center text-[11px] font-bold italic leading-relaxed text-blue-800">
-                  "Esta métrica es complementaria al diagnóstico médico. La decisión final siempre
-                  reside en el consenso entre el profesional y la familia."
+                  {t('disclaimer')}
                 </p>
               </div>
             </div>

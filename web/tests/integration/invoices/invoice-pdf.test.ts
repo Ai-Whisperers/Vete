@@ -35,6 +35,9 @@ vi.mock('@/components/invoices/invoice-pdf', () => ({
   InvoicePDFDocument: vi.fn(() => null),
 }))
 
+// Import routes AFTER mocks
+import { GET } from '@/app/api/invoices/[id]/pdf/route'
+
 // Helper to create GET request
 function createRequest(invoiceId: string = INVOICES.DRAFT.id): NextRequest {
   return new NextRequest(`http://localhost:3000/api/invoices/${invoiceId}/pdf`, {

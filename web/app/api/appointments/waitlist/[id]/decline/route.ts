@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { sendNotification } from '@/lib/notifications'
 
 /**
  * POST /api/appointments/waitlist/[id]/decline - Owner declines offered slot
@@ -66,7 +67,12 @@ export const POST = withApiAuthParams(
       // Find next person in queue for same date/service
       const { data: nextEntry } = await supabase
         .from('appointment_waitlists')
-        .select('id')
+        .select(`
+          id,
+          user_id,
+          pet:pets!pet_id (name),
+          service:services!service_id (name)
+        `)
         .eq('tenant_id', profile.tenant_id)
         .eq('preferred_date', entry.preferred_date)
         .eq('service_id', entry.service_id)
@@ -91,7 +97,33 @@ export const POST = withApiAuthParams(
           })
           .eq('id', nextEntry.id)
 
-        // TODO: Notify next person
+        // Notify next person about available slot
+        try {
+          const petName = (nextEntry.pet as { name?: string })?.name || 'tu mascota'
+          const serviceName = (nextEntry.service as { name?: string })?.name || 'el servicio'
+
+          await sendNotification({
+            type: 'waitlist_slot_available',
+            recipientId: nextEntry.user_id,
+            recipientType: 'owner',
+            tenantId: profile.tenant_id,
+            title: '¡Turno disponible!',
+            message: `Se ha liberado un turno para ${petName}. Tienes 2 horas para confirmarlo.`,
+            channels: ['in_app', 'email'],
+            data: {
+              petName,
+              serviceName,
+              appointmentDate: entry.preferred_date,
+              expiresAt: expiresAt.toISOString(),
+            },
+            actionUrl: `/${profile.tenant_id}/portal/appointments`,
+          })
+        } catch (notifError) {
+          logger.warn('Failed to send waitlist notification', {
+            entryId: nextEntry.id,
+            error: notifError instanceof Error ? notifError.message : 'Unknown',
+          })
+        }
       }
 
       return NextResponse.json({

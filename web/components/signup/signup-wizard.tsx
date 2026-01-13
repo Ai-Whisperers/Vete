@@ -419,10 +419,8 @@ export function SignupWizard() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-sm text-gray-500">
-          Ya tienes cuenta?{' '}
-          <a href="/auth/login" className="text-blue-600 hover:underline">
-            Inicia sesion
-          </a>
+          ¿Ya tienes cuenta? Ve a tu clínica (ej: vetic.app/tu-clinica) e{' '}
+          <span className="text-blue-600">inicia sesión desde ahí</span>
         </p>
       </div>
     </div>

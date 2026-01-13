@@ -1,8 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Stats Cards Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ */
+
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import { DASHBOARD_ICONS } from '@/lib/icons'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface DashboardStats {
   total_pets: number
@@ -166,29 +176,18 @@ function LoadingSkeleton() {
 }
 
 export function StatsCards({ clinic }: StatsCardsProps) {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch(`/api/dashboard/stats?clinic=${clinic}`)
-        if (res.ok) {
-          const data = await res.json()
-          setStats(data)
-        }
-      } catch {
-        // Error fetching stats - silently fail
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStats()
-    // Refresh every 2 minutes for more real-time feel
-    const interval = setInterval(fetchStats, 2 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic])
+  // React Query: Fetch stats with 2-minute auto-refresh
+  const { data: stats, isLoading: loading } = useQuery({
+    queryKey: queryKeys.dashboard.stats(clinic),
+    queryFn: async (): Promise<DashboardStats> => {
+      const res = await fetch(`/api/dashboard/stats?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar estadísticas')
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT, // 30 seconds
+    gcTime: gcTimes.SHORT, // 5 minutes
+    refetchInterval: 2 * 60 * 1000, // Refresh every 2 minutes
+  })
 
   if (loading) {
     return <LoadingSkeleton />

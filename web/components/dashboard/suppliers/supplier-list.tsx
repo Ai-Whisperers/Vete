@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+/**
+ * Supplier List Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Debounced search via query key updates
+ */
+
+import { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   Plus,
@@ -17,7 +25,10 @@ import {
   Loader2,
   RefreshCw,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Supplier {
   id: string
@@ -64,46 +75,51 @@ export function SupplierList({
   onEditClick,
   onDeleteClick,
 }: SupplierListProps): React.ReactElement {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
-  const fetchSuppliers = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search])
 
-    try {
+  // Build filters object for query key
+  const filters = useMemo(() => ({
+    search: debouncedSearch || undefined,
+    type: typeFilter || undefined,
+    status: statusFilter || undefined,
+  }), [debouncedSearch, typeFilter, statusFilter])
+
+  // React Query: Fetch suppliers with filters
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.suppliers.list(filters),
+    queryFn: async (): Promise<{ suppliers: Supplier[] }> => {
       const params = new URLSearchParams()
-      if (search) params.set('search', search)
-      if (typeFilter) params.set('type', typeFilter)
-      if (statusFilter) params.set('status', statusFilter)
+      if (filters.search) params.set('search', filters.search)
+      if (filters.type) params.set('type', filters.type)
+      if (filters.status) params.set('status', filters.status)
 
       const res = await fetch(`/api/suppliers?${params.toString()}`)
       if (!res.ok) throw new Error('Error al cargar proveedores')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      const data = await res.json()
-      setSuppliers(data.suppliers || [])
-    } catch (err) {
-      setError('Error al cargar los proveedores')
-    } finally {
-      setLoading(false)
-    }
-  }, [search, typeFilter, statusFilter])
-
-  useEffect(() => {
-    const debounce = setTimeout(fetchSuppliers, 300)
-    return () => clearTimeout(debounce)
-  }, [fetchSuppliers])
+  const suppliers = data?.suppliers || []
 
   const handleMenuToggle = (id: string) => {
     setActiveMenu(activeMenu === id ? null : id)
   }
 
-  if (loading && suppliers.length === 0) {
+  if (isLoading && suppliers.length === 0) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
@@ -150,7 +166,7 @@ export function SupplierList({
           </select>
 
           <button
-            onClick={fetchSuppliers}
+            onClick={() => refetch()}
             className="rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
             title="Actualizar"
           >
@@ -169,7 +185,7 @@ export function SupplierList({
 
       {error && (
         <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-[var(--status-error)]">
-          {error}
+          {error instanceof Error ? error.message : 'Error al cargar los proveedores'}
         </div>
       )}
 

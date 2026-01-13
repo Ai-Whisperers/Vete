@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Save } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface OrderItem {
   id: string
@@ -37,6 +38,7 @@ interface ResultEntryProps {
 type ResultFlag = 'normal' | 'low' | 'high' | 'critical_low' | 'critical_high'
 
 export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) {
+  const { showToast } = useToast()
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [results, setResults] = useState<Record<string, { value: string; flag?: ResultFlag }>>({})
   const [specimenQuality, setSpecimenQuality] = useState('acceptable')
@@ -273,9 +275,9 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
     } catch (error) {
       // Handle different error types
       if (error instanceof Error && error.name === 'AbortError') {
-        alert('Solicitud cancelada')
+        showToast({ title: 'Solicitud cancelada', variant: 'warning' })
       } else {
-        alert('Error al guardar los resultados')
+        showToast({ title: 'Error al guardar los resultados', variant: 'error' })
       }
     } finally {
       setSubmitting(false)

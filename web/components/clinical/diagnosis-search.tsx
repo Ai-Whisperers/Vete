@@ -1,7 +1,19 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+/**
+ * Diagnosis Search Component
+ *
+ * RES-001: Migrated to use React Query for data fetching
+ * - Replaced useEffect+fetch with useDiagnosisSearch hook
+ * - Server-side search using API ?q= parameter
+ * - Automatic caching and deduplication
+ */
+
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Search, Loader2 } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Diagnosis {
   id: string
@@ -20,35 +32,24 @@ export function DiagnosisSearch({
   placeholder = 'Buscar diagnóstico...',
 }: DiagnosisSearchProps) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Diagnosis[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
 
-  // Debounce logic
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (query.length >= 2) {
-        setLoading(true)
-        try {
-          const res = await fetch(`/api/diagnosis_codes?q=${encodeURIComponent(query)}`)
-          if (res.ok) {
-            const data = await res.json()
-            setResults(data)
-            setIsOpen(true)
-          }
-        } catch {
-          // Search error - silently fail
-        } finally {
-          setLoading(false)
-        }
-      } else {
-        setResults([])
-        setIsOpen(false)
+  // Use React Query for diagnosis search with debouncing handled by staleTime
+  const { data: results = [], isLoading, isFetching } = useQuery({
+    queryKey: queryKeys.clinical.diagnosisSearch(query),
+    queryFn: async (): Promise<Diagnosis[]> => {
+      const response = await fetch(`/api/diagnosis_codes?q=${encodeURIComponent(query)}`)
+      if (!response.ok) {
+        throw new Error('Error al buscar diagnósticos')
       }
-    }, 300)
+      return response.json()
+    },
+    enabled: query.length >= 2,
+    staleTime: staleTimes.STATIC, // Diagnosis codes rarely change
+    gcTime: gcTimes.LONG,
+  })
 
-    return () => clearTimeout(timer)
-  }, [query])
+  const loading = isLoading || isFetching
 
   return (
     <div className="relative">
@@ -59,7 +60,15 @@ export function DiagnosisSearch({
           className="min-h-[44px] w-full rounded-xl border border-[var(--border,#e5e7eb)] bg-[var(--bg-subtle)] py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           placeholder={placeholder}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setIsOpen(true)
+          }}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => {
+            // Delay closing to allow click on results
+            setTimeout(() => setIsOpen(false), 200)
+          }}
         />
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -68,7 +77,7 @@ export function DiagnosisSearch({
         )}
       </div>
 
-      {isOpen && results.length > 0 && (
+      {isOpen && query.length >= 2 && results.length > 0 && (
         <div className="absolute z-50 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-xl border border-[var(--border-light,#f3f4f6)] bg-[var(--bg-paper)] shadow-xl">
           {results.map((d) => (
             <button
@@ -91,7 +100,7 @@ export function DiagnosisSearch({
         </div>
       )}
 
-      {isOpen && results.length === 0 && !loading && (
+      {isOpen && query.length >= 2 && results.length === 0 && !loading && (
         <div className="absolute z-50 mt-2 w-full rounded-xl border border-[var(--border-light,#f3f4f6)] bg-[var(--bg-paper)] p-4 text-center text-sm text-[var(--text-secondary)] shadow-xl">
           No se encontraron resultados
         </div>

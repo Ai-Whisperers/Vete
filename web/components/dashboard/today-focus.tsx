@@ -1,18 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Today Focus Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ * - Parallel fetching maintained inside queryFn
+ */
+
+import { useMemo } from 'react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import {
   AlertTriangle,
   Clock,
   Syringe,
-  CalendarCheck,
   ChevronRight,
   Bell,
   AlertCircle,
   CheckCircle2,
   Activity,
 } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface FocusItem {
   id: string
@@ -161,108 +172,100 @@ function LoadingSkeleton() {
 }
 
 export function TodayFocus({ clinic }: TodayFocusProps) {
-  const [items, setItems] = useState<FocusItem[]>([])
-  const [loading, setLoading] = useState(true)
+  // React Query: Fetch focus items with 1-minute auto-refresh
+  const { data: rawItems = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.dashboard.todayFocus(clinic),
+    queryFn: async (): Promise<FocusItem[]> => {
+      // Fetch from multiple sources in parallel
+      const [vaccinesRes, appointmentsRes] = await Promise.all([
+        fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=3`),
+        fetch(`/api/dashboard/today-appointments?clinic=${clinic}`),
+      ])
 
-  useEffect(() => {
-    const fetchFocusItems = async () => {
-      try {
-        // Fetch from multiple sources in parallel
-        const [vaccinesRes, appointmentsRes] = await Promise.all([
-          fetch(`/api/dashboard/vaccines?clinic=${clinic}&days=3`),
-          fetch(`/api/dashboard/today-appointments?clinic=${clinic}`),
-        ])
+      const focusItems: FocusItem[] = []
 
-        const focusItems: FocusItem[] = []
+      // Process overdue vaccines
+      if (vaccinesRes.ok) {
+        const vaccinesData = await vaccinesRes.json()
+        // API returns array with is_overdue flag, filter for overdue ones
+        const overdue: VaccineRecord[] = Array.isArray(vaccinesData)
+          ? vaccinesData.filter((v: VaccineRecord) => v.is_overdue)
+          : vaccinesData.overdue || []
+        overdue.slice(0, 3).forEach((v: VaccineRecord) => {
+          focusItems.push({
+            id: `vaccine-${v.pet_id}-${v.vaccine_name}`,
+            type: 'vaccine',
+            title: `Vacuna vencida: ${v.vaccine_name}`,
+            description: `Venció ${formatDaysAgo(v.due_date)}`,
+            petName: v.pet_name,
+            ownerName: v.owner_name,
+            href: `/${clinic}/dashboard/patients/${v.pet_id}`,
+            priority: 'high',
+          })
+        })
+      }
 
-        // Process overdue vaccines
-        if (vaccinesRes.ok) {
-          const vaccinesData = await vaccinesRes.json()
-          // API returns array with is_overdue flag, filter for overdue ones
-          const overdue: VaccineRecord[] = Array.isArray(vaccinesData)
-            ? vaccinesData.filter((v: VaccineRecord) => v.is_overdue)
-            : vaccinesData.overdue || []
-          overdue.slice(0, 3).forEach((v: VaccineRecord) => {
+      // Process today's appointments that need attention
+      if (appointmentsRes.ok) {
+        const appointmentsData = await appointmentsRes.json()
+        // API returns array directly or { appointments: [...] }
+        const appointments: AppointmentRecord[] = Array.isArray(appointmentsData)
+          ? appointmentsData
+          : appointmentsData.appointments || []
+
+        // Find appointments that should have started but aren't in progress
+        const now = new Date()
+        appointments.forEach((apt: AppointmentRecord) => {
+          const startTime = new Date(apt.start_time)
+          const petName = apt.pet?.name || apt.pet_name
+          const ownerName = apt.pet?.owner?.full_name || apt.owner_name
+          const serviceName = apt.service?.name || apt.service_name || 'Consulta'
+
+          if (apt.status === 'confirmed' && startTime < now) {
             focusItems.push({
-              id: `vaccine-${v.pet_id}-${v.vaccine_name}`,
-              type: 'vaccine',
-              title: `Vacuna vencida: ${v.vaccine_name}`,
-              description: `Venció ${formatDaysAgo(v.due_date)}`,
-              petName: v.pet_name,
-              ownerName: v.owner_name,
-              href: `/${clinic}/dashboard/patients/${v.pet_id}`,
+              id: `apt-${apt.id}`,
+              type: 'urgent',
+              title: `Cita sin iniciar`,
+              description: serviceName,
+              time: formatTime(apt.start_time),
+              petName,
+              ownerName,
+              href: `/${clinic}/dashboard/appointments/${apt.id}`,
               priority: 'high',
             })
-          })
-        }
-
-        // Process today's appointments that need attention
-        if (appointmentsRes.ok) {
-          const appointmentsData = await appointmentsRes.json()
-          // API returns array directly or { appointments: [...] }
-          const appointments: AppointmentRecord[] = Array.isArray(appointmentsData)
-            ? appointmentsData
-            : appointmentsData.appointments || []
-
-          // Find appointments that should have started but aren't in progress
-          const now = new Date()
-          appointments.forEach((apt: AppointmentRecord) => {
-            const startTime = new Date(apt.start_time)
-            const petName = apt.pet?.name || apt.pet_name
-            const ownerName = apt.pet?.owner?.full_name || apt.owner_name
-            const serviceName = apt.service?.name || apt.service_name || 'Consulta'
-
-            if (apt.status === 'confirmed' && startTime < now) {
+          } else if (apt.status === 'scheduled') {
+            // Upcoming scheduled appointments
+            const minutesUntil = Math.floor((startTime.getTime() - now.getTime()) / 60000)
+            if (minutesUntil <= 30 && minutesUntil > 0) {
               focusItems.push({
-                id: `apt-${apt.id}`,
-                type: 'urgent',
-                title: `Cita sin iniciar`,
+                id: `apt-upcoming-${apt.id}`,
+                type: 'reminder',
+                title: `Próxima cita en ${minutesUntil} min`,
                 description: serviceName,
                 time: formatTime(apt.start_time),
                 petName,
-                ownerName,
                 href: `/${clinic}/dashboard/appointments/${apt.id}`,
-                priority: 'high',
+                priority: 'medium',
               })
-            } else if (apt.status === 'scheduled') {
-              // Upcoming scheduled appointments
-              const minutesUntil = Math.floor((startTime.getTime() - now.getTime()) / 60000)
-              if (minutesUntil <= 30 && minutesUntil > 0) {
-                focusItems.push({
-                  id: `apt-upcoming-${apt.id}`,
-                  type: 'reminder',
-                  title: `Próxima cita en ${minutesUntil} min`,
-                  description: serviceName,
-                  time: formatTime(apt.start_time),
-                  petName,
-                  href: `/${clinic}/dashboard/appointments/${apt.id}`,
-                  priority: 'medium',
-                })
-              }
             }
-          })
-        }
-
-        // Sort by priority
-        const priorityOrder = { high: 0, medium: 1, low: 2 }
-        focusItems.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
-
-        setItems(focusItems.slice(0, 5)) // Max 5 items
-      } catch (error) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching focus items:', error)
-        }
-      } finally {
-        setLoading(false)
+          }
+        })
       }
-    }
 
-    fetchFocusItems()
-    // Refresh every minute for real-time updates
-    const interval = setInterval(fetchFocusItems, 60 * 1000)
-    return () => clearInterval(interval)
-  }, [clinic])
+      return focusItems
+    },
+    staleTime: staleTimes.SHORT, // 30 seconds
+    gcTime: gcTimes.SHORT, // 5 minutes
+    refetchInterval: 60 * 1000, // Refresh every minute
+  })
+
+  // Sort by priority and limit to 5 items (memoized)
+  const items = useMemo(() => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 }
+    return [...rawItems]
+      .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+      .slice(0, 5)
+  }, [rawItems])
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border-light)] bg-[var(--bg-paper)] shadow-sm">

@@ -2,6 +2,7 @@
 
 import * as Icons from 'lucide-react'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { updateAppointmentStatus } from '@/app/actions/update-appointment'
 import { useState } from 'react'
 import type { AppointmentStatus } from '@/lib/types/status'
@@ -33,12 +34,14 @@ export default function AppointmentItem({
   appointment: Appointment
   clinic: string
 }) {
+  const t = useTranslations('appointments')
+  const tc = useTranslations('common')
   const [loading, setLoading] = useState(false)
   const { pet, start_time, status, reason, notes } = appointment
   const date = new Date(start_time)
 
   const handleStatus = async (newStatus: string) => {
-    if (!confirm(`¿Cambiar estado a ${newStatus}?`)) return
+    if (!confirm(t('confirmStatusChange', { status: t(`status.${newStatus}`) }))) return
     setLoading(true)
     await updateAppointmentStatus(appointment.id, newStatus, clinic)
     setLoading(false)
@@ -69,7 +72,7 @@ export default function AppointmentItem({
         <div
           className={`mt-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wider ${badgeClass}`}
         >
-          {status}
+          {t(`status.${status}`)}
         </div>
       </div>
 
@@ -82,7 +85,7 @@ export default function AppointmentItem({
               <span className="text-sm text-[var(--text-muted)]">({pet.species})</span>
             </div>
             <p className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <Icons.User className="h-3 w-3" /> {pet.owner?.full_name || 'Desconocido'}
+              <Icons.User className="h-3 w-3" /> {pet.owner?.full_name || t('unknownOwner')}
               <span className="text-[var(--text-muted)]">|</span>
               <Icons.Phone className="h-3 w-3" /> {pet.owner?.phone || '-'}
             </p>
@@ -93,7 +96,7 @@ export default function AppointmentItem({
           <div className="flex items-start gap-3">
             <Icons.Info className="mt-1 h-4 w-4 shrink-0 text-[var(--status-info)]" />
             <div>
-              <span className="mb-0.5 block text-xs font-bold uppercase text-[var(--text-muted)]">Motivo</span>
+              <span className="mb-0.5 block text-xs font-bold uppercase text-[var(--text-muted)]">{t('reason')}</span>
               <p className="text-sm font-medium text-[var(--text-secondary)]">{reason}</p>
               {notes && <p className="mt-1 text-xs italic text-[var(--text-muted)]">"{notes}"</p>}
             </div>
@@ -114,7 +117,7 @@ export default function AppointmentItem({
               onClick={() => handleStatus('confirmed')}
               disabled={loading}
               className="rounded-lg bg-[var(--status-info-bg)] p-2 text-[var(--status-info)] transition-colors hover:bg-[var(--status-info-border)] disabled:opacity-50"
-              title="Confirmar"
+              title={t('actions.confirm')}
             >
               <Icons.Check className="h-5 w-5" />
             </button>
@@ -122,7 +125,7 @@ export default function AppointmentItem({
               onClick={() => handleStatus('cancelled')}
               disabled={loading}
               className="rounded-lg bg-[var(--status-error-bg)] p-2 text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-border)] disabled:opacity-50"
-              title="Cancelar"
+              title={tc('cancel')}
             >
               <Icons.X className="h-5 w-5" />
             </button>
@@ -133,7 +136,7 @@ export default function AppointmentItem({
             onClick={() => handleStatus('completed')}
             disabled={loading}
             className="rounded-lg bg-[var(--status-success-bg)] p-2 text-[var(--status-success)] transition-colors hover:bg-[var(--status-success-border)] disabled:opacity-50"
-            title="Completar"
+            title={t('actions.complete')}
           >
             <Icons.CheckCircle2 className="h-5 w-5" />
           </button>
@@ -143,7 +146,7 @@ export default function AppointmentItem({
             onClick={() => handleStatus('cancelled')}
             disabled={loading}
             className="rounded-lg bg-[var(--bg-subtle)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-muted)] disabled:opacity-50"
-            title="Cancelar"
+            title={tc('cancel')}
           >
             <Icons.Trash2 className="h-5 w-5" />
           </button>

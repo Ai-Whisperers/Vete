@@ -14,6 +14,7 @@ import {
   MessageSquare,
   ShoppingCart,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -184,13 +185,14 @@ export function EmptyStateNoPets({
   clinic: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noPets')
   return (
     <EmptyState
       icon={PawPrint}
-      title="No tienes mascotas registradas"
-      description="Registra tu primera mascota para comenzar a llevar su historial médico."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Agregar Mascota',
+        label: t('action'),
         href: `/${clinic}/portal/pets/new`,
       }}
       variant="card"
@@ -207,13 +209,14 @@ export function EmptyStateNoAppointments({
   clinic: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noAppointments')
   return (
     <EmptyState
       icon={Calendar}
-      title="No hay citas programadas"
-      description="Agenda una cita para tu mascota con nuestros veterinarios."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Agendar Cita',
+        label: t('action'),
         href: `/${clinic}/book`,
       }}
       variant="default"
@@ -223,11 +226,12 @@ export function EmptyStateNoAppointments({
 }
 
 export function EmptyStateNoInvoices({ className }: { className?: string }): React.ReactElement {
+  const t = useTranslations('emptyStates.noInvoices')
   return (
     <EmptyState
       icon={FileText}
-      title="No hay facturas"
-      description="Las facturas aparecerán aquí después de cada servicio."
+      title={t('title')}
+      description={t('description')}
       variant="default"
       className={className}
     />
@@ -243,13 +247,14 @@ export function EmptyStateNoVaccines({
   petId: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noVaccines')
   return (
     <EmptyState
       icon={Syringe}
-      title="Sin vacunas registradas"
-      description="Agrega las vacunas de tu mascota para llevar un control."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Agregar Vacuna',
+        label: t('action'),
         href: `/${clinic}/portal/pets/${petId}/vaccines/new`,
       }}
       variant="default"
@@ -259,11 +264,12 @@ export function EmptyStateNoVaccines({
 }
 
 export function EmptyStateNoLabOrders({ className }: { className?: string }): React.ReactElement {
+  const t = useTranslations('emptyStates.noLabOrders')
   return (
     <EmptyState
       icon={FlaskConical}
-      title="No hay órdenes de laboratorio"
-      description="Las órdenes de laboratorio aparecerán aquí."
+      title={t('title')}
+      description={t('description')}
       variant="default"
       className={className}
     />
@@ -277,13 +283,14 @@ export function EmptyStateNoClients({
   clinic: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noClients')
   return (
     <EmptyState
       icon={Users}
-      title="No hay clientes"
-      description="Invita a tus primeros clientes para comenzar."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Invitar Cliente',
+        label: t('action'),
         href: `/${clinic}/dashboard/clients?action=new-client`,
       }}
       variant="default"
@@ -299,13 +306,14 @@ export function EmptyStateNoMessages({
   clinic: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noMessages')
   return (
     <EmptyState
       icon={MessageSquare}
-      title="Sin mensajes"
-      description="Inicia una conversación con la clínica."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Nuevo Mensaje',
+        label: t('action'),
         href: `/${clinic}/portal/messages/new`,
       }}
       variant="default"
@@ -323,15 +331,16 @@ export function EmptyStateNoSearchResults({
   onClear?: () => void
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.noSearchResults')
   return (
     <EmptyState
       icon={Search}
-      title="Sin resultados"
-      description={`No encontramos resultados para "${query}". Intenta con otra búsqueda.`}
+      title={t('title')}
+      description={t('description', { query })}
       action={
         onClear
           ? {
-              label: 'Limpiar búsqueda',
+              label: t('action'),
               onClick: onClear,
             }
           : undefined
@@ -343,8 +352,8 @@ export function EmptyStateNoSearchResults({
 }
 
 export function EmptyStateError({
-  title = 'Algo salió mal',
-  description = 'No pudimos cargar los datos. Por favor intenta de nuevo.',
+  title,
+  description,
   onRetry,
   className,
 }: {
@@ -353,15 +362,18 @@ export function EmptyStateError({
   onRetry?: () => void
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.error')
+  const resolvedTitle = title ?? t('title')
+  const resolvedDescription = description ?? t('description')
   return (
     <EmptyState
       icon={FileX}
-      title={title}
-      description={description}
+      title={resolvedTitle}
+      description={resolvedDescription}
       action={
         onRetry
           ? {
-              label: 'Reintentar',
+              label: t('action'),
               onClick: onRetry,
             }
           : undefined
@@ -379,13 +391,14 @@ export function EmptyStateEmptyCart({
   clinic: string
   className?: string
 }): React.ReactElement {
+  const t = useTranslations('emptyStates.emptyCart')
   return (
     <EmptyState
       icon={ShoppingCart}
-      title="Tu carrito está vacío"
-      description="Explora nuestra tienda y agrega productos."
+      title={t('title')}
+      description={t('description')}
       action={{
-        label: 'Ver Tienda',
+        label: t('action'),
         href: `/${clinic}/store`,
       }}
       variant="card"

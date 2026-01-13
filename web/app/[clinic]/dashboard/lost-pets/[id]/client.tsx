@@ -1,8 +1,16 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Lost Pet Detail Client
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   AlertTriangle,
@@ -167,62 +175,50 @@ export default function LostPetDetailClient({
   reportId,
 }: LostPetDetailClientProps): React.ReactElement {
   const router = useRouter()
-  const [report, setReport] = useState<LostPetReport | null>(null)
-  const [sightings, setSightings] = useState<Sighting[]>([])
-  const [matches, setMatches] = useState<Match[]>([])
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [showSightings, setShowSightings] = useState(true)
   const [showMatches, setShowMatches] = useState(true)
 
-  const fetchReport = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch report
+  const {
+    data: reportData,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['lost-pet-report', reportId],
+    queryFn: async (): Promise<{ report: LostPetReport; sightings: Sighting[]; matches: Match[] }> => {
       const response = await fetch(`/api/dashboard/lost-pets/${reportId}`)
 
       if (!response.ok) {
         if (response.status === 404) {
           router.push(`/${clinic}/dashboard/lost-pets`)
-          return
+          throw new Error('Reporte no encontrado')
         }
         throw new Error('Error al cargar reporte')
       }
 
       const data = await response.json()
-      setReport(data.report)
-      setSightings(data.sightings || [])
-      setMatches(data.matches || [])
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching report:', err)
+      return {
+        report: data.report,
+        sightings: data.sightings || [],
+        matches: data.matches || [],
       }
-      setError('Error al cargar el reporte')
-    } finally {
-      setLoading(false)
-    }
-  }, [reportId, router, clinic])
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  useEffect(() => {
-    fetchReport()
-  }, [fetchReport])
-
-  const updateStatus = async (
-    newStatus: 'lost' | 'found' | 'reunited',
-    notes?: string
-  ): Promise<void> => {
-    if (!report) return
-    setUpdating(true)
-    try {
+  // Mutation: Update status
+  const statusMutation = useMutation({
+    mutationFn: async (params: { newStatus: 'lost' | 'found' | 'reunited'; notes?: string; oldStatus: string }) => {
       const response = await fetch(`/api/dashboard/lost-pets/${reportId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          status: newStatus,
-          notes,
-          old_status: report.status,
+          status: params.newStatus,
+          notes: params.notes,
+          old_status: params.oldStatus,
         }),
       })
 
@@ -230,16 +226,33 @@ export default function LostPetDetailClient({
         throw new Error('Error al actualizar estado')
       }
 
-      const data = await response.json()
-      setReport(data.report)
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error updating status:', err)
-      }
-      setError('Error al actualizar el estado')
-    } finally {
-      setUpdating(false)
-    }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lost-pet-report', reportId] })
+    },
+  })
+
+  const report = reportData?.report || null
+  const sightings = reportData?.sightings || []
+  const matches = reportData?.matches || []
+  const error = queryError?.message || statusMutation.error?.message || null
+  const updating = statusMutation.isPending
+
+  const updateStatus = async (
+    newStatus: 'lost' | 'found' | 'reunited',
+    notes?: string
+  ): Promise<void> => {
+    if (!report) return
+    await statusMutation.mutateAsync({
+      newStatus,
+      notes,
+      oldStatus: report.status,
+    })
+  }
+
+  const fetchReport = async (): Promise<void> => {
+    await refetch()
   }
 
   const handleMarkReunited = async (): Promise<void> => {

@@ -56,6 +56,48 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Mock auth to avoid database connection
+vi.mock('@/lib/auth', () => ({
+  withApiAuth: (handler: any, options?: { roles?: string[] }) => {
+    return async (request: Request) => {
+      const { mockState, createStatefulSupabaseMock } = await import('@/lib/test-utils')
+
+      if (!mockState.user) {
+        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
+        return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+      }
+
+      if (!mockState.profile) {
+        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+          details: { message: 'Perfil no encontrado' },
+        })
+      }
+
+      // Check role if specified
+      const roles = options?.roles
+      if (roles && roles.length > 0 && !roles.includes(mockState.profile.role)) {
+        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      }
+
+      // Create mock context - withApiAuth passes context as single object
+      const mockSupabase = createStatefulSupabaseMock()
+      const context = {
+        user: mockState.user,
+        profile: mockState.profile,
+        supabase: mockSupabase,
+        tenantId: mockState.profile.tenant_id,
+        request: request,
+      }
+
+      // Handler receives the context object directly
+      return handler(context)
+    }
+  },
+}))
+
+
 // Helper to create GET request
 function createGetRequest(): NextRequest {
   return new NextRequest('http://localhost:3000/api/store/wishlist', {

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { SigningForm } from '@/components/consents'
 import type { SigningFormData } from '@/components/consents'
 import type { JSX } from 'react'
+import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react'
 
 interface TemplateField {
   id: string
@@ -15,11 +16,6 @@ interface TemplateField {
   is_required: boolean
   field_options: string[] | null
 }
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import SigningForm, { SigningFormData } from '@/components/consents/signing-form'
-import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react'
 
 interface ConsentRequest {
   id: string

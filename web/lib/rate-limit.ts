@@ -56,6 +56,12 @@ export const RATE_LIMITS = {
     maxRequests: 5, // 5 bookings per hour is generous
     message: 'Demasiadas solicitudes de reserva. Intente de nuevo en',
   },
+  // SEC-028: GDPR verification rate limit (Epic 4.1)
+  gdpr: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 5, // 5 attempts per token per hour (prevents brute-force)
+    message: 'Demasiados intentos de verificación. Intente de nuevo en',
+  },
   default: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,

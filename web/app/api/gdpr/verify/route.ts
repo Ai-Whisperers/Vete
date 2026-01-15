@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { verifyEmailToken, verifyPassword } from '@/lib/gdpr'
+import { rateLimit } from '@/lib/rate-limit'
 
 /**
  * Password verification schema
@@ -30,6 +31,12 @@ const passwordVerifySchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting: 5 attempts per token per hour (prevents brute-force)
+    const rateLimitResult = await rateLimit(request, 'gdpr')
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
     const requestId = request.nextUrl.searchParams.get('request')
     const token = request.nextUrl.searchParams.get('token')
 
@@ -91,6 +98,12 @@ export async function POST(request: NextRequest) {
         { error: 'No autorizado' },
         { status: 401 }
       )
+    }
+
+    // Rate limiting: 5 password attempts per hour (prevents brute-force)
+    const rateLimitResult = await rateLimit(request, 'gdpr', user.id)
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
     // Parse and validate request body

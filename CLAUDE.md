@@ -854,4 +854,357 @@ Located in `lib/hooks/` (8 hook files):
 
 ---
 
+## Refactoring Guidelines
+
+### Active Refactoring Initiative
+
+The codebase is undergoing a **16-week systematic refactoring** to improve quality from 6/10 to 9/10.
+
+**Documentation**:
+- **Master Plan**: `REFACTORING_TICKETS.md` (67 tasks across 6 phases)
+- **Autonomous Guide**: `AUTONOMOUS_WORK_PLAN.md` (15K words - complete patterns)
+- **Progress Tracking**: `REFACTORING_BOARD.md` (todo list with status)
+- **Metrics**: `BASELINE_METRICS.md` (baseline + weekly tracking)
+- **Git Workflow**: `documentation/GIT_WORKFLOW.md` (refactoring branch/commit patterns)
+
+### Code Quality Standards
+
+| Standard | Requirement | Enforcement |
+|----------|-------------|-------------|
+| **Warnings** | Zero warnings in lint/typecheck | Pre-commit hook blocks commits |
+| **Errors** | Zero errors in build/tests | CI/CD fails on errors |
+| **Test Coverage** | Services: 95%+, Components: 85%+ | Required for all refactoring PRs |
+| **Complexity** | Cyclomatic < 10 per function | Tracked in metrics |
+| **File Size** | Components: <300 lines, Services: <500 lines | God components flagged |
+
+### Refactoring Patterns
+
+#### Service Layer Pattern
+
+**Location**: `web/lib/services/`
+
+**Structure**:
+```typescript
+// BaseService (abstract class)
+export abstract class BaseService {
+  constructor(protected supabase: SupabaseClient) {}
+  
+  protected async handleError<T>(
+    operation: () => Promise<T>,
+    errorMessage: string
+  ): Promise<ServiceResult<T>> {
+    try {
+      const data = await operation();
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: errorMessage };
+    }
+  }
+}
+
+// Concrete service
+export class AppointmentService extends BaseService {
+  async list(tenantId: string): Promise<ServiceResult<Appointment[]>> {
+    return this.handleError(
+      async () => {
+        const { data, error } = await this.supabase
+          .from('appointments')
+          .select('*')
+          .eq('tenant_id', tenantId);
+        
+        if (error) throw error;
+        return data;
+      },
+      'Failed to fetch appointments'
+    );
+  }
+}
+```
+
+**Usage in API Routes**:
+```typescript
+// Before refactoring (181 lines of direct DB logic)
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('appointments')
+    .select('*')
+    // ... 150+ lines of complex logic
+}
+
+// After refactoring (<100 lines)
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const service = new AppointmentService(supabase);
+  
+  const result = await service.list(tenantId);
+  if (!result.success) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
+  
+  return NextResponse.json(result.data);
+}
+```
+
+#### Component Extraction Pattern
+
+**Before**: God component (700+ lines)
+```typescript
+// event-detail-modal.tsx (835 lines)
+export function EventDetailModal({ event }: Props) {
+  // 200+ lines of state
+  // 300+ lines of handlers
+  // 335+ lines of JSX
+}
+```
+
+**After**: Extracted components
+```
+event-detail-modal.tsx (150 lines) - orchestrator
+├── EventDetailsView.tsx (120 lines) - display logic
+├── EventActionsPanel.tsx (100 lines) - action buttons
+├── EventFormFields.tsx (140 lines) - form inputs
+└── EventComments.tsx (85 lines) - comments section
+```
+
+**Pattern**:
+1. Identify logical sections in large component
+2. Extract each section to separate file
+3. Keep orchestrator component thin (just composition)
+4. Each extracted component has single responsibility
+5. Add tests for each component (85%+ coverage)
+
+#### API Route Refactoring Pattern
+
+**Goals**:
+- Reduce from 180+ lines to <100 lines
+- Extract business logic to services
+- Consistent error handling
+- Type-safe responses
+
+**Template**:
+```typescript
+// web/app/api/[resource]/route.ts
+export async function GET(request: NextRequest) {
+  // 1. Auth check (10 lines)
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // 2. Get tenant context (10 lines)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .single();
+  
+  if (!profile) {
+    return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+  }
+
+  // 3. Delegate to service (5 lines)
+  const service = new ResourceService(supabase);
+  const result = await service.list(profile.tenant_id);
+
+  // 4. Return response (5 lines)
+  if (!result.success) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
+
+  return NextResponse.json(result.data);
+}
+```
+
+### Testing Patterns
+
+#### E2E Test Pattern
+
+**Location**: `web/e2e/critical/`
+
+**Structure**: Multi-context, phased flow
+```typescript
+test('complete [feature] lifecycle', async ({ browser }) => {
+  const ownerContext = await browser.newContext();
+  const staffContext = await browser.newContext();
+  
+  try {
+    // Phase 1: Owner action
+    await login(ownerPage, 'owner');
+    // ... owner workflow
+    
+    // Phase 2: Staff views
+    await login(staffPage, 'admin');
+    // ... staff verification
+    
+    // Phase 3: Staff processes
+    // ... staff action
+    
+    // Phase 4: Owner sees result
+    // ... owner verification
+  } finally {
+    await ownerContext.close();
+    await staffContext.close();
+  }
+});
+```
+
+**Coverage Requirements**:
+- Critical user paths (booking, checkout, payment, etc.)
+- Multi-role workflows (owner + staff interactions)
+- Error handling scenarios
+- Status transitions and updates
+
+#### Service Test Pattern
+
+**Location**: `web/tests/services/`
+
+**Coverage**: 95%+ for all services
+
+```typescript
+describe('AppointmentService', () => {
+  describe('list', () => {
+    it('returns appointments for tenant', async () => {
+      const service = new AppointmentService(mockSupabase);
+      const result = await service.list('tenant-123');
+      
+      expect(result.success).toBe(true);
+      expect(result.data).toHaveLength(2);
+    });
+    
+    it('handles database errors', async () => {
+      mockSupabase.from.mockReturnValue({
+        select: () => ({ error: new Error('DB error') })
+      });
+      
+      const service = new AppointmentService(mockSupabase);
+      const result = await service.list('tenant-123');
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Failed to fetch');
+    });
+  });
+});
+```
+
+### Commit & PR Conventions
+
+#### Commit Messages
+
+```bash
+# Format: type(scope): description - ticket-id
+
+# Refactoring commits
+refactor(services): add BaseService abstract class - phase1-1
+refactor(api): extract appointment validation logic - phase1-8
+refactor(components): split event-detail-modal into 4 components - phase2-1
+
+# Test commits
+test(services): add AppointmentService tests (95% coverage) - phase1-7
+test(e2e): add store checkout with prescription test - phase0-6
+
+# Documentation commits
+docs(refactoring): document service layer patterns - phase1-4
+docs(github): enhance PR template with quality gates - qw-8
+```
+
+#### PR Requirements
+
+**All PRs must include**:
+- [ ] Zero warnings, zero errors (lint, typecheck, build)
+- [ ] All tests passing (unit + E2E)
+- [ ] Test coverage meets requirements (95% services, 85% components)
+- [ ] Documentation updated
+- [ ] Breaking changes documented (if any)
+- [ ] Metrics impact analyzed (if refactoring)
+- [ ] Code follows patterns in `AUTONOMOUS_WORK_PLAN.md`
+
+**Refactoring PRs additionally require**:
+- [ ] Metrics table (before/after comparison)
+- [ ] Dependencies documented (blocks/depends on)
+- [ ] Migration guide (if breaking changes)
+- [ ] Rollback plan
+
+### Quality Gates
+
+#### Pre-Commit
+
+```bash
+# Run these before every commit (enforced by pre-commit hook)
+npm run lint              # 0 warnings
+npm run typecheck         # 0 errors
+npm run test              # all passing
+npm run build             # success
+```
+
+#### Pre-Merge
+
+```bash
+# Run these before merging PR
+npm run test:unit         # all passing
+npm run test:e2e          # critical paths passing
+npm run build             # production build success
+# Manual verification of affected user flows
+```
+
+### Refactoring Workflow
+
+```
+1. Create branch: refactor/phase-X-Y-description
+2. Implement changes (follow patterns in AUTONOMOUS_WORK_PLAN.md)
+3. Add tests (95%+ services, 85%+ components)
+4. Run validation (lint, typecheck, build, test)
+5. Update documentation
+6. Capture metrics (if applicable)
+7. Commit with convention: refactor(scope): description - phaseX-Y
+8. Push and create PR (use template)
+9. Code review (follow review guidelines)
+10. Merge to develop (squash and merge)
+11. Update refactoring board (mark todo completed)
+12. Run metrics tracking: ./scripts/track-metrics.sh
+```
+
+### Common Refactoring Tasks
+
+| Task | Estimated Time | Pattern to Follow |
+|------|----------------|-------------------|
+| **Service extraction** | 6-8h | BaseService → Concrete Service → Tests → API refactor |
+| **Component splitting** | 2-3h | Extract logical sections → Test each → Update parent |
+| **API route refactor** | 1-2h | Auth → Tenant → Service → Response |
+| **E2E test** | 1-2h | Multi-context → Phased flow → Error handling |
+| **Type safety** | 2-4h | Define interfaces → Replace `any` → Add validation |
+
+### Metrics Tracking
+
+**Baseline metrics** (captured January 2026):
+- Total LOC: 254,573
+- Average API route size: 181 lines
+- God components: 14 (>700 lines)
+- God routes: 13 (>300 lines)
+- Dependencies: 103 packages
+
+**Weekly tracking**:
+```bash
+./scripts/track-metrics.sh
+# Generates report in metrics/history/week-NN.md
+```
+
+**Target metrics** (after Phase 6):
+- Total LOC: ~230,000 (-10%)
+- Average API route size: <100 lines
+- God components: 0
+- God routes: 0
+- Dependencies: <70 packages
+
+### Resources
+
+- **Autonomous Work Guide**: `AUTONOMOUS_WORK_PLAN.md` - Complete patterns, examples, decision trees
+- **Refactoring Board**: `REFACTORING_BOARD.md` - Live todo list with progress tracking
+- **Git Workflow**: `documentation/GIT_WORKFLOW.md` - Branch, commit, PR conventions
+- **Baseline Metrics**: `BASELINE_METRICS.md` - Starting point and weekly progress
+- **Exemplars**: `.claude/exemplars/` - Reference implementations for common patterns
+
+---
+
 _Last updated: January 2026_

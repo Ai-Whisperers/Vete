@@ -43,6 +43,18 @@ export const recordPayment = withActionAuth(
           error: error.message,
           code: error.code,
         })
+        
+        // Provide specific error messages based on error code
+        if (error.code === '42883') {
+          // Function doesn't exist - database not migrated
+          return actionError('Sistema no actualizado. Contacte al administrador.')
+        }
+        
+        if (error.code === '23505') {
+          // Unique violation - duplicate payment attempt
+          return actionError('Este pago ya fue registrado')
+        }
+        
         return actionError('Error al registrar el pago en la base de datos')
       }
 

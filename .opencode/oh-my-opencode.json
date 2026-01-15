@@ -1,0 +1,151 @@
+{
+  "$schema": "https://github.com/code-yeongyu/oh-my-opencode/assets/oh-my-opencode.schema.json",
+  "// COST-OPTIMIZED CONFIGURATION FOR VETE PROJECT": "",
+  "// Prioritizes cheap/free agents for 80% of work": "",
+  "// Reserves expensive agents for critical tasks only": "",
+  "agents": {
+    "Planner-Sisyphus": {
+      "enabled": true,
+      "replace_plan": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "temperature": 0.7,
+      "// NOTE": "Using FREE Gemini for main orchestration - save Claude calls for critical work"
+    },
+    "oracle": {
+      "enabled": true,
+      "model": "anthropic/claude-sonnet-4-5",
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "// USAGE": "USE SPARINGLY - you have only 20 Claude calls total",
+      "// RULE": "Only invoke for architecture decisions and critical debugging",
+      "// BUDGET": "Reserve ~10 calls for emergencies"
+    },
+    "explore": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE with Gemini Pro - use liberally and in parallel",
+      "// RULE": "Fire 5-10 parallel searches simultaneously",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow",
+        "webfetch": "deny",
+        "doom_loop": "deny"
+      }
+    },
+    "librarian": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE with Gemini Pro - external docs, GitHub examples",
+      "// RULE": "Always run in background, fire multiple in parallel",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow",
+        "webfetch": "allow"
+      }
+    },
+    "frontend-ui-ux-engineer": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE - visual changes only (styling, layout, animation)",
+      "// RULE": "Pure logic changes stay with main agent"
+    },
+    "document-writer": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE - README, API docs, architecture docs"
+    },
+    "code-reviewer": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE for standard reviews - only use Claude for critical security reviews"
+    },
+    "test-writer": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE - Generate Vitest/Playwright tests"
+    },
+    "refactorer": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE - Safe refactoring with verification"
+    },
+    "debugger": {
+      "enabled": true,
+      "model": "google/antigravity-gemini-3-flash",
+      "// USAGE": "FREE for initial debugging - escalate to Claude oracle only after 3+ failures"
+    }
+  },
+  "disabled_agents": [
+    "multimodal-looker"
+  ],
+  "disabled_hooks": [
+    "agent-usage-reminder"
+  ],
+  "disabled_mcps": [],
+  "disabled_skills": [],
+  "disabled_commands": [],
+  "background_task": {
+    "defaultConcurrency": 10,
+    "// Cost optimization": "Gemini is FREE - run MANY in parallel",
+    "// Budget protection": "Severely limit Claude usage",
+    "providerConcurrency": {
+      "anthropic": 1,
+      "google": 50,
+      "openai": 0
+    },
+    "modelConcurrency": {
+      "// PRECIOUS - Only 20 calls total! Use for emergencies": "",
+      "anthropic/claude-sonnet-4-5": 1,
+      "anthropic/claude-opus-4-5": 1,
+      "// DISABLED - No OpenAI budget": "",
+      "openai/gpt-5.2": 0,
+      "// FREE - Fire at will!": "",
+      "google/antigravity-gemini-3-flash": 50,
+      "google/gemini-pro": 50
+    }
+  },
+  "experimental": {
+    "preemptive_compaction": true,
+    "preemptive_compaction_threshold": 0.85,
+    "aggressive_truncation": false,
+    "truncate_all_tool_outputs": false,
+    "auto_resume": true,
+    "dcp_for_compaction": false
+  },
+  "claude_code": {
+    "// Migrate from .claude directory": "",
+    "mcp": true,
+    "commands": true,
+    "skills": true,
+    "agents": true,
+    "hooks": true,
+    "plugins": false,
+    "plugins_override": {}
+  },
+  "sisyphus_agent": {
+    "disabled": false,
+    "default_builder_enabled": true,
+    "planner_enabled": true
+  },
+  "skills": {
+    "sources": [
+      "./.opencode/skills",
+      "./.claude/skills"
+    ],
+    "enable": [
+      "fastapi-endpoint",
+      "pytest-suite",
+      "nextjs-page",
+      "supabase-api",
+      "database-migration"
+    ],
+    "disable": []
+  },
+  "ralph_loop": {
+    "enabled": false,
+    "default_max_iterations": 100,
+    "state_dir": ".opencode/"
+  },
+  "google_auth": true,
+  "auto_update": true
+}

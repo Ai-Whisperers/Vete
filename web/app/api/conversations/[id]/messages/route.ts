@@ -169,4 +169,6 @@ export const POST = withApiAuthParams<Params>(async (ctx) => {
       details: { message: 'Error al enviar mensaje' },
     })
   }
-})
+  },
+  { rateLimit: 'write' }
+)

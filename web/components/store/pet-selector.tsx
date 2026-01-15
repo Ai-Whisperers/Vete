@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { PawPrint, ChevronDown, Loader2, AlertCircle, Plus } from 'lucide-react'
 import Link from 'next/link'
 
-interface Pet {
+export interface Pet {
   id: string
   name: string
   species: string
@@ -16,8 +16,8 @@ interface Pet {
 interface PetSelectorProps {
   /** Currently selected pet ID */
   selectedPetId?: string | null
-  /** Callback when pet is selected */
-  onSelect: (petId: string | null) => void
+  /** Callback when pet is selected (petId, optionally the full pet object) */
+  onSelect: (petId: string | null, pet?: Pet) => void
   /** Clinic slug for pet fetching and links */
   clinic: string
   /** Whether selection is required */
@@ -82,8 +82,8 @@ export function PetSelector({
     fetchPets()
   }, [clinic])
 
-  const handleSelect = (petId: string | null) => {
-    onSelect(petId)
+  const handleSelect = (petId: string | null, pet?: Pet) => {
+    onSelect(petId, pet)
     setIsOpen(false)
   }
 
@@ -196,7 +196,7 @@ export function PetSelector({
             {!required && selectedPetId && (
               <button
                 type="button"
-                onClick={() => handleSelect(null)}
+                onClick={() => handleSelect(null, undefined)}
                 className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-gray-50"
               >
                 {t('noSelection')}
@@ -208,7 +208,7 @@ export function PetSelector({
               <button
                 key={pet.id}
                 type="button"
-                onClick={() => handleSelect(pet.id)}
+                onClick={() => handleSelect(pet.id, pet)}
                 className={`flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 ${
                   pet.id === selectedPetId ? 'bg-[var(--primary)]/5' : ''
                 }`}

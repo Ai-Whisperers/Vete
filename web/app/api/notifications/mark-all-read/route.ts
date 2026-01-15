@@ -41,4 +41,4 @@ export const POST = withApiAuth(async ({ user, profile, supabase }: ApiHandlerCo
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+}, { rateLimit: 'write' })

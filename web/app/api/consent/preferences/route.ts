@@ -110,7 +110,8 @@ export const POST = withApiAuth(
         details: { message: error instanceof Error ? error.message : 'Error desconocido' },
       })
     }
-  }
+  },
+  { rateLimit: 'write' }
 )
 
 /**
@@ -188,5 +189,6 @@ export const PUT = withApiAuth(
         details: { message: error instanceof Error ? error.message : 'Error desconocido' },
       })
     }
-  }
+  },
+  { rateLimit: 'write' }
 )

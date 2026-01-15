@@ -178,16 +178,6 @@ export const POST = withApiAuth(
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-
-    // Create audit log entry
-    await supabase.from('consent_audit_log').insert({
-      consent_id: data.id,
-      action: 'signed',
-      performed_by_id: user.id,
-      details: { method: 'in_person' },
-    })
-
-    return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

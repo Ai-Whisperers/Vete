@@ -1,17 +1,10 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { rateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for search endpoints (30 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'search', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
 
@@ -42,5 +35,5 @@ export const GET = withApiAuth(
       },
     })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'search' }
 )

@@ -11,16 +11,19 @@ export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandler
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
 
-  let query = supabase.from('lost_pet_reports').select(`
+  let query = supabase
+    .from('lost_pets')
+    .select(`
       id,
       status,
       last_seen_location,
-      last_seen_date,
-      finder_contact,
-      finder_notes,
+      last_seen_at,
+      contact_phone,
+      contact_email,
       notes,
       created_at,
-      resolved_at,
+      found_at,
+      found_location,
       pet:pets (
         id,
         name,
@@ -37,10 +40,11 @@ export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandler
       reported_by_user:profiles!reported_by (
         full_name
       ),
-      resolved_by_user:profiles!resolved_by (
+      found_by_user:profiles!found_by (
         full_name
       )
     `)
+    .eq('tenant_id', profile.tenant_id)
 
   if (status && status !== 'all') {
     query = query.eq('status', status)
@@ -49,14 +53,14 @@ export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandler
   const { data, error } = await query
 
   if (error) {
-    logger.error('Error fetching lost pet reports', {
+    logger.error('Error fetching lost pets', {
       tenantId: profile.tenant_id,
       error: error.message,
     })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json({ data })
+  return apiSuccess(data)
 })
 
 /**
@@ -76,39 +80,39 @@ export const PATCH = withApiAuth(
 
     // Verify report exists and belongs to staff's tenant
     const { data: existing, error: fetchError } = await supabase
-      .from('lost_pet_reports')
+      .from('lost_pets')
       .select('id, tenant_id')
       .eq('id', id)
+      .eq('tenant_id', profile.tenant_id)
       .single()
 
     if (fetchError || !existing) {
       return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
     }
 
-    // Ownership check: report must be in staff's tenant
-    if (existing.tenant_id !== profile.tenant_id) {
-      logger.warn('Cross-tenant lost pet update attempt', {
-        userId: user.id,
-        userTenantId: profile.tenant_id,
-        reportTenantId: existing.tenant_id,
-        reportId: id,
-      })
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    const updateData: {
+      status: string
+      found_at?: string | null
+      found_by?: string | null
+    } = {
+      status,
+    }
+
+    if (status === 'reunited' || status === 'found') {
+      updateData.found_at = new Date().toISOString()
+      updateData.found_by = user.id
     }
 
     const { error } = await supabase
-      .from('lost_pet_reports')
-      .update({
-        status,
-        resolved_at: status === 'reunited' ? new Date().toISOString() : null,
-        resolved_by: status === 'reunited' ? user.id : null,
-      })
+      .from('lost_pets')
+      .update(updateData)
       .eq('id', id)
+      .eq('tenant_id', profile.tenant_id)
 
     if (error) {
-      logger.error('Error updating lost pet report', {
+      logger.error('Error updating lost pet', {
         tenantId: profile.tenant_id,
-        reportId: id,
+        petId: id,
         error: error.message,
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
@@ -116,5 +120,5 @@ export const PATCH = withApiAuth(
 
     return apiSuccess({ id }, 'Estado actualizado')
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

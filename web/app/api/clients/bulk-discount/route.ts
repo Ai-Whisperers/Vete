@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -29,12 +28,6 @@ interface BulkDiscountResult {
  */
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write operations
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     try {
       const body = await request.json()
       const validation = bulkDiscountSchema.safeParse(body)
@@ -176,5 +169,5 @@ export const POST = withApiAuth(
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

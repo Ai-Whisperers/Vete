@@ -166,11 +166,20 @@ class RateLimitStore {
 const inMemoryStore = new RateLimitStore()
 
 /**
- * Redis-based store (if REDIS_URL is configured)
+ * Redis client type (from redis package)
+ */
+type RedisClientType = {
+  connect(): Promise<void>
+  get(key: string): Promise<string | null>
+  setEx(key: string, ttl: number, value: string): Promise<void>
+}
+
+/**
+ * Redis-based rate limit store (optional)
  * Falls back to in-memory if Redis is not available
  */
 class RedisStore {
-  private client: any = null // Redis client type
+  private client: RedisClientType | null = null
   private isConnected: boolean = false
 
   async connect(): Promise<void> {
@@ -197,7 +206,9 @@ class RedisStore {
         return // Redis not installed, use in-memory
       }
 
-      const { createClient } = redisModule as { createClient: (config: any) => any }
+      const { createClient } = redisModule as {
+        createClient: (config: { url: string }) => RedisClientType
+      }
       this.client = createClient({ url: redisUrl })
       await this.client.connect()
       this.isConnected = true
@@ -426,12 +437,12 @@ export async function rateLimit(
  * );
  * ```
  */
-export function withRateLimit<T>(
-  handler: (request: NextRequest, ...args: any[]) => Promise<NextResponse<T>>,
+export function withRateLimit<T, TContext extends unknown[] = []>(
+  handler: (request: NextRequest, ...args: TContext) => Promise<NextResponse<T>>,
   limitType: RateLimitType = 'default',
   getUserId?: (request: NextRequest) => Promise<string | undefined>
-): (request: NextRequest, ...args: any[]) => Promise<NextResponse<T | ApiErrorResponse>> {
-  return async (request: NextRequest, ...args: any[]) => {
+): (request: NextRequest, ...args: TContext) => Promise<NextResponse<T | ApiErrorResponse>> {
+  return async (request: NextRequest, ...args: TContext) => {
     // Get user ID if function provided
     const userId = getUserId ? await getUserId(request) : undefined
 

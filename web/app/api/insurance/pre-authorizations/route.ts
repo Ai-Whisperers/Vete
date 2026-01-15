@@ -47,7 +47,7 @@ export const GET = withApiAuth(
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
-      return NextResponse.json({ data: preAuths })
+      return NextResponse.json({ data: preAuths || [] })
     } catch (e) {
       logger.error('Unexpected error fetching pre-authorizations', {
         tenantId: profile.tenant_id,

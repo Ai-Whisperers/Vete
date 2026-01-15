@@ -105,7 +105,7 @@ export const POST = withApiAuth(async ({ user, supabase, request }: ApiHandlerCo
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+}, { rateLimit: 'write' })
 
 /**
  * GET /api/pets - List pets for a user

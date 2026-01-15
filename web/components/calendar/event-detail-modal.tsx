@@ -14,6 +14,16 @@ import type {
 import { statusConfig } from '@/lib/types/appointments'
 
 // =============================================================================
+// TRANSLATION KEY TYPES
+// =============================================================================
+
+type AppointmentStatusKey = `appointmentStatus.${string}`
+type TimeOffStatusKey = `timeOffStatus.${string}`
+type ShiftStatusKey = `shiftStatus.${string}`
+type ShiftTypeKey = `shiftTypes.${string}`
+type EventTypeKey = `eventTypes.${string}`
+
+// =============================================================================
 // COMPONENT PROPS
 // =============================================================================
 
@@ -73,7 +83,8 @@ function StatusBadge({ status, type, t }: StatusBadgeProps) {
   let className = 'bg-gray-100 text-gray-800'
 
   if (type === 'appointment' && statusConfig[status]) {
-    label = t(`appointmentStatus.${status}` as any) || statusConfig[status].label
+    const key: AppointmentStatusKey = `appointmentStatus.${status}`
+    label = t(key) || statusConfig[status].label
     className = statusConfig[status].className
   } else if (type === 'time_off') {
     const timeOffColors: Record<string, string> = {
@@ -83,7 +94,8 @@ function StatusBadge({ status, type, t }: StatusBadgeProps) {
       cancelled: 'bg-gray-100 text-gray-500',
       withdrawn: 'bg-gray-100 text-gray-500',
     }
-    label = t(`timeOffStatus.${status}` as any) || status
+    const key: TimeOffStatusKey = `timeOffStatus.${status}`
+    label = t(key) || status
     className = timeOffColors[status] || className
   } else if (type === 'shift') {
     const shiftColors: Record<string, string> = {
@@ -94,7 +106,8 @@ function StatusBadge({ status, type, t }: StatusBadgeProps) {
       no_show: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
       cancelled: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
     }
-    label = t(`shiftStatus.${status}` as any) || status
+    const key: ShiftStatusKey = `shiftStatus.${status}`
+    label = t(key) || status
     className = shiftColors[status] || className
   }
 
@@ -276,8 +289,8 @@ export function EventDetailModal({
   }
 
   const getTypeLabel = () => {
-    const typeKey = `eventTypes.${event.type}` as const
-    return t(typeKey as any) || t('eventTypes.event')
+    const typeKey: EventTypeKey = `eventTypes.${event.type}`
+    return t(typeKey) || t('eventTypes.event')
   }
 
   return (
@@ -582,7 +595,7 @@ export function EventDetailModal({
                   />
                 </svg>
                 <p className="text-sm text-gray-900">
-                  {t(`shiftTypes.${resource.shiftType}` as any) || resource.shiftType}
+                  {t(`shiftTypes.${resource.shiftType}` as ShiftTypeKey) || resource.shiftType}
                 </p>
               </div>
             )}

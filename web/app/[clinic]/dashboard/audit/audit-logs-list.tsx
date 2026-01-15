@@ -6,7 +6,7 @@ interface AuditLog {
   id: string
   action: string
   resource: string
-  details: any
+  details: Record<string, unknown> | null
   ip_address: string | null
   user_agent: string | null
   created_at: string

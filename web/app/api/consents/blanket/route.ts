@@ -125,10 +125,11 @@ export const POST = withApiAuth(
 
     return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
-export const PATCH = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+export const PATCH = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Parse body
   let body
   try {
@@ -205,4 +206,6 @@ export const PATCH = withApiAuth(async ({ request, user, profile, supabase }: Ap
   }
 
   return NextResponse.json(data)
-})
+  },
+  { rateLimit: 'write' }
+)

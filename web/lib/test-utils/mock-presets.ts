@@ -26,6 +26,7 @@
 
 import { vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
+import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
 
 // =============================================================================
 // Types
@@ -654,8 +655,7 @@ export function getAuthMock() {
      * Accepts Request or NextRequest for test compatibility
      */
     withApiAuth: (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler: (ctx: any) => Promise<NextResponse>,
+      handler: (ctx: ApiHandlerContext) => Promise<NextResponse>,
       _options?: { roles?: string[] }
     ) => {
       // Return function that accepts Request (base type that NextRequest extends)
@@ -704,8 +704,7 @@ export function getAuthMock() {
      * Accepts Request or NextRequest for test compatibility
      */
     withApiAuthParams: <P extends Record<string, string> = Record<string, string>>(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler: (ctx: any) => Promise<NextResponse>,
+      handler: (ctx: ApiHandlerContextWithParams<P>) => Promise<NextResponse>,
       _options?: { roles?: string[] }
     ) => {
       return async (

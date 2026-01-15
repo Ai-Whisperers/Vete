@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth } from '@/lib/auth'
 import { apiError } from '@/lib/api/errors'
-import { rateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 import { createSearchPattern, MIN_SEARCH_LENGTH } from '@/lib/utils/search'
 
@@ -28,12 +27,6 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
     return apiError('MISSING_FIELDS', 400, {
       details: { required: ['clinic'] },
     })
-  }
-
-  // Apply rate limiting for search endpoints (30 requests per minute)
-  const rateLimitResult = await rateLimit(request, 'search', user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
   }
 
   // Verify tenant access
@@ -197,4 +190,4 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
     })
     return apiError('SERVER_ERROR', 500)
   }
-})
+}, { rateLimit: 'search' })

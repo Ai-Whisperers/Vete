@@ -102,7 +102,7 @@ export default function FinanceDashboardClient() {
               Net Income
             </p>
             <h2
-              className={`text-3xl font-black ${data?.netIncome >= 0 ? 'text-green-400' : 'text-red-400'}`}
+              className={`text-3xl font-black ${(data?.netIncome ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}
             >
               {new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG' }).format(
                 data?.netIncome || 0

@@ -12,15 +12,9 @@ import {
   updateAppointmentSchema,
   appointmentQuerySchema,
 } from '@/lib/schemas/appointment'
-import { rateLimit } from '@/lib/rate-limit'
 
 // GET /api/booking - List appointments
 export const GET = withApiAuth(async (ctx: ApiHandlerContext) => {
-  // Apply rate limiting for search endpoints (30 requests per minute)
-  const rateLimitResult = await rateLimit(ctx.request, 'search', ctx.user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
   const { user, profile, supabase, request } = ctx
 
   const searchParams = new URL(request.url).searchParams
@@ -93,16 +87,10 @@ export const GET = withApiAuth(async (ctx: ApiHandlerContext) => {
     page,
     limit,
   })
-})
+}, { rateLimit: 'search' })
 
 // POST /api/booking - Create appointment
 export const POST = withApiAuth(async (ctx: ApiHandlerContext) => {
-  // Apply rate limiting for write endpoints (20 requests per minute)
-  const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
-
   const { user, profile, supabase, request } = ctx
 
   // Parse and validate body
@@ -218,16 +206,10 @@ export const POST = withApiAuth(async (ctx: ApiHandlerContext) => {
   }
 
   return apiSuccess(data, 'Cita creada exitosamente', 201)
-})
+}, { rateLimit: 'booking' })
 
 // PUT /api/booking - Update appointment
 export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
-  // Apply rate limiting for write endpoints (20 requests per minute)
-  const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
-
   const { user, profile, supabase, request } = ctx
 
   // Parse and validate body
@@ -377,7 +359,7 @@ export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
   }
 
   return apiSuccess(data, 'Cita actualizada')
-})
+}, { rateLimit: 'write' })
 
 // DELETE /api/booking - Delete appointment (admin only)
 export const DELETE = withApiAuth(
@@ -402,5 +384,5 @@ export const DELETE = withApiAuth(
 
     return new NextResponse(null, { status: 204 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 ) // Only admins can delete

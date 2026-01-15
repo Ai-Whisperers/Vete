@@ -145,7 +145,8 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Create a review (authenticated users only)
-export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
+export const POST = withApiAuth(
+  async ({ request, user, supabase }: ApiHandlerContext) => {
   try {
     const body = await request.json()
     const { product_id, clinic, rating, title, content, images } = body
@@ -234,4 +235,6 @@ export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerCo
       details: { message: 'No se pudo crear la reseña' },
     })
   }
-})
+  },
+  { rateLimit: 'write' }
+)

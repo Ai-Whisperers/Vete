@@ -54,5 +54,5 @@ export const POST = withApiAuthParams<Params>(
 
     return apiSuccess({ id }, 'Llegada registrada correctamente')
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

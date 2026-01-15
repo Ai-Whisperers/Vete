@@ -174,4 +174,4 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+}, { rateLimit: 'booking' })

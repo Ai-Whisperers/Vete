@@ -67,5 +67,5 @@ export const POST = withApiAuthParams(
 
     return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

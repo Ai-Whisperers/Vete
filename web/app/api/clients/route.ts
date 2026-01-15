@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
@@ -17,12 +16,6 @@ interface Client {
 
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for search endpoints (30 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'search', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search') || ''
@@ -245,7 +238,7 @@ export const GET = withApiAuth(
 
         if (lastAppts) {
           const processedOwners = new Set<string>()
-          lastAppts.forEach((appt: any) => {
+          lastAppts.forEach((appt: { start_time: string; pets?: { owner_id: string } | null }) => {
             const ownerId = appt.pets?.owner_id
             if (ownerId && !processedOwners.has(ownerId)) {
               lastAppointmentMap.set(ownerId, appt.start_time)
@@ -296,5 +289,5 @@ export const GET = withApiAuth(
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'search' }
 )

@@ -62,3 +62,13 @@ export {
   isValidRedirectUrl,
   sanitizeRedirectUrl,
 } from './redirect'
+
+// Fast auth for high-frequency endpoints (PERF-001)
+export { getFastAuth, getSessionAuth } from './fast-auth'
+export {
+  getCachedSession,
+  cacheSession,
+  clearCachedSession,
+  clearAllCachedSessions,
+  getCacheStats,
+} from './session-cache'

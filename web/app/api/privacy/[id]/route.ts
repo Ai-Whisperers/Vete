@@ -149,7 +149,7 @@ export const PATCH = withApiAuthParams<Params>(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )
 
 /**
@@ -205,5 +205,5 @@ export const DELETE = withApiAuthParams<Params>(
 
     return new NextResponse(null, { status: 204 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

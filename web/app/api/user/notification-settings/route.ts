@@ -34,7 +34,8 @@ export const GET = withApiAuth(async ({ user, profile, supabase }: ApiHandlerCon
 /**
  * POST /api/user/notification-settings - Update user's notification preferences
  */
-export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const body = await request.json()
   const { settings } = body
 
@@ -72,4 +73,6 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
   }
 
   return NextResponse.json({ success: true })
-})
+  },
+  { rateLimit: 'write' }
+)

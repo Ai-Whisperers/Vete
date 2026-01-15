@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiCreatePrescriptionSchema, apiUpdatePrescriptionSchema } from '@/lib/schemas/medical'
 
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
@@ -51,12 +50,6 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
 
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write endpoints
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     // Parse body
     let body
     try {
@@ -121,17 +114,11 @@ export const POST = withApiAuth(
 
     return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 export const PUT = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write endpoints
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     // Parse body
     let body
     try {
@@ -197,7 +184,7 @@ export const PUT = withApiAuth(
 
     return NextResponse.json(data)
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 export const DELETE = withApiAuth(

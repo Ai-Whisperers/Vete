@@ -74,7 +74,7 @@ export function SignupWizard() {
   // Update a field in the form data
    
   const handleFieldChange = useCallback(
-    (field: keyof SignupFormData, value: any) => {
+    (field: keyof SignupFormData, value: SignupFormData[keyof SignupFormData]) => {
       setFormData((prev) => ({ ...prev, [field]: value }))
       // Clear error for this field when user types
       setErrors((prev) => {

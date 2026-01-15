@@ -41,7 +41,19 @@ export function withLogging(options: LoggingOptions = {}) {
     }
 
     // Prepare log data
-    const logData: any = {
+    interface LogData {
+      timestamp: string
+      method: string
+      path: string
+      query: Record<string, string>
+      ip: string
+      userAgent: string
+      requestId: string
+      headers?: Record<string, string>
+      body?: unknown
+    }
+
+    const logData: LogData = {
       timestamp,
       method,
       path: pathname,

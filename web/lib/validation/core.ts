@@ -40,7 +40,7 @@ export class ValidationEngine {
    */
   private static validateField(
     field: string,
-    value: any,
+    value: unknown,
     rules: FieldRule | FieldRule[]
   ): ValidationError[] {
     const ruleArray = Array.isArray(rules) ? rules : [rules]
@@ -63,7 +63,7 @@ export class ValidationEngine {
   /**
    * Validate a single rule
    */
-  private static validateRule(field: string, value: any, rule: FieldRule): ValidationError | null {
+  private static validateRule(field: string, value: unknown, rule: FieldRule): ValidationError | null {
     // Required validation
     if (rule.required && (value === undefined || value === null || value === '')) {
       return {

@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { getFastAuth } from '@/lib/auth/fast-auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -7,8 +8,10 @@ import { logger } from '@/lib/logger'
  * GET /api/notifications
  * Fetch in-app notifications for the authenticated user
  *
- * NOTE: The in-app notifications table is not yet created.
- * Currently returns empty list. When the table is created, this will work.
+ * PERF: Uses getFastAuth() for session caching since this endpoint:
+ * - Is read-only (non-sensitive)
+ * - Polls frequently (every 60s)
+ * - Only accesses user's own data
  *
  * Expected schema: notifications table
  * - user_id: UUID (auth user ID)
@@ -16,8 +19,19 @@ import { logger } from '@/lib/logger'
  * - title, message: content
  * - read_at: NULL = unread, timestamp = read
  */
-export const GET = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
+export async function GET(request: NextRequest) {
   try {
+    // PERF: Use cached session for fast auth (non-sensitive read)
+    const { user, supabase, fromCache } = await getFastAuth()
+
+    if (!user) {
+      return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    }
+
+    if (fromCache) {
+      logger.debug('Notifications: Auth from cache', { userId: user.id.substring(0, 8) })
+    }
+
     // Parse query params
     const { searchParams } = new URL(request.url)
     const statusFilter = searchParams.get('status')
@@ -71,11 +85,10 @@ export const GET = withApiAuth(async ({ request, user, supabase }: ApiHandlerCon
   } catch (error) {
     logger.error('Unexpected error fetching notifications', {
       error: error instanceof Error ? error.message : 'Unknown',
-      userId: user?.id,
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+}
 
 /**
  * PATCH /api/notifications
@@ -177,4 +190,4 @@ export const PATCH = withApiAuth(async ({ request, user, supabase }: ApiHandlerC
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+}, { rateLimit: 'write' })

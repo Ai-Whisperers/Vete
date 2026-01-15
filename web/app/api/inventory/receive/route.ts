@@ -90,5 +90,5 @@ export const POST = withApiAuth(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

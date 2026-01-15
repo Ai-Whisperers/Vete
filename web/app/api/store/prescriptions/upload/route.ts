@@ -25,7 +25,8 @@ function validateExtension(filename: string): string | null {
  * POST /api/store/prescriptions/upload
  * Upload a prescription file to Supabase Storage
  */
-export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -127,4 +128,6 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+  },
+  { rateLimit: 'write' }
+)

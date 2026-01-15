@@ -70,7 +70,7 @@ export function LostFoundWidget() {
           .limit(5)
 
         if (error) throw error
-        setLostPets((data as any) || [])
+        setLostPets((data as LostPet[]) || [])
       } catch {
         // Error fetching lost pets - silently fail
       } finally {

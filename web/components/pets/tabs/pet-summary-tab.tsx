@@ -353,7 +353,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           <h3 className="mb-4 font-bold text-[var(--text-primary)]">{t('growthChart')}</h3>
           <GrowthChart
             breed={pet.breed || t('mixedBreed')}
-            gender={pet.sex as any}
+            gender={(pet.sex === 'male' || pet.sex === 'female' ? pet.sex : 'male') as 'male' | 'female'}
             patientRecords={weightHistory}
           />
         </div>

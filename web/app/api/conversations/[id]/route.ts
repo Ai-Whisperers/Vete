@@ -148,7 +148,7 @@ export const PATCH = withApiAuthParams<Params>(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 // DELETE /api/conversations/[id] - Soft delete conversation
@@ -180,5 +180,5 @@ export const DELETE = withApiAuthParams<Params>(
       })
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

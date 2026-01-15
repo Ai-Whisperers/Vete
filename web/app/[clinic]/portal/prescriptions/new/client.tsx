@@ -1,7 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/lib/hooks/use-toast'
+import { generatePrescriptionPDF } from '@/lib/pdf/prescription-generator'
 import dynamic from 'next/dynamic'
+import type { ClinicData } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
@@ -16,10 +20,19 @@ const PrescriptionDownloadButton = dynamic(
   { ssr: false, loading: () => <button className="btn disabled">Cargando PDF...</button> }
 )
 
+interface Patient {
+  id: string
+  name: string
+  species: string
+  breed: string | null
+  weight_kg: number | null
+  owner_id: string
+}
+
 interface PrescriptionFormProps {
-  clinic: any
-  patient?: any
-  vetName: string // From auth session presumably
+  clinic: ClinicData
+  patient?: Patient | null
+  vetName: string
 }
 
 export default function NewPrescriptionForm({ clinic, patient, vetName }: PrescriptionFormProps) {

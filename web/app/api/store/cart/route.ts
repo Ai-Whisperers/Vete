@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { checkFeatureAccess } from '@/lib/features/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { cartSyncSchema, cartMergeSchema } from '@/lib/schemas/store'
+import { getFastAuth } from '@/lib/auth/fast-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,14 +39,17 @@ async function checkEcommerceAccess(
  * Load cart from database for logged-in user
  */
 export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Use fast auth with caching for cart operations
+  const { user, supabase, fromCache } = await getFastAuth()
 
   // For unauthenticated users, return empty cart (not an error)
   if (!user) {
     return NextResponse.json({ items: [], updated_at: null, authenticated: false })
+  }
+
+  // Log cache hit for debugging (remove in production if noisy)
+  if (fromCache && process.env.NODE_ENV === 'development') {
+    logger.debug('Cart GET: Auth from cache', { userId: user.id.slice(0, 8) })
   }
 
   // Get user's profile to determine tenant
@@ -110,14 +113,17 @@ export async function PUT(request: NextRequest) {
     return rateLimitResult.response
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Use fast auth with caching for cart operations
+  const { user, supabase, fromCache } = await getFastAuth()
 
   // For unauthenticated users, just acknowledge (cart stays in localStorage)
   if (!user) {
     return NextResponse.json({ success: true, local_only: true })
+  }
+
+  // Log cache hit for debugging
+  if (fromCache && process.env.NODE_ENV === 'development') {
+    logger.debug('Cart PUT: Auth from cache', { userId: user.id.slice(0, 8) })
   }
 
   // SEC-028: Validate cart items with Zod schema
@@ -188,10 +194,8 @@ export async function PUT(request: NextRequest) {
  * Clear cart from database
  */
 export async function DELETE() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Use fast auth with caching
+  const { user, supabase } = await getFastAuth()
 
   // For unauthenticated users, just acknowledge
   if (!user) {
@@ -249,10 +253,13 @@ export async function POST(request: NextRequest) {
     return rateLimitResult.response
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Use fast auth with caching
+  const { user, supabase, fromCache } = await getFastAuth()
+
+  // Log cache hit for debugging
+  if (fromCache && process.env.NODE_ENV === 'development') {
+    logger.debug('Cart POST (merge): Auth from cache', { userId: user?.id.slice(0, 8) })
+  }
 
   // SEC-028: Validate cart items with Zod schema
   const body = await request.json()

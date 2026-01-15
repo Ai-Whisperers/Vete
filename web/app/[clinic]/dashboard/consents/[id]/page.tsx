@@ -15,9 +15,7 @@ import { pdf } from '@react-pdf/renderer'
 import { ConsentPDF } from '@/components/consents/consent-pdf'
 import { useToast } from '@/components/ui/Toast'
 import {
-  FileText,
   Calendar,
-  User,
   AlertCircle,
   Download,
   Mail,

@@ -8,11 +8,44 @@ import { getPetDocuments } from '@/app/actions/pet-documents'
 import { AuthService } from '@/lib/auth/core'
 import { createClient } from '@/lib/supabase/server'
 import type { MedicalRecord, Vaccine, Prescription } from '@/lib/types/database'
+import type { AppointmentStatus } from '@/lib/types/status'
 
 interface VaccineReaction {
   id: string
   reaction_detail: string
   occurred_at: string
+}
+
+// Supabase join result types
+interface SupabaseService {
+  id: string
+  name: string
+  category: string
+}
+
+interface SupabaseProfile {
+  id: string
+  full_name: string
+}
+
+interface SupabaseAppointment {
+  id: string
+  start_time: string
+  end_time: string
+  status: string
+  notes: string | null
+  cancellation_reason: string | null
+  services: SupabaseService | SupabaseService[] | null
+  profiles: SupabaseProfile | SupabaseProfile[] | null
+}
+
+interface SupabaseInvoice {
+  id: string
+  invoice_number: string
+  total: number
+  status: string
+  due_date: string | null
+  created_at: string
 }
 
 interface TimelineItem {
@@ -202,27 +235,32 @@ export default async function PetProfilePage({
     .limit(50)
 
   // Transform appointments to match expected format
-  const formattedAppointments = (appointments || []).map((apt) => ({
-    id: apt.id,
-    start_time: apt.start_time,
-    end_time: apt.end_time,
-    status: apt.status as any,
-    notes: apt.notes,
-    cancellation_reason: apt.cancellation_reason,
-    service: apt.services
-      ? {
-          id: (apt.services as any).id,
-          name: (apt.services as any).name,
-          category: (apt.services as any).category,
-        }
-      : null,
-    vet: apt.profiles
-      ? {
-          id: (apt.profiles as any).id,
-          full_name: (apt.profiles as any).full_name,
-        }
-      : null,
-  }))
+  const formattedAppointments = ((appointments || []) as SupabaseAppointment[]).map((apt) => {
+    const service = Array.isArray(apt.services) ? apt.services[0] : apt.services
+    const profile = Array.isArray(apt.profiles) ? apt.profiles[0] : apt.profiles
+    
+    return {
+      id: apt.id,
+      start_time: apt.start_time,
+      end_time: apt.end_time,
+      status: apt.status as AppointmentStatus,
+      notes: apt.notes,
+      cancellation_reason: apt.cancellation_reason,
+      service: service
+        ? {
+            id: service.id,
+            name: service.name,
+            category: service.category,
+          }
+        : null,
+      vet: profile
+        ? {
+            id: profile.id,
+            full_name: profile.full_name,
+          }
+        : null,
+    }
+  })
 
   // Fetch pet documents
   const documentsResult = await getPetDocuments(id)
@@ -270,7 +308,7 @@ export default async function PetProfilePage({
         timelineItems={timelineItems}
         appointments={formattedAppointments}
         documents={documents}
-        invoices={(invoices || []) as any}
+        invoices={(invoices || []) as SupabaseInvoice[]}
         payments={formattedPayments}
       />
     </div>

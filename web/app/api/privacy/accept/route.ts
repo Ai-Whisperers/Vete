@@ -24,8 +24,9 @@ const VALID_METHODS: AcceptanceMethod[] = ['checkbox', 'button', 'implicit', 'ap
  * - acceptanceMethod: 'checkbox' | 'button' | 'implicit' | 'api' (default: 'button')
  * - locationContext: string (optional, e.g., 'registration', 'policy_update')
  */
-export const POST = withApiAuth(async ({ request, user, profile, log }: ApiHandlerContext) => {
-  log.info('Accepting privacy policy', { action: 'privacy.accept' })
+export const POST = withApiAuth(
+  async ({ request, user, profile, log }: ApiHandlerContext) => {
+    log.info('Accepting privacy policy', { action: 'privacy.accept' })
 
   let body
   try {
@@ -108,4 +109,6 @@ export const POST = withApiAuth(async ({ request, user, profile, log }: ApiHandl
 
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+  },
+  { rateLimit: 'write' }
+)

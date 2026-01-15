@@ -16,8 +16,9 @@ import {
 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
 import { PrescriptionUpload } from '@/components/store/prescription-upload'
-import { PetSelector } from '@/components/store/pet-selector'
+import { PetSelector, type Pet } from '@/components/store/pet-selector'
 import { PrescriptionCheckoutBanner } from '@/components/store/prescription-warning'
+import { PrintableReceipt } from '@/components/store/printable-receipt'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 // FEAT-013: Prescription verification with pet selection
@@ -61,6 +62,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   // BUG-014: Ref for immediate double-click prevention (before React state update)
   const isSubmittingRef = useRef(false)
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null)
+  // Store items at checkout time for receipt printing (cart gets cleared)
+  const [checkoutItems, setCheckoutItems] = useState<typeof items | null>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [stockErrors, setStockErrors] = useState<StockError[]>([])
 
@@ -69,6 +72,13 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
 
   // FEAT-013: Pet selection for prescription products
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
+  const [selectedPetName, setSelectedPetName] = useState<string | null>(null)
+
+  // Handle pet selection - track both ID and name for receipt
+  const handlePetSelect = (petId: string | null, pet?: Pet) => {
+    setSelectedPetId(petId)
+    setSelectedPetName(pet?.name || null)
+  }
 
   // Items that require prescriptions
   const prescriptionItems = useMemo(
@@ -151,6 +161,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
       const result: CheckoutResult = await response.json()
 
       if (response.ok && result.success) {
+        // Save items BEFORE clearing cart (for receipt printing)
+        setCheckoutItems([...items])
         setCheckoutResult(result)
         clearCart()
       } else {
@@ -196,65 +208,110 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
 
   // Success state - order completed
   if (checkoutResult?.success) {
+    // Reconstruct items for receipt (cart was cleared, but we saved the result)
+    const successTotal = checkoutResult.invoice?.total || 0
+    const successSubtotal = successTotal / (1 + taxRate)
+
     return (
-      <div className="min-h-screen bg-[var(--bg-default)] p-8">
-        <div className="mx-auto max-w-lg text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle className="h-10 w-10 text-green-600" />
-          </div>
-          <h1 className="mb-4 text-3xl font-bold text-[var(--text-primary)]">
-            {t('success.title')}
-          </h1>
-          <p className="mb-2 text-[var(--text-secondary)]">
-            {t('success.message')}
-          </p>
-          <p className="mb-6 text-lg font-bold text-[var(--primary)]">
-            {t('success.orderNumber')}: {checkoutResult.invoice?.invoice_number}
-          </p>
-
-          <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
-            <p className="mb-4 text-[var(--text-secondary)]">{t('success.totalToPay')}:</p>
-            <p className="text-3xl font-bold text-[var(--primary)]">
-              {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
-                checkoutResult.invoice?.total || 0
-              )}
+      <>
+        {/* Screen content - hidden when printing */}
+        <div className="checkout-screen-content min-h-screen bg-[var(--bg-default)] p-8">
+          <div className="mx-auto max-w-lg text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+            <h1 className="mb-4 text-3xl font-bold text-[var(--text-primary)]">
+              {t('success.title')}
+            </h1>
+            <p className="mb-2 text-[var(--text-secondary)]">
+              {t('success.message')}
             </p>
-          </div>
+            <p className="mb-6 text-lg font-bold text-[var(--primary)]">
+              {t('success.orderNumber')}: {checkoutResult.invoice?.invoice_number}
+            </p>
 
-          <div className="flex flex-col gap-3">
-            {whatsappNumber && (
-              <a
-                href={generateWhatsAppLink(checkoutResult.invoice?.invoice_number)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 font-bold text-white shadow-md transition hover:brightness-110"
+            <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
+              <p className="mb-4 text-[var(--text-secondary)]">{t('success.totalToPay')}:</p>
+              <p className="text-3xl font-bold text-[var(--primary)]">
+                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
+                  checkoutResult.invoice?.total || 0
+                )}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {/* Print receipt button */}
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-800 px-6 py-3 font-bold text-white shadow-md transition hover:bg-gray-700"
               >
-                <MessageCircle className="h-5 w-5" /> {t('success.whatsappButton')}
-              </a>
-            )}
-            <Link
-              href={`/${clinic}/store`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition hover:brightness-110"
-            >
-              {t('success.continueShopping')}
-            </Link>
-            <Link
-              href={`/${clinic}/portal/dashboard`}
-              className="text-[var(--text-secondary)] hover:text-[var(--primary)]"
-            >
-              {t('success.goToPortal')}
-            </Link>
+                <Printer className="h-5 w-5" /> {t('printReceipt')}
+              </button>
+
+              {whatsappNumber && (
+                <a
+                  href={generateWhatsAppLink(checkoutResult.invoice?.invoice_number)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 font-bold text-white shadow-md transition hover:brightness-110"
+                >
+                  <MessageCircle className="h-5 w-5" /> {t('success.whatsappButton')}
+                </a>
+              )}
+              <Link
+                href={`/${clinic}/store`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition hover:brightness-110"
+              >
+                {t('success.continueShopping')}
+              </Link>
+              <Link
+                href={`/${clinic}/portal/dashboard`}
+                className="text-[var(--text-secondary)] hover:text-[var(--primary)]"
+              >
+                {t('success.goToPortal')}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* Printable receipt - only visible when printing */}
+        <PrintableReceipt
+          config={config}
+          clinicSlug={clinic}
+          items={(checkoutItems || []).map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            type: item.type as 'product' | 'service',
+            requires_prescription: item.requires_prescription,
+            image_url: item.image_url,
+          }))}
+          subtotal={successSubtotal}
+          taxRate={taxRate}
+          taxName={taxName}
+          total={successTotal}
+          currency={currency}
+          invoiceNumber={checkoutResult.invoice?.invoice_number}
+          customerEmail={user?.email || undefined}
+          petName={selectedPetName || undefined}
+          isQuote={false}
+        />
+      </>
     )
   }
 
+  // Calculate totals for receipt
+  const subtotalAmount = total
+  const totalWithTax = Math.max(0, total - discount) * (1 + taxRate)
+
   return (
-    <div className="min-h-screen bg-[var(--bg-default)] p-8">
-      <h1 className="mb-6 text-3xl font-bold text-[var(--text-primary)]">
-        {labels.title || t('title')}
-      </h1>
+    <>
+      {/* Screen content - hidden when printing */}
+      <div className="checkout-screen-content min-h-screen bg-[var(--bg-default)] p-8">
+        <h1 className="mb-6 text-3xl font-bold text-[var(--text-primary)]">
+          {labels.title || t('title')}
+        </h1>
 
       {/* Error display */}
       {checkoutError && (
@@ -297,7 +354,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               {/* Pet selector for prescription products */}
               <PetSelector
                 selectedPetId={selectedPetId}
-                onSelect={setSelectedPetId}
+                onSelect={handlePetSelect}
                 clinic={clinic}
                 required={true}
                 label={t('petSelector.label')}
@@ -422,9 +479,33 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
           </div>
         </div>
       )}
-      <Link href={`/${clinic}/cart`} className="mt-6 inline-block text-blue-600 hover:underline">
-        {labels.back_cart || t('backToCart')}
-      </Link>
-    </div>
+        <Link href={`/${clinic}/cart`} className="mt-6 inline-block text-blue-600 hover:underline">
+          {labels.back_cart || t('backToCart')}
+        </Link>
+      </div>
+
+      {/* Printable receipt - only visible when printing (Cotización) */}
+      <PrintableReceipt
+        config={config}
+        clinicSlug={clinic}
+        items={items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          type: item.type as 'product' | 'service',
+          requires_prescription: item.requires_prescription,
+          image_url: item.image_url,
+        }))}
+        subtotal={subtotalAmount}
+        taxRate={taxRate}
+        taxName={taxName}
+        total={totalWithTax}
+        currency={currency}
+        customerEmail={user?.email || undefined}
+        petName={selectedPetName || undefined}
+        isQuote={true}
+      />
+    </>
   )
 }

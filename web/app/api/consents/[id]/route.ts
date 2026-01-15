@@ -165,5 +165,6 @@ export const PATCH = withApiAuthParams(
     })
 
     return NextResponse.json(data)
-  }
+  },
+  { rateLimit: 'write' }
 )

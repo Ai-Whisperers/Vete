@@ -128,5 +128,5 @@ export const PUT = withApiAuth(
       })
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

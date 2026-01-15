@@ -221,7 +221,7 @@ export const POST = withApiAuth(
 
     return NextResponse.json(hospitalization, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 export const PATCH = withApiAuth(
@@ -324,5 +324,5 @@ export const PATCH = withApiAuth(
 
     return NextResponse.json(data)
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

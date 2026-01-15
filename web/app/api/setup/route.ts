@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger'
 interface SetupResponse {
   success: boolean
   message: string
-  details?: any
+  details?: Record<string, unknown>
 }
 
 /**

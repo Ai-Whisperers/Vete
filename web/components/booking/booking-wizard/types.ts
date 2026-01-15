@@ -89,11 +89,24 @@ export interface ClinicConfig {
   services?:
     | ServiceFromJSON[]
     | {
-        hero?: any
+        hero?: {
+          headline?: string
+          subhead?: string
+          cta_primary?: string
+          cta_secondary?: string
+        }
         categories?: Array<{
           services?: ServiceFromJSON[]
         }>
-        pricing?: any
+        pricing?: {
+          title?: string
+          subtitle?: string
+          tiers?: Array<{
+            name?: string
+            price?: string
+            features?: string[]
+          }>
+        }
       }
 }
 

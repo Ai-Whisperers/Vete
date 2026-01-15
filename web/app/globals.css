@@ -1299,6 +1299,191 @@
     margin: 0;
     padding: 0;
   }
+
+  /* === CHECKOUT RECEIPT PRINT STYLES === */
+
+  /* Hide all checkout UI except receipt */
+  .checkout-screen-content {
+    display: none !important;
+  }
+
+  /* Show printable receipt */
+  .printable-receipt {
+    display: block !important;
+    position: relative;
+    width: 100%;
+    height: auto;
+    background: white;
+    z-index: 9999;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Receipt container - A4 optimized layout */
+  .printable-receipt > div {
+    max-width: 100% !important;
+    margin: 0;
+    padding: 15mm 20mm !important;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+
+  /* Receipt header */
+  .printable-receipt header {
+    margin-bottom: 8mm !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+  }
+
+  .printable-receipt header h1 {
+    font-size: 18pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    margin-bottom: 2mm !important;
+  }
+
+  .printable-receipt header p,
+  .printable-receipt header span {
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Document type badge - preserve background colors */
+  .printable-receipt .border-dashed {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #fffbeb !important;
+  }
+
+  .printable-receipt .bg-green-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #f0fdf4 !important;
+  }
+
+  /* Customer info card */
+  .printable-receipt .bg-gray-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #f9fafb !important;
+  }
+
+  /* Items table */
+  .printable-receipt table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+  }
+
+  .printable-receipt table th,
+  .printable-receipt table td {
+    padding: 3mm 2mm !important;
+    vertical-align: middle !important;
+  }
+
+  .printable-receipt table th {
+    background-color: #f9fafb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-weight: 600 !important;
+    font-size: 8pt !important;
+    text-transform: uppercase !important;
+  }
+
+  .printable-receipt table tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Item type badges */
+  .printable-receipt .rounded-full {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .printable-receipt .bg-blue-100 {
+    background-color: #dbeafe !important;
+  }
+
+  .printable-receipt .bg-amber-100 {
+    background-color: #fef3c7 !important;
+  }
+
+  .printable-receipt .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+
+  /* Totals section */
+  .printable-receipt .border-gray-900 {
+    border-color: #111827 !important;
+    border-width: 2px !important;
+  }
+
+  /* QR Code - keep reasonable size */
+  .printable-receipt img[alt="Código QR"] {
+    width: 25mm !important;
+    height: 25mm !important;
+  }
+
+  /* Footer */
+  .printable-receipt footer {
+    margin-top: 8mm !important;
+    padding-top: 5mm !important;
+  }
+
+  .printable-receipt footer p {
+    font-size: 8pt !important;
+  }
+
+  /* WhatsApp badge */
+  .printable-receipt .bg-green-50.border-green-200 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+  }
+
+  /* Paw print decorations */
+  .printable-receipt footer svg {
+    opacity: 0.3 !important;
+  }
+
+  /* Icons - ensure they print */
+  .printable-receipt svg:not([class*="h-5"]) {
+    width: 3.5mm !important;
+    height: 3.5mm !important;
+  }
+
+  /* Text colors for print */
+  .printable-receipt .text-gray-900 {
+    color: #111827 !important;
+  }
+
+  .printable-receipt .text-gray-700 {
+    color: #374151 !important;
+  }
+
+  .printable-receipt .text-gray-600 {
+    color: #4b5563 !important;
+  }
+
+  .printable-receipt .text-gray-500 {
+    color: #6b7280 !important;
+  }
+
+  .printable-receipt .text-amber-700 {
+    color: #b45309 !important;
+  }
+
+  .printable-receipt .text-green-700 {
+    color: #15803d !important;
+  }
+
+  /* Page setup for A4 */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
 }
 
 /* ========================================

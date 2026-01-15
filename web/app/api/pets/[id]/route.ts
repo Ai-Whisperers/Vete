@@ -126,7 +126,8 @@ export const PATCH = withApiAuthParams<Params>(
     }
 
     return NextResponse.json(data)
-  }
+  },
+  { rateLimit: 'write' }
 )
 
 // DELETE soft-delete a pet
@@ -164,5 +165,6 @@ export const DELETE = withApiAuthParams<Params>(
     }
 
     return NextResponse.json({ success: true })
-  }
+  },
+  { rateLimit: 'write' }
 )

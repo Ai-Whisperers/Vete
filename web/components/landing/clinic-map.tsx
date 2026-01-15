@@ -39,21 +39,24 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
   return R * c
 }
 
+// Leaflet component types (dynamically imported)
+type LeafletComponents = {
+  MapContainer: React.ComponentType<any>
+  TileLayer: React.ComponentType<any>
+  Marker: React.ComponentType<any>
+  Popup: React.ComponentType<any>
+  Circle: React.ComponentType<any>
+  useMap: () => any
+  L: typeof import('leaflet')
+}
+
 export function ClinicMap({ clinics }: ClinicMapProps) {
   const [isMounted, setIsMounted] = useState(false)
-  const [MapComponents, setMapComponents] = useState<{
-    MapContainer: any
-    TileLayer: any
-    Marker: any
-    Popup: any
-    Circle: any
-    useMap: any
-    L: any
-  } | null>(null)
+  const [MapComponents, setMapComponents] = useState<LeafletComponents | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [locationStatus, setLocationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [sortedClinics, setSortedClinics] = useState<ClinicLocation[]>(clinics)
-  const mapRef = useRef<any>(null)
+  const mapRef = useRef<L.Map | null>(null)
 
   useEffect(() => {
     // Dynamically import Leaflet and react-leaflet on client side only
@@ -62,6 +65,7 @@ export function ClinicMap({ clinics }: ClinicMapProps) {
       const { MapContainer, TileLayer, Marker, Popup, Circle, useMap } = await import('react-leaflet')
 
       // Fix default marker icon (common Next.js/Webpack issue)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',

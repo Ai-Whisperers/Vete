@@ -437,7 +437,15 @@ async function handleSubscriptionCreated(
       return
     }
 
-    const result = await response.json()
+    // Epic 3.4: Parse JSON with error handling (prevents silent failures)
+    const result = await response.json().catch((parseError) => {
+      logger.error('Failed to parse ambassador conversion response', {
+        tenantId: tenant.id,
+        error: parseError instanceof Error ? parseError.message : 'JSON parse error',
+      })
+      return {} // Return empty object on parse failure
+    })
+    
     logger.info('Ambassador conversion triggered', {
       tenantId: tenant.id,
       result,

@@ -30,23 +30,28 @@ afterEach(() => {
 // Default Supabase Mock (for tests that don't use mockState)
 // =============================================================================
 
-// Mock Supabase client globally as fallback
-vi.mock('@supabase/supabase-js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@supabase/supabase-js')>()
-  return {
-    ...actual,
-    createClient: () => ({
-      from: () => ({
-        select: vi.fn().mockResolvedValue({ data: [], error: null }),
-        insert: vi.fn().mockResolvedValue({ data: [], error: null }),
-        update: vi.fn().mockResolvedValue({ data: [], error: null }),
-        delete: vi.fn().mockResolvedValue({ data: [], error: null }),
+// Check if this is a load test (real database connection needed)
+const isLoadTest = process.env.VITEST_POOL_ID?.includes('load')
+
+// Mock Supabase client globally as fallback (skip for load tests)
+if (!isLoadTest) {
+  vi.mock('@supabase/supabase-js', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@supabase/supabase-js')>()
+    return {
+      ...actual,
+      createClient: () => ({
+        from: () => ({
+          select: vi.fn().mockResolvedValue({ data: [], error: null }),
+          insert: vi.fn().mockResolvedValue({ data: [], error: null }),
+          update: vi.fn().mockResolvedValue({ data: [], error: null }),
+          delete: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+        auth: {
+          getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+          signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
+          signOut: vi.fn().mockResolvedValue({ error: null }),
+        },
       }),
-      auth: {
-        getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
-        signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        signOut: vi.fn().mockResolvedValue({ error: null }),
-      },
-    }),
-  }
-})
+    }
+  })
+}

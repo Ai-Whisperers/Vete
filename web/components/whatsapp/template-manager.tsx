@@ -9,6 +9,7 @@ import {
   type TemplateCategory,
 } from '@/lib/types/whatsapp'
 import { createTemplate, updateTemplate, deleteTemplate } from '@/app/actions/whatsapp'
+import { useToast } from '@/components/ui/Toast'
 
 interface TemplateManagerProps {
   templates: WhatsAppTemplate[]
@@ -31,6 +32,7 @@ const emptyForm: TemplateFormData = {
 
 export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<TemplateFormData>(emptyForm)
@@ -110,7 +112,7 @@ export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
     if (result.success) {
       router.refresh()
     } else {
-      alert(result.error || 'Error al eliminar')
+      showToast({ title: result.error || 'Error al eliminar', variant: 'error' })
     }
   }
 

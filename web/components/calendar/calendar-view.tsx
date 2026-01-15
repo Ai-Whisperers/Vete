@@ -2,11 +2,12 @@
 
 import { Calendar, dateFnsLocalizer, View, SlotInfo } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enUS } from 'date-fns/locale'
+import { useLocale, useTranslations } from 'next-intl'
 import { CalendarEvent, CalendarView as CalendarViewType, EVENT_COLORS } from '@/lib/types/calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
-const locales = { es }
+const locales = { es, en: enUS }
 
 const localizer = dateFnsLocalizer({
   format,
@@ -15,23 +16,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
-
-// Spanish messages for calendar
-const messages = {
-  today: 'Hoy',
-  previous: 'Anterior',
-  next: 'Siguiente',
-  month: 'Mes',
-  week: 'Semana',
-  day: 'Día',
-  agenda: 'Agenda',
-  date: 'Fecha',
-  time: 'Hora',
-  event: 'Evento',
-  allDay: 'Todo el día',
-  noEventsInRange: 'No hay citas en este rango',
-  showMore: (total: number) => `+ ${total} más`,
-}
 
 interface CalendarViewProps {
   events: CalendarEvent[]
@@ -54,6 +38,26 @@ export function CalendarViewComponent({
   onDateChange,
   loading = false,
 }: CalendarViewProps) {
+  const t = useTranslations('calendar')
+  const locale = useLocale()
+  const dateLocale = locale === 'es' ? es : enUS
+
+  // Calendar messages using translations
+  const messages = {
+    today: t('today'),
+    previous: t('previous'),
+    next: t('next'),
+    month: t('month'),
+    week: t('week'),
+    day: t('day'),
+    agenda: t('agenda'),
+    date: t('date'),
+    time: t('time'),
+    event: t('event'),
+    allDay: t('allDay'),
+    noEventsInRange: t('noEventsInRange'),
+    showMore: (total: number) => t('showMore', { total }),
+  }
   // Map view type to react-big-calendar view
   const viewMap: Record<CalendarViewType, View> = {
     day: 'day',
@@ -135,16 +139,16 @@ export function CalendarViewComponent({
 
   // Format time for display
   const formats = {
-    timeGutterFormat: (date: Date) => format(date, 'HH:mm', { locale: es }),
+    timeGutterFormat: (date: Date) => format(date, 'HH:mm', { locale: dateLocale }),
     eventTimeRangeFormat: ({ start, end }: { start: Date; end: Date }) =>
-      `${format(start, 'HH:mm', { locale: es })} - ${format(end, 'HH:mm', { locale: es })}`,
-    dayHeaderFormat: (date: Date) => format(date, 'EEEE d', { locale: es }),
+      `${format(start, 'HH:mm', { locale: dateLocale })} - ${format(end, 'HH:mm', { locale: dateLocale })}`,
+    dayHeaderFormat: (date: Date) => format(date, 'EEEE d', { locale: dateLocale }),
     dayRangeHeaderFormat: ({ start, end }: { start: Date; end: Date }) =>
-      `${format(start, 'd MMM', { locale: es })} - ${format(end, 'd MMM', { locale: es })}`,
-    agendaDateFormat: (date: Date) => format(date, 'EEE d MMM', { locale: es }),
-    agendaTimeFormat: (date: Date) => format(date, 'HH:mm', { locale: es }),
+      `${format(start, 'd MMM', { locale: dateLocale })} - ${format(end, 'd MMM', { locale: dateLocale })}`,
+    agendaDateFormat: (date: Date) => format(date, 'EEE d MMM', { locale: dateLocale }),
+    agendaTimeFormat: (date: Date) => format(date, 'HH:mm', { locale: dateLocale }),
     agendaTimeRangeFormat: ({ start, end }: { start: Date; end: Date }) =>
-      `${format(start, 'HH:mm', { locale: es })} - ${format(end, 'HH:mm', { locale: es })}`,
+      `${format(start, 'HH:mm', { locale: dateLocale })} - ${format(end, 'HH:mm', { locale: dateLocale })}`,
   }
 
   return (
@@ -167,7 +171,7 @@ export function CalendarViewComponent({
         onSelectEvent={onSelectEvent}
         onSelectSlot={onSelectSlot}
         selectable
-        culture="es"
+        culture={locale}
         messages={messages}
         formats={formats}
         eventPropGetter={eventPropGetter}

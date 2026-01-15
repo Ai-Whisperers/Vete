@@ -74,7 +74,7 @@ export function SignupWizard() {
   // Update a field in the form data
    
   const handleFieldChange = useCallback(
-    (field: keyof SignupFormData, value: any) => {
+    (field: keyof SignupFormData, value: SignupFormData[keyof SignupFormData]) => {
       setFormData((prev) => ({ ...prev, [field]: value }))
       // Clear error for this field when user types
       setErrors((prev) => {
@@ -419,10 +419,8 @@ export function SignupWizard() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-sm text-gray-500">
-          Ya tienes cuenta?{' '}
-          <a href="/auth/login" className="text-blue-600 hover:underline">
-            Inicia sesion
-          </a>
+          ¿Ya tienes cuenta? Ve a tu clínica (ej: vetic.app/tu-clinica) e{' '}
+          <span className="text-blue-600">inicia sesión desde ahí</span>
         </p>
       </div>
     </div>

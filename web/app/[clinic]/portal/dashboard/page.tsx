@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { MandatoryVaccinesAlert } from '@/components/portal/mandatory-vaccines-alert'
 import { PortalWelcomeHero } from '@/components/portal/welcome-hero'
 import { PortalQuickActions } from '@/components/portal/quick-actions'
+import { getTranslations } from 'next-intl/server'
 
 interface Vaccine {
   id: string
@@ -65,6 +66,9 @@ export default async function OwnerDashboardPage({
     redirect(`/${clinic}/dashboard`)
   }
 
+  const t = await getTranslations('portal')
+  const tPets = await getTranslations('pets')
+
   // Fetch Owner's pets
   let petQuery = supabase
     .from('pets')
@@ -89,15 +93,15 @@ export default async function OwnerDashboardPage({
       <div className="mx-auto max-w-4xl">
         <div className="rounded-2xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-8 text-center">
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-[var(--status-error)]" />
-          <h2 className="mb-2 text-xl font-bold text-[var(--status-error-text)]">Error al cargar datos</h2>
+          <h2 className="mb-2 text-xl font-bold text-[var(--status-error-text)]">{t('errorLoading')}</h2>
           <p className="mb-4 text-[var(--status-error)]">
-            Hubo un problema al cargar tu información. Por favor, intenta recargar la página.
+            {t('errorMessage')}
           </p>
           <a
             href={`/${clinic}/portal/dashboard`}
             className="inline-block rounded-xl bg-[var(--status-error)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--status-error-dark)]"
           >
-            Recargar página
+            {t('reloadPage')}
           </a>
         </div>
       </div>
@@ -137,7 +141,7 @@ export default async function OwnerDashboardPage({
               <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
                   <PawPrint className="h-5 w-5 text-[var(--primary)]" />
-                  Mis Mascotas
+                  {tPets('myPets')}
                 </h2>
                 <PetSearch />
               </div>
@@ -151,17 +155,17 @@ export default async function OwnerDashboardPage({
                 </div>
                 <h3 className="text-xl font-bold text-[var(--text-secondary)]">
                   {data.config.ui_labels?.portal?.empty_states?.no_pets ||
-                    'No tienes mascotas registradas'}
+                    t('noPets')}
                 </h3>
                 <p className="mb-6 text-[var(--text-muted)]">
                   {data.config.ui_labels?.portal?.empty_states?.no_pets_desc ||
-                    'Registra tu primera mascota para comenzar'}
+                    t('noPetsDesc')}
                 </p>
                 <Link
                   href={`/${clinic}/portal/pets/new`}
                   className="inline-block rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
                 >
-                  {data.config.ui_labels?.portal?.empty_states?.add_pet_btn || 'Agregar Mascota'}
+                  {data.config.ui_labels?.portal?.empty_states?.add_pet_btn || tPets('addPet')}
                 </Link>
               </div>
             )}
@@ -206,7 +210,7 @@ export default async function OwnerDashboardPage({
                           ) : (
                             <Cat className="h-4 w-4" />
                           )}
-                          {pet.breed || 'Mestizo'}
+                          {pet.breed || tPets('mixed')}
                         </p>
                       </div>
                     </div>
@@ -214,15 +218,15 @@ export default async function OwnerDashboardPage({
                     {/* Stats Row */}
                     <div className="grid grid-cols-2 divide-x divide-[var(--border-light)] border-b border-[var(--border-light)] text-center text-sm">
                       <div className="p-3">
-                        <span className="block text-xs font-medium text-[var(--text-muted)]">Peso</span>
+                        <span className="block text-xs font-medium text-[var(--text-muted)]">{tPets('weight')}</span>
                         <span className="font-semibold text-[var(--text-primary)]">
                           {pet.weight_kg ? `${pet.weight_kg} kg` : '-'}
                         </span>
                       </div>
                       <div className="p-3">
-                        <span className="block text-xs font-medium text-[var(--text-muted)]">Vacunas</span>
+                        <span className="block text-xs font-medium text-[var(--text-muted)]">{tPets('vaccines')}</span>
                         <span className="font-semibold text-[var(--text-primary)]">
-                          {pet.vaccines?.filter((v) => v.status === 'verified').length || 0} activas
+                          {tPets('activeVaccines', { count: pet.vaccines?.filter((v) => v.status === 'verified').length || 0 })}
                         </span>
                       </div>
                     </div>
@@ -234,13 +238,13 @@ export default async function OwnerDashboardPage({
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-dark)]"
                       >
                         <Plus className="h-4 w-4" />
-                        Vacuna
+                        {tPets('vaccine')}
                       </Link>
                       <Link
                         href={`/${clinic}/portal/pets/${pet.id}`}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] py-2 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
                       >
-                        Ver perfil
+                        {tPets('viewProfile')}
                       </Link>
                     </div>
                   </div>

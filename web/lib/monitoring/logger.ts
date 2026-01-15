@@ -197,8 +197,12 @@ class Logger {
     // For now, just store in memory for development
     if (process.env.NODE_ENV === 'development') {
       // Could store in a global array for debugging
-      ;(globalThis as any).__logs = (globalThis as any).__logs || []
-      ;(globalThis as any).__logs.push(entry)
+      interface GlobalWithLogs {
+        __logs?: LogEntry[]
+      }
+      const globalWithLogs = globalThis as GlobalWithLogs
+      globalWithLogs.__logs = globalWithLogs.__logs || []
+      globalWithLogs.__logs.push(entry)
     }
   }
 }

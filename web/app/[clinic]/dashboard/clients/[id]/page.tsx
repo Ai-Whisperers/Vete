@@ -20,10 +20,38 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  type LucideIcon,
 } from 'lucide-react'
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>
+}
+
+// Supabase join types
+interface PetNameJoin {
+  name: string
+}
+
+interface AppointmentWithPet {
+  id: string
+  appointment_date: string
+  status: string
+  notes: string | null
+  service_id: string | null
+  pet_id: string
+  pets: PetNameJoin | PetNameJoin[] | null
+}
+
+interface InvoiceWithPet {
+  id: string
+  invoice_number: string
+  total_amount: number
+  paid_amount: number | null
+  status: string
+  issue_date: string
+  due_date: string | null
+  pet_id: string | null
+  pets: PetNameJoin | PetNameJoin[] | null
 }
 
 export default async function ClientDetailPage({ params }: Props) {
@@ -175,7 +203,7 @@ export default async function ClientDetailPage({ params }: Props) {
 
   // Status badge helper
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
+    const statusConfig: Record<string, { label: string; className: string; icon: LucideIcon }> = {
       confirmed: {
         label: 'Confirmada',
         className: 'bg-green-100 text-green-800',
@@ -460,7 +488,11 @@ export default async function ClientDetailPage({ params }: Props) {
                           {getStatusBadge(apt.status)}
                         </div>
                         <p className="text-sm text-[var(--text-secondary)]">
-                          Mascota: {(apt.pets as any)?.name || 'N/A'}
+                          Mascota: {(() => {
+                            const typedApt = apt as AppointmentWithPet
+                            const pet = Array.isArray(typedApt.pets) ? typedApt.pets[0] : typedApt.pets
+                            return pet?.name || 'N/A'
+                          })()}
                         </p>
                         {apt.notes && (
                           <p className="mt-1 line-clamp-1 text-xs text-[var(--text-secondary)]">
@@ -527,7 +559,11 @@ export default async function ClientDetailPage({ params }: Props) {
                             {formatDate(invoice.issue_date)}
                           </td>
                           <td className="px-2 py-3 text-sm text-[var(--text-secondary)]">
-                            {(invoice.pets as any)?.name || 'N/A'}
+                            {(() => {
+                              const typedInvoice = invoice as InvoiceWithPet
+                              const pet = Array.isArray(typedInvoice.pets) ? typedInvoice.pets[0] : typedInvoice.pets
+                              return pet?.name || 'N/A'
+                            })()}
                           </td>
                           <td className="px-2 py-3 text-right text-sm font-medium text-[var(--text-primary)]">
                             {invoice.total_amount.toLocaleString('es-PY')} Gs.

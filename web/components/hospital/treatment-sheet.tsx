@@ -3,6 +3,7 @@
 import type { JSX } from 'react'
 import { useState } from 'react'
 import { Check, X, Clock, Pill, Syringe, Droplet, Activity, Plus } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface Treatment {
   id: string
@@ -31,6 +32,7 @@ export default function TreatmentSheet({
   treatments,
   onTreatmentUpdate,
 }: TreatmentSheetProps): JSX.Element {
+  const { showToast } = useToast()
   const [selectedTreatment, setSelectedTreatment] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -97,7 +99,10 @@ export default function TreatmentSheet({
       onTreatmentUpdate()
       setSelectedTreatment(null)
     } catch {
-      alert('Error al actualizar el tratamiento')
+      showToast({
+        title: 'Error al actualizar el tratamiento',
+        variant: 'error',
+      })
     } finally {
       setLoading(false)
     }

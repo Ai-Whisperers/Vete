@@ -1,7 +1,17 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+/**
+ * Drug Dosages Page
+ *
+ * RES-001: Migrated to use React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery
+ * - Added useMutation for CRUD operations
+ * - Automatic cache invalidation on mutations
+ */
+
+import { useState, useMemo } from 'react'
 import { useParams } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Pill,
   Search,
@@ -16,6 +26,9 @@ import {
   ChevronDown,
   Filter,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,9 +49,25 @@ type SortDirection = 'asc' | 'desc'
 export default function DrugDosagesPage() {
   const params = useParams()
   const clinic = params.clinic as string
+  const t = useTranslations('drugDosages')
+  const tc = useTranslations('common')
+  const queryClient = useQueryClient()
 
-  const [dosages, setDosages] = useState<DrugDosage[]>([])
-  const [loading, setLoading] = useState(true)
+  // React Query for data fetching
+  const { data: dosages = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.clinical.drugDosages(),
+    queryFn: async (): Promise<DrugDosage[]> => {
+      const response = await fetch('/api/drug_dosages')
+      if (!response.ok) {
+        throw new Error('Error al cargar dosificaciones')
+      }
+      return response.json()
+    },
+    staleTime: staleTimes.STATIC, // Drug dosages rarely change
+    gcTime: gcTimes.LONG,
+  })
+
+  // Filter/sort state
   const [searchTerm, setSearchTerm] = useState('')
   const [speciesFilter, setSpeciesFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('drug_name')
@@ -65,27 +94,51 @@ export default function DrugDosagesPage() {
   // Calculator state
   const [petWeight, setPetWeight] = useState('')
 
-  const fetchDosages = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/drug_dosages')
-      if (res.ok) {
-        const data = await res.json()
-        setDosages(data)
-      }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching dosages:', error)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Mutations for CRUD operations
+  const addMutation = useMutation({
+    mutationFn: async (payload: Omit<DrugDosage, 'id'>) => {
+      const response = await fetch('/api/drug_dosages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al agregar medicamento')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.drugDosages() })
+    },
+  })
 
-  useEffect(() => {
-    fetchDosages()
-  }, [])
+  const updateMutation = useMutation({
+    mutationFn: async (payload: DrugDosage) => {
+      const response = await fetch('/api/drug_dosages', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al actualizar medicamento')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.drugDosages() })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch('/api/drug_dosages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!response.ok) throw new Error('Error al eliminar medicamento')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.drugDosages() })
+    },
+  })
 
   // Filter and sort dosages
   const filteredDosages = useMemo(() => {
@@ -154,17 +207,12 @@ export default function DrugDosagesPage() {
       notes: formData.notes,
     }
 
-    const res = await fetch('/api/drug_dosages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    addMutation.mutate(payload, {
+      onSuccess: () => {
+        resetForm()
+        setIsAddModalOpen(false)
+      },
     })
-
-    if (res.ok) {
-      resetForm()
-      setIsAddModalOpen(false)
-      fetchDosages()
-    }
   }
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -182,29 +230,18 @@ export default function DrugDosagesPage() {
       notes: formData.notes,
     }
 
-    const res = await fetch('/api/drug_dosages', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        resetForm()
+        setIsEditModalOpen(false)
+        setEditingDrug(null)
+      },
     })
-
-    if (res.ok) {
-      resetForm()
-      setIsEditModalOpen(false)
-      setEditingDrug(null)
-      fetchDosages()
-    }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este medicamento?')) return
-
-    await fetch('/api/drug_dosages', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    fetchDosages()
+    if (!confirm(t('confirmDelete'))) return
+    deleteMutation.mutate(id)
   }
 
   const openEditModal = (drug: DrugDosage) => {
@@ -258,14 +295,13 @@ export default function DrugDosagesPage() {
             </div>
             <div>
               <p className="text-sm font-medium uppercase tracking-wider text-white/80">
-                Herramienta Clínica
+                {t('clinicalTool')}
               </p>
-              <h1 className="text-3xl font-black md:text-4xl">Dosificación de Medicamentos</h1>
+              <h1 className="text-3xl font-black md:text-4xl">{t('title')}</h1>
             </div>
           </div>
           <p className="max-w-2xl text-lg text-white/80">
-            Consulta y calcula dosis de medicamentos según el peso del paciente. Base de datos
-            actualizable para uso veterinario.
+            {t('description')}
           </p>
         </div>
       </section>
@@ -279,7 +315,7 @@ export default function DrugDosagesPage() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar medicamento..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -294,11 +330,11 @@ export default function DrugDosagesPage() {
                 onChange={(e) => setSpeciesFilter(e.target.value)}
                 className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
-                <option value="all">Todas las especies</option>
-                <option value="perro">Perros</option>
-                <option value="gato">Gatos</option>
-                <option value="ave">Aves</option>
-                <option value="exotico">Exóticos</option>
+                <option value="all">{t('species.all')}</option>
+                <option value="perro">{t('species.dog')}</option>
+                <option value="gato">{t('species.cat')}</option>
+                <option value="ave">{t('species.bird')}</option>
+                <option value="exotico">{t('species.exotic')}</option>
               </select>
             </div>
 
@@ -311,15 +347,14 @@ export default function DrugDosagesPage() {
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
             >
               <Plus className="h-5 w-5" />
-              Agregar Medicamento
+              {t('addMedication')}
             </button>
           </div>
         </div>
 
         {/* Results Count */}
         <p className="mb-4 text-sm text-[var(--text-muted)]">
-          {filteredDosages.length} medicamento{filteredDosages.length !== 1 ? 's' : ''} encontrado
-          {filteredDosages.length !== 1 ? 's' : ''}
+          {t('resultsCount', { count: filteredDosages.length })}
         </p>
 
         {/* Table */}
@@ -327,14 +362,14 @@ export default function DrugDosagesPage() {
           {loading ? (
             <div className="p-12 text-center">
               <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
-              <p className="text-[var(--text-muted)]">Cargando medicamentos...</p>
+              <p className="text-[var(--text-muted)]">{t('loadingMedications')}</p>
             </div>
           ) : filteredDosages.length === 0 ? (
             <div className="p-12 text-center">
               <Pill className="mx-auto mb-4 h-16 w-16 text-gray-200" />
-              <p className="font-medium text-[var(--text-muted)]">No se encontraron medicamentos</p>
+              <p className="font-medium text-[var(--text-muted)]">{t('noMedications')}</p>
               <p className="mt-1 text-sm text-gray-400">
-                Intenta con otro término de búsqueda o agrega uno nuevo
+                {t('noMedicationsHint')}
               </p>
             </div>
           ) : (
@@ -346,26 +381,26 @@ export default function DrugDosagesPage() {
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('drug_name')}
                     >
-                      Medicamento <SortIcon field="drug_name" />
+                      {t('table.medication')} <SortIcon field="drug_name" />
                     </th>
                     <th
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('species')}
                     >
-                      Especie <SortIcon field="species" />
+                      {t('table.species')} <SortIcon field="species" />
                     </th>
                     <th
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('dosage_per_kg')}
                     >
-                      Dosis/kg <SortIcon field="dosage_per_kg" />
+                      {t('table.dosePerKg')} <SortIcon field="dosage_per_kg" />
                     </th>
-                    <th className="p-4 text-left font-bold text-[var(--text-primary)]">Vía</th>
+                    <th className="p-4 text-left font-bold text-[var(--text-primary)]">{t('table.route')}</th>
                     <th className="p-4 text-left font-bold text-[var(--text-primary)]">
-                      Frecuencia
+                      {t('table.frequency')}
                     </th>
                     <th className="p-4 text-right font-bold text-[var(--text-primary)]">
-                      Acciones
+                      {tc('actions')}
                     </th>
                   </tr>
                 </thead>
@@ -383,7 +418,7 @@ export default function DrugDosagesPage() {
                       </td>
                       <td className="p-4">
                         <span className="bg-[var(--primary)]/10 rounded-full px-3 py-1 text-sm font-medium capitalize text-[var(--primary)]">
-                          {drug.species || 'General'}
+                          {drug.species || t('species.general')}
                         </span>
                       </td>
                       <td className="p-4">
@@ -400,24 +435,24 @@ export default function DrugDosagesPage() {
                           <button
                             onClick={() => openCalculator(drug)}
                             className="hover:bg-[var(--primary)]/10 rounded-lg p-2 text-[var(--primary)] transition-colors"
-                            title="Calcular dosis"
-                            aria-label={`Calcular dosis de ${drug.drug_name}`}
+                            title={t('calculator.calculate')}
+                            aria-label={t('calculator.calculateFor', { drug: drug.drug_name })}
                           >
                             <Calculator className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => openEditModal(drug)}
                             className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
-                            title="Editar"
-                            aria-label={`Editar ${drug.drug_name}`}
+                            title={tc('edit')}
+                            aria-label={t('editAria', { drug: drug.drug_name })}
                           >
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(drug.id)}
                             className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
-                            title="Eliminar"
-                            aria-label={`Eliminar ${drug.drug_name}`}
+                            title={tc('delete')}
+                            aria-label={t('deleteAria', { drug: drug.drug_name })}
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -435,11 +470,9 @@ export default function DrugDosagesPage() {
         <div className="mt-8 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
           <div>
-            <p className="font-bold text-amber-800">Aviso Importante</p>
+            <p className="font-bold text-amber-800">{t('disclaimer.title')}</p>
             <p className="text-sm text-amber-700">
-              Esta herramienta es de referencia. Siempre consulte la literatura actualizada y ajuste
-              las dosis según el estado clínico del paciente, función renal/hepática y otras
-              consideraciones individuales.
+              {t('disclaimer.text')}
             </p>
           </div>
         </div>
@@ -451,7 +484,7 @@ export default function DrugDosagesPage() {
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 p-6">
               <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                {isEditModalOpen ? 'Editar Medicamento' : 'Agregar Medicamento'}
+                {isEditModalOpen ? t('modal.editTitle') : t('modal.addTitle')}
               </h2>
               <button
                 onClick={() => {
@@ -461,7 +494,7 @@ export default function DrugDosagesPage() {
                   resetForm()
                 }}
                 className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                aria-label="Cerrar"
+                aria-label={tc('close')}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -470,14 +503,14 @@ export default function DrugDosagesPage() {
             <form onSubmit={isEditModalOpen ? handleEdit : handleAdd} className="space-y-4 p-6">
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Nombre del Medicamento *
+                  {t('form.drugName')} *
                 </label>
                 <input
                   type="text"
                   value={formData.drug_name}
                   onChange={(e) => setFormData({ ...formData, drug_name: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: Amoxicilina"
+                  placeholder={t('form.drugNamePlaceholder')}
                   required
                 />
               </div>
@@ -485,34 +518,34 @@ export default function DrugDosagesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                    Especie
+                    {t('table.species')}
                   </label>
                   <select
                     value={formData.species}
                     onChange={(e) => setFormData({ ...formData, species: e.target.value })}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   >
-                    <option value="perro">Perro</option>
-                    <option value="gato">Gato</option>
-                    <option value="ave">Ave</option>
-                    <option value="exotico">Exótico</option>
+                    <option value="perro">{t('species.dogSingular')}</option>
+                    <option value="gato">{t('species.catSingular')}</option>
+                    <option value="ave">{t('species.birdSingular')}</option>
+                    <option value="exotico">{t('species.exoticSingular')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                    Vía de Administración
+                    {t('form.route')}
                   </label>
                   <select
                     value={formData.route}
                     onChange={(e) => setFormData({ ...formData, route: e.target.value })}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   >
-                    <option value="oral">Oral</option>
-                    <option value="iv">Intravenosa (IV)</option>
-                    <option value="im">Intramuscular (IM)</option>
-                    <option value="sc">Subcutánea (SC)</option>
-                    <option value="topica">Tópica</option>
+                    <option value="oral">{t('routes.oral')}</option>
+                    <option value="iv">{t('routes.iv')}</option>
+                    <option value="im">{t('routes.im')}</option>
+                    <option value="sc">{t('routes.sc')}</option>
+                    <option value="topica">{t('routes.topical')}</option>
                   </select>
                 </div>
               </div>
@@ -520,7 +553,7 @@ export default function DrugDosagesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                    Dosis por kg *
+                    {t('form.dosePerKg')} *
                   </label>
                   <input
                     type="number"
@@ -535,7 +568,7 @@ export default function DrugDosagesPage() {
 
                 <div>
                   <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                    Unidad *
+                    {t('form.unit')} *
                   </label>
                   <select
                     value={formData.unit}
@@ -552,26 +585,26 @@ export default function DrugDosagesPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Frecuencia
+                  {t('table.frequency')}
                 </label>
                 <input
                   type="text"
                   value={formData.frequency}
                   onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: Cada 12 horas"
+                  placeholder={t('form.frequencyPlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Notas
+                  {t('form.notes')}
                 </label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   className="h-24 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Contraindicaciones, precauciones, etc."
+                  placeholder={t('form.notesPlaceholder')}
                 />
               </div>
 
@@ -586,14 +619,14 @@ export default function DrugDosagesPage() {
                   }}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-[var(--text-secondary)] transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
                 >
                   <Check className="h-5 w-5" />
-                  {isEditModalOpen ? 'Guardar Cambios' : 'Agregar'}
+                  {isEditModalOpen ? t('form.saveChanges') : tc('add')}
                 </button>
               </div>
             </form>
@@ -606,7 +639,7 @@ export default function DrugDosagesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">Calculadora de Dosis</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('calculator.title')}</h2>
               <button
                 onClick={() => {
                   setIsCalculatorOpen(false)
@@ -614,7 +647,7 @@ export default function DrugDosagesPage() {
                   setPetWeight('')
                 }}
                 className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                aria-label="Cerrar"
+                aria-label={tc('close')}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -622,7 +655,7 @@ export default function DrugDosagesPage() {
 
             <div className="p-6">
               <div className="bg-[var(--primary)]/5 mb-6 rounded-xl p-4">
-                <p className="mb-1 text-sm text-[var(--text-muted)]">Medicamento</p>
+                <p className="mb-1 text-sm text-[var(--text-muted)]">{t('table.medication')}</p>
                 <p className="text-lg font-bold text-[var(--text-primary)]">
                   {calculatorDrug.drug_name}
                 </p>
@@ -633,7 +666,7 @@ export default function DrugDosagesPage() {
 
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Peso del paciente (kg)
+                  {t('calculator.patientWeight')}
                 </label>
                 <input
                   type="number"
@@ -641,14 +674,14 @@ export default function DrugDosagesPage() {
                   value={petWeight}
                   onChange={(e) => setPetWeight(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: 10"
+                  placeholder={t('calculator.weightPlaceholder')}
                   autoFocus
                 />
               </div>
 
               {calculatedDose && (
                 <div className="rounded-xl border border-green-200 bg-green-50 p-6 text-center">
-                  <p className="mb-2 text-sm text-green-700">Dosis Calculada</p>
+                  <p className="mb-2 text-sm text-green-700">{t('calculator.calculatedDose')}</p>
                   <p className="text-4xl font-black text-green-700">
                     {calculatedDose} {calculatorDrug.unit}
                   </p>
@@ -666,7 +699,7 @@ export default function DrugDosagesPage() {
                 }}
                 className="mt-6 w-full rounded-xl bg-gray-100 px-6 py-3 font-bold text-[var(--text-secondary)] transition-colors hover:bg-gray-200"
               >
-                Cerrar
+                {tc('close')}
               </button>
             </div>
           </div>

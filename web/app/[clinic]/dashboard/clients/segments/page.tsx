@@ -1,8 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Client Segments Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   Users,
@@ -75,10 +83,8 @@ export default function ClientSegmentsPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
   const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  const [data, setData] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [selectedSegment, setSelectedSegment] = useState<Segment['segment'] | null>(null)
   const [period, setPeriod] = useState(90)
 
@@ -89,24 +95,28 @@ export default function ClientSegmentsPage(): React.ReactElement {
   const [exportModalOpen, setExportModalOpen] = useState(false)
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([])
 
-  const fetchData = async () => {
-    setLoading(true)
-    setError(null)
-    try {
+  // React Query: Fetch analytics data
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['customer-analytics', period],
+    queryFn: async (): Promise<AnalyticsData> => {
       const res = await fetch(`/api/analytics/customers?period=${period}`)
       if (!res.ok) throw new Error('Error al cargar datos')
-      const result = await res.json()
-      setData(result)
-    } catch (err) {
-      setError('Error al cargar los datos de segmentación')
-    } finally {
-      setLoading(false)
-    }
-  }
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  useEffect(() => {
-    fetchData()
-  }, [period])
+  const error = queryError?.message || null
+
+  const fetchData = async () => {
+    await refetch()
+  }
 
   // Combine all customers
   const allCustomers = data ? [...data.topCustomers, ...data.atRiskCustomers] : []

@@ -482,7 +482,7 @@ describe('GET /api/analytics', () => {
     })
 
     it('should return 500 on database error', async () => {
-      mockState.setTableError('invoices', new Error('Database error'))
+      mockState.setTableRejection('invoices', new Error('Database error'))
 
       const response = await GET(createRequest())
 
@@ -491,7 +491,7 @@ describe('GET /api/analytics', () => {
 
     it('should log database errors', async () => {
       const { logger } = await import('@/lib/logger')
-      mockState.setTableError('invoices', new Error('Connection failed'))
+      mockState.setTableRejection('invoices', new Error('Connection failed'))
 
       await GET(createRequest())
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // This endpoint is only available in development/testing environments
 // It allows seeding data via API without authentication for testing purposes
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function createTenant(supabase: any, data: any) {
+async function createTenant(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: tenant, error } = await supabase.from('tenants').insert([data]).select().single()
 
   if (error) {
@@ -78,7 +79,7 @@ async function createTenant(supabase: any, data: any) {
   return NextResponse.json(tenant)
 }
 
-async function createProfile(supabase: any, data: any) {
+async function createProfile(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: profile, error } = await supabase.from('profiles').insert([data]).select().single()
 
   if (error) {
@@ -92,7 +93,7 @@ async function createProfile(supabase: any, data: any) {
   return NextResponse.json(profile)
 }
 
-async function createPet(supabase: any, data: any) {
+async function createPet(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: pet, error } = await supabase.from('pets').insert([data]).select().single()
 
   if (error) {
@@ -107,7 +108,7 @@ async function createPet(supabase: any, data: any) {
   return NextResponse.json(pet)
 }
 
-async function createService(supabase: any, data: any) {
+async function createService(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: service, error } = await supabase.from('services').insert([data]).select().single()
 
   if (error) {
@@ -122,7 +123,7 @@ async function createService(supabase: any, data: any) {
   return NextResponse.json(service)
 }
 
-async function createPaymentMethod(supabase: any, data: any) {
+async function createPaymentMethod(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: paymentMethod, error } = await supabase
     .from('payment_methods')
     .insert([data])
@@ -140,7 +141,7 @@ async function createPaymentMethod(supabase: any, data: any) {
   return NextResponse.json(paymentMethod)
 }
 
-async function createKennel(supabase: any, data: any) {
+async function createKennel(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: kennel, error } = await supabase.from('kennels').insert([data]).select().single()
 
   if (error) {
@@ -155,7 +156,7 @@ async function createKennel(supabase: any, data: any) {
   return NextResponse.json(kennel)
 }
 
-async function createQrTag(supabase: any, data: any) {
+async function createQrTag(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: qrTag, error } = await supabase.from('qr_tags').insert([data]).select().single()
 
   if (error) {
@@ -169,7 +170,7 @@ async function createQrTag(supabase: any, data: any) {
   return NextResponse.json(qrTag)
 }
 
-async function createAppointment(supabase: any, data: any) {
+async function createAppointment(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: appointment, error } = await supabase
     .from('appointments')
     .insert([data])
@@ -187,7 +188,7 @@ async function createAppointment(supabase: any, data: any) {
   return NextResponse.json(appointment)
 }
 
-async function createHospitalization(supabase: any, data: any) {
+async function createHospitalization(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: hospitalization, error } = await supabase
     .from('hospitalizations')
     .insert([data])
@@ -205,7 +206,7 @@ async function createHospitalization(supabase: any, data: any) {
   return NextResponse.json(hospitalization)
 }
 
-async function createMedicalRecord(supabase: any, data: any) {
+async function createMedicalRecord(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: record, error } = await supabase
     .from('medical_records')
     .insert([data])
@@ -223,7 +224,7 @@ async function createMedicalRecord(supabase: any, data: any) {
   return NextResponse.json(record)
 }
 
-async function createVaccine(supabase: any, data: any) {
+async function createVaccine(supabase: SupabaseClient, data: Record<string, unknown>) {
   const { data: vaccine, error } = await supabase.from('vaccines').insert([data]).select().single()
 
   if (error) {
@@ -237,7 +238,7 @@ async function createVaccine(supabase: any, data: any) {
   return NextResponse.json(vaccine)
 }
 
-async function bulkSeed(supabase: any, data: any) {
+async function bulkSeed(supabase: SupabaseClient, data: Record<string, unknown>) {
   const results: {
     tenants: unknown[]
     profiles: unknown[]
@@ -457,7 +458,7 @@ export async function DELETE(request: NextRequest) {
 // DELETE FUNCTIONS (Clear Tenant Data)
 // ============================================================================
 
-async function clearTenantData(supabase: any, tenantId: string) {
+async function clearTenantData(supabase: SupabaseClient, tenantId: string) {
   logger.info('Clearing all data for tenant', { tenantId })
 
   // Delete in reverse dependency order to avoid foreign key violations

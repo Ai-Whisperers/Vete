@@ -127,56 +127,64 @@ async function checkOutbreakAlert(
   species: string,
   locationZone: string | null
 ): Promise<void> {
-  const OUTBREAK_THRESHOLD = 5 // Cases in 7 days
-  const ALERT_COOLDOWN_HOURS = 24
+  try {
+    const OUTBREAK_THRESHOLD = 5 // Cases in 7 days
+    const ALERT_COOLDOWN_HOURS = 24
 
-  // Count cases in last 7 days for this species/location
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    // Count cases in last 7 days for this species/location
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  let query = supabase
-    .from('disease_reports')
-    .select('id', { count: 'exact', head: true })
-    .eq('tenant_id', tenantId)
-    .eq('species', species)
-    .gte('reported_date', weekAgo)
+    let query = supabase
+      .from('disease_reports')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .eq('species', species)
+      .gte('reported_date', weekAgo)
 
-  if (locationZone) {
-    query = query.eq('location_zone', locationZone)
-  }
+    if (locationZone) {
+      query = query.eq('location_zone', locationZone)
+    }
 
-  const { count } = await query
+    const { count } = await query
 
-  if (count && count >= OUTBREAK_THRESHOLD) {
-    // Check if we already sent an alert recently
-    const cooldownTime = new Date(Date.now() - ALERT_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString()
+    if (count && count >= OUTBREAK_THRESHOLD) {
+      // Check if we already sent an alert recently
+      const cooldownTime = new Date(Date.now() - ALERT_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString()
 
-    const { data: recentAlert } = await supabase
-      .from('notifications')
-      .select('id')
-      .eq('type', 'outbreak_alert')
-      .gte('created_at', cooldownTime)
-      .limit(1)
-      .maybeSingle()
-
-    if (!recentAlert) {
-      // Get all staff for this tenant
-      const { data: staff } = await supabase
-        .from('profiles')
+      const { data: recentAlert } = await supabase
+        .from('notifications')
         .select('id')
-        .eq('tenant_id', tenantId)
-        .in('role', ['vet', 'admin'])
+        .eq('type', 'outbreak_alert')
+        .gte('created_at', cooldownTime)
+        .limit(1)
+        .maybeSingle()
 
-      if (staff && staff.length > 0) {
-        const notifications = staff.map((s) => ({
-          user_id: s.id,
-          title: '⚠️ Alerta de Brote',
-          message: `Se han reportado ${count} casos de ${species} ${locationZone ? `en ${locationZone}` : ''} en los últimos 7 días.`,
-          type: 'outbreak_alert',
-          data: { species, location_zone: locationZone, case_count: count },
-        }))
+      if (!recentAlert) {
+        // Get all staff for this tenant
+        const { data: staff } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .in('role', ['vet', 'admin'])
 
-        await supabase.from('notifications').insert(notifications)
+        if (staff && staff.length > 0) {
+          const notifications = staff.map((s) => ({
+            user_id: s.id,
+            title: '⚠️ Alerta de Brote',
+            message: `Se han reportado ${count} casos de ${species} ${locationZone ? `en ${locationZone}` : ''} en los últimos 7 días.`,
+            type: 'outbreak_alert',
+            data: { species, location_zone: locationZone, case_count: count },
+          }))
+
+          await supabase.from('notifications').insert(notifications)
+        }
       }
     }
+  } catch (error) {
+    logger.error('Outbreak alert check failed', {
+      tenantId,
+      species,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
   }
 }

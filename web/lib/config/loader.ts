@@ -192,7 +192,7 @@ export function loadConfig(): AppConfig {
       },
 
       email: {
-        provider: process.env.EMAIL_PROVIDER! as any,
+        provider: process.env.EMAIL_PROVIDER! as 'smtp' | 'sendgrid' | 'ses',
         smtp:
           process.env.EMAIL_PROVIDER === 'smtp'
             ? {
@@ -224,7 +224,7 @@ export function loadConfig(): AppConfig {
       },
 
       storage: {
-        provider: process.env.STORAGE_PROVIDER! as any,
+        provider: process.env.STORAGE_PROVIDER! as 'local' | 's3' | 'cloudinary',
         local:
           process.env.STORAGE_PROVIDER === 'local'
             ? {
@@ -252,7 +252,7 @@ export function loadConfig(): AppConfig {
       },
 
       cache: {
-        provider: process.env.CACHE_PROVIDER! as any,
+        provider: process.env.CACHE_PROVIDER! as 'memory' | 'redis' | 'upstash',
         ttl: process.env.CACHE_TTL,
         redis:
           process.env.CACHE_PROVIDER === 'redis'
@@ -272,7 +272,7 @@ export function loadConfig(): AppConfig {
 
       monitoring: {
         enabled: process.env.MONITORING_ENABLED,
-        logLevel: process.env.LOG_LEVEL as any,
+        logLevel: process.env.LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error',
         sentry: process.env.SENTRY_DSN
           ? {
               dsn: process.env.SENTRY_DSN,

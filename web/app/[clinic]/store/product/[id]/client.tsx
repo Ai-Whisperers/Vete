@@ -1,8 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Product Detail Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   ShoppingCart,
@@ -76,9 +84,6 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
   const router = useRouter()
   const { addItem, items } = useCart()
   const { isWishlisted, toggleWishlist } = useWishlist()
-  const [data, setData] = useState<ProductDetailResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null)
   const [togglingWishlist, setTogglingWishlist] = useState(false)
@@ -99,43 +104,40 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
   const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs'
 
-  useEffect(() => {
-    fetchProduct()
-  }, [productId, clinic])
-
-  const fetchProduct = async () => {
-    setLoading(true)
-    setError(null)
-    try {
+  // React Query: Fetch product details
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch: fetchProduct,
+  } = useQuery({
+    queryKey: ['store-product', productId, clinic],
+    queryFn: async (): Promise<ProductDetailResponse> => {
       const res = await fetch(`/api/store/products/${productId}?clinic=${clinic}`)
       if (!res.ok) {
         if (res.status === 404) {
-          setError('Producto no encontrado')
-        } else {
-          throw new Error('Error al cargar el producto')
+          throw new Error('Producto no encontrado')
         }
-        return
+        throw new Error('Error al cargar el producto')
       }
       const productData = await res.json()
-      setData(productData)
 
       // Set default variant if exists
       const defaultVariant = productData.product.variants?.find(
         (v: { is_default: boolean }) => v.is_default
       )
-      if (defaultVariant) {
+      if (defaultVariant && !selectedVariant) {
         setSelectedVariant(defaultVariant.id)
       }
-    } catch (err) {
-      setError('No se pudo cargar el producto')
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error(err)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+
+      return productData
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+    enabled: !!productId && !!clinic,
+  })
+
+  const error = queryError?.message || null
 
   const handleAddToCart = async () => {
     if (!data?.product) return

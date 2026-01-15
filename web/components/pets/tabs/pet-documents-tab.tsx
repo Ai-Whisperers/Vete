@@ -19,6 +19,7 @@ import {
   FileImage,
   FileSpreadsheet,
 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Document {
   id: string
@@ -43,16 +44,13 @@ interface PetDocumentsTabProps {
 
 type CategoryFilter = 'all' | Document['category']
 
-const categoryConfig: Record<
-  Document['category'],
-  { label: string; icon: React.ElementType; color: string }
-> = {
-  medical: { label: 'Historial Médico', icon: FileText, color: 'bg-blue-100 text-blue-700' },
-  lab: { label: 'Laboratorio', icon: FileSpreadsheet, color: 'bg-purple-100 text-purple-700' },
-  xray: { label: 'Rayos X / Imágenes', icon: FileImage, color: 'bg-green-100 text-green-700' },
-  vaccine: { label: 'Vacunas', icon: FileText, color: 'bg-amber-100 text-amber-700' },
-  prescription: { label: 'Recetas', icon: FileText, color: 'bg-pink-100 text-pink-700' },
-  other: { label: 'Otros', icon: File, color: 'bg-gray-100 text-gray-700' },
+const categoryIcons: Record<Document['category'], { icon: React.ElementType; color: string }> = {
+  medical: { icon: FileText, color: 'bg-blue-100 text-blue-700' },
+  lab: { icon: FileSpreadsheet, color: 'bg-purple-100 text-purple-700' },
+  xray: { icon: FileImage, color: 'bg-green-100 text-green-700' },
+  vaccine: { icon: FileText, color: 'bg-amber-100 text-amber-700' },
+  prescription: { icon: FileText, color: 'bg-pink-100 text-pink-700' },
+  other: { icon: File, color: 'bg-gray-100 text-gray-700' },
 }
 
 export function PetDocumentsTab({
@@ -63,6 +61,19 @@ export function PetDocumentsTab({
   onUpload,
   onDelete,
 }: PetDocumentsTabProps) {
+  const t = useTranslations('pets.tabs.documents')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
+  const categoryLabels: Record<Document['category'], string> = {
+    medical: t('categoryMedical'),
+    lab: t('categoryLab'),
+    xray: t('categoryXray'),
+    vaccine: t('categoryVaccine'),
+    prescription: t('categoryPrescription'),
+    other: t('categoryOther'),
+  }
+
   const [filter, setFilter] = useState<CategoryFilter>('all')
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCategory, setUploadCategory] = useState<Document['category']>('other')
@@ -75,7 +86,7 @@ export function PetDocumentsTab({
     filter === 'all' ? documents : documents.filter((doc) => doc.category === filter)
 
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString('es-PY', {
+    return new Date(dateStr).toLocaleDateString(localeStr, {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -147,7 +158,7 @@ export function PetDocumentsTab({
 
   const handleDelete = async (documentId: string) => {
     if (!onDelete) return
-    if (!confirm('¿Estás seguro de eliminar este documento?')) return
+    if (!confirm(t('confirmDelete'))) return
 
     try {
       await onDelete(documentId)
@@ -161,9 +172,9 @@ export function PetDocumentsTab({
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Documentos de {petName}</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('title', { petName })}</h2>
           <p className="text-sm text-gray-500">
-            {documents.length} documento{documents.length !== 1 ? 's' : ''}
+            {documents.length !== 1 ? t('documentCountPlural', { count: documents.length }) : t('documentCount', { count: documents.length })}
           </p>
         </div>
         <button
@@ -174,7 +185,7 @@ export function PetDocumentsTab({
           className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-medium text-white shadow-md transition-opacity hover:opacity-90"
         >
           <Upload className="h-4 w-4" />
-          Subir Documento
+          {t('uploadDocument')}
         </button>
       </div>
 
@@ -188,10 +199,9 @@ export function PetDocumentsTab({
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Todos
+          {t('all')}
         </button>
-        {(Object.keys(categoryConfig) as Document['category'][]).map((cat) => {
-          const config = categoryConfig[cat]
+        {(Object.keys(categoryIcons) as Document['category'][]).map((cat) => {
           const count = documents.filter((d) => d.category === cat).length
           return (
             <button
@@ -203,7 +213,7 @@ export function PetDocumentsTab({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {config.label}
+              {categoryLabels[cat]}
               {count > 0 && (
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-xs ${
@@ -242,22 +252,22 @@ export function PetDocumentsTab({
           <Upload className={`h-6 w-6 ${dragActive ? 'text-[var(--primary)]' : 'text-gray-400'}`} />
         </div>
         <p className="mb-1 text-sm text-gray-600">
-          Arrastra archivos aquí o{' '}
+          {t('dragFiles')}{' '}
           <button
             onClick={() => fileInputRef.current?.click()}
             className="font-medium text-[var(--primary)] hover:underline"
           >
-            selecciona
+            {t('select')}
           </button>
         </p>
-        <p className="text-xs text-gray-400">PDF, imágenes, documentos • Máx 10MB por archivo</p>
+        <p className="text-xs text-gray-400">{t('fileTypes')}</p>
       </div>
 
       {/* Documents Grid */}
       {filteredDocuments.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredDocuments.map((doc) => {
-            const config = categoryConfig[doc.category]
+            const iconConfig = categoryIcons[doc.category]
             const FileIcon = getFileIcon(doc.file_type)
             const isImage = doc.file_type.startsWith('image/')
 
@@ -281,7 +291,7 @@ export function PetDocumentsTab({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded-lg bg-white p-2 transition-colors hover:bg-gray-100"
-                      title="Ver"
+                      title={t('view')}
                     >
                       <Eye className="h-4 w-4 text-gray-700" />
                     </a>
@@ -289,7 +299,7 @@ export function PetDocumentsTab({
                       href={doc.file_url}
                       download={doc.name}
                       className="rounded-lg bg-white p-2 transition-colors hover:bg-gray-100"
-                      title="Descargar"
+                      title={t('download')}
                     >
                       <Download className="h-4 w-4 text-gray-700" />
                     </a>
@@ -297,7 +307,7 @@ export function PetDocumentsTab({
                       <button
                         onClick={() => handleDelete(doc.id)}
                         className="rounded-lg bg-white p-2 transition-colors hover:bg-red-50"
-                        title="Eliminar"
+                        title={t('delete')}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </button>
@@ -308,10 +318,10 @@ export function PetDocumentsTab({
                 {/* Info */}
                 <div className="p-3">
                   <span
-                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${config.color} mb-2`}
+                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${iconConfig.color} mb-2`}
                   >
-                    <config.icon className="h-3 w-3" />
-                    {config.label}
+                    <iconConfig.icon className="h-3 w-3" />
+                    {categoryLabels[doc.category]}
                   </span>
                   <h4 className="truncate text-sm font-medium text-[var(--text-primary)]">
                     {doc.name}
@@ -334,19 +344,19 @@ export function PetDocumentsTab({
             <FolderOpen className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="mb-2 font-bold text-gray-900">
-            {filter !== 'all' ? 'Sin documentos en esta categoría' : 'Sin documentos'}
+            {filter !== 'all' ? t('noDocumentsCategory') : t('noDocuments')}
           </h3>
           <p className="mx-auto mb-4 max-w-xs text-sm text-gray-500">
             {filter !== 'all'
-              ? 'No hay documentos de este tipo'
-              : `Sube documentos de ${petName}: radiografías, análisis, recetas, etc.`}
+              ? t('noDocumentsCategoryDesc')
+              : t('noDocumentsDesc', { petName })}
           </p>
           {filter !== 'all' && (
             <button
               onClick={() => setFilter('all')}
               className="text-sm font-medium text-[var(--primary)] hover:underline"
             >
-              Ver todos los documentos
+              {t('viewAll')}
             </button>
           )}
         </div>
@@ -357,7 +367,7 @@ export function PetDocumentsTab({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="max-h-[80vh] w-full max-w-md overflow-hidden rounded-2xl bg-white">
             <div className="flex items-center justify-between border-b p-4">
-              <h3 className="text-lg font-bold">Subir Documentos</h3>
+              <h3 className="text-lg font-bold">{t('uploadDocuments')}</h3>
               <button
                 onClick={() => {
                   setShowUploadModal(false)
@@ -372,15 +382,15 @@ export function PetDocumentsTab({
             <div className="max-h-[50vh] space-y-4 overflow-y-auto p-4">
               {/* Category selector */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Categoría</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">{t('category')}</label>
                 <select
                   value={uploadCategory}
                   onChange={(e) => setUploadCategory(e.target.value as Document['category'])}
                   className="focus:ring-[var(--primary)]/10 w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[var(--primary)] focus:ring-2"
                 >
-                  {(Object.keys(categoryConfig) as Document['category'][]).map((cat) => (
+                  {(Object.keys(categoryIcons) as Document['category'][]).map((cat) => (
                     <option key={cat} value={cat}>
-                      {categoryConfig[cat].label}
+                      {categoryLabels[cat]}
                     </option>
                   ))}
                 </select>
@@ -389,7 +399,7 @@ export function PetDocumentsTab({
               {/* Selected files */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Archivos seleccionados
+                  {t('selectedFiles')}
                 </label>
                 {selectedFiles.length > 0 ? (
                   <div className="space-y-2">
@@ -420,7 +430,7 @@ export function PetDocumentsTab({
                     className="w-full rounded-xl border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-gray-300"
                   >
                     <Plus className="mx-auto mb-1 h-6 w-6 text-gray-400" />
-                    <span className="text-sm text-gray-500">Agregar archivos</span>
+                    <span className="text-sm text-gray-500">{t('addFiles')}</span>
                   </button>
                 )}
               </div>
@@ -434,7 +444,7 @@ export function PetDocumentsTab({
                 }}
                 className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 font-medium text-gray-700 transition-colors hover:bg-gray-50"
               >
-                Cancelar
+                {t('cancel')}
               </button>
               <button
                 onClick={handleUpload}
@@ -444,12 +454,12 @@ export function PetDocumentsTab({
                 {isUploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Subiendo...
+                    {t('uploading')}
                   </>
                 ) : (
                   <>
                     <Upload className="h-4 w-4" />
-                    Subir
+                    {t('upload')}
                   </>
                 )}
               </button>

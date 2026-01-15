@@ -140,5 +140,5 @@ export const POST = withApiAuthParams(
 
     return NextResponse.json({ success: true, has_critical_values: hasCriticalValues })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

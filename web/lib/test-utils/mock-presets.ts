@@ -26,6 +26,7 @@
 
 import { vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
+import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
 
 // =============================================================================
 // Types
@@ -54,14 +55,14 @@ export interface MockProfile {
 // =============================================================================
 
 export const DEFAULT_MOCK_USER: MockUser = {
-  id: 'mock-user-001',
+  id: '00000000-0000-0000-0000-000000000001',
   email: 'test@clinic.com',
   aud: 'authenticated',
   created_at: new Date().toISOString(),
 }
 
 export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
-  id: 'mock-user-001',
+  id: '00000000-0000-0000-0000-000000000001',
   tenant_id: 'adris',
   role: 'vet',
   full_name: 'Dr. Test Vet',
@@ -69,7 +70,7 @@ export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
 }
 
 export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
-  id: 'mock-admin-001',
+  id: '00000000-0000-0000-0000-000000000002',
   tenant_id: 'adris',
   role: 'admin',
   full_name: 'Admin User',
@@ -77,7 +78,7 @@ export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
 }
 
 export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
-  id: 'mock-owner-001',
+  id: '00000000-0000-0000-0000-000000000003',
   tenant_id: 'adris',
   role: 'owner',
   full_name: 'Pet Owner',
@@ -99,11 +100,11 @@ export const AUTH_SCENARIOS = {
     profile: DEFAULT_MOCK_VET_PROFILE,
   },
   ADMIN: {
-    user: { ...DEFAULT_MOCK_USER, id: 'mock-admin-001', email: 'admin@clinic.com' },
+    user: { ...DEFAULT_MOCK_USER, id: '00000000-0000-0000-0000-000000000002', email: 'admin@clinic.com' },
     profile: DEFAULT_MOCK_ADMIN_PROFILE,
   },
   OWNER: {
-    user: { ...DEFAULT_MOCK_USER, id: 'mock-owner-001', email: 'owner@gmail.com' },
+    user: { ...DEFAULT_MOCK_USER, id: '00000000-0000-0000-0000-000000000003', email: 'owner@gmail.com' },
     profile: DEFAULT_MOCK_OWNER_PROFILE,
   },
 } as const
@@ -263,6 +264,31 @@ class MockState {
   }
 
   /**
+   * Set rejection for a table query - causes Promise to reject instead of returning error object.
+   * Use this to test try/catch error handling paths (triggers actual exceptions).
+   * @param table - The table name
+   * @param error - The error to throw (will reject the Promise)
+   */
+  setTableRejection(table: string, error: Error): void {
+    this._errors.set(`reject:${table}`, error)
+    this._tableResults.delete(table)
+  }
+
+  /**
+   * Check if table has rejection configured
+   */
+  hasTableRejection(table: string): boolean {
+    return this._errors.has(`reject:${table}`)
+  }
+
+  /**
+   * Get table rejection error
+   */
+  getTableRejection(table: string): Error | undefined {
+    return this._errors.get(`reject:${table}`)
+  }
+
+  /**
    * Reset all state
    */
   reset(): void {
@@ -321,7 +347,12 @@ export function createStatefulSupabaseMock() {
         return createChainMock(mockState.profile)
       }
 
-      // Check for configured error
+      // Check for configured rejection (throws/rejects instead of returning error object)
+      if (mockState.hasTableRejection(table)) {
+        return createRejectionChainMock(mockState.getTableRejection(table)!)
+      }
+
+      // Check for configured error (returns Supabase-style {data: null, error})
       if (mockState.hasTableError(table)) {
         return createErrorChainMock(mockState.getTableError(table)!)
       }
@@ -407,21 +438,83 @@ function createChainMock(defaultResult: unknown) {
 }
 
 /**
- * Create error chain mock
+ * Create error chain mock - returns error for all operations
  */
-function createErrorChainMock(error: Error) {
-  const errorValue = { data: null, error: { message: error.message } }
+function createErrorChainMock(error: Error & { code?: string }) {
+  const errorValue = { data: null, error: { message: error.message, code: error.code } }
 
-  const chain: Record<string, ReturnType<typeof vi.fn>> = {
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    neq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue(errorValue),
-    maybeSingle: vi.fn().mockResolvedValue(errorValue),
-  }
+  // Build chain with all methods returning either this or error
+  const chain: Record<string, ReturnType<typeof vi.fn>> = {}
+
+  // All chainable methods that return this
+  const chainableMethods = [
+    'select', 'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+    'like', 'ilike', 'is', 'in', 'not', 'or', 'filter',
+    'order', 'limit', 'range', 'upsert',
+  ]
+
+  chainableMethods.forEach((method) => {
+    chain[method] = vi.fn().mockReturnThis()
+  })
+
+  // Methods that resolve with error
+  chain.single = vi.fn().mockResolvedValue(errorValue)
+  chain.maybeSingle = vi.fn().mockResolvedValue(errorValue)
+
+  // insert/update/delete/upsert also resolve with error
+  ;['insert', 'update', 'delete', 'upsert'].forEach((method) => {
+    chain[method] = vi.fn().mockImplementation(() => {
+      // Return a promise with error that also has chainable methods
+      const result = Object.assign(Promise.resolve(errorValue), chain)
+      return result
+    })
+  })
+
+  // Make select also return a promise with error
+  chain.select = vi.fn().mockImplementation(() => {
+    const result = Object.assign(Promise.resolve(errorValue), chain)
+    return result
+  })
+
+  return chain
+}
+
+/**
+ * Create rejection chain mock - rejects promises instead of returning error objects.
+ * Use this to test try/catch error handling paths.
+ */
+function createRejectionChainMock(error: Error) {
+  // Build chain with all methods returning either this or rejecting
+  const chain: Record<string, ReturnType<typeof vi.fn>> = {}
+
+  // All chainable methods that return this
+  const chainableMethods = [
+    'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+    'like', 'ilike', 'is', 'in', 'not', 'or', 'filter',
+    'order', 'limit', 'range',
+  ]
+
+  chainableMethods.forEach((method) => {
+    chain[method] = vi.fn().mockReturnThis()
+  })
+
+  // Methods that reject (throw)
+  chain.single = vi.fn().mockRejectedValue(error)
+  chain.maybeSingle = vi.fn().mockRejectedValue(error)
+
+  // select also rejects
+  chain.select = vi.fn().mockImplementation(() => {
+    const result = Object.assign(Promise.reject(error), chain)
+    return result
+  })
+
+  // insert/update/delete/upsert also reject
+  ;['insert', 'update', 'delete', 'upsert'].forEach((method) => {
+    chain[method] = vi.fn().mockImplementation(() => {
+      const result = Object.assign(Promise.reject(error), chain)
+      return result
+    })
+  })
 
   return chain
 }
@@ -495,6 +588,43 @@ export interface MockApiHandlerContextWithParams<P = Record<string, string>> ext
 }
 
 /**
+ * Create a mock logger that matches the RequestLogger interface
+ */
+export function createMockLogger() {
+  return {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  }
+}
+
+/**
+ * Create a mock performance tracker that matches the PerformanceTracker interface
+ */
+export function createMockPerfTracker() {
+  return {
+    checkpoint: vi.fn(),
+    finish: vi.fn().mockReturnValue(0),
+    getDuration: vi.fn().mockReturnValue(0),
+  }
+}
+
+/**
+ * Create a mock scoped queries object
+ */
+export function createMockScopedQueries(supabase: ReturnType<typeof createStatefulSupabaseMock>, tenantId: string) {
+  return {
+    pets: () => supabase.from('pets'),
+    appointments: () => supabase.from('appointments'),
+    invoices: () => supabase.from('invoices'),
+    services: () => supabase.from('services'),
+    profiles: () => supabase.from('profiles'),
+    // Add other scoped queries as needed
+  }
+}
+
+/**
  * Get auth module mock for vi.mock('@/lib/auth', ...)
  *
  * This mocks both withApiAuth and withApiAuthParams wrappers to use mockState
@@ -502,6 +632,16 @@ export interface MockApiHandlerContextWithParams<P = Record<string, string>> ext
  *
  * The mock accepts both Request and NextRequest for backward compatibility.
  * At runtime, NextRequest extends Request so both work correctly.
+ *
+ * Context properties provided:
+ * - user: Current authenticated user
+ * - profile: User's profile with tenant_id and role
+ * - supabase: Stateful Supabase mock
+ * - request: The incoming request
+ * - log: Mock logger with info/error/warn/debug
+ * - perf: Mock performance tracker
+ * - requestId: Unique request ID
+ * - scoped: Mock scoped queries
  *
  * @example
  * ```typescript
@@ -515,8 +655,7 @@ export function getAuthMock() {
      * Accepts Request or NextRequest for test compatibility
      */
     withApiAuth: (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler: (ctx: any) => Promise<NextResponse>,
+      handler: (ctx: ApiHandlerContext) => Promise<NextResponse>,
       _options?: { roles?: string[] }
     ) => {
       // Return function that accepts Request (base type that NextRequest extends)
@@ -545,12 +684,17 @@ export function getAuthMock() {
         }
 
         const supabase = createStatefulSupabaseMock()
+        const requestId = crypto.randomUUID()
 
         return handler({
           user: mockState.user,
           profile: mockState.profile,
           supabase,
           request: request as NextRequest,
+          log: createMockLogger(),
+          perf: createMockPerfTracker(),
+          requestId,
+          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id),
         })
       }
     },
@@ -560,8 +704,7 @@ export function getAuthMock() {
      * Accepts Request or NextRequest for test compatibility
      */
     withApiAuthParams: <P extends Record<string, string> = Record<string, string>>(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler: (ctx: any) => Promise<NextResponse>,
+      handler: (ctx: ApiHandlerContextWithParams<P>) => Promise<NextResponse>,
       _options?: { roles?: string[] }
     ) => {
       return async (
@@ -593,6 +736,7 @@ export function getAuthMock() {
 
         const params = await context.params
         const supabase = createStatefulSupabaseMock()
+        const requestId = crypto.randomUUID()
 
         return handler({
           user: mockState.user,
@@ -600,6 +744,10 @@ export function getAuthMock() {
           supabase,
           request: request as NextRequest,
           params,
+          log: createMockLogger(),
+          perf: createMockPerfTracker(),
+          requestId,
+          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id),
         })
       }
     },
@@ -607,6 +755,27 @@ export function getAuthMock() {
     isStaff: (profile: { role: string }) => ['vet', 'admin'].includes(profile.role),
     isAdmin: (profile: { role: string }) => profile.role === 'admin',
     isOwner: (profile: { role: string }) => profile.role === 'owner',
+  }
+}
+
+/**
+ * Get features mock for vi.mock('@/lib/features/server', ...)
+ *
+ * This mocks the requireFeature function used for feature gating.
+ * By default, all features are allowed (returns null).
+ *
+ * @example
+ * ```typescript
+ * vi.mock('@/lib/features/server', () => getFeaturesMock())
+ *
+ * // To deny a feature in a specific test:
+ * vi.mocked(requireFeature).mockResolvedValueOnce(NextResponse.json({ error: 'Feature disabled' }, { status: 403 }))
+ * ```
+ */
+export function getFeaturesMock() {
+  return {
+    requireFeature: vi.fn().mockResolvedValue(null), // null = feature allowed
+    checkFeature: vi.fn().mockResolvedValue(true), // true = feature enabled
   }
 }
 

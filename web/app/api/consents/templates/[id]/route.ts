@@ -144,7 +144,7 @@ export const PUT = withApiAuthParams(
 
     return NextResponse.json(data, { status: 200 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )
 
 /**
@@ -197,5 +197,5 @@ export const DELETE = withApiAuthParams(
 
     return NextResponse.json({ message: 'Plantilla eliminada correctamente' }, { status: 200 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

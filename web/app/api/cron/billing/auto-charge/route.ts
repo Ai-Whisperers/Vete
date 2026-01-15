@@ -170,19 +170,21 @@ async function processInvoice(
     }
 
     // 3. Get default payment method
+    // SEC-023: Verify payment method ownership - must belong to same tenant as invoice
     const { data: paymentMethod, error: pmError } = await supabase
       .from('tenant_payment_methods')
       .select('id, stripe_payment_method_id, display_name, method_type')
       .eq('id', tenant.default_payment_method_id)
+      .eq('tenant_id', invoice.tenant_id)
       .eq('is_active', true)
       .single()
 
     if (pmError || !paymentMethod || !paymentMethod.stripe_payment_method_id) {
-      logger.warn('Default payment method not found or inactive', {
+      logger.warn('Default payment method not found, inactive, or tenant mismatch', {
         tenantId: invoice.tenant_id,
         methodId: tenant.default_payment_method_id,
       })
-      return { ...baseResult, status: 'skipped', error: 'Payment method not found' }
+      return { ...baseResult, status: 'skipped', error: 'Payment method not found or tenant mismatch' }
     }
 
     // 4. Create transaction record

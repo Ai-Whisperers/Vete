@@ -254,7 +254,7 @@ export class AppointmentRepository {
   /**
    * Transform raw database result to domain object
    */
-  private transformAppointment(data: any): Appointment {
+  private transformAppointment(data: Record<string, unknown>): Appointment {
     return {
       id: data.id,
       tenant_id: data.tenant_id,

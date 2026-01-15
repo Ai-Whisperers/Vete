@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enUS } from 'date-fns/locale'
 import type { TimeOffType, TimeOffBalance, TimeOffRequestFormData } from '@/lib/types/calendar'
 
 // =============================================================================
@@ -30,6 +31,10 @@ export function TimeOffRequestForm({
   isLoading = false,
   initialData,
 }: TimeOffRequestFormProps) {
+  const t = useTranslations('calendar.timeOffRequest')
+  const locale = useLocale()
+  const dateLocale = locale === 'es' ? es : enUS
+
   const [typeId, setTypeId] = useState(initialData?.time_off_type_id || '')
   const [startDate, setStartDate] = useState(initialData?.start_date || '')
   const [endDate, setEndDate] = useState(initialData?.end_date || '')
@@ -62,24 +67,24 @@ export function TimeOffRequestForm({
 
   // Validation
   const validate = (): string | null => {
-    if (!typeId) return 'Selecciona un tipo de ausencia'
-    if (!startDate) return 'Selecciona la fecha de inicio'
-    if (!endDate) return 'Selecciona la fecha de fin'
+    if (!typeId) return t('errors.selectType')
+    if (!startDate) return t('errors.selectStartDate')
+    if (!endDate) return t('errors.selectEndDate')
 
     const start = new Date(startDate)
     const end = new Date(endDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    if (start > end) return 'La fecha de inicio debe ser anterior a la fecha de fin'
-    if (start < today) return 'La fecha de inicio no puede ser en el pasado'
+    if (start > end) return t('errors.startBeforeEnd')
+    if (start < today) return t('errors.startNotInPast')
 
     // Check min notice days
     if (selectedType?.min_notice_days) {
       const minDate = new Date(today)
       minDate.setDate(minDate.getDate() + selectedType.min_notice_days)
       if (start < minDate) {
-        return `Se requieren al menos ${selectedType.min_notice_days} días de anticipación`
+        return t('errors.minNoticeDays', { days: selectedType.min_notice_days })
       }
     }
 
@@ -87,7 +92,7 @@ export function TimeOffRequestForm({
     if (selectedBalance && selectedType?.max_days_per_year) {
       const available = selectedBalance.available_days
       if (daysRequested > available) {
-        return `Solo tienes ${available} días disponibles de ${selectedType.name}`
+        return t('errors.insufficientDays', { available, typeName: selectedType.name })
       }
     }
 
@@ -116,7 +121,7 @@ export function TimeOffRequestForm({
         reason: reason || undefined,
       })
     } catch {
-      setError('Error al enviar la solicitud')
+      setError(t('errors.submitError'))
     } finally {
       setIsSaving(false)
     }
@@ -145,7 +150,7 @@ export function TimeOffRequestForm({
       {/* Type selection */}
       <div>
         <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
-          Tipo de ausencia *
+          {t('typeLabel')} *
         </label>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {types.map((type) => {
@@ -175,14 +180,14 @@ export function TimeOffRequestForm({
                 )}
                 {balance && type.max_days_per_year && (
                   <p className="mt-2 text-xs">
-                    <span className="text-gray-500">Disponible: </span>
+                    <span className="text-gray-500">{t('available')}: </span>
                     <span className="font-medium text-gray-900">
-                      {balance.available_days} / {type.max_days_per_year} días
+                      {balance.available_days} / {type.max_days_per_year} {t('days')}
                     </span>
                   </p>
                 )}
                 {type.requires_approval && (
-                  <p className="mt-1 text-xs text-[var(--status-warning)]">Requiere aprobación</p>
+                  <p className="mt-1 text-xs text-[var(--status-warning)]">{t('requiresApproval')}</p>
                 )}
               </button>
             )
@@ -193,7 +198,7 @@ export function TimeOffRequestForm({
       {/* Date selection */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Fecha de inicio *</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('startDateLabel')} *</label>
           <input
             type="date"
             value={startDate}
@@ -209,13 +214,13 @@ export function TimeOffRequestForm({
                 onChange={(e) => setStartHalfDay(e.target.checked)}
                 className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
               />
-              Empezar a medio día
+              {t('startHalfDay')}
             </label>
           )}
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Fecha de fin *</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('endDateLabel')} *</label>
           <input
             type="date"
             value={endDate}
@@ -231,7 +236,7 @@ export function TimeOffRequestForm({
                 onChange={(e) => setEndHalfDay(e.target.checked)}
                 className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
               />
-              Terminar a medio día
+              {t('endHalfDay')}
             </label>
           )}
         </div>
@@ -241,19 +246,19 @@ export function TimeOffRequestForm({
       {daysRequested > 0 && (
         <div className="rounded-lg bg-gray-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Total de días solicitados:</span>
+            <span className="text-sm text-gray-600">{t('totalDaysRequested')}:</span>
             <span className="text-lg font-semibold text-gray-900">
-              {daysRequested} {daysRequested === 1 ? 'día' : 'días'}
+              {t('daysCount', { count: daysRequested })}
             </span>
           </div>
           {startDate && endDate && (
             <p className="mt-1 text-xs text-gray-500">
-              {format(new Date(startDate), "d 'de' MMMM", { locale: es })}
+              {format(new Date(startDate), "d 'de' MMMM", { locale: dateLocale })}
               {startDate !== endDate && (
-                <> - {format(new Date(endDate), "d 'de' MMMM, yyyy", { locale: es })}</>
+                <> - {format(new Date(endDate), "d 'de' MMMM, yyyy", { locale: dateLocale })}</>
               )}
               {startDate === endDate && (
-                <>, {format(new Date(startDate), 'yyyy', { locale: es })}</>
+                <>, {format(new Date(startDate), 'yyyy', { locale: dateLocale })}</>
               )}
             </p>
           )}
@@ -263,13 +268,13 @@ export function TimeOffRequestForm({
       {/* Reason */}
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Motivo {selectedType?.requires_approval ? '*' : '(opcional)'}
+          {t('reasonLabel')} {selectedType?.requires_approval ? '*' : `(${t('optional')})`}
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
-          placeholder="Describe el motivo de tu solicitud..."
+          placeholder={t('reasonPlaceholder')}
           className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
@@ -293,10 +298,10 @@ export function TimeOffRequestForm({
             </svg>
             <div>
               <p className="text-sm font-medium text-[var(--status-warning-text)]">
-                Esta solicitud requiere aprobación
+                {t('approvalNotice.title')}
               </p>
               <p className="mt-1 text-xs text-[var(--status-warning-text)]">
-                Tu solicitud será revisada por un administrador antes de ser confirmada.
+                {t('approvalNotice.description')}
               </p>
             </div>
           </div>
@@ -310,7 +315,7 @@ export function TimeOffRequestForm({
           onClick={onCancel}
           className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
         >
-          Cancelar
+          {t('cancel')}
         </button>
         <button
           type="submit"
@@ -318,7 +323,7 @@ export function TimeOffRequestForm({
           className="rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
         >
-          {isSaving ? 'Enviando...' : 'Enviar Solicitud'}
+          {isSaving ? t('submitting') : t('submit')}
         </button>
       </div>
     </form>

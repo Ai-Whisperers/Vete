@@ -8,7 +8,6 @@
 
 import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -93,12 +92,6 @@ export const GET = withApiAuthParams(
 export const PATCH = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const vaccineId = params.id
-
-    // Apply rate limiting
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -241,7 +234,7 @@ export const PATCH = withApiAuthParams(
 
     return NextResponse.json(updated)
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 /**
@@ -250,12 +243,6 @@ export const PATCH = withApiAuthParams(
 export const DELETE = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const vaccineId = params.id
-
-    // Apply rate limiting
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -337,5 +324,5 @@ export const DELETE = withApiAuthParams(
 
     return NextResponse.json({ success: true, deleted: vaccineId })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

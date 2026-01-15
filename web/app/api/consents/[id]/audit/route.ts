@@ -88,5 +88,6 @@ export const POST = withApiAuthParams(
     }
 
     return NextResponse.json(auditEntry)
-  }
+  },
+  { rateLimit: 'write' }
 )

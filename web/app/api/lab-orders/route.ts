@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
@@ -68,12 +67,6 @@ export const GET = withApiAuth(
 
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write endpoints (20 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     // Parse and validate body with Zod (VALID-003)
     let body
     try {
@@ -257,5 +250,5 @@ export const POST = withApiAuth(
 
     return NextResponse.json(order, { status: HTTP_STATUS.CREATED })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

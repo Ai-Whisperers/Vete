@@ -17,6 +17,7 @@ import {
   ArrowDownRight,
   ShoppingCart,
   ArrowRight,
+  Download,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -34,8 +35,9 @@ import {
   Cell,
   Legend,
 } from 'recharts'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations, useLocale } from 'next-intl'
 import { useFeatureFlags, FeatureGate, UpgradePrompt } from '@/lib/features'
+import { AnalyticsExportModal } from '@/components/analytics/analytics-pdf'
 
 interface Stats {
   revenue: {
@@ -75,7 +77,9 @@ export default function AnalyticsPage(): React.ReactElement {
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<Stats | null>(null)
   const [chartData, setChartData] = useState<ChartData | null>(null)
-  const labels = useDashboardLabels()
+  const [showExportModal, setShowExportModal] = useState(false)
+  const t = useTranslations('dashboard.analytics')
+  const locale = useLocale()
   const { hasFeature, isLoading: featuresLoading, tierId } = useFeatureFlags()
 
   useEffect(() => {
@@ -136,10 +140,11 @@ export default function AnalyticsPage(): React.ReactElement {
   }, [clinic, period])
 
   const formatCurrency = (value: number): string => {
+    const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
     if (value >= 1000000) {
       return `${(value / 1000000).toFixed(1)}M Gs.`
     }
-    return `${value.toLocaleString('es-PY')} Gs.`
+    return `${value.toLocaleString(localeStr)} Gs.`
   }
 
   const StatCard = ({
@@ -156,8 +161,9 @@ export default function AnalyticsPage(): React.ReactElement {
     format?: 'number' | 'currency'
   }): React.ReactElement => {
     const isPositive = change >= 0
+    const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
     const displayValue =
-      format === 'currency' ? formatCurrency(value) : value.toLocaleString('es-PY')
+      format === 'currency' ? formatCurrency(value) : value.toLocaleString(localeStr)
 
     return (
       <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
@@ -184,7 +190,7 @@ export default function AnalyticsPage(): React.ReactElement {
             {change.toFixed(1)}%
           </span>
           <span className="text-sm text-[var(--text-secondary)]">
-            {labels.analytics.stats.vs_previous}
+            {t('stats.vsPrevious')}
           </span>
         </div>
       </div>
@@ -218,30 +224,41 @@ export default function AnalyticsPage(): React.ReactElement {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-              {labels.analytics.title}
+              {t('title')}
             </h1>
-            <p className="text-sm text-[var(--text-secondary)]">{labels.analytics.subtitle}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{t('subtitle')}</p>
           </div>
         </div>
 
-        {/* Period Selector */}
-        <div
-          className="flex items-center gap-2 rounded-lg p-1"
-          style={{ backgroundColor: 'var(--bg-subtle)' }}
-        >
-          {(['week', 'month', 'quarter'] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                period === p
-                  ? 'bg-white text-[var(--text-primary)] shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              {labels.analytics.period[p]}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          {/* Export Button */}
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="flex items-center gap-2 rounded-lg border border-[var(--border-color)] bg-white px-4 py-2 text-sm font-medium text-[var(--text-primary)] shadow-sm transition-colors hover:bg-gray-50"
+          >
+            <Download className="h-4 w-4" />
+            {t('export')}
+          </button>
+
+          {/* Period Selector */}
+          <div
+            className="flex items-center gap-2 rounded-lg p-1"
+            style={{ backgroundColor: 'var(--bg-subtle)' }}
+          >
+            {(['week', 'month', 'quarter'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  period === p
+                    ? 'bg-white text-[var(--text-primary)] shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {t(`period.${p}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -249,26 +266,26 @@ export default function AnalyticsPage(): React.ReactElement {
       {stats && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title={labels.analytics.stats.revenue}
+            title={t('stats.revenue')}
             value={stats.revenue.current}
             change={stats.revenue.change}
             icon={DollarSign}
             format="currency"
           />
           <StatCard
-            title={labels.analytics.stats.appointments}
+            title={t('stats.appointments')}
             value={stats.appointments.current}
             change={stats.appointments.change}
             icon={Calendar}
           />
           <StatCard
-            title={labels.analytics.stats.new_clients}
+            title={t('stats.newClients')}
             value={stats.newClients.current}
             change={stats.newClients.change}
             icon={Users}
           />
           <StatCard
-            title={labels.analytics.stats.new_pets}
+            title={t('stats.newPets')}
             value={stats.newPets.current}
             change={stats.newPets.change}
             icon={PawPrint}
@@ -282,7 +299,7 @@ export default function AnalyticsPage(): React.ReactElement {
           {/* Revenue Chart */}
           <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-              {labels.analytics.charts.revenue_by_day}
+              {t('charts.revenueByDay')}
             </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -302,7 +319,7 @@ export default function AnalyticsPage(): React.ReactElement {
                   <Tooltip
                     formatter={(value) => [
                       formatCurrency(value as number),
-                      labels.analytics.stats.revenue,
+                      t('stats.revenue'),
                     ]}
                     contentStyle={{
                       borderRadius: '8px',
@@ -325,7 +342,7 @@ export default function AnalyticsPage(): React.ReactElement {
           {/* Appointments by Type */}
           <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-              {labels.analytics.charts.appointments_by_type}
+              {t('charts.appointmentsByType')}
             </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -350,7 +367,7 @@ export default function AnalyticsPage(): React.ReactElement {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [value as number, labels.analytics.stats.appointments]}
+                    formatter={(value) => [value as number, t('stats.appointments')]}
                     contentStyle={{
                       borderRadius: '8px',
                       border: '1px solid #e5e7eb',
@@ -367,7 +384,7 @@ export default function AnalyticsPage(): React.ReactElement {
       {chartData && (
         <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-            {labels.analytics.charts.top_services}
+            {t('charts.topServices')}
           </h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -382,7 +399,7 @@ export default function AnalyticsPage(): React.ReactElement {
                 <Tooltip
                   formatter={(value) => [
                     formatCurrency(value as number),
-                    labels.analytics.stats.revenue,
+                    t('stats.revenue'),
                   ]}
                   contentStyle={{
                     borderRadius: '8px',
@@ -401,47 +418,103 @@ export default function AnalyticsPage(): React.ReactElement {
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-blue)' }}>
           <Activity className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">98%</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.satisfaction}</p>
+          <p className="text-sm opacity-80">{t('quickStats.satisfaction')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-green)' }}>
           <Calendar className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">15 min</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.wait_time}</p>
+          <p className="text-sm opacity-80">{t('quickStats.waitTime')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-purple)' }}>
           <Users className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">89%</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.retention}</p>
+          <p className="text-sm opacity-80">{t('quickStats.retention')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-orange)' }}>
           <Package className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">12</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.low_stock}</p>
+          <p className="text-sm opacity-80">{t('quickStats.lowStock')}</p>
         </div>
       </div>
 
-      {/* Store Analytics Link */}
-      <Link
-        href={`/${clinic}/dashboard/analytics/store`}
-        className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-[var(--primary)] bg-opacity-10 p-3">
-              <ShoppingCart className="h-8 w-8 text-[var(--primary)]" />
+      {/* Analytics Navigation Links */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Store Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/store`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-[var(--primary)] bg-opacity-10 p-3">
+                <ShoppingCart className="h-8 w-8 text-[var(--primary)]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('storeAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('storeAnalytics.subtitle')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Analíticas de Tienda
-              </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
-                Ventas, productos más vendidos, cupones y más
-              </p>
-            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--primary)]" />
           </div>
-          <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--primary)]" />
-        </div>
-      </Link>
+        </Link>
+
+        {/* Patient Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/patients`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-green-100 p-3">
+                <PawPrint className="h-8 w-8 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('patientAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('patientAnalytics.subtitle')}
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-green-600" />
+          </div>
+        </Link>
+
+        {/* Operations Analytics Link */}
+        <Link
+          href={`/${clinic}/dashboard/analytics/operations`}
+          className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-purple-100 p-3">
+                <Activity className="h-8 w-8 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  {t('operationsAnalytics.title')}
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t('operationsAnalytics.subtitle')}
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-purple-600" />
+          </div>
+        </Link>
+      </div>
+
+      {/* Export Modal */}
+      <AnalyticsExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        clinicName={clinic}
+      />
     </div>
   )
 }

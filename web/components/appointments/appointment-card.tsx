@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { CancelButton } from './cancel-button'
 import { RescheduleDialog } from './reschedule-dialog'
 import {
@@ -49,6 +50,7 @@ export function AppointmentCard({
   showActions = true,
   onUpdate,
 }: AppointmentCardProps) {
+  const t = useTranslations('appointments')
   const status = statusConfig[appointment.status] || statusConfig.pending
   const canCancel = canCancelAppointment(appointment)
   const canReschedule = canRescheduleAppointment(appointment)
@@ -125,7 +127,7 @@ export function AppointmentCard({
               href={`/${clinic}/portal/appointments/${appointment.id}`}
               className="flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
             >
-              Ver detalles
+              {t('card.viewDetails')}
               <Icons.ChevronRight className="h-4 w-4" />
             </Link>
 

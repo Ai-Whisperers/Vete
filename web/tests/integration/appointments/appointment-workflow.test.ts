@@ -11,64 +11,21 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST as CheckInPOST } from '@/app/api/appointments/[id]/check-in/route'
-import { POST as CompletePOST } from '@/app/api/appointments/[id]/complete/route'
 import {
   mockState,
   APPOINTMENTS,
   TENANTS,
   USERS,
   resetAllMocks,
-  createStatefulSupabaseMock,
+  getSupabaseServerMock,
+  getAuthMock,
 } from '@/lib/test-utils'
 
 // Mock Supabase client
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(() => Promise.resolve(createStatefulSupabaseMock())),
-}))
+vi.mock('@/lib/supabase/server', () => getSupabaseServerMock())
 
-// Mock auth wrapper for parameterized routes
-vi.mock('@/lib/auth', () => ({
-  withApiAuthParams: (handler: any, options?: { roles?: string[]; paramName?: string }) => {
-    return async (request: Request, context: { params: Promise<{ id: string }> }) => {
-      const { mockState } = await import('@/lib/test-utils')
-      const { createStatefulSupabaseMock } = await import('@/lib/test-utils')
-
-      if (!mockState.user) {
-        return new Response(JSON.stringify({ error: 'No autorizado', code: 'UNAUTHORIZED' }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-
-      if (!mockState.profile) {
-        return new Response(JSON.stringify({ error: 'Perfil no encontrado', code: 'FORBIDDEN' }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-
-      if (options?.roles && !options.roles.includes(mockState.profile.role)) {
-        return new Response(JSON.stringify({ error: 'Rol insuficiente', code: 'INSUFFICIENT_ROLE' }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-
-      const supabase = createStatefulSupabaseMock()
-      const params = await context.params
-      return handler(
-        {
-          request,
-          user: mockState.user,
-          profile: mockState.profile,
-          supabase,
-        },
-        params
-      )
-    }
-  },
-}))
+// Mock auth wrapper
+vi.mock('@/lib/auth', () => getAuthMock())
 
 // Mock domain factory for check-in
 vi.mock('@/lib/domain', () => ({
@@ -106,6 +63,16 @@ vi.mock('@/lib/logger', () => ({
     warn: vi.fn(),
   },
 }))
+
+// Mock rate limiting
+vi.mock('@/lib/rate-limit', () => ({
+  rateLimit: vi.fn().mockResolvedValue({ success: true, remaining: 10 }),
+  RATE_LIMITS: { api: { standard: { requests: 100, window: '1m' } } },
+}))
+
+// Import routes AFTER mocks
+import { POST as CheckInPOST } from '@/app/api/appointments/[id]/check-in/route'
+import { POST as CompletePOST } from '@/app/api/appointments/[id]/complete/route'
 
 // Helper to create POST request
 function createRequest(body?: Record<string, unknown>): NextRequest {
@@ -150,6 +117,11 @@ describe('POST /api/appointments/[id]/check-in', () => {
 
     it('should allow vet to check in appointment', async () => {
       mockState.setAuthScenario('VET')
+      mockState.setTableResult('appointments', {
+        id: APPOINTMENTS.SCHEDULED.id,
+        tenant_id: TENANTS.ADRIS.id,
+        status: 'scheduled',
+      })
 
       const response = await CheckInPOST(createRequest(), createParams())
 
@@ -158,6 +130,11 @@ describe('POST /api/appointments/[id]/check-in', () => {
 
     it('should allow admin to check in appointment', async () => {
       mockState.setAuthScenario('ADMIN')
+      mockState.setTableResult('appointments', {
+        id: APPOINTMENTS.SCHEDULED.id,
+        tenant_id: TENANTS.ADRIS.id,
+        status: 'scheduled',
+      })
 
       const response = await CheckInPOST(createRequest(), createParams())
 
@@ -168,6 +145,11 @@ describe('POST /api/appointments/[id]/check-in', () => {
   describe('Check-In Success', () => {
     beforeEach(() => {
       mockState.setAuthScenario('VET')
+      mockState.setTableResult('appointments', {
+        id: APPOINTMENTS.SCHEDULED.id,
+        tenant_id: TENANTS.ADRIS.id,
+        status: 'scheduled',
+      })
     })
 
     it('should return success response', async () => {
@@ -183,7 +165,7 @@ describe('POST /api/appointments/[id]/check-in', () => {
 
       expect(response.status).toBe(200)
       const body = await response.json()
-      expect(body.data.appointment).toBeDefined()
+      expect(body.data.id).toBeDefined()
     })
 
     it('should return Spanish success message', async () => {
@@ -500,7 +482,12 @@ describe('Appointment Workflow Integration', () => {
   })
 
   it('should complete full workflow: scheduled -> checked_in -> completed', async () => {
-    // 1. Check-in the appointment
+    // 1. Set up scheduled appointment and check-in
+    mockState.setTableResult('appointments', {
+      id: APPOINTMENTS.SCHEDULED.id,
+      tenant_id: TENANTS.ADRIS.id,
+      status: 'scheduled',
+    })
     const checkInResponse = await CheckInPOST(createRequest(), createParams(APPOINTMENTS.SCHEDULED.id))
     expect(checkInResponse.status).toBe(200)
 

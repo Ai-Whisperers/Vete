@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, X, FileText, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/logger'
@@ -41,12 +42,14 @@ export function PrescriptionUpload({
   onUpload,
   onRemove,
   initialUrl,
-  label = 'Receta médica',
+  label,
   required = false,
   maxSizeMB = 5,
   compact = false,
   disabled = false,
 }: PrescriptionUploadProps) {
+  const t = useTranslations('uploads.prescription')
+  const labelText = label ?? t('label')
   const [fileUrl, setFileUrl] = useState<string | null>(initialUrl ?? null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [fileType, setFileType] = useState<string | null>(null)
@@ -86,17 +89,17 @@ export function PrescriptionUpload({
       // Check file type
       const extension = '.' + file.name.split('.').pop()?.toLowerCase()
       if (!ACCEPTED_EXTENSIONS.includes(extension)) {
-        return `Tipo de archivo no permitido. Use: ${ACCEPTED_EXTENSIONS.join(', ')}`
+        return t('fileTypeNotAllowed', { formats: ACCEPTED_EXTENSIONS.join(', ') })
       }
 
       // Check file size
       if (file.size > maxSizeBytes) {
-        return `El archivo es muy grande. Máximo ${maxSizeMB}MB`
+        return t('fileTooLarge', { maxSize: maxSizeMB })
       }
 
       return null
     },
-    [maxSizeBytes, maxSizeMB]
+    [maxSizeBytes, maxSizeMB, t]
   )
 
   const uploadFile = useCallback(
@@ -164,7 +167,7 @@ export function PrescriptionUpload({
             fileName: file.name,
             error: uploadError.message,
           })
-          setError('Error al subir archivo')
+          setError(t('uploadError'))
           setStatus('error')
           setUploadProgress(0)
           // Cleanup preview on error
@@ -206,12 +209,12 @@ export function PrescriptionUpload({
           fileName: file.name,
           error: err instanceof Error ? err.message : 'Unknown',
         })
-        setError('Error inesperado. Intente de nuevo.')
+        setError(t('unexpectedError'))
         setStatus('error')
         setUploadProgress(0)
       }
     },
-    [clinic, productId, onUpload, validateFile, disabled, previewUrl]
+    [clinic, productId, onUpload, validateFile, disabled, previewUrl, t]
   )
 
   const handleFileSelect = useCallback(
@@ -275,7 +278,7 @@ export function PrescriptionUpload({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl}
-            alt="Vista previa de receta"
+            alt={t('previewAlt')}
             className="h-full w-full object-cover"
           />
         </div>
@@ -295,13 +298,13 @@ export function PrescriptionUpload({
         id={`prescription-upload-label-${productId || 'default'}`}
         className="block text-sm font-medium text-[var(--text-primary)]"
       >
-        {label}
+        {labelText}
         {required && (
           <span className="ml-1 text-[var(--status-error)]" aria-hidden="true">
             *
           </span>
         )}
-        {required && <span className="sr-only">(requerido)</span>}
+        {required && <span className="sr-only">({t('required')})</span>}
       </label>
 
       {/* Upload Area - Idle/Error State */}
@@ -340,7 +343,7 @@ export function PrescriptionUpload({
             onChange={handleFileSelect}
             disabled={disabled}
             className="sr-only"
-            aria-label={label}
+            aria-label={labelText}
           />
 
           <Upload
@@ -356,11 +359,11 @@ export function PrescriptionUpload({
 
           <p className="mb-1 text-sm text-[var(--text-secondary)]">
             {dragActive ? (
-              <span className="font-medium text-[var(--primary)]">Suelta el archivo aquí</span>
+              <span className="font-medium text-[var(--primary)]">{t('dropFile')}</span>
             ) : (
               <>
-                <span className="font-medium text-[var(--primary)]">Arrastra tu receta aquí</span> o
-                haz clic para seleccionar
+                <span className="font-medium text-[var(--primary)]">{t('dragHere')}</span>{' '}
+                {t('orClickToSelect')}
               </>
             )}
           </p>
@@ -368,7 +371,7 @@ export function PrescriptionUpload({
             id={`prescription-upload-hint-${productId || 'default'}`}
             className="text-xs text-gray-400"
           >
-            Formatos: PDF, JPG, PNG (max. {maxSizeMB}MB)
+            {t('formatsHint', { maxSize: maxSizeMB })}
           </p>
         </div>
       ) : status === 'uploading' ? (
@@ -377,7 +380,7 @@ export function PrescriptionUpload({
           className="bg-[var(--primary)]/5 rounded-xl border-2 border-dashed border-[var(--primary)] p-6"
           role="status"
           aria-live="polite"
-          aria-label={`Subiendo archivo: ${uploadProgress}% completado`}
+          aria-label={t('uploadingLabel', { progress: uploadProgress })}
         >
           <div className="flex items-center gap-4">
             {/* Show preview during upload for images */}
@@ -386,7 +389,7 @@ export function PrescriptionUpload({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={previewUrl}
-                  alt="Vista previa"
+                  alt={t('previewLoading')}
                   className="h-full w-full object-cover opacity-50"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -417,7 +420,7 @@ export function PrescriptionUpload({
               </div>
 
               <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                Subiendo... {uploadProgress}%
+                {t('uploading', { progress: uploadProgress })}
               </p>
             </div>
           </div>
@@ -435,11 +438,11 @@ export function PrescriptionUpload({
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-[var(--text-primary)]">
-                {fileName ?? 'Receta subida'}
+                {fileName ?? t('prescriptionUploaded')}
               </p>
               <div className="mt-1 flex items-center gap-1 text-xs text-[var(--status-success)]">
                 <Check className="h-3 w-3" aria-hidden="true" />
-                <span>Archivo subido correctamente</span>
+                <span>{t('uploadSuccess')}</span>
               </div>
             </div>
 
@@ -452,9 +455,9 @@ export function PrescriptionUpload({
                   rel="noopener noreferrer"
                   className="hover:bg-[var(--primary)]/10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-sm font-medium text-[var(--primary)] transition-colors"
                   onClick={(e) => e.stopPropagation()}
-                  aria-label="Ver archivo subido (abre en nueva pestaña)"
+                  aria-label={t('viewFile')}
                 >
-                  Ver
+                  {t('view')}
                 </a>
               )}
               <Button
@@ -464,7 +467,7 @@ export function PrescriptionUpload({
                 onClick={handleRemove}
                 disabled={disabled}
                 className="min-h-[44px] min-w-[44px] text-gray-400 hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
-                aria-label="Eliminar archivo subido"
+                aria-label={t('removeFile')}
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -486,7 +489,7 @@ export function PrescriptionUpload({
 
       {/* Help Text */}
       <p className="text-xs text-gray-500">
-        La receta sera revisada por un veterinario antes de procesar el pedido
+        {t('helpText')}
       </p>
     </div>
   )

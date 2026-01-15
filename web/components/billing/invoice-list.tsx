@@ -7,6 +7,8 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
+import { useToast } from '@/components/ui/Toast'
 import {
   FileText,
   Download,
@@ -29,63 +31,37 @@ interface InvoiceListProps {
 }
 
 /**
- * Format currency in Paraguayan Guaranies
+ * Get status badge styles (without label - label comes from translations)
  */
-function formatCurrency(amount: number): string {
-  return `₲${amount.toLocaleString('es-PY')}`
-}
-
-/**
- * Format date
- */
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-PY', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-/**
- * Get status badge styles and label
- */
-function getStatusInfo(status: PlatformInvoiceStatus): {
-  label: string
+function getStatusConfig(status: PlatformInvoiceStatus): {
   icon: React.ComponentType<{ className?: string }>
   className: string
 } {
   const configs: Record<PlatformInvoiceStatus, {
-    label: string
     icon: React.ComponentType<{ className?: string }>
     className: string
   }> = {
     draft: {
-      label: 'Borrador',
       icon: FileText,
       className: 'bg-gray-100 text-gray-700',
     },
     sent: {
-      label: 'Enviada',
       icon: Clock,
       className: 'bg-blue-100 text-blue-700',
     },
     paid: {
-      label: 'Pagada',
       icon: CheckCircle,
       className: 'bg-green-100 text-green-700',
     },
     overdue: {
-      label: 'Vencida',
       icon: AlertTriangle,
       className: 'bg-red-100 text-red-700',
     },
     void: {
-      label: 'Anulada',
       icon: AlertCircle,
       className: 'bg-gray-100 text-gray-500',
     },
     waived: {
-      label: 'Condonada',
       icon: CheckCircle,
       className: 'bg-purple-100 text-purple-700',
     },
@@ -99,11 +75,29 @@ export function InvoiceList({
   onPayInvoice,
   onReportTransfer,
 }: InvoiceListProps): React.ReactElement {
+  const t = useTranslations('billing.invoiceList')
+  const tc = useTranslations('common')
+  const locale = useLocale()
+  const { showToast } = useToast()
   const [invoices, setInvoices] = useState<PlatformInvoice[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all')
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+
+  // Format currency in Paraguayan Guaranies
+  const formatCurrency = (amount: number): string => {
+    return `₲${amount.toLocaleString(locale === 'es' ? 'es-PY' : 'en-US')}`
+  }
+
+  // Format date
+  const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+  }
 
   useEffect(() => {
     loadInvoices()
@@ -118,13 +112,13 @@ export function InvoiceList({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al cargar facturas')
+        throw new Error(data.error?.message || t('errors.loadInvoices'))
       }
 
       const data = await response.json()
       setInvoices(data.invoices || [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error desconocido')
+      setError(e instanceof Error ? e.message : t('errors.unknown'))
     } finally {
       setIsLoading(false)
     }
@@ -136,13 +130,17 @@ export function InvoiceList({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al cargar factura')
+        throw new Error(data.error?.message || t('errors.loadInvoice'))
       }
 
       const invoice: PlatformInvoiceWithItems = await response.json()
       onViewInvoice(invoice)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error al cargar factura')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: e instanceof Error ? e.message : t('errors.loadInvoice'),
+        variant: 'error',
+      })
     }
   }
 
@@ -153,20 +151,24 @@ export function InvoiceList({
       const response = await fetch(`/api/billing/invoices/${invoiceId}/pdf?clinic=${clinic}`)
 
       if (!response.ok) {
-        throw new Error('Error al generar PDF')
+        throw new Error(t('errors.generatePdf'))
       }
 
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `factura-${invoiceId}.pdf`
+      link.download = `invoice-${invoiceId}.pdf`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error al descargar PDF')
+      // BUG-009: Replace alert with toast notification
+      showToast({
+        title: e instanceof Error ? e.message : t('errors.downloadPdf'),
+        variant: 'error',
+      })
     } finally {
       setDownloadingId(null)
     }
@@ -197,7 +199,7 @@ export function InvoiceList({
         <div className="flex items-center gap-3">
           <AlertCircle className="h-6 w-6 text-red-500" />
           <div>
-            <h3 className="font-medium text-red-800">Error al cargar facturas</h3>
+            <h3 className="font-medium text-red-800">{t('errors.loadInvoices')}</h3>
             <p className="mt-1 text-sm text-red-700">{error}</p>
           </div>
         </div>
@@ -205,7 +207,7 @@ export function InvoiceList({
           onClick={loadInvoices}
           className="mt-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-200"
         >
-          Reintentar
+          {tc('tryAgain')}
         </button>
       </div>
     )
@@ -225,7 +227,7 @@ export function InvoiceList({
                 : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]/80'
             }`}
           >
-            {f === 'all' ? 'Todas' : f === 'pending' ? 'Pendientes' : 'Pagadas'}
+            {t(`filters.${f}`)}
           </button>
         ))}
       </div>
@@ -235,11 +237,7 @@ export function InvoiceList({
         <div className="py-12 text-center">
           <FileText className="mx-auto h-12 w-12 text-[var(--text-muted)]" />
           <p className="mt-4 text-[var(--text-secondary)]">
-            {filter === 'all'
-              ? 'No hay facturas generadas'
-              : filter === 'pending'
-                ? 'No hay facturas pendientes'
-                : 'No hay facturas pagadas'}
+            {t(`empty.${filter}`)}
           </p>
         </div>
       ) : (
@@ -248,26 +246,26 @@ export function InvoiceList({
             <thead className="bg-[var(--bg-subtle)]">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Factura
+                  {t('columns.invoice')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Periodo
+                  {t('columns.period')}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Total
+                  {t('columns.total')}
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Estado
+                  {t('columns.status')}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Acciones
+                  {tc('actions')}
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
               {filteredInvoices.map((invoice) => {
-                const statusInfo = getStatusInfo(invoice.status)
-                const StatusIcon = statusInfo.icon
+                const statusConfig = getStatusConfig(invoice.status)
+                const StatusIcon = statusConfig.icon
                 const canPay = ['sent', 'overdue'].includes(invoice.status)
 
                 return (
@@ -278,7 +276,7 @@ export function InvoiceList({
                           {invoice.invoice_number}
                         </p>
                         <p className="text-xs text-[var(--text-muted)]">
-                          Vence: {formatDate(invoice.due_date)}
+                          {t('dueDate')}: {formatDate(invoice.due_date)}
                         </p>
                       </div>
                     </td>
@@ -291,10 +289,10 @@ export function InvoiceList({
                     <td className="px-4 py-4">
                       <div className="flex justify-center">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${statusInfo.className}`}
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.className}`}
                         >
                           <StatusIcon className="h-3 w-3" />
-                          {statusInfo.label}
+                          {t(`status.${invoice.status}`)}
                         </span>
                       </div>
                     </td>
@@ -303,7 +301,7 @@ export function InvoiceList({
                         <button
                           onClick={() => handleViewInvoice(invoice.id)}
                           className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--primary)]"
-                          title="Ver detalle"
+                          title={t('actions.viewDetail')}
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -311,7 +309,7 @@ export function InvoiceList({
                           onClick={() => handleDownloadPdf(invoice.id)}
                           disabled={downloadingId === invoice.id}
                           className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--primary)] disabled:opacity-50"
-                          title="Descargar PDF"
+                          title={t('actions.downloadPdf')}
                         >
                           {downloadingId === invoice.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -324,14 +322,14 @@ export function InvoiceList({
                             <button
                               onClick={() => onPayInvoice(invoice.id)}
                               className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]"
-                              title="Pagar con tarjeta"
+                              title={t('actions.payWithCard')}
                             >
                               <CreditCard className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => onReportTransfer(invoice.id)}
                               className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-green-100 hover:text-green-600"
-                              title="Reportar transferencia"
+                              title={t('actions.reportTransfer')}
                             >
                               <Building2 className="h-4 w-4" />
                             </button>

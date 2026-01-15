@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+/**
+ * Mandatory Vaccines Widget
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Native refetchInterval replaces setInterval
+ * - Mutation for sending reminders uses manual state
+ */
+
+import { useState, useMemo } from 'react'
 import {
   Syringe,
   ChevronRight,
@@ -15,6 +24,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface MissingVaccine {
   vaccine_name: string
@@ -50,9 +62,7 @@ interface MandatoryVaccinesWidgetProps {
 }
 
 export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps): React.ReactElement {
-  const [alerts, setAlerts] = useState<MandatoryVaccineAlert[]>([])
-  const [summary, setSummary] = useState<AlertSummary | null>(null)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [selectedPetIds, setSelectedPetIds] = useState<Set<string>>(new Set())
   const [sendingReminders, setSendingReminders] = useState(false)
   const [reminderResult, setReminderResult] = useState<{
@@ -60,28 +70,33 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
     message: string
   } | null>(null)
 
-  const fetchAlerts = useCallback(async () => {
-    try {
+  // React Query: Fetch mandatory vaccine alerts with 5-minute auto-refresh
+  const {
+    data,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.vaccines.mandatory(30),
+    queryFn: async (): Promise<{ alerts: MandatoryVaccineAlert[]; summary: AlertSummary | null }> => {
       const res = await fetch(`/api/vaccines/mandatory-alerts?days=30`)
-      if (res.ok) {
-        const data = await res.json()
-        setAlerts(data.alerts || [])
-        setSummary(data.summary || null)
+      if (!res.ok) throw new Error('Error al cargar alertas de vacunas')
+      const json = await res.json()
+      return {
+        alerts: json.alerts || [],
+        summary: json.summary || null,
       }
-    } catch (error) {
-      console.error('Error fetching mandatory vaccine alerts:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    },
+    staleTime: staleTimes.MEDIUM, // 2 minutes
+    gcTime: gcTimes.MEDIUM, // 15 minutes
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
+  })
 
-  useEffect(() => {
-    fetchAlerts()
+  const alerts = data?.alerts ?? []
+  const summary = data?.summary ?? null
 
-    // Auto-refresh every 5 minutes
-    const interval = setInterval(fetchAlerts, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [fetchAlerts])
+  // Memoized filtering
+  const overdue = useMemo(() => alerts.filter((a) => a.urgency === 'overdue'), [alerts])
+  const due = useMemo(() => alerts.filter((a) => a.urgency === 'due'), [alerts])
 
   const handleSelectPet = (petId: string): void => {
     setSelectedPetIds((prev) => {
@@ -126,7 +141,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
         })
         // Clear selection and refresh
         setSelectedPetIds(new Set())
-        fetchAlerts()
+        refetch()
       } else {
         setReminderResult({
           success: false,
@@ -167,9 +182,6 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
     )
   }
 
-  const overdue = alerts.filter((a) => a.urgency === 'overdue')
-  const due = alerts.filter((a) => a.urgency === 'due')
-
   return (
     <div className="rounded-xl bg-[var(--bg-paper)] p-6 shadow-sm">
       {/* Header */}
@@ -193,10 +205,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              setLoading(true)
-              fetchAlerts()
-            }}
+            onClick={() => refetch()}
             className="rounded-lg p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
             title="Actualizar"
           >

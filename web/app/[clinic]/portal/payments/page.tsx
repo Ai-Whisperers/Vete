@@ -1,8 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Payments Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   Receipt,
@@ -31,29 +39,19 @@ export default function PaymentsPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
 
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'paid' | 'pending'>('all')
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const res = await fetch(`/api/invoices/owner?clinic=${clinic}`)
-        if (res.ok) {
-          const data = await res.json()
-          setInvoices(data)
-        }
-      } catch (err) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching invoices:', err)
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchInvoices()
-  }, [clinic])
+  // React Query: Fetch invoices
+  const { data: invoices = [], isLoading: loading } = useQuery({
+    queryKey: ['owner-invoices', clinic],
+    queryFn: async (): Promise<Invoice[]> => {
+      const res = await fetch(`/api/invoices/owner?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar facturas')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
   const getStatusIcon = (status: Invoice['status']) => {
     switch (status) {

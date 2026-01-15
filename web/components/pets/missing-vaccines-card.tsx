@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Clock,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface VaccineRecommendation {
   vaccine_name: string
@@ -61,6 +62,7 @@ export function MissingVaccinesCard({
   existingVaccineNames = [],
   clinic,
 }: MissingVaccinesCardProps) {
+  const t = useTranslations('vaccines.missing')
   const [recommendations, setRecommendations] = useState<VaccineRecommendationsResponse | null>(
     null
   )
@@ -104,14 +106,14 @@ export function MissingVaccinesCard({
 
         if (!response.ok) {
           const errorData = await response.json()
-          throw new Error(errorData.error || 'Error al obtener recomendaciones')
+          throw new Error(errorData.error || t('errorFetching'))
         }
 
         const data = await response.json()
         setRecommendations(data)
       } catch (err) {
         console.error('Error fetching vaccine recommendations:', err)
-        setError(err instanceof Error ? err.message : 'Error desconocido')
+        setError(err instanceof Error ? err.message : t('unknownError'))
       } finally {
         setLoading(false)
       }
@@ -126,7 +128,7 @@ export function MissingVaccinesCard({
       <div className="rounded-2xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-6">
         <div className="flex items-center justify-center gap-3 text-[var(--status-warning-text)]">
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Cargando recomendaciones de vacunas...</span>
+          <span>{t('loading')}</span>
         </div>
       </div>
     )
@@ -175,10 +177,11 @@ export function MissingVaccinesCard({
           <HeaderIcon className={`h-5 w-5 ${headerClass}`} />
         </div>
         <div>
-          <h3 className={`text-lg font-bold ${headerClass}`}>Vacunas Faltantes</h3>
+          <h3 className={`text-lg font-bold ${headerClass}`}>{t('title')}</h3>
           <p className="text-sm text-gray-600">
-            {petName} necesita {recommendations.total_missing} vacuna
-            {recommendations.total_missing !== 1 ? 's' : ''}
+            {recommendations.total_missing !== 1
+              ? t('petNeedsPlural', { name: petName, count: recommendations.total_missing })
+              : t('petNeeds', { name: petName, count: recommendations.total_missing })}
           </p>
         </div>
       </div>
@@ -188,11 +191,11 @@ export function MissingVaccinesCard({
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-[var(--status-error-text)]">
             <Shield className="h-4 w-4" />
-            <span className="text-sm font-bold uppercase tracking-wide">Vacunas Obligatorias</span>
+            <span className="text-sm font-bold uppercase tracking-wide">{t('coreVaccines')}</span>
           </div>
           <div className="space-y-2">
             {recommendations.core_vaccines.map((vaccine) => (
-              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} />
+              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} t={t} />
             ))}
           </div>
         </div>
@@ -203,11 +206,11 @@ export function MissingVaccinesCard({
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-[var(--status-warning-text)]">
             <ShieldCheck className="h-4 w-4" />
-            <span className="text-sm font-bold uppercase tracking-wide">Vacunas Recomendadas</span>
+            <span className="text-sm font-bold uppercase tracking-wide">{t('recommendedVaccines')}</span>
           </div>
           <div className="space-y-2">
             {recommendations.recommended_vaccines.map((vaccine) => (
-              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} />
+              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} t={t} />
             ))}
           </div>
         </div>
@@ -219,14 +222,14 @@ export function MissingVaccinesCard({
           <summary className="flex cursor-pointer items-center gap-2 text-gray-600 transition-colors hover:text-gray-800">
             <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
             <span className="text-sm font-medium">
-              {recommendations.lifestyle_vaccines.length} vacuna
-              {recommendations.lifestyle_vaccines.length !== 1 ? 's' : ''} opcional
-              {recommendations.lifestyle_vaccines.length !== 1 ? 'es' : ''}
+              {recommendations.lifestyle_vaccines.length !== 1
+                ? t('optionalVaccinesPlural', { count: recommendations.lifestyle_vaccines.length })
+                : t('optionalVaccines', { count: recommendations.lifestyle_vaccines.length })}
             </span>
           </summary>
           <div className="mt-3 space-y-2 pl-6">
             {recommendations.lifestyle_vaccines.map((vaccine) => (
-              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} isOptional />
+              <VaccineItem key={vaccine.vaccine_code} vaccine={vaccine} isOptional t={t} />
             ))}
           </div>
         </details>
@@ -242,7 +245,7 @@ export function MissingVaccinesCard({
         }`}
       >
         <Calendar className="h-4 w-4" />
-        Agendar Vacunación
+        {t('scheduleVaccination')}
         <ChevronRight className="h-4 w-4" />
       </Link>
     </div>
@@ -252,9 +255,10 @@ export function MissingVaccinesCard({
 interface VaccineItemProps {
   vaccine: VaccineRecommendation
   isOptional?: boolean
+  t: (key: string, params?: Record<string, string | number>) => string
 }
 
-function VaccineItem({ vaccine, isOptional = false }: VaccineItemProps) {
+function VaccineItem({ vaccine, isOptional = false, t }: VaccineItemProps) {
   const StatusIcon =
     vaccine.status === 'overdue' ? AlertCircle : vaccine.status === 'due' ? Clock : Shield
 
@@ -289,14 +293,14 @@ function VaccineItem({ vaccine, isOptional = false }: VaccineItemProps) {
                     : 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]'
                 }`}
               >
-                {vaccine.protocol_type === 'core' ? 'Obligatoria' : 'Recomendada'}
+                {vaccine.protocol_type === 'core' ? t('protocolCore') : t('protocolRecommended')}
               </span>
             )}
           </div>
 
           {/* Diseases prevented */}
           <p className="mt-1 text-sm text-gray-600">
-            Previene: {vaccine.diseases_prevented.join(', ')}
+            {t('prevents')} {vaccine.diseases_prevented.join(', ')}
           </p>
 
           {/* Timing info */}

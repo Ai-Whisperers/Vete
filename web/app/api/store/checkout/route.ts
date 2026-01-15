@@ -9,8 +9,10 @@ import { checkoutRequestSchema } from '@/lib/schemas/store'
 // FEAT-013: Prescription verification with pet-specific validation
 // Uses atomic process_checkout function for consistency
 //
-// CRITICAL: process_checkout function updated in migration 100_fix_checkout_product_lookup.sql
-// to lookup products by UUID ID (not SKU) since cart sends product.id
+// SEC-024: Client-supplied prices are IGNORED by process_checkout().
+// The RPC function looks up actual prices from store_products/services tables.
+// Price mismatches are logged to financial_audit_logs for security monitoring.
+// See migration 069_fix_checkout_price_validation.sql
 
 interface StockError {
   id: string
@@ -59,6 +61,39 @@ export const POST = withApiAuth(
     }
 
     const { items, clinic, notes, pet_id } = validationResult.data
+
+    // AUDIT-106: Get idempotency key from header or body
+    const idempotencyKey = request.headers.get('Idempotency-Key')
+      || (rawBody as Record<string, unknown>).idempotencyKey as string | undefined
+      || null
+
+    // AUDIT-106: If idempotency key provided, check for existing invoice
+    if (idempotencyKey) {
+      const { data: existingInvoice } = await supabase
+        .from('invoices')
+        .select('id, invoice_number, total, status')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('idempotency_key', idempotencyKey)
+        .single()
+
+      if (existingInvoice) {
+        log.info('Idempotent checkout - returning existing invoice', {
+          action: 'checkout.idempotent',
+          invoiceId: existingInvoice.id,
+          invoiceNumber: existingInvoice.invoice_number,
+        })
+        return NextResponse.json({
+          success: true,
+          invoice: {
+            id: existingInvoice.id,
+            invoice_number: existingInvoice.invoice_number,
+            total: existingInvoice.total,
+            status: existingInvoice.status,
+          },
+          message: 'Pedido existente (respuesta idempotente)',
+        })
+      }
+    }
 
     // Validate clinic matches user's tenant
     if (clinic !== profile.tenant_id) {
@@ -169,6 +204,8 @@ export const POST = withApiAuth(
             }))
           ),
           p_notes: notes || 'Pedido desde tienda online',
+          // AUDIT-106: Pass idempotency key to store in invoice
+          p_idempotency_key: idempotencyKey,
         }
       )
 

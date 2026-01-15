@@ -15,7 +15,7 @@ export default async function Page({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/auth/login`)
+    redirect(`/${clinic}/portal/login`)
   }
 
   // Staff check

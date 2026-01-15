@@ -86,6 +86,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET, POST } from '@/app/api/consents/route'
+
 // Helper to create GET request
 function createGetRequest(params?: {
   pet_id?: string

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { ServiceCard } from './service-card'
 import { Search, X, SlidersHorizontal } from 'lucide-react'
 import { ClinicConfig } from '@/lib/clinics'
@@ -16,6 +17,7 @@ interface ServicesGridProps {
 
 export function ServicesGrid({ services, config }: ServicesGridProps) {
   const { clinic } = useParams() as { clinic: string }
+  const t = useTranslations('services')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [showFilters, setShowFilters] = useState(true)
@@ -72,7 +74,7 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
       {/* Search and Filter Controls */}
       <section aria-labelledby="filters-heading">
         <h2 id="filters-heading" className="sr-only">
-          Filtros de búsqueda
+          {t('filterHeading')}
         </h2>
         <div className="space-y-4">
           {/* Search Bar */}
@@ -83,17 +85,17 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
               </div>
               <input
                 type="search"
-                placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="Buscar servicios"
+                aria-label={t('searchPlaceholder')}
                 className="min-h-[48px] w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-12 text-base text-[var(--text-primary)] shadow-lg outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-[var(--primary)] sm:py-4"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
                   className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label="Limpiar búsqueda"
+                  aria-label={t('clearSearch')}
                 >
                   <X className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -108,12 +110,10 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
               }`}
               aria-expanded={showFilters}
               aria-controls="category-filters"
-              aria-label={
-                showFilters ? 'Ocultar filtros de categoría' : 'Mostrar filtros de categoría'
-              }
+              aria-label={showFilters ? t('hideFilters') : t('showFilters')}
             >
               <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
-              <span className="hidden sm:inline">Filtros</span>
+              <span className="hidden sm:inline">{t('filters')}</span>
             </button>
           </div>
 
@@ -139,15 +139,15 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
               aria-live="polite"
             >
               <span>
-                Mostrando {filteredServices.length} de {services.length} servicios
+                {t('showingResults', { filtered: filteredServices.length, total: services.length })}
               </span>
               <button
                 onClick={clearFilters}
                 className="flex items-center gap-1 font-bold text-[var(--primary)] hover:underline"
-                aria-label="Limpiar todos los filtros"
+                aria-label={t('clearAllFilters')}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
-                Limpiar filtros
+                {t('clearFiltersButton')}
               </button>
             </div>
           )}
@@ -157,7 +157,7 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
       {/* Grid */}
       <section aria-labelledby="services-heading">
         <h2 id="services-heading" className="sr-only">
-          Lista de servicios
+          {t('servicesList')}
         </h2>
         {filteredServices.length > 0 ? (
           <div

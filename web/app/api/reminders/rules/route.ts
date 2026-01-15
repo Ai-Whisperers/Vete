@@ -75,7 +75,7 @@ export const POST = withApiAuth(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )
 
 /**
@@ -112,7 +112,7 @@ export const PATCH = withApiAuth(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )
 
 /**
@@ -147,5 +147,5 @@ export const DELETE = withApiAuth(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

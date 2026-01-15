@@ -33,6 +33,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { POST, GET } from '@/app/api/cron/generate-commission-invoices/route'
+
 // Store original env
 const originalEnv = process.env
 

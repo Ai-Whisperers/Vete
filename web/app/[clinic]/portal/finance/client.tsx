@@ -1,28 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Finance Dashboard Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
 import { useParams } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import ExpenseForm from '@/components/finance/expense-form'
 import { TrendingUp, TrendingDown, DollarSign, PieChart } from 'lucide-react'
 
+interface FinanceData {
+  revenue: number
+  expenses: number
+  netIncome: number
+  breakdown: Record<string, number>
+}
+
 export default function FinanceDashboardClient() {
   const { clinic } = useParams() as { clinic: string }
-  const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
 
-  const fetchData = async () => {
-    setLoading(true)
-    const res = await fetch(`/api/finance/pl?clinic=${clinic}`)
-    if (res.ok) {
-      const json = await res.json()
-      setData(json)
-    }
-    setLoading(false)
+  // React Query: Fetch P&L data
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['finance-pl', clinic],
+    queryFn: async (): Promise<FinanceData> => {
+      const res = await fetch(`/api/finance/pl?clinic=${clinic}`)
+      if (!res.ok) throw new Error('Error al cargar datos financieros')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  const handleExpenseSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['finance-pl', clinic] })
   }
-
-  useEffect(() => {
-    fetchData()
-  }, [clinic])
 
   if (loading)
     return <div className="p-10 text-center font-bold text-gray-400">Loading Financial Data...</div>
@@ -87,7 +102,7 @@ export default function FinanceDashboardClient() {
               Net Income
             </p>
             <h2
-              className={`text-3xl font-black ${data?.netIncome >= 0 ? 'text-green-400' : 'text-red-400'}`}
+              className={`text-3xl font-black ${(data?.netIncome ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}
             >
               {new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG' }).format(
                 data?.netIncome || 0
@@ -136,7 +151,7 @@ export default function FinanceDashboardClient() {
 
         {/* Sidebar Actions */}
         <div className="space-y-6">
-          <ExpenseForm onSuccess={fetchData} clinicId={clinic} />
+          <ExpenseForm onSuccess={handleExpenseSuccess} clinicId={clinic} />
 
           <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6">
             <h4 className="mb-2 font-bold text-indigo-900">Commissions (Beta)</h4>

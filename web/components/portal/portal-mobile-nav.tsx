@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -38,6 +39,7 @@ export function PortalMobileNav({
   adminItems,
   settingsItems,
 }: PortalMobileNavProps): React.ReactElement {
+  const t = useTranslations('portal.mobileNav')
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -87,7 +89,7 @@ export function PortalMobileNav({
       document.addEventListener('keydown', handleKeyDown)
       // Focus close button when drawer opens
       setTimeout(() => {
-        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[aria-label="Cerrar menú"]')
+        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[data-close-button="true"]')
         closeButton?.focus()
       }, 100)
     } else {
@@ -142,7 +144,7 @@ export function PortalMobileNav({
       <button
         onClick={() => setIsOpen(true)}
         className="hover:bg-[var(--primary)]/5 rounded-lg p-2 text-gray-500 transition-all hover:text-[var(--primary)] lg:hidden"
-        aria-label="Abrir menú"
+        aria-label={t('openMenu')}
       >
         <Icons.Menu className="h-6 w-6" />
       </button>
@@ -174,11 +176,12 @@ export function PortalMobileNav({
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
-                <span id="mobile-nav-title" className="text-lg font-bold text-gray-800">Menú Portal</span>
+                <span id="mobile-nav-title" className="text-lg font-bold text-gray-800">{t('menuTitle')}</span>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100"
-                  aria-label="Cerrar menú"
+                  aria-label={t('closeMenu')}
+                  data-close-button="true"
                 >
                   <Icons.X className="h-6 w-6" />
                 </button>
@@ -186,11 +189,11 @@ export function PortalMobileNav({
 
               {/* Navigation Content */}
               <div className="flex-1 overflow-y-auto py-4">
-                {renderNavSection('Principal', mainNavItems)}
-                {renderNavSection('Finanzas', financeItems)}
-                {staffItems.length > 0 && renderNavSection('Staff', staffItems)}
-                {adminItems.length > 0 && renderNavSection('Administración', adminItems)}
-                {renderNavSection('Configuración', settingsItems)}
+                {renderNavSection(t('main'), mainNavItems)}
+                {renderNavSection(t('finance'), financeItems)}
+                {staffItems.length > 0 && renderNavSection(t('staff'), staffItems)}
+                {adminItems.length > 0 && renderNavSection(t('administration'), adminItems)}
+                {renderNavSection(t('settings'), settingsItems)}
               </div>
 
               {/* Footer */}
@@ -200,7 +203,7 @@ export function PortalMobileNav({
                   onClick={() => setIsOpen(false)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3 font-bold text-white transition-opacity hover:opacity-90"
                 >
-                  Volver al Sitio
+                  {t('backToSite')}
                 </Link>
               </div>
             </motion.div>

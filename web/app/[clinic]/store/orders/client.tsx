@@ -1,9 +1,17 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+/**
+ * Order History Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
   Package,
@@ -118,30 +126,42 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   bank_transfer: 'Transferencia',
 }
 
+interface OrdersResponse {
+  orders: Order[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
+}
+
 export default function OrderHistoryClient({ config }: Props) {
   const { clinic } = useParams() as { clinic: string }
   const router = useRouter()
   const { addItem } = useCart()
 
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [reorderingItem, setReorderingItem] = useState<string | null>(null)
   const [reorderingOrder, setReorderingOrder] = useState<string | null>(null)
+  // BUG-013: State for cancel order functionality
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null)
   const [reorderFeedback, setReorderFeedback] = useState<{
     type: 'success' | 'warning' | 'error'
     message: string
   } | null>(null)
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch orders
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch: fetchOrders,
+  } = useQuery({
+    queryKey: ['store-orders', clinic, page, statusFilter],
+    queryFn: async (): Promise<OrdersResponse> => {
       const params = new URLSearchParams()
       params.set('clinic', clinic)
       params.set('page', page.toString())
@@ -154,30 +174,23 @@ export default function OrderHistoryClient({ config }: Props) {
 
       if (res.status === 401) {
         router.push(`/${clinic}/portal/signup?redirect=/store/orders`)
-        return
+        throw new Error('Unauthorized')
       }
 
       if (!res.ok) {
         throw new Error('Error al cargar pedidos')
       }
 
-      const data = await res.json()
-      setOrders(data.orders || [])
-      setTotalPages(data.pagination?.pages || 1)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching orders:', err)
-      }
-      setError('No se pudieron cargar los pedidos')
-    } finally {
-      setLoading(false)
-    }
-  }, [clinic, page, statusFilter, router])
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.MEDIUM,
+    enabled: !!clinic,
+  })
 
-  useEffect(() => {
-    fetchOrders()
-  }, [fetchOrders])
+  const orders = data?.orders || []
+  const totalPages = data?.pagination?.pages || 1
+  const error = queryError?.message === 'Unauthorized' ? null : queryError?.message || null
 
   const formatPrice = (price: number | null | undefined): string => {
     if (price === null || price === undefined) return 'Gs 0'
@@ -338,6 +351,42 @@ export default function OrderHistoryClient({ config }: Props) {
       setReorderFeedback({ type: 'error', message: 'Error al reordenar' })
     } finally {
       setReorderingOrder(null)
+      setTimeout(() => setReorderFeedback(null), 4000)
+    }
+  }
+
+  // BUG-013: Handle order cancellation
+  const handleCancelOrder = async (orderId: string, orderNumber: string) => {
+    // Confirmation dialog
+    if (!confirm(`¿Estás seguro de que deseas cancelar el pedido #${orderNumber}?`)) {
+      return
+    }
+
+    setCancellingOrderId(orderId)
+    setReorderFeedback(null)
+
+    try {
+      const response = await fetch(`/api/store/orders/${orderId}/cancel`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Error al cancelar')
+      }
+
+      setReorderFeedback({
+        type: 'success',
+        message: `Pedido #${orderNumber} cancelado exitosamente`,
+      })
+
+      // Refresh the orders list
+      fetchOrders()
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Error al cancelar el pedido'
+      setReorderFeedback({ type: 'error', message: errorMessage })
+    } finally {
+      setCancellingOrderId(null)
       setTimeout(() => setReorderFeedback(null), 4000)
     }
   }
@@ -725,9 +774,21 @@ export default function OrderHistoryClient({ config }: Props) {
                           )}
                         </button>
                         <OrderInvoicePDFButton order={order} clinicName={config.name} />
+                        {/* BUG-013: Cancel button with onClick handler */}
                         {order.status === 'pending' && (
-                          <button className="rounded-lg border border-[var(--status-error-border)] px-4 py-2 font-medium text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)]">
-                            Cancelar
+                          <button
+                            onClick={() => handleCancelOrder(order.id, order.order_number)}
+                            disabled={cancellingOrderId === order.id}
+                            className="flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] px-4 py-2 font-medium text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)] disabled:opacity-50"
+                          >
+                            {cancellingOrderId === order.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Cancelando...
+                              </>
+                            ) : (
+                              'Cancelar'
+                            )}
                           </button>
                         )}
                       </div>

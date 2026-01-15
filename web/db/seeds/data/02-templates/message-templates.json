@@ -171,6 +171,76 @@
       "channels": ["email", "whatsapp"],
       "variables": ["owner_name", "product_name"],
       "is_active": true
+    },
+    {
+      "code": "AMB_WELCOME",
+      "name": "Bienvenida Embajador",
+      "category": "ambassador",
+      "subject": "¡Bienvenido al programa de Embajadores Vete!",
+      "content": "¡Hola {{ambassador_name}}! Tu solicitud ha sido aprobada. 🎉 Tu código de referido es: {{referral_code}}. Compártelo con clínicas veterinarias y gana hasta 50% de comisión por cada suscripción. Accede a tu panel en: {{dashboard_url}}",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "referral_code", "dashboard_url"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_NEW_REFERRAL",
+      "name": "Nuevo Referido Embajador",
+      "category": "ambassador",
+      "subject": "¡Nuevo referido registrado!",
+      "content": "¡Excelente {{ambassador_name}}! La clínica {{clinic_name}} se registró con tu código. Están en período de prueba. Cuando se conviertan en suscriptores, ganarás {{commission_rate}}% de comisión. 💪",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "clinic_name", "commission_rate"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_CONVERSION",
+      "name": "Conversión Embajador",
+      "category": "ambassador",
+      "subject": "¡Comisión ganada! 🎊",
+      "content": "¡Felicidades {{ambassador_name}}! {{clinic_name}} se convirtió en cliente de pago. Ganaste Gs {{commission_amount}} de comisión ({{commission_rate}}%). Tu saldo total es: Gs {{total_balance}}. ¡Sigue así!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "clinic_name", "commission_amount", "commission_rate", "total_balance"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_PAYOUT_PROCESSED",
+      "name": "Pago Embajador Procesado",
+      "category": "ambassador",
+      "subject": "Tu pago ha sido procesado",
+      "content": "Hola {{ambassador_name}}, tu solicitud de pago por Gs {{amount}} ha sido procesada. El depósito se realizará en tu cuenta {{bank_name}} en las próximas 24-48 horas hábiles. ¡Gracias por ser parte del programa!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "amount", "bank_name"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_TIER_UPGRADE",
+      "name": "Ascenso de Tier Embajador",
+      "category": "ambassador",
+      "subject": "¡Subiste de nivel! 🚀",
+      "content": "¡Increíble {{ambassador_name}}! Has alcanzado el nivel {{new_tier}} con {{conversions}} conversiones. Tu nueva tasa de comisión es {{commission_rate}}%. ¡Sigue creciendo!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "new_tier", "conversions", "commission_rate"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_LEAD_FOLLOWUP",
+      "name": "Seguimiento Lead Embajador",
+      "category": "ambassador",
+      "subject": "¿Cómo van tus referidos?",
+      "content": "Hola {{ambassador_name}}, notamos que {{clinic_name}} aún no ha completado su trial. ¿Te gustaría que les enviemos más información? También puedes contactarlos para ayudarles a resolver dudas. Código: {{referral_code}}",
+      "channels": ["whatsapp"],
+      "variables": ["ambassador_name", "clinic_name", "referral_code"],
+      "is_active": true
+    },
+    {
+      "code": "AMB_MONTHLY_SUMMARY",
+      "name": "Resumen Mensual Embajador",
+      "category": "ambassador",
+      "subject": "Tu resumen del mes 📊",
+      "content": "Hola {{ambassador_name}}, este mes: {{new_referrals}} nuevos referidos, {{conversions}} conversiones, Gs {{earnings}} ganados. Tu saldo pendiente: Gs {{pending_balance}}. ¡Excelente trabajo!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["ambassador_name", "new_referrals", "conversions", "earnings", "pending_balance"],
+      "is_active": true
     }
   ]
 }

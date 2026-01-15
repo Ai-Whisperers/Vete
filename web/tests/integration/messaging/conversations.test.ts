@@ -153,7 +153,7 @@ const SAMPLE_CONVERSATION_CLOSED = {
 // Sample pet for verification
 const SAMPLE_PET = {
   id: PETS.MAX.id,
-  owner_id: USERS.OWNER.id,
+  owner_id: '00000000-0000-0000-0000-000000000003',
 }
 
 // ============================================================================

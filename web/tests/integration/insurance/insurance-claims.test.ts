@@ -101,6 +101,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET, POST } from '@/app/api/insurance/claims/route'
+
 // Helper to create GET request
 function createGetRequest(params?: {
   status?: string

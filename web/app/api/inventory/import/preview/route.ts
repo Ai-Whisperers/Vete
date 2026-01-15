@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { LIMITS, formatFileSize } from '@/lib/constants'
 import * as XLSX from 'xlsx'
 
 interface PreviewRow {
@@ -65,13 +66,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return new NextResponse('Forbidden', { status: 403 })
   }
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024
   const ALLOWED_TYPES = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.ms-excel',
     'text/csv',
   ]
-  const MAX_ROWS = 1000
 
   // Check if this is a parseOnly request or JSON body request
   const parseOnly = req.nextUrl.searchParams.get('parseOnly') === 'true'
@@ -88,8 +87,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: 'Datos faltantes o vacíos' }, { status: 400 })
       }
 
-      if (rows.length > MAX_ROWS) {
-        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
+        return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
       }
 
       // Process the pre-mapped rows (skip to the preview analysis section)
@@ -104,7 +103,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Archivo faltante' }, { status: 400 })
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > LIMITS.MAX_IMPORT_FILE_SIZE) {
       return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 })
     }
 
@@ -138,8 +137,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
         )
 
-      if (rows.length > MAX_ROWS) {
-        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
+        return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
       }
 
       return NextResponse.json({
@@ -155,8 +154,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Full preview mode - parse as objects and analyze
     const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[]
 
-    if (rows.length > MAX_ROWS) {
-      return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+    if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
+      return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
     }
 
     if (rows.length === 0) {

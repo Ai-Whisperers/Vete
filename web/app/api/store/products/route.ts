@@ -51,7 +51,10 @@ export async function GET(request: Request) {
 
 
   try {
-    // Step 1: Get clinic product assignments
+    // Step 1: Get clinic product assignments with pagination applied at DB level
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit
+
     const {
       data: assignments,
       error: assignError,
@@ -64,6 +67,7 @@ export async function GET(request: Request) {
       )
       .eq('tenant_id', clinic)
       .eq('is_active', true)
+      .range(offset, offset + limit - 1)
 
     if (assignError) {
       throw assignError
@@ -72,7 +76,7 @@ export async function GET(request: Request) {
     if (!assignments || assignments.length === 0) {
       return NextResponse.json({
         products: [],
-        pagination: { page, limit, pages: 0, total: 0, hasNext: false, hasPrev: false },
+        pagination: { page, limit, pages: Math.ceil((totalAssignments || 0) / limit), total: totalAssignments || 0, hasNext: false, hasPrev: page > 1 },
         filters: {
           applied: {},
           available: {
@@ -89,8 +93,10 @@ export async function GET(request: Request) {
       })
     }
 
-    // Step 2: Get product details for assigned products
+    // Step 2: Get product details for assigned products (already paginated, so limited set)
     const productIds = assignments.map((a) => a.catalog_product_id)
+
+    // Fetch products in batches if needed to avoid header overflow
     let productQuery = supabase
       .from('store_products')
       .select(
@@ -179,12 +185,8 @@ export async function GET(request: Request) {
       }
     })
 
-    // Apply pagination
-    const from = (page - 1) * limit
-    const products = allProducts.slice(from, from + limit)
-    const count = allProducts.length
-
-    const totalPages = Math.ceil((count || 0) / limit)
+    // Pagination is now applied at DB level, use total from assignments count
+    const totalPages = Math.ceil((totalAssignments || 0) / limit)
 
     // In a real app, available filters would be calculated based on the full product set, not just the current page
     const availableFilters: AvailableFilters = {
@@ -199,12 +201,12 @@ export async function GET(request: Request) {
     }
 
     const response: ProductListResponse = {
-      products: products as ProductListItem[],
+      products: allProducts as ProductListItem[],
       pagination: {
         page,
         limit,
         pages: totalPages,
-        total: count || 0,
+        total: totalAssignments || 0,
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },

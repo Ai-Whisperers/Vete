@@ -75,6 +75,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { POST } from '@/app/api/vaccine_reactions/check/route'
+
 // Helper to create POST request
 function createRequest(body: Record<string, unknown>): NextRequest {
   return new NextRequest('http://localhost:3000/api/vaccine_reactions/check', {

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 import { StatusBadge } from './status-badge'
 import { RecordPaymentDialog } from './record-payment-dialog'
 import { SendInvoiceDialog } from './send-invoice-dialog'
@@ -29,6 +30,7 @@ interface InvoiceDetailProps {
 
 export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceDetailProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [showPaymentDialog, setShowPaymentDialog] = useState(false)
   const [showSendDialog, setShowSendDialog] = useState(false)
   const [voidLoading, setVoidLoading] = useState(false)
@@ -42,7 +44,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
     const result = await voidInvoice(invoice.id)
 
     if (!result.success) {
-      alert(result.error || 'Error al anular')
+      showToast({ title: result.error || 'Error al anular', variant: 'error' })
     }
 
     setVoidLoading(false)

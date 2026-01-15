@@ -7,19 +7,13 @@
  * for the current billing period.
  */
 
+import { useLocale, useTranslations } from 'next-intl'
 import { ShoppingBag, Stethoscope, TrendingUp } from 'lucide-react'
 import type { BillingOverviewResponse } from '@/lib/billing/types'
 
 interface CommissionBreakdownProps {
   currentPeriod: BillingOverviewResponse['current_period']
   tier: string
-}
-
-/**
- * Format currency in Paraguayan Guaranies
- */
-function formatCurrency(amount: number): string {
-  return `₲${amount.toLocaleString('es-PY')}`
 }
 
 /**
@@ -39,8 +33,15 @@ export function CommissionBreakdown({
   currentPeriod,
   tier,
 }: CommissionBreakdownProps): React.ReactElement {
+  const t = useTranslations('billing.commissions')
+  const locale = useLocale()
   const rates = getCommissionRate(tier)
   const hasCommissions = currentPeriod.total_commission > 0
+
+  // Format currency in Paraguayan Guaranies
+  const formatCurrency = (amount: number): string => {
+    return `₲${amount.toLocaleString(locale === 'es' ? 'es-PY' : 'en-US')}`
+  }
 
   if (!hasCommissions) {
     return (
@@ -50,17 +51,17 @@ export function CommissionBreakdown({
             <TrendingUp className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
-            <h2 className="font-semibold text-[var(--text-primary)]">Comisiones del Periodo</h2>
-            <p className="text-sm text-[var(--text-muted)]">Este mes</p>
+            <h2 className="font-semibold text-[var(--text-primary)]">{t('title')}</h2>
+            <p className="text-sm text-[var(--text-muted)]">{t('thisMonth')}</p>
           </div>
         </div>
 
         <div className="p-6 text-center">
           <p className="text-[var(--text-secondary)]">
-            No hay comisiones generadas este periodo.
+            {t('noCommissions')}
           </p>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            Las comisiones se calculan sobre ventas en tienda y servicios facturados.
+            {t('commissionsInfo')}
           </p>
         </div>
       </div>
@@ -74,9 +75,9 @@ export function CommissionBreakdown({
           <TrendingUp className="h-5 w-5 text-[var(--primary)]" />
         </div>
         <div className="flex-1">
-          <h2 className="font-semibold text-[var(--text-primary)]">Comisiones del Periodo</h2>
+          <h2 className="font-semibold text-[var(--text-primary)]">{t('title')}</h2>
           <p className="text-sm text-[var(--text-muted)]">
-            {new Date(currentPeriod.start).toLocaleDateString('es-PY', { month: 'long', year: 'numeric' })}
+            {new Date(currentPeriod.start).toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', { month: 'long', year: 'numeric' })}
           </p>
         </div>
       </div>
@@ -89,9 +90,9 @@ export function CommissionBreakdown({
               <ShoppingBag className="h-5 w-5 text-blue-600" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-[var(--text-primary)]">Tienda Online</h3>
+              <h3 className="font-medium text-[var(--text-primary)]">{t('storeOnline')}</h3>
               <p className="text-sm text-[var(--text-muted)]">
-                {currentPeriod.store_orders} {currentPeriod.store_orders === 1 ? 'orden' : 'ordenes'} × {rates.store}
+                {t('orders', { count: currentPeriod.store_orders })} × {rates.store}
               </p>
             </div>
             <div className="text-right">
@@ -103,7 +104,7 @@ export function CommissionBreakdown({
 
           {currentPeriod.store_orders === 0 && (
             <p className="mt-3 text-sm text-[var(--text-muted)]">
-              Sin ordenes este periodo
+              {t('noOrdersThisPeriod')}
             </p>
           )}
         </div>
@@ -115,9 +116,9 @@ export function CommissionBreakdown({
               <Stethoscope className="h-5 w-5 text-green-600" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-[var(--text-primary)]">Servicios</h3>
+              <h3 className="font-medium text-[var(--text-primary)]">{t('services')}</h3>
               <p className="text-sm text-[var(--text-muted)]">
-                {currentPeriod.service_appointments} {currentPeriod.service_appointments === 1 ? 'cita' : 'citas'} × {rates.service}
+                {t('appointments', { count: currentPeriod.service_appointments })} × {rates.service}
               </p>
             </div>
             <div className="text-right">
@@ -129,7 +130,7 @@ export function CommissionBreakdown({
 
           {currentPeriod.service_appointments === 0 && (
             <p className="mt-3 text-sm text-[var(--text-muted)]">
-              Sin citas facturadas este periodo
+              {t('noAppointmentsThisPeriod')}
             </p>
           )}
         </div>
@@ -138,7 +139,7 @@ export function CommissionBreakdown({
         <div className="bg-[var(--bg-subtle)] p-6">
           <div className="flex items-center justify-between">
             <span className="text-lg font-semibold text-[var(--text-primary)]">
-              Total Comisiones
+              {t('totalCommissions')}
             </span>
             <span className="text-xl font-bold text-[var(--primary)]">
               {formatCurrency(currentPeriod.total_commission)}
@@ -164,13 +165,21 @@ export function CommissionSummary({
   storeOrders,
   serviceAppointments,
 }: CommissionSummaryProps): React.ReactElement {
+  const t = useTranslations('billing.commissions')
+  const locale = useLocale()
+
+  // Format currency in Paraguayan Guaranies
+  const formatCurrency = (amount: number): string => {
+    return `₲${amount.toLocaleString(locale === 'es' ? 'es-PY' : 'en-US')}`
+  }
+
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-paper)] p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
           <span className="text-sm font-medium text-[var(--text-secondary)]">
-            Comisiones
+            {t('summary')}
           </span>
         </div>
         <span className="font-semibold text-[var(--text-primary)]">
@@ -181,11 +190,11 @@ export function CommissionSummary({
       <div className="mt-2 flex items-center gap-4 text-xs text-[var(--text-muted)]">
         <span className="flex items-center gap-1">
           <ShoppingBag className="h-3 w-3" />
-          {storeOrders} ordenes
+          {t('orders', { count: storeOrders })}
         </span>
         <span className="flex items-center gap-1">
           <Stethoscope className="h-3 w-3" />
-          {serviceAppointments} citas
+          {t('appointments', { count: serviceAppointments })}
         </span>
       </div>
     </div>

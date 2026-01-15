@@ -137,7 +137,7 @@ export class PetRepository {
     return stats
   }
 
-  private transformPet(data: any): Pet {
+  private transformPet(data: Record<string, unknown>): Pet {
     return {
       id: data.id,
       tenant_id: data.tenant_id,

@@ -23,13 +23,11 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { AuthGate } from '@/components/auth/auth-gate'
 import { ServiceGroup } from '@/components/cart/service-group'
 import { organizeCart } from '@/lib/utils/cart-utils'
+import { LIMITS } from '@/lib/constants'
 
 interface CartPageClientProps {
   readonly config: ClinicConfig
 }
-
-// Maximum quantity per item to prevent abuse
-const MAX_QUANTITY_PER_ITEM = 99
 
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string }
@@ -79,8 +77,8 @@ export default function CartPageClient({ config }: CartPageClientProps) {
       const newQuantity = item.quantity + delta
 
       // Validate against maximum
-      if (newQuantity > MAX_QUANTITY_PER_ITEM) {
-        setQuantityWarning(`Máximo ${MAX_QUANTITY_PER_ITEM} unidades por producto`)
+      if (newQuantity > LIMITS.MAX_QUANTITY_PER_ITEM) {
+        setQuantityWarning(`Máximo ${LIMITS.MAX_QUANTITY_PER_ITEM} unidades por producto`)
         setTimeout(() => setQuantityWarning(null), 3000)
         return
       }
@@ -298,7 +296,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                                 onClick={() => handleQuantityUpdate(item.id, 1)}
                                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-500 shadow-sm transition-all hover:text-[var(--primary)] active:scale-90 disabled:opacity-50"
                                 disabled={
-                                  item.quantity >= MAX_QUANTITY_PER_ITEM ||
+                                  item.quantity >= LIMITS.MAX_QUANTITY_PER_ITEM ||
                                   (item.stock !== undefined && item.quantity >= item.stock)
                                 }
                                 aria-label="Aumentar cantidad"

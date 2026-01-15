@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { sendNotification } from '@/lib/notifications'
 
 /**
  * POST /api/appointments/waitlist/[id]/accept - Owner accepts offered slot
@@ -106,7 +107,55 @@ export const POST = withApiAuthParams(
         })
         .eq('id', entryId)
 
-      // TODO: Send confirmation notification
+      // Send confirmation notification
+      try {
+        // Get pet and service names for notification
+        const { data: petData } = await supabase
+          .from('pets')
+          .select('name')
+          .eq('id', entry.pet_id)
+          .single()
+
+        // Get actual service name
+        const { data: serviceData } = await supabase
+          .from('services')
+          .select('name')
+          .eq('id', entry.service_id)
+          .single()
+
+        const petName = petData?.name || 'tu mascota'
+        const svcName = serviceData?.name || 'el servicio'
+        const appointmentDate = new Date(newAppointment.start_time).toLocaleDateString('es-PY', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+
+        await sendNotification({
+          type: 'waitlist_confirmed',
+          recipientId: user.id,
+          recipientType: 'owner',
+          tenantId: profile.tenant_id,
+          title: 'Cita confirmada',
+          message: `Tu cita para ${petName} ha sido confirmada para el ${appointmentDate}.`,
+          channels: ['in_app', 'email'],
+          data: {
+            petName,
+            serviceName: svcName,
+            appointmentDate,
+            appointmentId: newAppointment.id,
+          },
+          actionUrl: `/${profile.tenant_id}/portal/appointments`,
+        })
+      } catch (notifError) {
+        logger.warn('Failed to send waitlist confirmation notification', {
+          entryId,
+          error: notifError instanceof Error ? notifError.message : 'Unknown',
+        })
+      }
 
       return NextResponse.json({
         message: 'Cita confirmada exitosamente',
@@ -120,5 +169,6 @@ export const POST = withApiAuthParams(
       })
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-  }
+  },
+  { rateLimit: 'write' }
 )

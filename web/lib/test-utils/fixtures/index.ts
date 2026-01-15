@@ -78,7 +78,7 @@ const TEST_PASSWORD = 'TestPassword123!'
 const USERS_BASE = {
   // Owners
   OWNER_JUAN: {
-    id: 'user-owner-juan',
+    id: 'a0000001-0000-0000-0000-000000000001',
     email: 'juan@gmail.com',
     password: TEST_PASSWORD,
     fullName: 'Juan Pérez',
@@ -87,7 +87,7 @@ const USERS_BASE = {
     tenantId: TENANTS.ADRIS.id,
   },
   OWNER_MARIA: {
-    id: 'user-owner-maria',
+    id: 'a0000001-0000-0000-0000-000000000002',
     email: 'maria@gmail.com',
     password: TEST_PASSWORD,
     fullName: 'María López',
@@ -96,7 +96,7 @@ const USERS_BASE = {
     tenantId: TENANTS.ADRIS.id,
   },
   OWNER_PETLIFE: {
-    id: 'user-owner-petlife',
+    id: 'a0000001-0000-0000-0000-000000000003',
     email: 'carlos.petlife@gmail.com',
     password: TEST_PASSWORD,
     fullName: 'Carlos PetLife',
@@ -136,7 +136,7 @@ const USERS_BASE = {
     tenantId: TENANTS.ADRIS.id,
   },
   ADMIN_PETLIFE: {
-    id: 'user-admin-petlife',
+    id: 'c0000001-0000-0000-0000-000000000002',
     email: 'admin@petlife.com',
     password: TEST_PASSWORD,
     fullName: 'Admin PetLife',
@@ -1123,7 +1123,7 @@ export interface ProductFixture {
 
 export const PRODUCTS = {
   DOG_FOOD: {
-    id: 'product-dog-food',
+    id: '00000000-0000-4000-a000-000000000001',
     tenant_id: TENANTS.ADRIS.id,
     name: 'Alimento Premium Perros 15kg',
     sku: 'ALI-DOG-15',
@@ -1133,7 +1133,7 @@ export const PRODUCTS = {
     is_active: true,
   },
   ANTIBIOTIC: {
-    id: 'product-antibiotic',
+    id: '00000000-0000-4000-a000-000000000002',
     tenant_id: TENANTS.ADRIS.id,
     name: 'Amoxicilina 500mg x 20',
     sku: 'MED-AMX-500',
@@ -1143,7 +1143,7 @@ export const PRODUCTS = {
     is_active: true,
   },
   SHAMPOO: {
-    id: 'product-shampoo',
+    id: '00000000-0000-4000-a000-000000000003',
     tenant_id: TENANTS.ADRIS.id,
     name: 'Shampoo Medicado 250ml',
     sku: 'HIG-SHP-250',
@@ -1153,7 +1153,7 @@ export const PRODUCTS = {
     is_active: true,
   },
   OUT_OF_STOCK: {
-    id: 'product-out-of-stock',
+    id: '00000000-0000-4000-a000-000000000004',
     tenant_id: TENANTS.ADRIS.id,
     name: 'Collar Antipulgas Premium',
     sku: 'ACC-COL-001',
@@ -1163,7 +1163,7 @@ export const PRODUCTS = {
     is_active: true,
   },
   CAT_TREATS: {
-    id: 'product-cat-treats',
+    id: '00000000-0000-4000-a000-000000000005',
     tenant_id: TENANTS.ADRIS.id,
     name: 'Snacks Premium Gatos 200g',
     sku: 'SNK-CAT-200',

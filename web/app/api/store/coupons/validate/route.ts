@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -9,12 +8,6 @@ import { logger } from '@/lib/logger'
  * Validate a coupon code
  */
 export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-  // Apply rate limiting for write endpoints (20 requests per minute)
-  const rateLimitResult = await rateLimit(request, 'write', user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
-
   try {
     const body = await request.json()
     const { code, clinic, cart_total } = body
@@ -60,4 +53,4 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
       details: { message: 'No se pudo validar el cupón' },
     })
   }
-})
+}, { rateLimit: 'write' })

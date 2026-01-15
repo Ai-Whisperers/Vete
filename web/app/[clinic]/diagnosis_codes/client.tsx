@@ -1,6 +1,16 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+/**
+ * Diagnosis Codes Client
+ *
+ * RES-001: Migrated to use React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery
+ * - Added useMutation for CRUD operations
+ * - Automatic cache invalidation on mutations
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   FileText,
   Search,
@@ -14,6 +24,9 @@ import {
   Tag,
   AlertCircle,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface DiagnosisCode {
   id?: string
@@ -27,8 +40,25 @@ type SortField = 'code' | 'description' | 'category'
 type SortDirection = 'asc' | 'desc'
 
 export default function DiagnosisCodesClient() {
-  const [codes, setCodes] = useState<DiagnosisCode[]>([])
-  const [loading, setLoading] = useState(true)
+  const t = useTranslations('diagnosisCodes')
+  const tc = useTranslations('common')
+  const queryClient = useQueryClient()
+
+  // React Query for data fetching
+  const { data: codes = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.clinical.diagnosisCodes(),
+    queryFn: async (): Promise<DiagnosisCode[]> => {
+      const response = await fetch('/api/diagnosis_codes')
+      if (!response.ok) {
+        throw new Error('Error al cargar códigos de diagnóstico')
+      }
+      return response.json()
+    },
+    staleTime: staleTimes.STATIC, // Diagnosis codes rarely change
+    gcTime: gcTimes.LONG,
+  })
+
+  // Filter/sort state
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('code')
@@ -47,27 +77,51 @@ export default function DiagnosisCodesClient() {
     category: '',
   })
 
-  const fetchCodes = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/diagnosis_codes')
-      if (res.ok) {
-        const data = await res.json()
-        setCodes(data)
-      }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching codes:', error)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Mutations for CRUD operations
+  const addMutation = useMutation({
+    mutationFn: async (payload: Omit<DiagnosisCode, 'id'>) => {
+      const response = await fetch('/api/diagnosis_codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al agregar código')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.diagnosisCodes() })
+    },
+  })
 
-  useEffect(() => {
-    fetchCodes()
-  }, [])
+  const updateMutation = useMutation({
+    mutationFn: async (payload: DiagnosisCode) => {
+      const response = await fetch('/api/diagnosis_codes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al actualizar código')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.diagnosisCodes() })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const response = await fetch('/api/diagnosis_codes', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: code }),
+      })
+      if (!response.ok) throw new Error('Error al eliminar código')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.diagnosisCodes() })
+    },
+  })
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -123,44 +177,30 @@ export default function DiagnosisCodesClient() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
-    const res = await fetch('/api/diagnosis_codes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+    addMutation.mutate(formData, {
+      onSuccess: () => {
+        resetForm()
+        setIsAddModalOpen(false)
+      },
     })
-    if (res.ok) {
-      resetForm()
-      setIsAddModalOpen(false)
-      fetchCodes()
-    }
   }
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingCode) return
 
-    const res = await fetch('/api/diagnosis_codes', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editingCode.code, ...formData }),
+    updateMutation.mutate({ id: editingCode.code, ...formData }, {
+      onSuccess: () => {
+        resetForm()
+        setIsEditModalOpen(false)
+        setEditingCode(null)
+      },
     })
-    if (res.ok) {
-      resetForm()
-      setIsEditModalOpen(false)
-      setEditingCode(null)
-      fetchCodes()
-    }
   }
 
   const handleDelete = async (code: string) => {
-    if (!confirm('¿Estás seguro de eliminar este código?')) return
-
-    await fetch('/api/diagnosis_codes', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: code }),
-    })
-    fetchCodes()
+    if (!confirm(t('confirmDelete'))) return
+    deleteMutation.mutate(code)
   }
 
   const openEditModal = (item: DiagnosisCode) => {
@@ -198,13 +238,13 @@ export default function DiagnosisCodesClient() {
             </div>
             <div>
               <p className="text-sm font-medium uppercase tracking-wider text-white/80">
-                Herramienta Clínica
+                {t('clinicalTool')}
               </p>
-              <h1 className="text-3xl font-black md:text-4xl">Códigos de Diagnóstico</h1>
+              <h1 className="text-3xl font-black md:text-4xl">{t('title')}</h1>
             </div>
           </div>
           <p className="max-w-2xl text-lg text-white/80">
-            Base de datos de códigos VeNom/SNOMED para diagnósticos veterinarios estandarizados.
+            {t('description')}
           </p>
         </div>
       </section>
@@ -217,7 +257,7 @@ export default function DiagnosisCodesClient() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar por código, término o descripción..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -229,7 +269,7 @@ export default function DiagnosisCodesClient() {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             >
-              <option value="all">Todas las categorías</option>
+              <option value="all">{t('allCategories')}</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
@@ -245,14 +285,13 @@ export default function DiagnosisCodesClient() {
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
             >
               <Plus className="h-5 w-5" />
-              Agregar Código
+              {t('addCode')}
             </button>
           </div>
         </div>
 
         <p className="mb-4 text-sm text-[var(--text-muted)]">
-          {filteredCodes.length} código{filteredCodes.length !== 1 ? 's' : ''} encontrado
-          {filteredCodes.length !== 1 ? 's' : ''}
+          {t('resultsCount', { count: filteredCodes.length })}
         </p>
 
         {/* Table */}
@@ -260,13 +299,13 @@ export default function DiagnosisCodesClient() {
           {loading ? (
             <div className="p-12 text-center">
               <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
-              <p className="text-[var(--text-muted)]">Cargando códigos...</p>
+              <p className="text-[var(--text-muted)]">{t('loadingCodes')}</p>
             </div>
           ) : filteredCodes.length === 0 ? (
             <div className="p-12 text-center">
               <FileText className="mx-auto mb-4 h-16 w-16 text-gray-200" />
-              <p className="font-medium text-[var(--text-muted)]">No se encontraron códigos</p>
-              <p className="mt-1 text-sm text-gray-400">Intenta con otro término de búsqueda</p>
+              <p className="font-medium text-[var(--text-muted)]">{t('noCodes')}</p>
+              <p className="mt-1 text-sm text-gray-400">{t('noCodesHint')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -277,22 +316,22 @@ export default function DiagnosisCodesClient() {
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('code')}
                     >
-                      Código <SortIcon field="code" />
+                      {t('table.code')} <SortIcon field="code" />
                     </th>
                     <th
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('description')}
                     >
-                      Descripción <SortIcon field="description" />
+                      {t('table.description')} <SortIcon field="description" />
                     </th>
                     <th
                       className="cursor-pointer p-4 text-left font-bold text-[var(--text-primary)] transition-colors hover:bg-gray-100"
                       onClick={() => handleSort('category')}
                     >
-                      Categoría <SortIcon field="category" />
+                      {t('table.category')} <SortIcon field="category" />
                     </th>
                     <th className="p-4 text-right font-bold text-[var(--text-primary)]">
-                      Acciones
+                      {tc('actions')}
                     </th>
                   </tr>
                 </thead>
@@ -330,14 +369,14 @@ export default function DiagnosisCodesClient() {
                           <button
                             onClick={() => openEditModal(item)}
                             className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
-                            aria-label={`Editar código ${item.code}`}
+                            aria-label={t('editCodeAria', { code: item.code })}
                           >
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(item.code)}
                             className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
-                            aria-label={`Eliminar código ${item.code}`}
+                            aria-label={t('deleteCodeAria', { code: item.code })}
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -355,10 +394,9 @@ export default function DiagnosisCodesClient() {
         <div className="mt-8 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
           <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
           <div>
-            <p className="font-bold text-blue-800">Nomenclatura Estandarizada</p>
+            <p className="font-bold text-blue-800">{t('info.title')}</p>
             <p className="text-sm text-blue-700">
-              Utilice códigos VeNom (Veterinary Nomenclature) o SNOMED-CT para mantener consistencia
-              en los registros médicos.
+              {t('info.text')}
             </p>
           </div>
         </div>
@@ -370,7 +408,7 @@ export default function DiagnosisCodesClient() {
           <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 p-6">
               <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                {isEditModalOpen ? 'Editar Código' : 'Agregar Código de Diagnóstico'}
+                {isEditModalOpen ? t('modal.editTitle') : t('modal.addTitle')}
               </h2>
               <button
                 onClick={() => {
@@ -380,7 +418,7 @@ export default function DiagnosisCodesClient() {
                   resetForm()
                 }}
                 className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                aria-label="Cerrar"
+                aria-label={tc('close')}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -389,14 +427,14 @@ export default function DiagnosisCodesClient() {
             <form onSubmit={isEditModalOpen ? handleEdit : handleAdd} className="space-y-4 p-6">
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Código *
+                  {t('form.code')} *
                 </label>
                 <input
                   type="text"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: VN-1234"
+                  placeholder={t('form.codePlaceholder')}
                   required
                   disabled={isEditModalOpen}
                 />
@@ -404,40 +442,40 @@ export default function DiagnosisCodesClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Término
+                  {t('form.term')}
                 </label>
                 <input
                   type="text"
                   value={formData.term}
                   onChange={(e) => setFormData({ ...formData, term: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: Dermatitis alérgica"
+                  placeholder={t('form.termPlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Descripción *
+                  {t('table.description')} *
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="h-24 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Descripción detallada del diagnóstico"
+                  placeholder={t('form.descriptionPlaceholder')}
                   required
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
-                  Categoría
+                  {t('table.category')}
                 </label>
                 <input
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  placeholder="Ej: Dermatología, Cardiología, etc."
+                  placeholder={t('form.categoryPlaceholder')}
                   list="category-suggestions"
                 />
                 <datalist id="category-suggestions">
@@ -458,14 +496,14 @@ export default function DiagnosisCodesClient() {
                   }}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-[var(--text-secondary)] transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
                 >
                   <Check className="h-5 w-5" />
-                  {isEditModalOpen ? 'Guardar' : 'Agregar'}
+                  {isEditModalOpen ? tc('save') : tc('add')}
                 </button>
               </div>
             </form>

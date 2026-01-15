@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { notifyStaff } from '@/lib/notifications'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -63,10 +64,10 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       // No body is fine
     }
 
-    // Get invoice
+    // Get invoice with full details for notification
     const { data: invoice, error: fetchError } = await supabase
       .from('store_commission_invoices')
-      .select('id, status, tenant_id, invoice_number')
+      .select('id, status, tenant_id, invoice_number, total_amount, period_start, period_end, due_date')
       .eq('id', invoiceId)
       .single()
 
@@ -97,8 +98,36 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
     if (updateError) throw updateError
 
-    // TODO: Send actual email/notification to clinic
-    // This would integrate with the notification system
+    // Send notification to clinic admins about the invoice
+    try {
+      const period = invoice.period_start && invoice.period_end
+        ? `${new Date(invoice.period_start).toLocaleDateString('es-PY')} - ${new Date(invoice.period_end).toLocaleDateString('es-PY')}`
+        : 'Período actual'
+
+      await notifyStaff({
+        tenantId: invoice.tenant_id,
+        title: 'Factura de comisión recibida',
+        message: `Se ha generado una factura de comisión ${invoice.invoice_number} por ₲ ${(invoice.total_amount || 0).toLocaleString('es-PY')}.`,
+        type: 'commission_invoice',
+        channels: ['in_app', 'email'],
+        roles: ['admin'],
+        data: {
+          invoiceNumber: invoice.invoice_number,
+          amount: invoice.total_amount,
+          period,
+          dueDate: invoice.due_date
+            ? new Date(invoice.due_date).toLocaleDateString('es-PY')
+            : undefined,
+        },
+      })
+    } catch (notifError) {
+      // Don't fail the operation if notification fails
+      logger.warn('Failed to send commission invoice notification', {
+        invoiceId,
+        tenantId: invoice.tenant_id,
+        error: notifError instanceof Error ? notifError.message : 'Unknown',
+      })
+    }
 
     // Log audit
     await supabase.from('audit_logs').insert({

@@ -13,7 +13,7 @@ import {
   Flashlight,
   SwitchCamera,
 } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void
@@ -44,7 +44,8 @@ export function BarcodeScanner({
   const [isSearching, setIsSearching] = useState(false)
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment')
   const [torchEnabled, setTorchEnabled] = useState(false)
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.barcodeScanner')
+  const locale = useLocale()
 
   const startCamera = useCallback(async (): Promise<void> => {
     setIsLoading(true)
@@ -78,10 +79,10 @@ export function BarcodeScanner({
       if (process.env.NODE_ENV === 'development') {
         console.error('Camera error:', err)
       }
-      setError('No se pudo acceder a la cámara. Verifica los permisos.')
+      setError(t('cameraError'))
       setIsLoading(false)
     }
-  }, [facingMode])
+  }, [facingMode, t])
 
   const stopCamera = useCallback((): void => {
     if (streamRef.current) {
@@ -185,7 +186,7 @@ export function BarcodeScanner({
   }
 
   const handleManualEntry = (): void => {
-    const code = prompt('Ingrese el código de barras manualmente:')
+    const code = prompt(t('enterManually'))
     if (code) {
       handleBarcodeDetected(code)
     }
@@ -245,7 +246,7 @@ export function BarcodeScanner({
             <div className="flex items-center justify-between bg-black/50 px-4 py-3">
               <div className="flex items-center gap-2 text-white">
                 <ScanLine className="h-5 w-5" />
-                <span className="font-semibold">{labels.inventory.barcode_scanner.title}</span>
+                <span className="font-semibold">{t('title')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -255,14 +256,14 @@ export function BarcodeScanner({
                       ? 'bg-yellow-500 text-black'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
-                  title="Linterna"
+                  title={t('flashlight')}
                 >
                   <Flashlight className="h-5 w-5" />
                 </button>
                 <button
                   onClick={switchCamera}
                   className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-white/30"
-                  title="Cambiar cámara"
+                  title={t('switchCamera')}
                 >
                   <SwitchCamera className="h-5 w-5" />
                 </button>
@@ -291,7 +292,7 @@ export function BarcodeScanner({
                     onClick={startCamera}
                     className="rounded-lg bg-white px-4 py-2 font-medium text-black"
                   >
-                    Reintentar
+                    {t('retry')}
                   </button>
                 </div>
               )}
@@ -334,7 +335,7 @@ export function BarcodeScanner({
                     <div className="flex items-center justify-center py-4">
                       <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
                       <span className="ml-2 text-gray-600">
-                        {labels.inventory.barcode_scanner.searching}
+                        {t('searching')}
                       </span>
                     </div>
                   ) : scannedProduct ? (
@@ -350,20 +351,20 @@ export function BarcodeScanner({
                       </div>
                       <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                         <span className="text-sm text-gray-600">
-                          {labels.inventory.barcode_scanner.stock_available}
+                          {t('stockAvailable')}
                         </span>
                         <span
                           className={`font-bold ${scannedProduct.stock > 0 ? 'text-green-600' : 'text-red-600'}`}
                         >
-                          {scannedProduct.stock} {labels.common.units}
+                          {scannedProduct.stock} {t('units')}
                         </span>
                       </div>
                       <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                         <span className="text-sm text-gray-600">
-                          {labels.inventory.barcode_scanner.price}
+                          {t('price')}
                         </span>
                         <span className="font-bold text-gray-900">
-                          {scannedProduct.price.toLocaleString('es-PY')} Gs.
+                          {scannedProduct.price.toLocaleString(locale === 'es' ? 'es-PY' : 'en-US')} Gs.
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -371,13 +372,13 @@ export function BarcodeScanner({
                           onClick={handleConfirmScan}
                           className="flex-1 rounded-lg bg-[var(--primary)] py-2.5 font-medium text-white transition-colors hover:opacity-90"
                         >
-                          {labels.inventory.barcode_scanner.use_code}
+                          {t('useCode')}
                         </button>
                         <button
                           onClick={resetScan}
                           className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium transition-colors hover:bg-gray-50"
                         >
-                          {labels.inventory.barcode_scanner.scan_another}
+                          {t('scanAnother')}
                         </button>
                       </div>
                     </div>
@@ -388,9 +389,9 @@ export function BarcodeScanner({
                           <AlertCircle className="h-6 w-6 text-yellow-600" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">Código: {scannedCode}</p>
+                          <p className="font-semibold text-gray-900">{t('code')}: {scannedCode}</p>
                           <p className="text-sm text-gray-500">
-                            {labels.inventory.barcode_scanner.not_found}
+                            {t('notFound')}
                           </p>
                         </div>
                       </div>
@@ -399,13 +400,13 @@ export function BarcodeScanner({
                           onClick={handleConfirmScan}
                           className="flex-1 rounded-lg bg-[var(--primary)] py-2.5 font-medium text-white transition-colors hover:opacity-90"
                         >
-                          {labels.inventory.barcode_scanner.use_code}
+                          {t('useCode')}
                         </button>
                         <button
                           onClick={resetScan}
                           className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium transition-colors hover:bg-gray-50"
                         >
-                          {labels.inventory.barcode_scanner.scan_another}
+                          {t('scanAnother')}
                         </button>
                       </div>
                     </div>
@@ -421,7 +422,7 @@ export function BarcodeScanner({
                   onClick={handleManualEntry}
                   className="w-full rounded-lg bg-white/20 py-3 font-medium text-white transition-colors hover:bg-white/30"
                 >
-                  {labels.inventory.barcode_scanner.manual_entry}
+                  {t('manualEntry')}
                 </button>
               </div>
             )}

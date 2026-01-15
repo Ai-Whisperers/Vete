@@ -79,5 +79,5 @@ export const rules = {
   url: (message?: string) => ({ url: true, message }),
   min: (min: number, message?: string) => ({ min, message }),
   max: (max: number, message?: string) => ({ max, message }),
-  custom: (fn: (value: any) => boolean | string, message?: string) => ({ custom: fn, message }),
+  custom: (fn: (value: unknown) => boolean | string, message?: string) => ({ custom: fn, message }),
 }

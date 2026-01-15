@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { ShoppingBag, Zap, Clock, Phone } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
 
 interface BookingSummaryProps {
@@ -25,6 +26,7 @@ interface BookingSummaryProps {
 export function BookingSummary({ labels = {} }: BookingSummaryProps) {
   const { selection, pets, getSelectedServices, getTotalDuration, getTotalPrice } =
     useBookingStore()
+  const t = useTranslations('booking.wizard.summary')
 
   const selectedServices = getSelectedServices()
   const totalDuration = getTotalDuration()
@@ -41,7 +43,7 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
     <aside className="animate-in slide-in-from-bottom-8 space-y-6 duration-700 lg:sticky lg:top-12">
       <div className="rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-2xl">
         <h4 className="mb-6 flex items-center gap-3 font-black text-gray-900">
-          <ShoppingBag className="h-5 w-5 text-[var(--primary)]" /> {labels.summary || 'Resumen'}
+          <ShoppingBag className="h-5 w-5 text-[var(--primary)]" /> {labels.summary || t('title')}
         </h4>
 
         <div className="space-y-6">
@@ -55,8 +57,8 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
           >
             <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
               {selectedServices.length > 1
-                ? labels.services || 'Servicios'
-                : labels.service || 'Servicio'}
+                ? labels.services || t('services')
+                : labels.service || t('service')}
             </p>
             {hasServices ? (
               <div className="space-y-2">
@@ -74,13 +76,13 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
                 {selectedServices.length > 1 && (
                   <div className="mt-2 flex items-center gap-2 border-t border-gray-200 pt-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span>Total: {totalDuration} min</span>
+                    <span>{t('totalDuration', { minutes: totalDuration })}</span>
                   </div>
                 )}
               </div>
             ) : (
               <span className="text-sm font-bold italic text-gray-400">
-                {labels.notSelected || 'Sin seleccionar'}
+                {labels.notSelected || t('notSelected')}
               </span>
             )}
           </div>
@@ -98,7 +100,7 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
                 selection.petId ? 'text-gray-500' : 'text-gray-400'
               }`}
             >
-              {labels.patient || 'Paciente'}
+              {labels.patient || t('patient')}
             </p>
             {selection.petId ? (
               <div className="flex items-center gap-3">
@@ -109,7 +111,7 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
               </div>
             ) : (
               <span className="text-sm font-bold italic text-gray-400">
-                {labels.notSelected || 'Sin seleccionar'}
+                {labels.notSelected || t('notSelected')}
               </span>
             )}
           </div>
@@ -117,15 +119,15 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
           {/* Schedule Summary - Clinic will contact to schedule */}
           <div className="rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-4 transition-all">
             <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              {labels.schedule || 'Horario'}
+              {labels.schedule || t('schedule')}
             </p>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-[var(--primary)]" />
               <span className="text-sm font-bold text-[var(--primary)]">
-                {labels.toDefine || 'Por agendar'}
+                {labels.toDefine || t('toSchedule')}
               </span>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Te contactaremos</p>
+            <p className="mt-1 text-xs text-gray-500">{t('willContact')}</p>
           </div>
         </div>
 
@@ -133,7 +135,7 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
         <div className="mt-8 border-t border-gray-100 pt-6">
           <div className="flex items-end justify-between">
             <span className="text-xs font-black uppercase tracking-widest text-gray-400">
-              {labels.estimatedTotal || 'Total Estimado'}
+              {labels.estimatedTotal || t('estimatedTotal')}
             </span>
             <span className="text-2xl font-black text-gray-900">₲{formatPrice(totalPrice)}</span>
           </div>

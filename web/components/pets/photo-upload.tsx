@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { Camera, Upload, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { validateImageFile, ValidationResult } from '@/lib/image-validation'
 
 interface PhotoUploadProps {
@@ -33,28 +34,32 @@ export function PhotoUpload({
   onFileSelect,
   onFileRemove,
   className = '',
-  placeholder = 'Subir foto',
+  placeholder,
   disabled = false,
   maxSizeMB = 5,
   shape = 'circle',
   size = 128,
 }: PhotoUploadProps) {
+  const t = useTranslations('uploads.photo')
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isValidating, setIsValidating] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Use provided placeholder or default from translations
+  const placeholderText = placeholder ?? t('uploadPhoto')
+
   const handleFileValidation = useCallback(
     async (file: File): Promise<ValidationResult> => {
       // Basic validation first
       if (!file.type.startsWith('image/')) {
-        return { valid: false, error: 'Solo se permiten archivos de imagen (JPG, PNG, GIF, WebP)' }
+        return { valid: false, error: t('imageOnly') }
       }
 
       const maxSizeBytes = maxSizeMB * 1024 * 1024
       if (file.size > maxSizeBytes) {
-        return { valid: false, error: `El archivo es muy grande. Máximo ${maxSizeMB}MB` }
+        return { valid: false, error: t('fileTooLarge', { maxSize: maxSizeMB }) }
       }
 
       // Use the validation utility if available
@@ -64,7 +69,7 @@ export function PhotoUpload({
 
       return { valid: true }
     },
-    [maxSizeMB]
+    [maxSizeMB, t]
   )
 
   const processFile = useCallback(
@@ -76,7 +81,7 @@ export function PhotoUpload({
         const validation = await handleFileValidation(file)
 
         if (!validation.valid) {
-          setError(validation.error || 'Archivo inválido')
+          setError(validation.error || t('invalidFile'))
           setIsValidating(false)
           return
         }
@@ -88,12 +93,12 @@ export function PhotoUpload({
         // Notify parent
         onFileSelect?.(file)
       } catch {
-        setError('Error al procesar la imagen')
+        setError(t('errorProcessing'))
       } finally {
         setIsValidating(false)
       }
     },
-    [handleFileValidation, onFileSelect]
+    [handleFileValidation, onFileSelect, t]
   )
 
   const handleFileChange = useCallback(
@@ -178,7 +183,7 @@ export function PhotoUpload({
       <div
         role="button"
         tabIndex={disabled ? -1 : 0}
-        aria-label={preview ? 'Cambiar foto' : placeholder}
+        aria-label={preview ? t('changePhoto') : placeholderText}
         aria-disabled={disabled}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -202,7 +207,7 @@ export function PhotoUpload({
             {!disabled && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                 <span className="rounded-full bg-white/20 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
-                  Cambiar
+                  {t('change')}
                 </span>
               </div>
             )}
@@ -211,7 +216,7 @@ export function PhotoUpload({
               <button
                 type="button"
                 onClick={handleRemove}
-                aria-label="Eliminar foto"
+                aria-label={t('removePhoto')}
                 className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--status-error,#ef4444)] text-white opacity-0 shadow-lg transition-colors hover:bg-[var(--status-error-dark,#dc2626)] focus:opacity-100 group-hover:opacity-100"
               >
                 <X className="h-4 w-4" />
@@ -227,7 +232,7 @@ export function PhotoUpload({
               <>
                 <Camera className="h-10 w-10 text-[var(--text-muted)] transition-colors group-hover:text-[var(--primary)]" />
                 {isDragging && (
-                  <span className="text-xs font-bold text-[var(--primary)]">Soltar aquí</span>
+                  <span className="text-xs font-bold text-[var(--primary)]">{t('dropHere')}</span>
                 )}
               </>
             )}
@@ -238,10 +243,10 @@ export function PhotoUpload({
       {/* Helper Text */}
       <p className="text-center text-xs text-[var(--text-muted)]">
         {isDragging ? (
-          <span className="font-medium text-[var(--primary)]">Suelta la imagen</span>
+          <span className="font-medium text-[var(--primary)]">{t('dropImage')}</span>
         ) : (
           <span>
-            {placeholder} <span className="hidden sm:inline">o arrastra</span>
+            {placeholderText} <span className="hidden sm:inline">{t('orDrag')}</span>
           </span>
         )}
       </p>
@@ -271,7 +276,7 @@ export function PhotoUpload({
 
       {/* Supported Formats Hint */}
       <p className="text-center text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
-        JPG, PNG, GIF, WebP • Max {maxSizeMB}MB
+        {t('formatsHint', { maxSize: maxSizeMB })}
       </p>
     </div>
   )

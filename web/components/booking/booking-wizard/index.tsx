@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Stethoscope, PawPrint, CheckCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useBookingStore } from '@/lib/store/booking-store'
 import { ServiceSelection } from './ServiceSelection'
 import { PetSelection } from './PetSelection'
@@ -36,6 +37,7 @@ export default function BookingWizard({
   initialPetId,
 }: BookingWizardProps) {
   const [queryClient] = useState(() => new QueryClient())
+  const t = useTranslations('booking.wizard')
 
   const {
     step,
@@ -63,30 +65,30 @@ export default function BookingWizard({
     [userPets, selection.petId]
   )
 
-  // Generate step configuration with labels from config
+  // Generate step configuration with labels from translations
   // Note: datetime step removed - 3 steps instead of 4
   const BOOKING_STEPS: Step[] = useMemo(
     () => [
       {
         id: 'service',
-        label: 'Servicio',
-        description: clinic.config.ui_labels?.booking?.select_service || 'Elige el servicio',
+        label: t('steps.service.label'),
+        description: clinic.config.ui_labels?.booking?.select_service || t('steps.service.description'),
         icon: <Stethoscope className="h-4 w-4" />,
       },
       {
         id: 'pet',
-        label: 'Paciente',
-        description: clinic.config.ui_labels?.booking?.select_pet || 'Selecciona tu mascota',
+        label: t('steps.pet.label'),
+        description: clinic.config.ui_labels?.booking?.select_pet || t('steps.pet.description'),
         icon: <PawPrint className="h-4 w-4" />,
       },
       {
         id: 'confirm',
-        label: clinic.config.ui_labels?.common?.actions?.confirm || 'Confirmar',
-        description: 'Revisa y envía solicitud',
+        label: clinic.config.ui_labels?.common?.actions?.confirm || t('steps.confirm.label'),
+        description: t('steps.confirm.description'),
         icon: <CheckCircle className="h-4 w-4" />,
       },
     ],
-    [clinic.config.ui_labels]
+    [clinic.config.ui_labels, t]
   )
 
   // Calculate current step index for progress stepper
@@ -112,10 +114,15 @@ export default function BookingWizard({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="mx-auto max-w-6xl px-4 py-12" role="region" aria-label="Reservar cita">
+      <div className="mx-auto max-w-6xl px-4 py-12" role="region" aria-label={t('regionLabel')}>
         {/* A11Y-001: Screen reader announcement for step changes */}
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {currentStepInfo && `Paso ${currentStepIndex + 1} de ${BOOKING_STEPS.length}: ${currentStepInfo.label}. ${currentStepInfo.description}`}
+          {currentStepInfo && t('stepAnnouncement', {
+            current: currentStepIndex + 1,
+            total: BOOKING_STEPS.length,
+            label: currentStepInfo.label,
+            description: currentStepInfo.description ?? ''
+          })}
         </div>
 
         {/* Progress Stepper */}
@@ -149,13 +156,14 @@ export default function BookingWizard({
           {/* Sidebar Summary */}
           <BookingSummary
             labels={{
-              summary: 'Resumen',
-              service: 'Servicio',
-              patient: 'Paciente',
-              schedule: 'Horario',
-              notSelected: 'Sin seleccionar',
-              toDefine: 'Por definir',
-              estimatedTotal: 'Total Estimado',
+              summary: t('summary.title'),
+              service: t('summary.service'),
+              services: t('summary.services'),
+              patient: t('summary.patient'),
+              schedule: t('summary.schedule'),
+              notSelected: t('summary.notSelected'),
+              toDefine: t('summary.toSchedule'),
+              estimatedTotal: t('summary.estimatedTotal'),
             }}
           />
         </div>

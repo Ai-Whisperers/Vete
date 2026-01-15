@@ -75,6 +75,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET } from '@/app/api/vaccines/recommendations/route'
+
 // Helper to create GET request
 function createRequest(params: Record<string, string> = {}): NextRequest {
   const searchParams = new URLSearchParams(params)
@@ -395,7 +398,7 @@ describe('GET /api/vaccines/recommendations', () => {
 
       const response = await GET(createRequest({
         species: 'dog',
-        existing_vaccine_names: 'antirrabica,moquillo',
+        existing_vaccine_names: 'antirrábica,moquillo',
       }))
 
       expect(response.status).toBe(200)

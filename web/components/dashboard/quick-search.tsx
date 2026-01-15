@@ -1,12 +1,19 @@
 'use client'
 
+/**
+ * Quick Search Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Automatic caching of search results by query
+ */
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import {
   Search,
-  PawPrint,
   User,
-  Calendar,
   X,
   Dog,
   Cat,
@@ -14,8 +21,11 @@ import {
   Loader2,
   History,
   Sparkles,
+  Calendar,
 } from 'lucide-react'
 import { useDebounce } from '@/hooks/use-debounce'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface SearchResult {
   id: string
@@ -91,8 +101,6 @@ function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: () =
 
 export function QuickSearch({ clinic }: QuickSearchProps) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -125,61 +133,48 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
     [clinic]
   )
 
-  // Search effect
-  useEffect(() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) {
-      setResults([])
-      return
-    }
+  // React Query: Search with debounced query
+  const { data: results = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.search.global(clinic, debouncedQuery),
+    queryFn: async (): Promise<SearchResult[]> => {
+      const res = await fetch(
+        `/api/search?clinic=${clinic}&q=${encodeURIComponent(debouncedQuery)}&limit=8`
+      )
+      if (!res.ok) throw new Error('Error en la búsqueda')
+      const data = await res.json()
 
-    const search = async () => {
-      setLoading(true)
-      try {
-        const res = await fetch(
-          `/api/search?clinic=${clinic}&q=${encodeURIComponent(debouncedQuery)}&limit=8`
-        )
-        if (res.ok) {
-          const data = await res.json()
-          // Transform results
-          const searchResults: SearchResult[] = []
+      // Transform results
+      const searchResults: SearchResult[] = []
 
-          // Add pets
-          ;(data.pets || []).forEach((pet: SearchPet) => {
-            searchResults.push({
-              id: `pet-${pet.id}`,
-              type: 'pet',
-              title: pet.name,
-              subtitle: `${pet.species === 'dog' ? 'Perro' : 'Gato'} - ${pet.owner_name || 'Sin dueño'}`,
-              species: pet.species,
-              href: `/${clinic}/dashboard/patients/${pet.id}`,
-            })
-          })
+      // Add pets
+      ;(data.pets || []).forEach((pet: SearchPet) => {
+        searchResults.push({
+          id: `pet-${pet.id}`,
+          type: 'pet',
+          title: pet.name,
+          subtitle: `${pet.species === 'dog' ? 'Perro' : 'Gato'} - ${pet.owner_name || 'Sin dueño'}`,
+          species: pet.species,
+          href: `/${clinic}/dashboard/patients/${pet.id}`,
+        })
+      })
 
-          // Add clients
-          ;(data.clients || []).forEach((client: SearchClient) => {
-            searchResults.push({
-              id: `client-${client.id}`,
-              type: 'client',
-              title: client.full_name,
-              subtitle: client.email || client.phone,
-              href: `/${clinic}/dashboard/clients/${client.id}`,
-            })
-          })
+      // Add clients
+      ;(data.clients || []).forEach((client: SearchClient) => {
+        searchResults.push({
+          id: `client-${client.id}`,
+          type: 'client',
+          title: client.full_name,
+          subtitle: client.email || client.phone,
+          href: `/${clinic}/dashboard/clients/${client.id}`,
+        })
+      })
 
-          setResults(searchResults)
-        }
-      } catch (error) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Search error:', error)
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    search()
-  }, [debouncedQuery, clinic])
+      return searchResults
+    },
+    enabled: debouncedQuery.length >= 2, // Only search when query is at least 2 chars
+    staleTime: staleTimes.MEDIUM, // Cache search results for 2 minutes
+    gcTime: gcTimes.SHORT, // Keep in cache for 5 minutes
+  })
 
   // Click outside handler
   useEffect(() => {
@@ -221,7 +216,6 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
 
   const clearSearch = () => {
     setQuery('')
-    setResults([])
     inputRef.current?.focus()
   }
 

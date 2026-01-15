@@ -36,25 +36,28 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
-// Mock reminders library
-vi.mock('@/lib/reminders', () => ({
+// Mock reminders library - must match actual import paths from route.ts
+vi.mock('@/lib/reminders/content-builder', () => ({
   buildReminderContent: vi.fn().mockResolvedValue({
     subject: 'Recordatorio de vacuna',
     htmlBody: '<p>Recordatorio de vacuna para Max</p>',
     textBody: 'Recordatorio de vacuna para Max',
   }),
+}))
+
+vi.mock('@/lib/reminders/channel-sender', () => ({
   sendReminderToChannels: vi.fn().mockResolvedValue([
     { channel: 'email', success: true },
   ]),
 }))
 
+
 // Import mocked reminders functions (after mock declaration)
 // Using type assertion since vi.mock replaces the module
-import * as remindersModule from '@/lib/reminders'
-const reminders = remindersModule as unknown as {
-  sendReminderToChannels: ReturnType<typeof vi.fn>
-  buildReminderContent: ReturnType<typeof vi.fn>
-}
+import * as contentBuilderModule from '@/lib/reminders/content-builder'
+import * as channelSenderModule from '@/lib/reminders/channel-sender'
+const buildReminderContent = contentBuilderModule.buildReminderContent as ReturnType<typeof vi.fn>
+const sendReminderToChannels = channelSenderModule.sendReminderToChannels as ReturnType<typeof vi.fn>
 
 // Store original env
 const originalEnv = process.env
@@ -149,13 +152,15 @@ describe('GET /api/cron/reminders', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should allow request without auth when CRON_SECRET is not set', async () => {
+    it('should return 500 when CRON_SECRET is not set (fail-closed)', async () => {
       process.env = { ...originalEnv, CRON_SECRET: undefined }
-      mockState.setTableResult('reminders', [])
 
       const response = await GET(createRequest())
 
-      expect(response.status).toBe(200)
+      // SEC-006: Fail closed when CRON_SECRET is not configured
+      expect(response.status).toBe(500)
+      const body = await response.json()
+      expect(body.error).toBe('Server configuration error')
     })
   })
 
@@ -268,7 +273,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should send via email channel', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
       ])
 
@@ -287,7 +292,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should send via WhatsApp channel', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'whatsapp', success: true },
       ])
 
@@ -304,7 +309,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should send via multiple channels', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
         { channel: 'whatsapp', success: true },
       ])
@@ -324,7 +329,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should count as sent if at least one channel succeeds', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
         { channel: 'sms', success: false, error: 'SMS provider error' },
       ])
@@ -365,7 +370,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should handle channel send failure', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'SMTP error' },
       ])
 
@@ -383,7 +388,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should track errors in response', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Invalid email address' },
       ])
 
@@ -412,7 +417,14 @@ describe('GET /api/cron/reminders', () => {
 
       await GET(createRequest(`Bearer ${CRON_SECRETS.INVALID}`))
 
-      expect(logger.warn).toHaveBeenCalledWith('Unauthorized cron attempt for reminders')
+      // cron-auth.ts logs via logger.error with structured data
+      expect(logger.error).toHaveBeenCalledWith(
+        'Unauthorized cron attempt',
+        expect.objectContaining({
+          endpoint: expect.stringContaining('reminders'),
+          reason: 'Invalid or missing secret',
+        })
+      )
     })
   })
 
@@ -427,7 +439,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should increment attempts on failure', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Temporary failure' },
       ])
 
@@ -442,7 +454,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should mark as failed after max attempts', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
+      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Permanent failure' },
       ])
 
@@ -499,7 +511,7 @@ describe('GET /api/cron/reminders', () => {
 
       await GET(createRequest(`Bearer ${CRON_SECRETS.VALID}`))
 
-      expect(reminders.buildReminderContent).toHaveBeenCalled()
+      expect(buildReminderContent).toHaveBeenCalled()
     })
 
     it('should handle custom subject and body', async () => {
@@ -671,7 +683,7 @@ describe('GET /api/cron/reminders', () => {
 
     it('should handle mixed success and failure in batch', async () => {
       
-      vi.mocked(reminders.sendReminderToChannels)
+      vi.mocked(sendReminderToChannels)
         .mockResolvedValueOnce([{ channel: 'email', success: true }])
         .mockResolvedValueOnce([{ channel: 'email', success: false, error: 'Invalid email' }])
 

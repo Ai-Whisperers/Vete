@@ -1,8 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+/**
+ * Order Edit Form Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hooks
+ * - Replaced manual mutation with useMutation hook
+ */
+
+import { useState, useEffect, useMemo } from 'react'
 import { X, Plus, Trash2, Loader2, Building2, Package, Search, AlertCircle, Save } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Supplier {
   id: string
@@ -60,10 +70,7 @@ interface OrderEditFormProps {
 
 export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEditFormProps): React.ReactElement | null {
   const { toast } = useToast()
-  const [order, setOrder] = useState<PurchaseOrder | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const queryClient = useQueryClient()
 
   // Edit state
   const [selectedSupplier, setSelectedSupplier] = useState<string>('')
@@ -72,44 +79,90 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
   const [notes, setNotes] = useState('')
   const [shippingAddress, setShippingAddress] = useState('')
 
-  // Suppliers for dropdown
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [loadingSuppliers, setLoadingSuppliers] = useState(true)
-
   // Product search
   const [productSearch, setProductSearch] = useState('')
-  const [searchResults, setSearchResults] = useState<Product[]>([])
-  const [searching, setSearching] = useState(false)
+  const [debouncedSearch, setDebouncedSearch] = useState('')
 
-  // Fetch order details
-  const fetchOrder = useCallback(async () => {
-    if (!orderId) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch order details
+  const { data: order, isLoading: loading, error: orderError } = useQuery({
+    queryKey: ['procurement', 'orders', orderId],
+    queryFn: async (): Promise<PurchaseOrder> => {
       const res = await fetch(`/api/procurement/orders/${orderId}`)
       if (!res.ok) throw new Error('Error al cargar la orden')
+      return res.json()
+    },
+    enabled: isOpen && !!orderId,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-      const data: PurchaseOrder = await res.json()
+  // React Query: Fetch suppliers
+  const { data: suppliersData, isLoading: loadingSuppliers } = useQuery({
+    queryKey: ['suppliers', 'verified'],
+    queryFn: async (): Promise<{ suppliers: Supplier[] }> => {
+      const res = await fetch('/api/suppliers?status=verified')
+      if (!res.ok) throw new Error('Error al cargar proveedores')
+      return res.json()
+    },
+    enabled: isOpen,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      // Only allow editing draft orders
-      if (data.status !== 'draft') {
-        setError('Solo se pueden editar órdenes en estado borrador')
-        setLoading(false)
-        return
-      }
+  const suppliers = suppliersData?.suppliers || []
 
-      setOrder(data)
-      setSelectedSupplier(data.supplier_id)
-      setExpectedDelivery(data.expected_delivery_date || '')
-      setNotes(data.notes || '')
-      setShippingAddress(data.shipping_address || '')
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(productSearch)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [productSearch])
 
-      // Map items
+  // React Query: Product search
+  const { data: searchData, isFetching: searching } = useQuery({
+    queryKey: ['procurement', 'leads', 'search', debouncedSearch],
+    queryFn: async (): Promise<Product[]> => {
+      const res = await fetch(`/api/procurement/leads?limit=10`)
+      if (!res.ok) return []
+      const data = await res.json()
+      return data.leads
+        ?.map((lead: { catalog_products: Product | null }) => lead.catalog_products)
+        .filter((p: Product | null): p is Product => p !== null)
+        .filter(
+          (p: Product, i: number, arr: Product[]) =>
+            arr.findIndex((x) => x.id === p.id) === i &&
+            (p.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+              p.sku.toLowerCase().includes(debouncedSearch.toLowerCase()))
+        )
+        .slice(0, 5) || []
+    },
+    enabled: debouncedSearch.length >= 2,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
+
+  const searchResults = useMemo(() => {
+    if (!debouncedSearch || debouncedSearch.length < 2) return []
+    return searchData || []
+  }, [searchData, debouncedSearch])
+
+  // Derive error state
+  const error = useMemo(() => {
+    if (orderError) return 'Error al cargar los detalles de la orden'
+    if (order && order.status !== 'draft') return 'Solo se pueden editar órdenes en estado borrador'
+    return null
+  }, [order, orderError])
+
+  // Populate form when order loads
+  useEffect(() => {
+    if (order && order.status === 'draft') {
+      setSelectedSupplier(order.supplier_id)
+      setExpectedDelivery(order.expected_delivery_date || '')
+      setNotes(order.notes || '')
+      setShippingAddress(order.shipping_address || '')
       setItems(
-        data.purchase_order_items.map((item) => ({
+        order.purchase_order_items.map((item) => ({
           id: item.id,
           catalog_product_id: item.catalog_product_id,
           product_name: item.store_products?.name || 'Producto',
@@ -118,75 +171,8 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
           unit_cost: item.unit_cost,
         }))
       )
-    } catch {
-      setError('Error al cargar los detalles de la orden')
-    } finally {
-      setLoading(false)
     }
-  }, [orderId])
-
-  // Fetch suppliers
-  useEffect(() => {
-    const fetchSuppliers = async () => {
-      try {
-        const res = await fetch('/api/suppliers?status=verified')
-        if (!res.ok) throw new Error('Error al cargar proveedores')
-        const data = await res.json()
-        setSuppliers(data.suppliers || [])
-      } catch {
-        // Silent fail - suppliers will be empty
-      } finally {
-        setLoadingSuppliers(false)
-      }
-    }
-
-    if (isOpen) {
-      fetchSuppliers()
-    }
-  }, [isOpen])
-
-  // Fetch order when modal opens
-  useEffect(() => {
-    if (isOpen && orderId) {
-      fetchOrder()
-    }
-  }, [isOpen, orderId, fetchOrder])
-
-  // Search products
-  useEffect(() => {
-    if (!productSearch.trim() || productSearch.length < 2) {
-      setSearchResults([])
-      return
-    }
-
-    const searchProducts = async () => {
-      setSearching(true)
-      try {
-        const res = await fetch(`/api/procurement/leads?limit=10`)
-        if (res.ok) {
-          const data = await res.json()
-          const products = data.leads
-            ?.map((lead: { catalog_products: Product | null }) => lead.catalog_products)
-            .filter((p: Product | null): p is Product => p !== null)
-            .filter(
-              (p: Product, i: number, arr: Product[]) =>
-                arr.findIndex((x) => x.id === p.id) === i &&
-                (p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-                  p.sku.toLowerCase().includes(productSearch.toLowerCase()))
-            )
-            .slice(0, 5) || []
-          setSearchResults(products)
-        }
-      } catch {
-        // Ignore search errors
-      } finally {
-        setSearching(false)
-      }
-    }
-
-    const debounce = setTimeout(searchProducts, 300)
-    return () => clearTimeout(debounce)
-  }, [productSearch])
+  }, [order])
 
   const addItem = (product: Product) => {
     if (items.find((i) => i.catalog_product_id === product.id && !i.isDeleted)) {
@@ -209,7 +195,7 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
       },
     ])
     setProductSearch('')
-    setSearchResults([])
+    setDebouncedSearch('')  // Clear immediately to hide search dropdown
   }
 
   const updateItem = (index: number, field: 'quantity' | 'unit_cost', value: number) => {
@@ -238,7 +224,60 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
       .reduce((sum, item) => sum + item.quantity * item.unit_cost, 0)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Mutation: Update order (delete + recreate pattern)
+  const updateMutation = useMutation({
+    mutationFn: async (params: {
+      orderId: string
+      supplier_id: string
+      items: { catalog_product_id: string; quantity: number; unit_cost: number }[]
+      expected_delivery_date?: string
+      notes?: string
+      shipping_address?: string
+    }) => {
+      // Delete old order
+      await fetch(`/api/procurement/orders/${params.orderId}`, {
+        method: 'DELETE',
+      })
+
+      // Create new one
+      const res = await fetch('/api/procurement/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          supplier_id: params.supplier_id,
+          items: params.items,
+          expected_delivery_date: params.expected_delivery_date,
+          notes: params.notes,
+          shipping_address: params.shipping_address,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al actualizar orden')
+      }
+
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procurement', 'orders'] })
+      toast({
+        title: 'Orden Actualizada',
+        description: 'La orden de compra ha sido actualizada exitosamente',
+      })
+      onSuccess()
+      onClose()
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Error al actualizar la orden',
+        variant: 'destructive',
+      })
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!order) return
@@ -273,58 +312,18 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
       return
     }
 
-    setSubmitting(true)
-
-    try {
-      // If supplier changed or items were modified, we need to delete and recreate
-      // For simplicity, we'll delete the order and create a new one
-      // In a production app, you'd want a more sophisticated update API
-
-      // First, delete the old order
-      await fetch(`/api/procurement/orders/${order.id}`, {
-        method: 'DELETE',
-      })
-
-      // Then create a new one
-      const payload = {
-        supplier_id: selectedSupplier,
-        items: activeItems.map((i) => ({
-          catalog_product_id: i.catalog_product_id,
-          quantity: i.quantity,
-          unit_cost: i.unit_cost,
-        })),
-        expected_delivery_date: expectedDelivery || undefined,
-        notes: notes.trim() || undefined,
-        shipping_address: shippingAddress.trim() || undefined,
-      }
-
-      const res = await fetch('/api/procurement/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Error al actualizar orden')
-      }
-
-      toast({
-        title: 'Orden Actualizada',
-        description: 'La orden de compra ha sido actualizada exitosamente',
-      })
-
-      onSuccess()
-      onClose()
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Error al actualizar la orden',
-        variant: 'destructive',
-      })
-    } finally {
-      setSubmitting(false)
-    }
+    updateMutation.mutate({
+      orderId: order.id,
+      supplier_id: selectedSupplier,
+      items: activeItems.map((i) => ({
+        catalog_product_id: i.catalog_product_id,
+        quantity: i.quantity,
+        unit_cost: i.unit_cost,
+      })),
+      expected_delivery_date: expectedDelivery || undefined,
+      notes: notes.trim() || undefined,
+      shipping_address: shippingAddress.trim() || undefined,
+    })
   }
 
   if (!isOpen) return null
@@ -589,16 +588,16 @@ export function OrderEditForm({ orderId, isOpen, onClose, onSuccess }: OrderEdit
                 type="button"
                 onClick={onClose}
                 className="rounded-lg border border-gray-200 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                disabled={submitting}
+                disabled={updateMutation.isPending}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                disabled={submitting || activeItems.length === 0}
+                disabled={updateMutation.isPending || activeItems.length === 0}
                 className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
-                {submitting ? (
+                {updateMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Save className="h-4 w-4" />

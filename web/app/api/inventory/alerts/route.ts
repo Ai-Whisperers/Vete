@@ -29,4 +29,4 @@ export const GET = withApiAuth(async ({ supabase, profile, log }) => {
       details: { message: 'Error al cargar alertas de inventario' },
     })
   }
-})
+}, { roles: ['vet', 'admin'] })

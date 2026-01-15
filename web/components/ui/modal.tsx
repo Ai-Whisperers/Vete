@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { X } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useTranslations } from 'next-intl'
 
 export interface ModalProps {
   isOpen: boolean
@@ -29,6 +30,7 @@ export function Modal({
   closeOnEscape = true,
   className,
 }: ModalProps): React.ReactElement | null {
+  const t = useTranslations('common')
   const modalRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<Element | null>(null)
 
@@ -148,7 +150,7 @@ export function Modal({
                 <button
                   onClick={onClose}
                   className="-mr-2 -mt-2 rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-secondary)]"
-                  aria-label="Cerrar"
+                  aria-label={t('close')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -202,11 +204,12 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmLabel = 'Confirmar',
-  cancelLabel = 'Cancelar',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   isLoading = false,
 }: ConfirmModalProps): React.ReactElement {
+  const t = useTranslations('common')
   const variantStyles = {
     danger:
       'bg-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-dark,#dc2626)] text-white',
@@ -224,7 +227,7 @@ export function ConfirmModal({
           disabled={isLoading}
           className="rounded-xl px-4 py-2 font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
         >
-          {cancelLabel}
+          {cancelLabel || t('cancel')}
         </button>
         <button
           onClick={onConfirm}
@@ -234,7 +237,7 @@ export function ConfirmModal({
             variantStyles[variant]
           )}
         >
-          {isLoading ? 'Procesando...' : confirmLabel}
+          {isLoading ? t('processing') : (confirmLabel || t('confirm'))}
         </button>
       </ModalFooter>
     </Modal>

@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+/**
+ * Order Detail Modal Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Replaced manual status update with useMutation hook
+ */
+
+import { useState, useEffect } from 'react'
 import {
   X,
   FileText,
@@ -17,7 +25,10 @@ import {
   ReceiptText,
   AlertCircle,
 } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/Toast'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface PurchaseOrderItem {
   id: string
@@ -95,47 +106,76 @@ export function OrderDetailModal({
   onOrderUpdated,
 }: OrderDetailModalProps): React.ReactElement | null {
   const { toast } = useToast()
-  const [order, setOrder] = useState<PurchaseOrder | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [updating, setUpdating] = useState(false)
+  const queryClient = useQueryClient()
 
   // Receiving state
   const [receivingMode, setReceivingMode] = useState(false)
   const [receivedQuantities, setReceivedQuantities] = useState<Record<string, number>>({})
 
-  const fetchOrder = useCallback(async () => {
-    if (!orderId) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch order details
+  const { data: order, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.procurement.order(orderId),
+    queryFn: async (): Promise<PurchaseOrder> => {
       const res = await fetch(`/api/procurement/orders/${orderId}`)
       if (!res.ok) throw new Error('Error al cargar la orden')
+      return res.json()
+    },
+    enabled: isOpen && !!orderId,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-      const data = await res.json()
-      setOrder(data)
-
-      // Initialize received quantities
+  // Initialize received quantities when order data changes
+  useEffect(() => {
+    if (order?.purchase_order_items) {
       const quantities: Record<string, number> = {}
-      data.purchase_order_items?.forEach((item: PurchaseOrderItem) => {
+      order.purchase_order_items.forEach((item: PurchaseOrderItem) => {
         quantities[item.id] = item.received_quantity
       })
       setReceivedQuantities(quantities)
-    } catch {
-      setError('Error al cargar los detalles de la orden')
-    } finally {
-      setLoading(false)
     }
-  }, [orderId])
+  }, [order])
 
+  // Reset receiving mode when modal opens/closes
   useEffect(() => {
-    if (isOpen && orderId) {
-      fetchOrder()
+    if (isOpen) {
       setReceivingMode(false)
     }
-  }, [isOpen, orderId, fetchOrder])
+  }, [isOpen, orderId])
+
+  // Mutation: Update order status
+  const statusMutation = useMutation({
+    mutationFn: async (params: { status: string; received_items?: { item_id: string; received_quantity: number }[] }) => {
+      const res = await fetch(`/api/procurement/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al actualizar la orden')
+      }
+      return res.json()
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: 'Orden Actualizada',
+        description: `La orden ha sido ${variables.status === 'cancelled' ? 'cancelada' : 'actualizada'} exitosamente`,
+      })
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.procurement.order(orderId) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.procurement.all })
+      onOrderUpdated()
+      setReceivingMode(false)
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Error al actualizar la orden',
+        variant: 'destructive',
+      })
+    },
+  })
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return '-'
@@ -148,51 +188,22 @@ export function OrderDetailModal({
     })
   }
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = (newStatus: string) => {
     if (!order) return
 
-    setUpdating(true)
-    try {
-      const body: { status: string; received_items?: { item_id: string; received_quantity: number }[] } = {
-        status: newStatus,
-      }
-
-      // If receiving, include received quantities
-      if (newStatus === 'received') {
-        body.received_items = Object.entries(receivedQuantities).map(([itemId, qty]) => ({
-          item_id: itemId,
-          received_quantity: qty,
-        }))
-      }
-
-      const res = await fetch(`/api/procurement/orders/${order.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Error al actualizar la orden')
-      }
-
-      toast({
-        title: 'Orden Actualizada',
-        description: `La orden ha sido ${newStatus === 'cancelled' ? 'cancelada' : 'actualizada'} exitosamente`,
-      })
-
-      onOrderUpdated()
-      fetchOrder()
-      setReceivingMode(false)
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Error al actualizar la orden',
-        variant: 'destructive',
-      })
-    } finally {
-      setUpdating(false)
+    const params: { status: string; received_items?: { item_id: string; received_quantity: number }[] } = {
+      status: newStatus,
     }
+
+    // If receiving, include received quantities
+    if (newStatus === 'received') {
+      params.received_items = Object.entries(receivedQuantities).map(([itemId, qty]) => ({
+        item_id: itemId,
+        received_quantity: qty,
+      }))
+    }
+
+    statusMutation.mutate(params)
   }
 
   const getNextStatus = (): string | null => {
@@ -227,7 +238,7 @@ export function OrderDetailModal({
             </div>
             <div>
               <h2 className="text-lg font-bold text-[var(--text-primary)]">
-                {loading ? 'Cargando...' : order?.order_number || 'Orden de Compra'}
+                {isLoading ? 'Cargando...' : order?.order_number || 'Orden de Compra'}
               </h2>
               <p className="text-sm text-gray-500">Detalles de la orden</p>
             </div>
@@ -239,14 +250,14 @@ export function OrderDetailModal({
 
         {/* Content */}
         <div className="p-6">
-          {loading ? (
+          {isLoading ? (
             <div className="flex min-h-[300px] items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
             </div>
           ) : error ? (
             <div className="flex min-h-[200px] flex-col items-center justify-center">
               <AlertCircle className="mb-4 h-12 w-12 text-[var(--status-error)]" />
-              <p className="text-[var(--status-error)]">{error}</p>
+              <p className="text-[var(--status-error)]">Error al cargar los detalles de la orden</p>
             </div>
           ) : order ? (
             <div className="space-y-6">
@@ -482,7 +493,7 @@ export function OrderDetailModal({
                   {/* Cancel button - available for non-terminal states */}
                   <button
                     onClick={() => handleStatusChange('cancelled')}
-                    disabled={updating}
+                    disabled={statusMutation.isPending}
                     className="rounded-lg border border-[var(--status-error)] px-4 py-2 font-medium text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                   >
                     Cancelar Orden
@@ -510,10 +521,10 @@ export function OrderDetailModal({
                       </button>
                       <button
                         onClick={() => handleStatusChange('received')}
-                        disabled={updating}
+                        disabled={statusMutation.isPending}
                         className="flex items-center gap-2 rounded-lg bg-[var(--status-success)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
                       >
-                        {updating && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {statusMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                         <CheckCircle className="h-4 w-4" />
                         Confirmar Recepción
                       </button>
@@ -524,10 +535,10 @@ export function OrderDetailModal({
                   {!receivingMode && getNextStatus() && order.status !== 'shipped' && (
                     <button
                       onClick={() => handleStatusChange(getNextStatus()!)}
-                      disabled={updating}
+                      disabled={statusMutation.isPending}
                       className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
                     >
-                      {updating && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {statusMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                       {order.status === 'draft' && <Send className="h-4 w-4" />}
                       {getNextStatusLabel()}
                     </button>

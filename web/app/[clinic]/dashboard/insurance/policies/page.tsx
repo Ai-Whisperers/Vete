@@ -1,8 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+/**
+ * Insurance Policies Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import { Plus, Shield, CheckCircle2, XCircle, Calendar, DollarSign } from 'lucide-react'
 
 interface Policy {
@@ -30,37 +37,24 @@ interface Policy {
 }
 
 export default function InsurancePoliciesPage() {
-  const supabase = createClient()
   const router = useRouter()
 
-  const [loading, setLoading] = useState(true)
-  const [policies, setPolicies] = useState<Policy[]>([])
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null)
 
-  useEffect(() => {
-    checkAuth()
-    loadPolicies()
-  }, [])
+  // React Query: Fetch policies
+  const { data: policiesData, isLoading: loading } = useQuery({
+    queryKey: ['insurance-policies'],
+    queryFn: async (): Promise<{ data: Policy[] }> => {
+      const response = await fetch('/api/insurance/policies')
+      if (!response.ok) throw new Error('Error al cargar pólizas')
+      return response.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  const checkAuth = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) {
-      router.push('/')
-    }
-  }
-
-  const loadPolicies = async () => {
-    setLoading(true)
-    const response = await fetch('/api/insurance/policies')
-    if (response.ok) {
-      const result = await response.json()
-      setPolicies(result.data || [])
-    }
-    setLoading(false)
-  }
+  const policies = policiesData?.data || []
 
   const getStatusBadge = (status: string) => {
     const configs: { [key: string]: { label: string; color: string; icon: any } } = {

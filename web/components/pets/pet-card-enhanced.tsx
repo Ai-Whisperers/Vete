@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Vaccine {
   id: string
@@ -48,9 +49,13 @@ interface PetCardProps {
 }
 
 export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
+  const t = useTranslations('pets.card')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   // Calculate age
   const calculateAge = (birthDate: string | null | undefined): string => {
-    if (!birthDate) return 'Edad desconocida'
+    if (!birthDate) return t('unknownAge')
 
     const birth = new Date(birthDate)
     const today = new Date()
@@ -65,13 +70,13 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
 
     if (years > 0) {
       if (months > 0) {
-        return `${years} ${years === 1 ? 'año' : 'años'}, ${months} ${months === 1 ? 'mes' : 'meses'}`
+        return `${years} ${years === 1 ? t('year') : t('years')}, ${months} ${months === 1 ? t('month') : t('months')}`
       }
-      return `${years} ${years === 1 ? 'año' : 'años'}`
+      return `${years} ${years === 1 ? t('year') : t('years')}`
     } else if (months > 0) {
-      return `${months} ${months === 1 ? 'mes' : 'meses'}`
+      return `${months} ${months === 1 ? t('month') : t('months')}`
     }
-    return 'Cachorro/Gatito'
+    return t('baby')
   }
 
   // Get vaccine status
@@ -81,7 +86,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
     message: string
   } => {
     if (!pet.vaccines || pet.vaccines.length === 0) {
-      return { status: 'warning', count: 0, message: 'Sin vacunas registradas' }
+      return { status: 'warning', count: 0, message: t('noVaccines') }
     }
 
     const today = new Date()
@@ -105,24 +110,24 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
       return {
         status: 'danger',
         count: overdueCount,
-        message: `${overdueCount} vacuna${overdueCount > 1 ? 's' : ''} vencida${overdueCount > 1 ? 's' : ''}`,
+        message: overdueCount > 1 ? t('overdueVaccines', { count: overdueCount }) : t('overdueVaccine', { count: overdueCount }),
       }
     }
     if (upcomingCount > 0) {
       return {
         status: 'warning',
         count: upcomingCount,
-        message: `${upcomingCount} vacuna${upcomingCount > 1 ? 's' : ''} próxima${upcomingCount > 1 ? 's' : ''}`,
+        message: upcomingCount > 1 ? t('upcomingVaccines', { count: upcomingCount }) : t('upcomingVaccine', { count: upcomingCount }),
       }
     }
-    return { status: 'ok', count: 0, message: 'Vacunas al día' }
+    return { status: 'ok', count: 0, message: t('vaccinesUpToDate') }
   }
 
   // Format date
   const formatDate = (dateStr: string | null | undefined): string => {
     if (!dateStr) return ''
     const date = new Date(dateStr)
-    return date.toLocaleDateString('es-PY', { day: 'numeric', month: 'short', year: 'numeric' })
+    return date.toLocaleDateString(localeStr, { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   // Check for health alerts
@@ -199,7 +204,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
 
             {/* Breed and age */}
             <p className="mb-3 text-sm text-gray-500">
-              <span className="font-medium">{pet.breed || 'Mestizo'}</span>
+              <span className="font-medium">{pet.breed || t('mixedBreed')}</span>
               <span className="mx-1.5">•</span>
               <span>{calculateAge(pet.birth_date)}</span>
               {pet.weight_kg && (
@@ -216,7 +221,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
               {pet.last_visit_date && (
                 <div className="flex items-center gap-2 text-gray-500">
                   <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                  <span>Última visita: {formatDate(pet.last_visit_date)}</span>
+                  <span>{t('lastVisit')} {formatDate(pet.last_visit_date)}</span>
                 </div>
               )}
 
@@ -225,7 +230,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
                 <div className="flex items-center gap-2 text-[var(--primary)]">
                   <Clock className="h-3.5 w-3.5" />
                   <span className="font-medium">
-                    Próxima cita: {formatDate(pet.next_appointment.start_time)}
+                    {t('nextAppointment')} {formatDate(pet.next_appointment.start_time)}
                     {pet.next_appointment.services?.name && (
                       <span className="font-normal text-gray-400">
                         {' '}
@@ -243,7 +248,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
                   <span>
                     {pet.allergies &&
                       pet.allergies.length > 0 &&
-                      `Alergias: ${pet.allergies.slice(0, 2).join(', ')}`}
+                      `${t('allergies')} ${pet.allergies.slice(0, 2).join(', ')}`}
                     {pet.allergies &&
                       pet.allergies.length > 0 &&
                       pet.chronic_conditions &&
@@ -251,7 +256,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
                       ' • '}
                     {pet.chronic_conditions &&
                       pet.chronic_conditions.length > 0 &&
-                      'Condiciones crónicas'}
+                      t('chronicConditions')}
                   </span>
                 </div>
               )}

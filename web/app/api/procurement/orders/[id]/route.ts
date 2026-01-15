@@ -339,7 +339,7 @@ export const PATCH = withApiAuthParams(
 
     return NextResponse.json(order)
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )
 
 /**
@@ -391,5 +391,5 @@ export const DELETE = withApiAuthParams(
 
     return new NextResponse(null, { status: 204 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

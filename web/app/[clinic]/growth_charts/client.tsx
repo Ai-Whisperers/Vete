@@ -1,6 +1,20 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+
+/**
+ * Growth Charts CRUD Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Added useMutation for CRUD operations
+ * - Automatic cache invalidation on mutations
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
+import { useTranslations } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   TrendingUp,
   Plus,
@@ -32,8 +46,10 @@ type SortDirection = 'asc' | 'desc'
 
 export default function GrowthChartsClient() {
   const { user, loading } = useAuthRedirect()
-  const [charts, setCharts] = useState<GrowthChart[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const t = useTranslations('growthCharts')
+  const tc = useTranslations('common')
+  const queryClient = useQueryClient()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [speciesFilter, setSpeciesFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('breed')
@@ -51,29 +67,68 @@ export default function GrowthChartsClient() {
   const [formWeight, setFormWeight] = useState('')
   const [formNotes, setFormNotes] = useState('')
 
-  const fetchCharts = async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch('/api/growth_charts')
-      if (res.ok) {
-        const data = await res.json()
-        setCharts(data)
+  // React Query for data fetching
+  const { data: charts = [], isLoading } = useQuery({
+    queryKey: queryKeys.clinical.growthCharts(),
+    queryFn: async (): Promise<GrowthChart[]> => {
+      const response = await fetch('/api/growth_charts')
+      if (!response.ok) {
+        throw new Error('Error al cargar tablas de crecimiento')
       }
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching growth charts:', error)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      return response.json()
+    },
+    enabled: !loading && !!user,
+    staleTime: staleTimes.STATIC,
+    gcTime: gcTimes.LONG,
+  })
 
-  useEffect(() => {
-    if (!loading && user) {
-      fetchCharts()
-    }
-  }, [loading, user])
+  // Mutation for adding growth chart records
+  const addMutation = useMutation({
+    mutationFn: async (payload: Omit<GrowthChart, 'id'>) => {
+      const response = await fetch('/api/growth_charts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al agregar registro')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.growthCharts() })
+    },
+  })
+
+  // Mutation for updating growth chart records
+  const updateMutation = useMutation({
+    mutationFn: async (payload: GrowthChart) => {
+      const response = await fetch('/api/growth_charts', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Error al actualizar registro')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.growthCharts() })
+    },
+  })
+
+  // Mutation for deleting growth chart records
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch('/api/growth_charts', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!response.ok) throw new Error('Error al eliminar registro')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.clinical.growthCharts() })
+    },
+  })
 
   // Filter and sort charts
   const filteredCharts = useMemo(() => {
@@ -158,18 +213,14 @@ export default function GrowthChartsClient() {
       species: formSpecies,
       age_months: Number(formAge),
       weight_kg: Number(formWeight),
-      notes: formNotes || null,
+      notes: formNotes || undefined,
     }
-    const res = await fetch('/api/growth_charts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    addMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowAddModal(false)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowAddModal(false)
-      resetForm()
-      fetchCharts()
-    }
   }
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -182,30 +233,20 @@ export default function GrowthChartsClient() {
       species: formSpecies,
       age_months: Number(formAge),
       weight_kg: Number(formWeight),
-      notes: formNotes || null,
+      notes: formNotes || undefined,
     }
-    const res = await fetch('/api/growth_charts', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        setShowEditModal(false)
+        setEditingChart(null)
+        resetForm()
+      },
     })
-    if (res.ok) {
-      setShowEditModal(false)
-      setEditingChart(null)
-      resetForm()
-      fetchCharts()
-    }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este registro?')) return
-
-    await fetch('/api/growth_charts', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    fetchCharts()
+    if (!confirm(t('confirmDelete'))) return
+    deleteMutation.mutate(id)
   }
 
   const getSpeciesIcon = (species?: string) => {
@@ -246,24 +287,23 @@ export default function GrowthChartsClient() {
               <TrendingUp className="h-8 w-8" />
             </div>
             <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium backdrop-blur-sm">
-              Herramienta Clínica
+              {t('clinicalTool')}
             </span>
           </div>
 
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Curvas de Crecimiento</h1>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{t('title')}</h1>
           <p className="max-w-2xl text-xl text-white/90">
-            Registra y monitorea el crecimiento de tus pacientes. Compara pesos por edad y raza para
-            detectar anomalías tempranas.
+            {t('description')}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <div className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
               <LineChart className="h-5 w-5" />
-              <span>{charts.length} registros</span>
+              <span>{t('recordsCount', { count: charts.length })}</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 backdrop-blur-sm">
               <Dog className="h-5 w-5" />
-              <span>Perros y Gatos</span>
+              <span>{t('dogsAndCats')}</span>
             </div>
           </div>
         </div>
@@ -279,7 +319,7 @@ export default function GrowthChartsClient() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar por raza o notas..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 transition-all focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
@@ -292,21 +332,21 @@ export default function GrowthChartsClient() {
                 value={speciesFilter}
                 onChange={(e) => setSpeciesFilter(e.target.value)}
                 className="rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
-                aria-label="Filtrar por especie"
+                aria-label={t('speciesFilterLabel')}
               >
-                <option value="all">Todas las especies</option>
-                <option value="perro">🐕 Perros</option>
-                <option value="gato">🐱 Gatos</option>
+                <option value="all">{t('species.all')}</option>
+                <option value="perro">{t('species.dogsEmoji')}</option>
+                <option value="gato">{t('species.catsEmoji')}</option>
               </select>
 
               {/* Add Button */}
               <button
                 onClick={openAddModal}
                 className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
-                aria-label="Agregar nuevo registro de crecimiento"
+                aria-label={t('addRecordAriaLabel')}
               >
                 <Plus className="h-5 w-5" />
-                <span className="hidden sm:inline">Agregar Registro</span>
+                <span className="hidden sm:inline">{t('addRecord')}</span>
               </button>
             </div>
           </div>
@@ -315,7 +355,7 @@ export default function GrowthChartsClient() {
           {(searchTerm || speciesFilter !== 'all') && (
             <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
               <span>
-                Mostrando {filteredCharts.length} de {charts.length} registros
+                {t('showingFiltered', { filtered: filteredCharts.length, total: charts.length })}
               </span>
               <button
                 onClick={() => {
@@ -324,7 +364,7 @@ export default function GrowthChartsClient() {
                 }}
                 className="text-[var(--primary)] hover:underline"
               >
-                Limpiar filtros
+                {t('clearFilters')}
               </button>
             </div>
           )}
@@ -346,13 +386,13 @@ export default function GrowthChartsClient() {
             </div>
             <h3 className="mb-2 text-lg font-bold text-gray-900">
               {searchTerm || speciesFilter !== 'all'
-                ? 'No se encontraron registros'
-                : 'Sin registros de crecimiento'}
+                ? t('empty.noResults')
+                : t('empty.noRecords')}
             </h3>
             <p className="mb-6 text-gray-600">
               {searchTerm || speciesFilter !== 'all'
-                ? 'Intenta con otros términos de búsqueda o filtros.'
-                : 'Comienza agregando registros de peso y edad de tus pacientes.'}
+                ? t('empty.tryOtherSearch')
+                : t('empty.startAdding')}
             </p>
             {!searchTerm && speciesFilter === 'all' && (
               <button
@@ -360,7 +400,7 @@ export default function GrowthChartsClient() {
                 className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
               >
                 <Plus className="h-5 w-5" />
-                Agregar Primer Registro
+                {t('addFirstRecord')}
               </button>
             )}
           </div>
@@ -375,7 +415,7 @@ export default function GrowthChartsClient() {
                       onClick={() => handleSort('species')}
                     >
                       <span className="flex items-center gap-2">
-                        Especie
+                        {t('table.species')}
                         <SortIcon field="species" />
                       </span>
                     </th>
@@ -384,7 +424,7 @@ export default function GrowthChartsClient() {
                       onClick={() => handleSort('breed')}
                     >
                       <span className="flex items-center gap-2">
-                        Raza
+                        {t('table.breed')}
                         <SortIcon field="breed" />
                       </span>
                     </th>
@@ -394,7 +434,7 @@ export default function GrowthChartsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        Edad (meses)
+                        {t('table.ageMonths')}
                         <SortIcon field="age_months" />
                       </span>
                     </th>
@@ -404,12 +444,12 @@ export default function GrowthChartsClient() {
                     >
                       <span className="flex items-center gap-2">
                         <Scale className="h-4 w-4" />
-                        Peso (kg)
+                        {t('table.weightKg')}
                         <SortIcon field="weight_kg" />
                       </span>
                     </th>
-                    <th className="p-4 text-left font-bold text-gray-700">Notas</th>
-                    <th className="p-4 text-right font-bold text-gray-700">Acciones</th>
+                    <th className="p-4 text-left font-bold text-gray-700">{t('table.notes')}</th>
+                    <th className="p-4 text-right font-bold text-gray-700">{tc('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -449,14 +489,14 @@ export default function GrowthChartsClient() {
                           <button
                             onClick={() => openEditModal(chart)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-[var(--primary)]"
-                            aria-label={`Editar registro de ${chart.breed}`}
+                            aria-label={t('editRecordAriaLabel', { breed: chart.breed })}
                           >
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(chart.id)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
-                            aria-label={`Eliminar registro de ${chart.breed}`}
+                            aria-label={t('deleteRecordAriaLabel', { breed: chart.breed })}
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
@@ -474,28 +514,23 @@ export default function GrowthChartsClient() {
         <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-purple-50 p-6">
           <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-900">
             <LineChart className="h-5 w-5 text-[var(--primary)]" />
-            Sobre las Curvas de Crecimiento
+            {t('info.title')}
           </h3>
           <div className="grid gap-4 text-sm text-gray-600 md:grid-cols-2">
             <div>
               <p className="mb-2">
-                <strong>¿Para qué sirven?</strong> Las curvas de crecimiento permiten monitorear el
-                desarrollo de cachorros y gatitos, comparando su peso con valores de referencia por
-                raza y edad.
+                <strong>{t('info.whatForTitle')}</strong> {t('info.whatForText')}
               </p>
               <p>
-                <strong>Frecuencia recomendada:</strong> Registrar peso semanalmente durante los
-                primeros 6 meses, luego mensualmente hasta el año de edad.
+                <strong>{t('info.frequencyTitle')}</strong> {t('info.frequencyText')}
               </p>
             </div>
             <div>
               <p className="mb-2">
-                <strong>Señales de alerta:</strong> Pérdida de peso, estancamiento prolongado, o
-                crecimiento excesivamente rápido pueden indicar problemas de salud.
+                <strong>{t('info.warningTitle')}</strong> {t('info.warningText')}
               </p>
               <p>
-                <strong>Tip:</strong> Pesar siempre a la misma hora del día, preferiblemente antes
-                de alimentar al paciente.
+                <strong>{t('info.tipTitle')}</strong> {t('info.tipText')}
               </p>
             </div>
           </div>
@@ -508,11 +543,11 @@ export default function GrowthChartsClient() {
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div className="border-b border-gray-100 p-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Agregar Registro</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('modal.addTitle')}</h2>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                  aria-label="Cerrar modal"
+                  aria-label={t('modal.closeAriaLabel')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -521,25 +556,25 @@ export default function GrowthChartsClient() {
 
             <form onSubmit={handleAdd} className="space-y-4 p-6">
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Especie *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.species')} *</label>
                 <select
                   value={formSpecies}
                   onChange={(e) => setFormSpecies(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                   required
                 >
-                  <option value="perro">🐕 Perro</option>
-                  <option value="gato">🐱 Gato</option>
+                  <option value="perro">{t('species.dogEmoji')}</option>
+                  <option value="gato">{t('species.catEmoji')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Raza *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.breed')} *</label>
                 <input
                   type="text"
                   value={formBreed}
                   onChange={(e) => setFormBreed(e.target.value)}
-                  placeholder="Ej: Golden Retriever, Siamés"
+                  placeholder={t('form.breedPlaceholder')}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                   required
                 />
@@ -548,7 +583,7 @@ export default function GrowthChartsClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Edad (meses) *
+                    {t('form.ageMonths')} *
                   </label>
                   <input
                     type="number"
@@ -563,7 +598,7 @@ export default function GrowthChartsClient() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Peso (kg) *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.weightKg')} *</label>
                   <input
                     type="number"
                     step="0.1"
@@ -579,12 +614,12 @@ export default function GrowthChartsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Notas (opcional)
+                  {t('form.notesOptional')}
                 </label>
                 <textarea
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
-                  placeholder="Observaciones adicionales..."
+                  placeholder={t('form.notesPlaceholder')}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                 />
@@ -596,13 +631,13 @@ export default function GrowthChartsClient() {
                   onClick={() => setShowAddModal(false)}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
                 >
-                  Guardar
+                  {tc('save')}
                 </button>
               </div>
             </form>
@@ -616,14 +651,14 @@ export default function GrowthChartsClient() {
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white shadow-2xl">
             <div className="border-b border-gray-100 p-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Editar Registro</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('modal.editTitle')}</h2>
                 <button
                   onClick={() => {
                     setShowEditModal(false)
                     setEditingChart(null)
                   }}
                   className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                  aria-label="Cerrar modal"
+                  aria-label={t('modal.closeAriaLabel')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -632,25 +667,25 @@ export default function GrowthChartsClient() {
 
             <form onSubmit={handleEdit} className="space-y-4 p-6">
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Especie *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.species')} *</label>
                 <select
                   value={formSpecies}
                   onChange={(e) => setFormSpecies(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                   required
                 >
-                  <option value="perro">🐕 Perro</option>
-                  <option value="gato">🐱 Gato</option>
+                  <option value="perro">{t('species.dogEmoji')}</option>
+                  <option value="gato">{t('species.catEmoji')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-gray-700">Raza *</label>
+                <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.breed')} *</label>
                 <input
                   type="text"
                   value={formBreed}
                   onChange={(e) => setFormBreed(e.target.value)}
-                  placeholder="Ej: Golden Retriever, Siamés"
+                  placeholder={t('form.breedPlaceholder')}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                   required
                 />
@@ -659,7 +694,7 @@ export default function GrowthChartsClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Edad (meses) *
+                    {t('form.ageMonths')} *
                   </label>
                   <input
                     type="number"
@@ -674,7 +709,7 @@ export default function GrowthChartsClient() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-gray-700">Peso (kg) *</label>
+                  <label className="mb-2 block text-sm font-bold text-gray-700">{t('form.weightKg')} *</label>
                   <input
                     type="number"
                     step="0.1"
@@ -690,12 +725,12 @@ export default function GrowthChartsClient() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold text-gray-700">
-                  Notas (opcional)
+                  {t('form.notesOptional')}
                 </label>
                 <textarea
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
-                  placeholder="Observaciones adicionales..."
+                  placeholder={t('form.notesPlaceholder')}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                 />
@@ -710,13 +745,13 @@ export default function GrowthChartsClient() {
                   }}
                   className="flex-1 rounded-xl border border-gray-200 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  Cancelar
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
                 >
-                  Guardar Cambios
+                  {t('modal.saveChanges')}
                 </button>
               </div>
             </form>

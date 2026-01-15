@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -100,12 +99,6 @@ export const GET = withApiAuth(
  */
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write endpoints (20 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     try {
       const body = await request.json()
       const {
@@ -248,5 +241,5 @@ export const POST = withApiAuth(
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

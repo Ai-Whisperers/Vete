@@ -3,6 +3,7 @@
 import React from 'react'
 import { Check, Phone, Clock, Calendar } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useBookingStore } from '@/lib/store/booking-store'
 
 interface SuccessScreenProps {
@@ -17,6 +18,7 @@ interface SuccessScreenProps {
 export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
   const router = useRouter()
   const { selection, pets, getSelectedServices, getTotalDuration, getTotalPrice } = useBookingStore()
+  const t = useTranslations('booking.wizard.success')
 
   const selectedServices = getSelectedServices()
   const currentPet = pets.find((p) => p.id === selection.petId)
@@ -30,12 +32,12 @@ export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
       if (selection.preferredDateStart && selection.preferredDateEnd) {
         parts.push(`${selection.preferredDateStart} - ${selection.preferredDateEnd}`)
       } else if (selection.preferredDateStart) {
-        parts.push(`Desde ${selection.preferredDateStart}`)
+        parts.push(t('fromDate', { date: selection.preferredDateStart }))
       }
     }
 
     if (selection.preferredTimeOfDay && selection.preferredTimeOfDay !== 'any') {
-      parts.push(selection.preferredTimeOfDay === 'morning' ? 'Por la mañana' : 'Por la tarde')
+      parts.push(selection.preferredTimeOfDay === 'morning' ? t('morning') : t('afternoon'))
     }
 
     return parts.length > 0 ? parts.join(' • ') : null
@@ -52,22 +54,23 @@ export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
       </div>
 
       {/* Title */}
-      <h2 className="mb-4 text-2xl font-black text-gray-900 sm:text-4xl">¡Solicitud Recibida!</h2>
+      <h2 className="mb-4 text-2xl font-black text-gray-900 sm:text-4xl">{t('title')}</h2>
 
       {/* Message */}
       <div className="mb-8 text-base leading-relaxed text-gray-500 sm:mb-10 sm:text-lg">
         <p>
-          Hemos recibido tu solicitud de cita para{' '}
-          <span className="font-bold text-gray-900">{currentPet?.name}</span>.
+          {t.rich('message', {
+            petName: currentPet?.name ?? '',
+          })}
         </p>
 
         {/* Contact notice */}
         <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-4 text-left">
           <Phone className="h-5 w-5 flex-shrink-0 text-[var(--primary)]" />
           <div>
-            <p className="font-bold text-[var(--primary)]">Te contactaremos pronto</p>
+            <p className="font-bold text-[var(--primary)]">{t('contactTitle')}</p>
             <p className="text-sm text-gray-600">
-              Un miembro de nuestro equipo se comunicará contigo para confirmar el horario de tu cita.
+              {t('contactDescription')}
             </p>
           </div>
         </div>
@@ -77,7 +80,7 @@ export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
           <div className="mx-auto mt-4 max-w-md rounded-2xl bg-gray-50 p-4 text-left">
             <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-400">
               <Calendar className="h-3 w-3" />
-              Tus preferencias
+              {t('preferencesLabel')}
             </p>
             <p className="text-sm text-gray-700">{preferenceText}</p>
           </div>
@@ -87,7 +90,7 @@ export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
         <div className="mx-auto mt-4 max-w-md rounded-2xl bg-gray-50 p-4 text-left">
           <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-400">
             <Clock className="h-3 w-3" />
-            {selectedServices.length > 1 ? 'Servicios solicitados' : 'Servicio solicitado'} ({totalDuration} min)
+            {t('servicesLabel', { count: selectedServices.length, duration: totalDuration })}
           </p>
           <ul className="space-y-1">
             {selectedServices.map((service, index) => (
@@ -108,7 +111,7 @@ export function SuccessScreen({ clinicId, clinicName }: SuccessScreenProps) {
           onClick={() => router.push(`/${clinicId}/portal/dashboard`)}
           className="min-h-[48px] rounded-2xl bg-gray-900 px-8 py-4 font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl sm:px-10 sm:py-5"
         >
-          Volver al Inicio
+          {t('backHome')}
         </button>
       </div>
     </div>

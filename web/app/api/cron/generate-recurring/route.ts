@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { checkCronAuth } from '@/lib/api/cron-auth'
+import { notifyStaff } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,7 +82,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 3. Check for recurrences that are about to reach their limit
     const { data: nearingLimit } = await supabase
       .from('appointment_recurrences')
-      .select('id, pet_id, max_occurrences, occurrences_generated')
+      .select(`
+        id,
+        tenant_id,
+        pet_id,
+        service_id,
+        max_occurrences,
+        occurrences_generated,
+        pet:pets!pet_id (name, owner:profiles!owner_id (full_name)),
+        service:services!service_id (name)
+      `)
       .eq('is_active', true)
       .not('max_occurrences', 'is', null)
 
@@ -93,7 +103,42 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       logger.info(
         `${aboutToEnd.length} recurrences are nearing their occurrence limit`
       )
-      // TODO: Send notification to staff about recurrences nearing limit
+
+      // Group by tenant and send notifications
+      const byTenant = new Map<string, typeof aboutToEnd>()
+      for (const r of aboutToEnd) {
+        const existing = byTenant.get(r.tenant_id) || []
+        existing.push(r)
+        byTenant.set(r.tenant_id, existing)
+      }
+
+      for (const [tenantId, recurrences] of byTenant) {
+        try {
+          const details = recurrences.map((r) => {
+            const pet = r.pet as { name?: string; owner?: { full_name?: string } } | null
+            const service = r.service as { name?: string } | null
+            const remaining = (r.max_occurrences || 0) - r.occurrences_generated
+            return `${pet?.name || 'Mascota'} (${pet?.owner?.full_name || 'Cliente'}) - ${service?.name || 'Servicio'}: ${remaining} citas restantes`
+          })
+
+          await notifyStaff({
+            tenantId,
+            title: 'Citas recurrentes por terminar',
+            message: `${recurrences.length} patrón(es) de citas recurrentes están próximos a alcanzar su límite. Considera extender o renovar.`,
+            type: 'recurrence_limit_warning',
+            channels: ['in_app'],
+            data: {
+              count: recurrences.length,
+              details,
+            },
+          })
+        } catch (notifError) {
+          logger.warn('Failed to send recurrence limit notification', {
+            tenantId,
+            error: notifError instanceof Error ? notifError.message : 'Unknown',
+          })
+        }
+      }
     }
 
     // 4. Check for paused recurrences that should resume

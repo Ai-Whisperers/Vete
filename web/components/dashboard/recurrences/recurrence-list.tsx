@@ -1,23 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Recurrence List Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Actions use useMutation with cache invalidation
+ */
+
+import { useState, useMemo } from 'react'
 import {
   RefreshCw,
   Calendar,
   Search,
-  Filter,
   Play,
   Pause,
   Trash2,
-  Edit,
   ChevronDown,
   Loader2,
   AlertCircle,
   Clock,
   User,
 } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/Toast'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Recurrence {
   id: string
@@ -59,143 +67,163 @@ const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
 export function RecurrenceList(): React.ReactElement {
   const { toast } = useToast()
-  const [recurrences, setRecurrences] = useState<Recurrence[]>([])
-  const [loading, setLoading] = useState(true)
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [showInactive, setShowInactive] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const fetchRecurrences = async () => {
-    setLoading(true)
-    try {
+  // React Query: Fetch recurrences
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['appointments', 'recurrences', { showInactive }],
+    queryFn: async (): Promise<{ recurrences: Recurrence[] }> => {
       const params = new URLSearchParams()
       if (!showInactive) params.append('active', 'true')
 
       const res = await fetch(`/api/appointments/recurrences?${params}`)
       if (!res.ok) throw new Error('Error al cargar')
-      const data = await res.json()
-      setRecurrences(data.recurrences || [])
-    } catch (error) {
-      console.error('Error fetching recurrences:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  useEffect(() => {
-    fetchRecurrences()
-  }, [showInactive])
+  const recurrences = data?.recurrences || []
 
-  const handlePause = async (recurrence: Recurrence) => {
-    const pauseDate = prompt('Pausar hasta (YYYY-MM-DD):')
-    if (!pauseDate) return
+  // Query key for invalidation
+  const queryKey = ['appointments', 'recurrences', { showInactive }]
 
-    setActionLoading(recurrence.id)
-    try {
-      const res = await fetch(`/api/appointments/recurrences/${recurrence.id}/pause`, {
+  // Mutation: Pause recurrence
+  const pauseMutation = useMutation({
+    mutationFn: async ({ id, pausedUntil }: { id: string; pausedUntil: string }) => {
+      const res = await fetch(`/api/appointments/recurrences/${id}/pause`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paused_until: pauseDate }),
+        body: JSON.stringify({ paused_until: pausedUntil }),
       })
-
       if (!res.ok) throw new Error('Error al pausar')
-
+      return res.json()
+    },
+    onSuccess: (_, { pausedUntil }) => {
+      queryClient.invalidateQueries({ queryKey })
       toast({
         title: 'Recurrencia pausada',
-        description: `Pausada hasta ${pauseDate}`,
+        description: `Pausada hasta ${pausedUntil}`,
       })
-      fetchRecurrences()
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: 'Error',
         description: 'No se pudo pausar la recurrencia',
         variant: 'destructive',
       })
-    } finally {
-      setActionLoading(null)
-    }
-  }
+    },
+  })
 
-  const handleResume = async (recurrence: Recurrence) => {
-    setActionLoading(recurrence.id)
-    try {
-      const res = await fetch(`/api/appointments/recurrences/${recurrence.id}/pause`, {
+  // Mutation: Resume recurrence
+  const resumeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/appointments/recurrences/${id}/pause`, {
         method: 'DELETE',
       })
-
       if (!res.ok) throw new Error('Error al reanudar')
-
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey })
       toast({
         title: 'Recurrencia reanudada',
         description: 'Las citas se generarán automáticamente',
       })
-      fetchRecurrences()
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: 'Error',
         description: 'No se pudo reanudar',
         variant: 'destructive',
       })
-    } finally {
-      setActionLoading(null)
-    }
-  }
+    },
+  })
 
-  const handleDeactivate = async (recurrence: Recurrence, cancelFuture: boolean) => {
-    if (!confirm('¿Cancelar esta recurrencia?')) return
-
-    setActionLoading(recurrence.id)
-    try {
+  // Mutation: Deactivate recurrence
+  const deactivateMutation = useMutation({
+    mutationFn: async ({ id, cancelFuture }: { id: string; cancelFuture: boolean }) => {
       const params = cancelFuture ? '?cancel_future=true' : ''
-      const res = await fetch(`/api/appointments/recurrences/${recurrence.id}${params}`, {
+      const res = await fetch(`/api/appointments/recurrences/${id}${params}`, {
         method: 'DELETE',
       })
-
       if (!res.ok) throw new Error('Error al cancelar')
-
+      return res.json()
+    },
+    onSuccess: (_, { cancelFuture }) => {
+      queryClient.invalidateQueries({ queryKey })
       toast({
         title: 'Recurrencia cancelada',
         description: cancelFuture ? 'Citas futuras también canceladas' : 'Citas existentes mantenidas',
       })
-      fetchRecurrences()
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: 'Error',
         description: 'No se pudo cancelar',
         variant: 'destructive',
       })
-    } finally {
-      setActionLoading(null)
-    }
-  }
+    },
+  })
 
-  const handleGenerate = async (recurrence: Recurrence) => {
-    setActionLoading(recurrence.id)
-    try {
-      const res = await fetch(`/api/appointments/recurrences/${recurrence.id}/generate`, {
+  // Mutation: Generate appointments
+  const generateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/appointments/recurrences/${id}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ days_ahead: 30 }),
       })
-
       if (!res.ok) throw new Error('Error al generar')
-
-      const data = await res.json()
+      return res.json()
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey })
       toast({
         title: 'Citas generadas',
         description: data.message,
       })
-      fetchRecurrences()
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: 'Error',
         description: 'No se pudieron generar las citas',
         variant: 'destructive',
       })
-    } finally {
-      setActionLoading(null)
-    }
+    },
+  })
+
+  const handlePause = (recurrence: Recurrence) => {
+    const pauseDate = prompt('Pausar hasta (YYYY-MM-DD):')
+    if (!pauseDate) return
+    pauseMutation.mutate({ id: recurrence.id, pausedUntil: pauseDate })
+  }
+
+  const handleResume = (recurrence: Recurrence) => {
+    resumeMutation.mutate(recurrence.id)
+  }
+
+  const handleDeactivate = (recurrence: Recurrence, cancelFuture: boolean) => {
+    if (!confirm('¿Cancelar esta recurrencia?')) return
+    deactivateMutation.mutate({ id: recurrence.id, cancelFuture })
+  }
+
+  const handleGenerate = (recurrence: Recurrence) => {
+    generateMutation.mutate(recurrence.id)
+  }
+
+  // Track which item is isLoading
+  const getActionLoading = (id: string): boolean => {
+    return (
+      (pauseMutation.isPending && pauseMutation.variables?.id === id) ||
+      (resumeMutation.isPending && resumeMutation.variables === id) ||
+      (deactivateMutation.isPending && deactivateMutation.variables?.id === id) ||
+      (generateMutation.isPending && generateMutation.variables === id)
+    )
   }
 
   const formatTime = (time: string): string => time.substring(0, 5)
@@ -218,15 +246,17 @@ export function RecurrenceList(): React.ReactElement {
     return <Badge className="bg-[var(--status-success-bg)] text-[var(--status-success)]">Activa</Badge>
   }
 
-  // Filter recurrences
-  const filteredRecurrences = recurrences.filter((r) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      r.pet.name.toLowerCase().includes(query) ||
-      r.service.name.toLowerCase().includes(query)
-    )
-  })
+  // Filter recurrences - memoized
+  const filteredRecurrences = useMemo(() => {
+    return recurrences.filter((r) => {
+      if (!searchQuery) return true
+      const query = searchQuery.toLowerCase()
+      return (
+        r.pet.name.toLowerCase().includes(query) ||
+        r.service.name.toLowerCase().includes(query)
+      )
+    })
+  }, [recurrences, searchQuery])
 
   return (
     <div className="space-y-6">
@@ -241,7 +271,7 @@ export function RecurrenceList(): React.ReactElement {
           </p>
         </div>
         <button
-          onClick={fetchRecurrences}
+          onClick={() => refetch()}
           className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200"
         >
           <RefreshCw className="h-4 w-4" />
@@ -276,7 +306,7 @@ export function RecurrenceList(): React.ReactElement {
       </div>
 
       {/* Content */}
-      {loading ? (
+      {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
         </div>
@@ -293,7 +323,7 @@ export function RecurrenceList(): React.ReactElement {
       ) : (
         <div className="space-y-3">
           {filteredRecurrences.map((recurrence) => {
-            const isLoading = actionLoading === recurrence.id
+            const isActionLoading = getActionLoading(recurrence.id)
             const isExpanded = expandedId === recurrence.id
             const isPaused = !!recurrence.paused_until
 
@@ -363,10 +393,10 @@ export function RecurrenceList(): React.ReactElement {
                         {isPaused ? (
                           <button
                             onClick={() => handleResume(recurrence)}
-                            disabled={isLoading}
+                            disabled={isActionLoading}
                             className="flex items-center gap-1 rounded-lg bg-[var(--status-success-bg)] px-3 py-2 text-sm font-medium text-[var(--status-success)] hover:opacity-80 disabled:opacity-50"
                           >
-                            {isLoading ? (
+                            {isActionLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <Play className="h-4 w-4" />
@@ -376,10 +406,10 @@ export function RecurrenceList(): React.ReactElement {
                         ) : (
                           <button
                             onClick={() => handlePause(recurrence)}
-                            disabled={isLoading}
+                            disabled={isActionLoading}
                             className="flex items-center gap-1 rounded-lg bg-[var(--status-warning-bg)] px-3 py-2 text-sm font-medium text-[var(--status-warning)] hover:opacity-80 disabled:opacity-50"
                           >
-                            {isLoading ? (
+                            {isActionLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <Pause className="h-4 w-4" />
@@ -409,7 +439,7 @@ export function RecurrenceList(): React.ReactElement {
                     <div className="flex flex-wrap items-center gap-3">
                       <button
                         onClick={() => handleGenerate(recurrence)}
-                        disabled={isLoading}
+                        disabled={isActionLoading}
                         className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                       >
                         <Calendar className="h-4 w-4" />
@@ -418,7 +448,7 @@ export function RecurrenceList(): React.ReactElement {
 
                       <button
                         onClick={() => handleDeactivate(recurrence, false)}
-                        disabled={isLoading}
+                        disabled={isActionLoading}
                         className="flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] px-4 py-2 text-sm font-medium text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -427,7 +457,7 @@ export function RecurrenceList(): React.ReactElement {
 
                       <button
                         onClick={() => handleDeactivate(recurrence, true)}
-                        disabled={isLoading}
+                        disabled={isActionLoading}
                         className="flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] px-4 py-2 text-sm font-medium text-[var(--status-error)] hover:opacity-80 disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />

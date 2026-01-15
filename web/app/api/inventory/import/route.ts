@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { LIMITS, formatFileSize } from '@/lib/constants'
 import * as XLSX from 'xlsx'
 
 // Force dynamic to prevent caching
@@ -28,15 +29,13 @@ export async function POST(req: NextRequest) {
     return new NextResponse('Forbidden', { status: 403 })
   }
 
-  // TICKET-SEC-009: File validation constants
-  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+  // TICKET-SEC-009: File validation constants (sizes from LIMITS)
   const ALLOWED_EXCEL_TYPES = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.ms-excel',
     'text/csv',
   ]
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-  const MAX_ROWS = 1000 // Prevent DoS via huge spreadsheets
 
   // SEC-004: Extension whitelists
   const ALLOWED_EXCEL_EXTENSIONS = ['xlsx', 'xls', 'csv']
@@ -62,8 +61,8 @@ export async function POST(req: NextRequest) {
       rpcData = body.rows || []
 
       // TICKET-SEC-009: Validate row count for JSON import
-      if (rpcData.length > MAX_ROWS) {
-        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      if (rpcData.length > LIMITS.MAX_IMPORT_ROWS) {
+        return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
       }
     } else {
       const formData = await req.formData()
@@ -75,8 +74,8 @@ export async function POST(req: NextRequest) {
         if (!file || !sku) return NextResponse.json({ error: 'Datos faltantes' }, { status: 400 })
 
         // TICKET-SEC-009: Validate image file
-        if (file.size > MAX_FILE_SIZE) {
-          return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 })
+        if (file.size > LIMITS.MAX_IMPORT_FILE_SIZE) {
+          return NextResponse.json({ error: `Archivo demasiado grande (máx ${formatFileSize(LIMITS.MAX_IMPORT_FILE_SIZE)})` }, { status: 400 })
         }
         if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
           return NextResponse.json(
@@ -125,8 +124,8 @@ export async function POST(req: NextRequest) {
       if (!file) return NextResponse.json({ error: 'Archivo faltante' }, { status: 400 })
 
       // TICKET-SEC-009: Validate spreadsheet file
-      if (file.size > MAX_FILE_SIZE) {
-        return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 })
+      if (file.size > LIMITS.MAX_IMPORT_FILE_SIZE) {
+        return NextResponse.json({ error: `Archivo demasiado grande (máx ${formatFileSize(LIMITS.MAX_IMPORT_FILE_SIZE)})` }, { status: 400 })
       }
       if (!ALLOWED_EXCEL_TYPES.includes(file.type)) {
         return NextResponse.json(
@@ -150,8 +149,8 @@ export async function POST(req: NextRequest) {
       const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[]
 
       // TICKET-SEC-009: Validate row count
-      if (rows.length > MAX_ROWS) {
-        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
+        return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
       }
 
       // Map rows to RPC format - supports both English and Spanish column names

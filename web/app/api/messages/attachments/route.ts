@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
+import { LIMITS, formatFileSize } from '@/lib/constants'
 
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -20,8 +21,6 @@ const ALLOWED_EXTENSIONS = [
   'txt',                                  // Text
   'doc', 'docx',                          // Word documents
 ]
-
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
 
 /**
  * Validates file extension against whitelist
@@ -93,8 +92,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
     }
 
+    // SEC-015: Verify tenant isolation for both staff and clients
     const isStaff = ['vet', 'admin'].includes(profile.role)
-    if (!isStaff && conversation.client_id !== user.id) {
+    const hasAccess = isStaff
+      ? conversation.tenant_id === profile.tenant_id  // Staff: must be from same tenant
+      : conversation.client_id === user.id            // Clients: must own the conversation
+
+    if (!hasAccess) {
       return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 })
     }
 
@@ -124,10 +128,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
 
       // Validate size
-      if (file.size > MAX_SIZE) {
+      if (file.size > LIMITS.MAX_ATTACHMENT_SIZE) {
         return NextResponse.json(
           {
-            error: `Archivo "${file.name}" excede el tamaño máximo de 10MB`,
+            error: `Archivo "${file.name}" excede el tamaño máximo de ${formatFileSize(LIMITS.MAX_ATTACHMENT_SIZE)}`,
           },
           { status: 400 }
         )

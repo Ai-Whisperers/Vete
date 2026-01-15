@@ -13,9 +13,9 @@ import {
   Settings,
   Plus,
 } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations } from 'next-intl'
 import { useModal } from '@/hooks/use-modal'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { ErrorBoundary } from '@/components/shared'
 
 /**
@@ -32,80 +32,81 @@ export function useKeyboardShortcuts() {
 }
 
 interface ShortcutCategory {
-  title: string
+  titleKey: string
   icon: React.ElementType
   shortcuts: {
     keys: string[]
-    description: string
+    descriptionKey: string
   }[]
 }
 
-const shortcutCategories: ShortcutCategory[] = [
+// Define shortcut categories with translation keys
+const shortcutCategoryDefinitions: ShortcutCategory[] = [
   {
-    title: 'Navegación General',
+    titleKey: 'categories.generalNav',
     icon: Command,
     shortcuts: [
-      { keys: ['Ctrl/⌘', 'K'], description: 'Abrir búsqueda global' },
-      { keys: ['Ctrl/⌘', '\\'], description: 'Colapsar/expandir sidebar' },
-      { keys: ['?'], description: 'Mostrar atajos de teclado' },
-      { keys: ['Esc'], description: 'Cerrar diálogos/paneles' },
-      { keys: ['G', 'H'], description: 'Ir al Dashboard' },
-      { keys: ['G', 'C'], description: 'Ir a Calendario' },
-      { keys: ['G', 'P'], description: 'Ir a Pacientes' },
-      { keys: ['G', 'I'], description: 'Ir a Inventario' },
-      { keys: ['G', 'S'], description: 'Ir a Configuración' },
+      { keys: ['Ctrl/⌘', 'K'], descriptionKey: 'shortcuts.openGlobalSearch' },
+      { keys: ['Ctrl/⌘', '\\'], descriptionKey: 'shortcuts.toggleSidebar' },
+      { keys: ['?'], descriptionKey: 'shortcuts.showShortcuts' },
+      { keys: ['Esc'], descriptionKey: 'shortcuts.closeDialogs' },
+      { keys: ['G', 'H'], descriptionKey: 'shortcuts.goToDashboard' },
+      { keys: ['G', 'C'], descriptionKey: 'shortcuts.goToCalendar' },
+      { keys: ['G', 'P'], descriptionKey: 'shortcuts.goToPatients' },
+      { keys: ['G', 'I'], descriptionKey: 'shortcuts.goToInventory' },
+      { keys: ['G', 'S'], descriptionKey: 'shortcuts.goToSettings' },
     ],
   },
   {
-    title: 'Búsqueda y Filtros',
+    titleKey: 'categories.searchFilters',
     icon: Search,
     shortcuts: [
-      { keys: ['/'], description: 'Enfocar en búsqueda' },
-      { keys: ['Ctrl/⌘', 'F'], description: 'Buscar en página actual' },
-      { keys: ['Alt', '1-9'], description: 'Aplicar filtro rápido' },
+      { keys: ['/'], descriptionKey: 'shortcuts.focusSearch' },
+      { keys: ['Ctrl/⌘', 'F'], descriptionKey: 'shortcuts.searchInPage' },
+      { keys: ['Alt', '1-9'], descriptionKey: 'shortcuts.quickFilter' },
     ],
   },
   {
-    title: 'Citas y Calendario',
+    titleKey: 'categories.appointmentsCalendar',
     icon: Calendar,
     shortcuts: [
-      { keys: ['N'], description: 'Nueva cita (en calendario)' },
-      { keys: ['T'], description: 'Ir a hoy' },
-      { keys: ['←'], description: 'Período anterior' },
-      { keys: ['→'], description: 'Período siguiente' },
-      { keys: ['D'], description: 'Vista día' },
-      { keys: ['W'], description: 'Vista semana' },
-      { keys: ['M'], description: 'Vista mes' },
+      { keys: ['N'], descriptionKey: 'shortcuts.newAppointment' },
+      { keys: ['T'], descriptionKey: 'shortcuts.goToToday' },
+      { keys: ['←'], descriptionKey: 'shortcuts.previousPeriod' },
+      { keys: ['→'], descriptionKey: 'shortcuts.nextPeriod' },
+      { keys: ['D'], descriptionKey: 'shortcuts.dayView' },
+      { keys: ['W'], descriptionKey: 'shortcuts.weekView' },
+      { keys: ['M'], descriptionKey: 'shortcuts.monthView' },
     ],
   },
   {
-    title: 'Clientes y Pacientes',
+    titleKey: 'categories.clientsPatients',
     icon: Users,
     shortcuts: [
-      { keys: ['Ctrl/⌘', 'N'], description: 'Nuevo cliente' },
-      { keys: ['E'], description: 'Editar seleccionado' },
-      { keys: ['Enter'], description: 'Ver detalle' },
-      { keys: ['↑', '↓'], description: 'Navegar en lista' },
+      { keys: ['Ctrl/⌘', 'N'], descriptionKey: 'shortcuts.newClient' },
+      { keys: ['E'], descriptionKey: 'shortcuts.editSelected' },
+      { keys: ['Enter'], descriptionKey: 'shortcuts.viewDetail' },
+      { keys: ['↑', '↓'], descriptionKey: 'shortcuts.navigateList' },
     ],
   },
   {
-    title: 'Acciones Rápidas',
+    titleKey: 'categories.quickActions',
     icon: Plus,
     shortcuts: [
-      { keys: ['Ctrl/⌘', 'Shift', 'C'], description: 'Nueva cita rápida' },
-      { keys: ['Ctrl/⌘', 'Shift', 'R'], description: 'Nueva receta' },
-      { keys: ['Ctrl/⌘', 'Shift', 'V'], description: 'Registrar vacuna' },
-      { keys: ['Ctrl/⌘', 'Shift', 'F'], description: 'Nueva factura' },
+      { keys: ['Ctrl/⌘', 'Shift', 'C'], descriptionKey: 'shortcuts.quickNewAppointment' },
+      { keys: ['Ctrl/⌘', 'Shift', 'R'], descriptionKey: 'shortcuts.newPrescription' },
+      { keys: ['Ctrl/⌘', 'Shift', 'V'], descriptionKey: 'shortcuts.registerVaccine' },
+      { keys: ['Ctrl/⌘', 'Shift', 'F'], descriptionKey: 'shortcuts.newInvoice' },
     ],
   },
   {
-    title: 'Otros',
+    titleKey: 'categories.other',
     icon: Settings,
     shortcuts: [
-      { keys: ['Ctrl/⌘', 'S'], description: 'Guardar cambios' },
-      { keys: ['Ctrl/⌘', 'P'], description: 'Imprimir / Exportar PDF' },
-      { keys: ['Ctrl/⌘', 'Z'], description: 'Deshacer' },
-      { keys: ['Ctrl/⌘', 'Shift', 'Z'], description: 'Rehacer' },
+      { keys: ['Ctrl/⌘', 'S'], descriptionKey: 'shortcuts.saveChanges' },
+      { keys: ['Ctrl/⌘', 'P'], descriptionKey: 'shortcuts.printExport' },
+      { keys: ['Ctrl/⌘', 'Z'], descriptionKey: 'shortcuts.undo' },
+      { keys: ['Ctrl/⌘', 'Shift', 'Z'], descriptionKey: 'shortcuts.redo' },
     ],
   },
 ]
@@ -124,12 +125,24 @@ export function KeyboardShortcutsModal({
   onClose: controlledOnClose,
 }: KeyboardShortcutsModalProps = {}): React.ReactElement {
   const internalModal = useModal()
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.keyboardShortcuts')
 
   // Support both controlled and uncontrolled mode
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalModal.isOpen
   const close = controlledOnClose || internalModal.close
   const open = controlledOnClose ? undefined : internalModal.open
+
+  // Build translated shortcut categories
+  const shortcutCategories = useMemo(() => {
+    return shortcutCategoryDefinitions.map((category) => ({
+      title: t(category.titleKey),
+      icon: category.icon,
+      shortcuts: category.shortcuts.map((shortcut) => ({
+        keys: shortcut.keys,
+        description: t(shortcut.descriptionKey),
+      })),
+    }))
+  }, [t])
 
   return (
     <ErrorBoundary>
@@ -145,7 +158,7 @@ export function KeyboardShortcutsModal({
             }
           }}
           className="cursor-pointer"
-          aria-label="Abrir atajos de teclado"
+          aria-label={t('openShortcuts')}
         >
           {trigger}
         </div>
@@ -181,14 +194,14 @@ export function KeyboardShortcutsModal({
                     <Keyboard className="h-5 w-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 id="keyboard-shortcuts-title" className="text-lg font-bold text-white">{labels.shortcuts.title}</h2>
-                    <p className="text-sm text-white/70">{labels.shortcuts.subtitle}</p>
+                    <h2 id="keyboard-shortcuts-title" className="text-lg font-bold text-white">{t('title')}</h2>
+                    <p className="text-sm text-white/70">{t('subtitle')}</p>
                   </div>
                 </div>
                 <button
                   onClick={close}
                   className="rounded-lg bg-white/20 p-2 transition-colors hover:bg-white/30"
-                  aria-label="Cerrar"
+                  aria-label={t('close')}
                 >
                   <X className="h-5 w-5 text-white" />
                 </button>
@@ -236,7 +249,7 @@ export function KeyboardShortcutsModal({
               {/* Footer */}
               <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
                 <p className="text-center text-xs text-gray-500">
-                  {labels.shortcuts.press_to_show}
+                  {t('pressToShow')}
                 </p>
               </div>
             </motion.div>

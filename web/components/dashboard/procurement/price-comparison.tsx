@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Price Comparison Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ */
+
+import { useState, useMemo } from 'react'
 import {
   Search,
   TrendingDown,
@@ -11,7 +18,10 @@ import {
   Package,
   Star,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ComparisonSupplier {
   supplier: {
@@ -45,44 +55,31 @@ interface PriceComparisonProps {
 }
 
 export function PriceComparison({ productIds, onSelectSupplier }: PriceComparisonProps): React.ReactElement {
-  const [comparisons, setComparisons] = useState<ProductComparison[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [verifiedOnly, setVerifiedOnly] = useState(false)
 
-  useEffect(() => {
-    const fetchComparison = async () => {
-      if (productIds.length === 0) {
-        setComparisons([])
-        setLoading(false)
-        return
-      }
+  // Stable key for productIds array
+  const productIdsKey = useMemo(() => productIds.join(','), [productIds])
 
-      setLoading(true)
-      setError(null)
+  // React Query: Fetch price comparison
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['procurement', 'compare', productIdsKey, { verifiedOnly }],
+    queryFn: async (): Promise<{ comparison: ProductComparison[] }> => {
+      const params = new URLSearchParams({
+        products: productIdsKey,
+        verified_only: verifiedOnly.toString(),
+      })
+      const res = await fetch(`/api/procurement/compare?${params.toString()}`)
+      if (!res.ok) throw new Error('Error al comparar precios')
+      return res.json()
+    },
+    enabled: productIds.length > 0,
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      try {
-        const params = new URLSearchParams({
-          products: productIds.join(','),
-          verified_only: verifiedOnly.toString(),
-        })
+  const comparisons = data?.comparison || []
 
-        const res = await fetch(`/api/procurement/compare?${params.toString()}`)
-        if (!res.ok) throw new Error('Error al comparar precios')
-
-        const data = await res.json()
-        setComparisons(data.comparison || [])
-      } catch (err) {
-        setError('Error al cargar la comparación de precios')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchComparison()
-  }, [productIds, verifiedOnly])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
@@ -93,7 +90,7 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
   if (error) {
     return (
       <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-center text-[var(--status-error)]">
-        {error}
+        Error al cargar la comparación de precios
       </div>
     )
   }

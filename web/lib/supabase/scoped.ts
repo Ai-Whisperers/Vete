@@ -19,7 +19,19 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
+import type { PostgrestFilterBuilder, PostgrestQueryBuilder } from '@supabase/postgrest-js'
 import { trackQuery } from '@/lib/monitoring/slow-query'
+
+/**
+ * Type for Supabase query builder chain
+ * Represents any query builder that supports common filter methods
+ */
+type QueryBuilder<T = unknown> = PostgrestFilterBuilder<any, T, T[], unknown>
+
+/**
+ * Filter function type for modifying queries
+ */
+type QueryFilter<T = unknown> = (query: QueryBuilder<T>) => QueryBuilder<T>
 
 /**
  * Creates tenant-scoped query functions that automatically include tenant_id filter
@@ -50,8 +62,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       table: string,
       columns: string = '*',
       options?: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filter?: (query: any) => any
+        filter?: QueryFilter<T>
         single?: boolean
         count?: 'exact' | 'planned' | 'estimated'
       }
@@ -109,8 +120,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         tenant_id: tenantId,
       }))
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).insert(scopedRecords)
+      let query = supabase.from(table).insert(scopedRecords)
 
       if (options?.returning !== false) {
         query = query.select()
@@ -130,16 +140,14 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
     update: async <T = unknown>(
       table: string,
       data: Record<string, unknown>,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      filter: (query: any) => any,
+      filter: QueryFilter<T>,
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
       const startTime = performance.now()
       // Remove tenant_id from update data to prevent cross-tenant moves
       const { tenant_id: _, ...safeData } = data
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).update(safeData)
+      let query = supabase.from(table).update(safeData)
 
       // Always filter by tenant_id first
       query = query.eq('tenant_id', tenantId)
@@ -177,8 +185,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         tenant_id: tenantId,
       }))
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).upsert(scopedRecords, {
+      let query = supabase.from(table).upsert(scopedRecords, {
         onConflict: options?.onConflict,
       })
 
@@ -199,12 +206,10 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
      */
     delete: async (
       table: string,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      filter: (query: any) => any
+      filter: QueryFilter
     ): Promise<{ error: Error | null }> => {
       const startTime = performance.now()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).delete()
+      let query = supabase.from(table).delete()
 
       // Always filter by tenant_id first
       query = query.eq('tenant_id', tenantId)
@@ -224,12 +229,10 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
      */
     count: async (
       table: string,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      filter?: (query: any) => any
+      filter?: QueryFilter
     ): Promise<{ count: number; error: Error | null }> => {
       const startTime = performance.now()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).select('*', { count: 'exact', head: true })
+      let query = supabase.from(table).select('*', { count: 'exact', head: true })
 
       // Always filter by tenant_id first
       query = query.eq('tenant_id', tenantId)

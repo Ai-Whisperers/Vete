@@ -109,7 +109,7 @@ export const POST = withApiAuth(
 
     return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 /**
@@ -169,7 +169,7 @@ export const PUT = withApiAuth(
 
     return NextResponse.json(data)
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 /**
@@ -224,5 +224,5 @@ export const DELETE = withApiAuth(
 
     return new NextResponse(null, { status: 204 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

@@ -85,6 +85,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET } from '@/app/api/inventory/barcode-lookup/route'
+
 // Helper to create request with query params
 function createRequest(barcode?: string, clinic?: string): NextRequest {
   const params = new URLSearchParams()

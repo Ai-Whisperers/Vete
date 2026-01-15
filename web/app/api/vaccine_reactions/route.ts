@@ -109,7 +109,7 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
   }
 
   return NextResponse.json(data, { status: 201 })
-})
+}, { rateLimit: 'write' })
 
 export const PUT = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Parse body
@@ -178,7 +178,7 @@ export const PUT = withApiAuth(async ({ request, user, profile, supabase }: ApiH
   }
 
   return NextResponse.json(data)
-})
+}, { rateLimit: 'write' })
 
 export const DELETE = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
@@ -234,5 +234,5 @@ export const DELETE = withApiAuth(
 
     return new NextResponse(null, { status: 204 })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

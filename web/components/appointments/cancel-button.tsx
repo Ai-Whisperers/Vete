@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cancelAppointment } from '@/app/actions/appointments'
 
 interface CancelButtonProps {
@@ -21,6 +22,7 @@ export function CancelButton({
   const [reason, setReason] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const t = useTranslations('appointments')
 
   async function handleCancel() {
     setLoading(true)
@@ -53,14 +55,14 @@ export function CancelButton({
         className={`flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-bold text-red-600 transition-all hover:bg-red-100 ${className}`}
       >
         <Icons.X className="h-4 w-4" />
-        Cancelar Cita
+        {t('cancel.buttonLabel')}
       </button>
     ),
     icon: (
       <button
         onClick={() => setShowDialog(true)}
         className={`rounded-xl p-2 text-red-500 transition-all hover:bg-red-50 ${className}`}
-        title="Cancelar cita"
+        title={t('cancel.buttonTitle')}
       >
         <Icons.X className="h-5 w-5" />
       </button>
@@ -70,7 +72,7 @@ export function CancelButton({
         onClick={() => setShowDialog(true)}
         className={`text-sm font-medium text-red-600 hover:text-red-800 hover:underline ${className}`}
       >
-        Cancelar
+        {t('cancel.buttonText')}
       </button>
     ),
   }
@@ -95,9 +97,9 @@ export function CancelButton({
                   <Icons.AlertTriangle className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Cancelar Cita</h3>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('cancel.dialogTitle')}</h3>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Esta acción no se puede deshacer
+                    {t('cancel.dialogSubtitle')}
                   </p>
                 </div>
               </div>
@@ -106,12 +108,12 @@ export function CancelButton({
             {/* Body */}
             <div className="p-6">
               <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
-                Motivo de cancelación (opcional)
+                {t('cancel.reasonLabel')}
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Ej: Cambio de planes, emergencia, etc."
+                placeholder={t('cancel.reasonPlaceholder')}
                 className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-2xl border border-gray-200 p-4 text-sm outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
                 rows={3}
                 disabled={loading}
@@ -132,7 +134,7 @@ export function CancelButton({
                 className="rounded-xl px-6 py-3 font-bold text-[var(--text-secondary)] transition-all hover:bg-gray-50"
                 disabled={loading}
               >
-                Volver
+                {t('cancel.backButton')}
               </button>
               <button
                 onClick={handleCancel}
@@ -142,12 +144,12 @@ export function CancelButton({
                 {loading ? (
                   <>
                     <Icons.Loader2 className="h-4 w-4 animate-spin" />
-                    Cancelando...
+                    {t('cancel.cancelling')}
                   </>
                 ) : (
                   <>
                     <Icons.X className="h-4 w-4" />
-                    Confirmar Cancelación
+                    {t('cancel.confirmButton')}
                   </>
                 )}
               </button>

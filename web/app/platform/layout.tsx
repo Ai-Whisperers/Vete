@@ -7,7 +7,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Building2, BarChart3, Megaphone, Settings, LogOut } from 'lucide-react'
+import { Building2, BarChart3, Megaphone, Settings, LogOut, Activity, FileJson, Users } from 'lucide-react'
 
 export default async function PlatformLayout({
   children,
@@ -22,7 +22,9 @@ export default async function PlatformLayout({
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login?returnTo=/platform')
+    // Platform admins should log in through their clinic's portal first
+    // then navigate to /platform. Redirect to home for guidance.
+    redirect('/?returnTo=/platform')
   }
 
   // Get profile and verify platform admin
@@ -39,6 +41,9 @@ export default async function PlatformLayout({
   const navItems = [
     { href: '/platform', label: 'Dashboard', icon: BarChart3 },
     { href: '/platform/clinics', label: 'Clínicas', icon: Building2 },
+    { href: '/platform/ambassadors', label: 'Embajadores', icon: Users },
+    { href: '/platform/monitoring', label: 'Monitoreo', icon: Activity },
+    { href: '/platform/api-docs', label: 'API Docs', icon: FileJson },
     { href: '/platform/announcements', label: 'Anuncios', icon: Megaphone },
     { href: '/platform/settings', label: 'Configuración', icon: Settings },
   ]

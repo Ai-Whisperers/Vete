@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Check, X, Pencil, Loader2, Copy, CheckCheck } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useForm } from '@/hooks/use-form'
 import { useAsyncData } from '@/hooks/use-async-data'
 import { required } from '@/lib/utils/validation'
@@ -33,6 +34,8 @@ export function InlineEditField({
   copyable = false,
   editable = true,
 }: InlineEditFieldProps): React.ReactElement {
+  const t = useTranslations('common')
+  const tMessages = useTranslations('messages')
   const [isEditing, setIsEditing] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -40,7 +43,7 @@ export function InlineEditField({
   // Form handling with validation
   const form = useForm({
     initialValues: { [field]: value },
-    validationRules: type === 'email' ? { [field]: required('Email requerido') } : {},
+    validationRules: type === 'email' ? { [field]: required(t('emailRequired')) } : {},
   })
 
   // Async data handling for save operation
@@ -64,7 +67,7 @@ export function InlineEditField({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || 'Error al guardar')
+        throw new Error(data.error || tMessages('error.save'))
       }
 
       return response.json()
@@ -130,7 +133,7 @@ export function InlineEditField({
     }
   }
 
-  const displayValue = value || 'No registrado'
+  const displayValue = value || t('notRegistered')
   const fieldProps = form.getFieldProps(field)
   const hasError = saveError || fieldProps.error
 
@@ -161,7 +164,7 @@ export function InlineEditField({
                 onClick={handleSave}
                 disabled={isSaving}
                 className="rounded-lg bg-[var(--status-success-bg)] p-1.5 text-[var(--status-success)] transition-colors hover:opacity-80 disabled:opacity-50"
-                title="Guardar"
+                title={t('save')}
               >
                 {isSaving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -173,7 +176,7 @@ export function InlineEditField({
                 onClick={handleCancel}
                 disabled={isSaving}
                 className="rounded-lg bg-gray-100 p-1.5 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
-                title="Cancelar"
+                title={t('cancel')}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -192,7 +195,7 @@ export function InlineEditField({
                 <button
                   onClick={() => setIsEditing(true)}
                   className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[var(--primary)]"
-                  title="Editar"
+                  title={t('edit')}
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
@@ -201,7 +204,7 @@ export function InlineEditField({
                 <button
                   onClick={handleCopy}
                   className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[var(--primary)]"
-                  title={isCopied ? '¡Copiado!' : 'Copiar'}
+                  title={isCopied ? t('copied') : t('copy')}
                 >
                   {isCopied ? (
                     <CheckCheck className="h-3.5 w-3.5 text-[var(--status-success)]" />

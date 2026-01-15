@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { deletePet } from '@/app/actions/pets'
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactElement {
+  const t = useTranslations('pets.delete')
   const router = useRouter()
   const [showConfirm, setShowConfirm] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -41,7 +43,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
         className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[var(--status-error-border)] py-3 font-bold text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)]"
       >
         <Icons.Trash2 className="h-4 w-4" />
-        Eliminar Mascota
+        {t('button')}
       </button>
     )
   }
@@ -53,9 +55,9 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
           <Icons.AlertTriangle className="h-5 w-5 text-[var(--status-error)]" />
         </div>
         <div>
-          <h4 className="font-bold text-[var(--status-error-text)]">¿Eliminar a {petName}?</h4>
+          <h4 className="font-bold text-[var(--status-error-text)]">{t('confirmTitle', { name: petName })}</h4>
           <p className="text-sm text-[var(--status-error-text)]">
-            Esta acción no se puede deshacer. Se eliminarán todos los registros asociados.
+            {t('confirmMessage')}
           </p>
         </div>
       </div>
@@ -69,7 +71,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
           disabled={isPending}
           className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2 font-bold text-gray-600 transition-colors hover:bg-gray-50"
         >
-          Cancelar
+          {t('cancel')}
         </button>
         <button
           type="button"
@@ -82,7 +84,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
           ) : (
             <>
               <Icons.Trash2 className="h-4 w-4" />
-              Sí, Eliminar
+              {t('confirm')}
             </>
           )}
         </button>

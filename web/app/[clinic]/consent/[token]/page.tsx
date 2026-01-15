@@ -1,6 +1,20 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { SigningForm } from '@/components/consents'
+import type { SigningFormData } from '@/components/consents'
 import type { JSX } from 'react'
+
+interface TemplateField {
+  id: string
+  field_name: string
+  field_type: string
+  field_label: string
+  is_required: boolean
+  field_options: string[] | null
+}
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -22,7 +36,7 @@ interface ConsentRequest {
     content: string
     requires_witness: boolean
     requires_id_verification: boolean
-    fields?: any[]
+    fields?: TemplateField[]
   }
   pet: {
     id: string
@@ -102,7 +116,7 @@ export default function RemoteSigningPage(): JSX.Element {
         return
       }
 
-      setRequest(data as any)
+      setRequest(data as ConsentRequest)
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
@@ -282,7 +296,7 @@ export default function RemoteSigningPage(): JSX.Element {
 
         {/* Signing Form */}
         <SigningForm
-          template={request.template as any}
+          template={request.template}
           pet={request.pet}
           owner={request.owner}
           onSubmit={handleSubmit}

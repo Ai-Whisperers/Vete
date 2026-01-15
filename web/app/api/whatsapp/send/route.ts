@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { formatParaguayPhone } from '@/lib/types/whatsapp'
-import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { requireFeature } from '@/lib/features/server'
@@ -24,12 +23,6 @@ const sendMessageSchema = z.object({
  */
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Apply rate limiting for write endpoints (20 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'write', user.id)
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response
-    }
-
     // Check if tenant has WhatsApp API feature enabled
     const featureCheck = await requireFeature(profile.tenant_id, 'whatsappApi')
     if (featureCheck) return featureCheck
@@ -122,5 +115,5 @@ export const POST = withApiAuth(
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

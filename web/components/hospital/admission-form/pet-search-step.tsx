@@ -76,6 +76,12 @@ export default function PetSearchStep({
     onPetSelect(pet)
   }
 
+  const handleDeselect = (): void => {
+    // Clear selection by triggering search to show pets list again
+    setPets([])
+    setSearchQuery('')
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-[var(--text-primary)]">Seleccionar Paciente</h3>
@@ -119,7 +125,7 @@ export default function PetSearchStep({
             </div>
             <button
               type="button"
-              onClick={() => onPetSelect(null as any)}
+              onClick={handleDeselect}
               className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               Cambiar

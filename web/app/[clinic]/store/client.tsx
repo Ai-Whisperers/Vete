@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   ArrowLeft,
   Search,
@@ -79,6 +80,7 @@ const DEFAULT_AVAILABLE_FILTERS: AvailableFilters = {
 }
 
 function StorePageClient({ config, heroImage, initialProductData }: StorePageClientProps) {
+  const t = useTranslations('store')
   const { clinic } = useParams() as { clinic: string }
   const searchParams = useSearchParams()
   const labels = config.ui_labels?.store || {}
@@ -120,7 +122,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
       const response = await fetch(`/api/store/products?${params.toString()}`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Error al cargar productos')
+        throw new Error(errorData.error || t('loadErrorProducts'))
       }
       return response.json()
     },
@@ -256,7 +258,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
       <div className="flex min-h-screen items-center justify-center bg-[var(--bg-subtle)]">
         <div className="text-center">
           <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-[var(--primary)]" />
-          <p className="text-[var(--text-secondary)]">Cargando productos...</p>
+          <p className="text-[var(--text-secondary)]">{t('loading')}</p>
         </div>
       </div>
     )
@@ -268,13 +270,13 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
       <div className="flex min-h-screen items-center justify-center bg-[var(--bg-subtle)] px-4">
         <div className="max-w-md text-center">
           <AlertCircle className="mx-auto mb-4 h-16 w-16 text-[var(--status-error)]" />
-          <h2 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Error al cargar</h2>
+          <h2 className="mb-2 text-xl font-bold text-[var(--text-primary)]">{t('loadError')}</h2>
           <p className="mb-6 text-[var(--text-secondary)]">{error.message}</p>
           <button
             onClick={() => window.location.reload()}
             className="rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-colors hover:bg-[var(--primary-dark)]"
           >
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -293,7 +295,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             className="flex flex-shrink-0 items-center gap-2 font-bold text-[var(--primary)] transition-opacity hover:opacity-80"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">{labels.back_home || 'Volver'}</span>
+            <span className="hidden sm:inline">{labels.back_home || t('back')}</span>
           </Link>
 
           {/* Search - Desktop */}
@@ -301,7 +303,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--text-muted)]" />
             <input
               type="text"
-              placeholder={labels.search_placeholder || 'Buscar productos...'}
+              placeholder={labels.search_placeholder || t('searchPlaceholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full rounded-full border-none bg-[var(--bg-subtle)] py-2.5 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--primary)]"
@@ -350,14 +352,13 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             <div className="max-w-xl text-center md:text-left">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium text-white/90">
                 <Truck className="h-4 w-4" />
-                Delivery Gratis +150.000 Gs
+                {t('freeDelivery')}
               </div>
               <h1 className="mb-4 text-3xl font-black leading-tight text-white md:text-4xl lg:text-5xl">
-                {labels.hero_title || 'Lo Mejor para tu Mascota'}
+                {labels.hero_title || t('heroTitle')}
               </h1>
               <p className="text-base leading-relaxed text-white/90 md:text-lg">
-                {labels.hero_subtitle ||
-                  'Encuentra alimentos premium, accesorios y medicamentos recomendados por nuestros veterinarios.'}
+                {labels.hero_subtitle || t('heroSubtitle')}
               </p>
             </div>
             <div className="hidden items-center justify-center lg:flex">
@@ -380,7 +381,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder={labels.search_placeholder || 'Buscar productos...'}
+              placeholder={labels.search_placeholder || t('searchPlaceholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 shadow-sm outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -395,7 +396,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-gray-50"
           >
             <SlidersHorizontal className="h-5 w-5" />
-            <span className="font-medium">Filtros</span>
+            <span className="font-medium">{t('filters')}</span>
             {hasActiveFilters && (
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
                 {Object.keys(filters).length}
@@ -423,11 +424,10 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
                 <div className="bg-[var(--accent)]/20 flex h-10 w-10 items-center justify-center rounded-xl">
                   <BadgePercent className="h-5 w-5 text-[var(--secondary-dark)]" />
                 </div>
-                <span className="font-bold text-[var(--text-primary)]">Ofertas</span>
+                <span className="font-bold text-[var(--text-primary)]">{t('offers')}</span>
               </div>
               <p className="text-sm text-[var(--text-secondary)]">
-                ¡10% de descuento en tu primera compra! Usa el código{' '}
-                <span className="font-bold text-[var(--primary)]">PRIMERA10</span>
+                {t('promoCode', { percent: '10', code: 'PRIMERA10' })}
               </p>
             </div>
           </div>
@@ -438,17 +438,17 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                  {filters.category || 'Todos los productos'}
+                  {filters.category || t('allProducts')}
                 </h2>
                 {debouncedSearch && (
                   <p className="text-sm text-[var(--text-muted)]">
-                    Resultados para &quot;{debouncedSearch}&quot;
+                    {t('resultsFor', { query: debouncedSearch })}
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-4">
                 <span className="rounded-full border border-gray-100 bg-white px-4 py-2 text-sm font-medium text-[var(--text-muted)] shadow-sm">
-                  {totalProducts} productos
+                  {t('productCount', { count: totalProducts })}
                 </span>
                 <div className="hidden lg:block">
                   <SortDropdown value={sort} onChange={handleSortChange} />
@@ -461,7 +461,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
               <div className="mb-6 space-y-2">
                 {debouncedSearch && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-[var(--text-muted)]">Búsqueda:</span>
+                    <span className="text-sm text-[var(--text-muted)]">{t('searchLabel')}</span>
                     <button
                       onClick={() => {
                         setSearchInput('')
@@ -490,19 +490,19 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
                   <PackageSearch className="h-10 w-10 text-gray-400" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
-                  No encontramos productos
+                  {t('noProductsFound')}
                 </h3>
                 <p className="mx-auto mb-6 max-w-md text-[var(--text-secondary)]">
                   {debouncedSearch
-                    ? `No hay productos que coincidan con "${debouncedSearch}"`
-                    : labels.empty_state || 'No hay productos disponibles con estos filtros.'}
+                    ? t('noProductsSearch', { query: debouncedSearch })
+                    : labels.empty_state || t('noProductsMessage')}
                 </p>
                 <button
                   onClick={handleClearFilters}
                   className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-colors hover:bg-[var(--primary-dark)]"
                 >
                   <RotateCcw className="h-4 w-4" />
-                  Limpiar filtros
+                  {t('clearFilters')}
                 </button>
               </div>
             ) : (
@@ -529,7 +529,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
                       <ChevronLeft className="h-5 w-5" />
                     </button>
                     <span className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)]">
-                      Página {page} de {totalPages}
+                      {t('pageOf', { page, total: totalPages })}
                     </span>
                     <button
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

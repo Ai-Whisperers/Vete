@@ -22,7 +22,7 @@ export interface FieldRule {
   url?: boolean
   min?: number
   max?: number
-  custom?: (value: any, data?: any) => boolean | string
+  custom?: (value: unknown, data?: unknown) => boolean | string
   message?: string
 }
 

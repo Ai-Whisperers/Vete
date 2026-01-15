@@ -13,7 +13,7 @@ import {
   Sparkles,
   Check,
 } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations } from 'next-intl'
 
 interface ClientTag {
   id: string
@@ -86,12 +86,12 @@ export function ClientTags({
   const [tags, setTags] = useState<ClientTag[]>(initialTags)
   const [isAdding, setIsAdding] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.clientTags')
 
   // Build preset tags with localized names
   const presetTags: ClientTag[] = PRESET_TAG_CONFIGS.map((config) => ({
     id: config.id,
-    name: labels.tags[config.id as keyof typeof labels.tags] as string,
+    name: t(`tags.${config.id}`),
     color: TAG_COLORS[config.id],
     icon: config.icon,
   }))
@@ -178,7 +178,7 @@ export function ClientTags({
             className="inline-flex items-center gap-1 rounded-full border border-dashed border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-700"
           >
             <Plus className="h-3 w-3" />
-            {labels.tags.add}
+            {t('add')}
           </button>
         )}
       </div>
@@ -187,7 +187,7 @@ export function ClientTags({
       {isAdding && (
         <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-semibold text-gray-600">{labels.tags.select_tag}</p>
+            <p className="text-xs font-semibold text-gray-600">{t('selectTag')}</p>
             <button
               onClick={() => setIsAdding(false)}
               className="rounded p-1 transition-colors hover:bg-gray-200"
@@ -212,7 +212,7 @@ export function ClientTags({
               ))}
             </div>
           ) : (
-            <p className="py-2 text-center text-xs text-gray-500">{labels.tags.all_assigned}</p>
+            <p className="py-2 text-center text-xs text-gray-500">{t('allAssigned')}</p>
           )}
         </div>
       )}

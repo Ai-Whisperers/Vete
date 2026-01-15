@@ -15,7 +15,7 @@ import {
   Command,
   Loader2,
 } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations } from 'next-intl'
 import { useCommandPalette } from '@/hooks/use-command-palette'
 import { ErrorBoundary } from '@/components/shared'
 
@@ -26,6 +26,7 @@ interface SearchResult {
   subtitle: string
   href: string
   meta?: string
+  url?: string
 }
 
 interface GlobalSearchProps {
@@ -38,7 +39,11 @@ const searchGlobalData = async (query: string, clinic: string): Promise<SearchRe
     const response = await fetch(`/api/search?clinic=${clinic}&q=${encodeURIComponent(query)}`)
     if (response.ok) {
       const data = await response.json()
-      return data.results || []
+      // Map API results to component format (url -> href)
+      return (data.results || []).map((r: SearchResult & { url?: string }) => ({
+        ...r,
+        href: r.href || r.url || '',
+      }))
     } else {
       // Mock results for demo
       const mockResults: SearchResult[] = [
@@ -82,7 +87,7 @@ const searchGlobalData = async (query: string, clinic: string): Promise<SearchRe
 
 export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement {
   const router = useRouter()
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.globalSearch')
 
   const commandPalette = useCommandPalette({
     clinic,
@@ -112,14 +117,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
   }
 
   const getTypeLabel = (type: SearchResult['type']): string => {
-    const typeLabels: Record<SearchResult['type'], string> = {
-      client: labels.search.types.client,
-      pet: labels.search.types.pet,
-      appointment: labels.search.types.appointment,
-      invoice: labels.search.types.invoice,
-      product: labels.search.types.product,
-    }
-    return typeLabels[type]
+    return t(`types.${type}`)
   }
 
   return (
@@ -131,7 +129,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
           className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-100"
         >
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline">Buscar...</span>
+          <span className="hidden sm:inline">{t('searchPlaceholder')}</span>
           <kbd className="hidden items-center gap-0.5 rounded border bg-white px-1.5 py-0.5 text-xs font-medium shadow-sm md:flex">
             <Command className="h-3 w-3" />K
           </kbd>
@@ -167,7 +165,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                       type="text"
                       value={commandPalette.query}
                       onChange={(e) => commandPalette.setQuery(e.target.value)}
-                      placeholder={labels.search.placeholder}
+                      placeholder={t('searchPrompt')}
                       className="flex-1 text-lg outline-none placeholder:text-gray-400"
                     />
                     {commandPalette.isLoading && (
@@ -177,7 +175,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                       <button
                         onClick={() => commandPalette.setQuery('')}
                         className="rounded-full p-1 transition-colors hover:bg-gray-100"
-                        aria-label="Limpiar busqueda"
+                        aria-label={t('clearSearch')}
                       >
                         <X className="h-4 w-4 text-gray-400" />
                       </button>
@@ -192,7 +190,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                           commandPalette.recentSearches.length > 0 && (
                             <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
                               <Clock className="mr-1 inline h-3 w-3" />
-                              {labels.search.recent}
+                              {t('recent')}
                             </p>
                           )}
                         {(commandPalette.hasResults
@@ -247,14 +245,14 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                     ) : commandPalette.query.trim() && !commandPalette.isLoading ? (
                       <div className="py-12 text-center">
                         <Search className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-                        <p className="text-gray-500">{labels.search.no_results}</p>
-                        <p className="text-sm text-gray-400">{labels.search.try_other}</p>
+                        <p className="text-gray-500">{t('noResults')}</p>
+                        <p className="text-sm text-gray-400">{t('tryOther')}</p>
                       </div>
                     ) : !commandPalette.query.trim() &&
                       commandPalette.recentSearches.length === 0 ? (
                       <div className="py-12 text-center">
                         <Search className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-                        <p className="text-gray-500">{labels.common.search}</p>
+                        <p className="text-gray-500">{t('startSearch')}</p>
                       </div>
                     ) : null}
                   </div>
@@ -264,15 +262,15 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                     <div className="flex items-center gap-4 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <kbd className="rounded border bg-white px-1.5 py-0.5 shadow-sm">↑↓</kbd>
-                        navegar
+                        {t('footer.navigate')}
                       </span>
                       <span className="flex items-center gap-1">
                         <kbd className="rounded border bg-white px-1.5 py-0.5 shadow-sm">↵</kbd>
-                        seleccionar
+                        {t('footer.select')}
                       </span>
                       <span className="flex items-center gap-1">
                         <kbd className="rounded border bg-white px-1.5 py-0.5 shadow-sm">esc</kbd>
-                        cerrar
+                        {t('footer.close')}
                       </span>
                     </div>
                   </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import {
   Heart,
   ShoppingCart,
@@ -90,6 +91,8 @@ export function ProductCard({
   showQuantitySelector,
   onQuickView,
 }: ProductCardProps): React.ReactElement {
+  const t = useTranslations('store')
+
   // Determine feature visibility based on variant (can be overridden by explicit props)
   const isMinimal = variant === 'minimal'
   const displayWishlist = showWishlist ?? !isMinimal
@@ -197,7 +200,7 @@ export function ProductCard({
                 : 'bg-white/80 text-gray-400 backdrop-blur hover:text-red-500'
             } shadow-sm disabled:opacity-50`}
             aria-label={
-              productIsWishlisted ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'
+              productIsWishlisted ? t('removeFromWishlist') : t('addToWishlist')
             }
           >
             {togglingWishlist ? (
@@ -218,13 +221,13 @@ export function ProductCard({
           {product.is_new_arrival && (
             <span className="inline-flex items-center gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs font-bold text-white">
               <Sparkles className="h-3 w-3" />
-              Nuevo
+              {t('newArrival')}
             </span>
           )}
           {product.is_best_seller && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-1 text-xs font-bold text-white">
               <Trophy className="h-3 w-3" />
-              Top
+              {t('bestSeller')}
             </span>
           )}
           {/* Category badge for minimal variant */}
@@ -238,7 +241,7 @@ export function ProductCard({
         {/* Low stock badge for minimal variant */}
         {isMinimal && lowStock && (
           <div className="absolute bottom-4 left-4 z-10 rounded-lg bg-orange-500 px-2.5 py-1 text-[10px] font-black uppercase text-white shadow-sm">
-            Últimas {stock} unidades
+            {t('lastUnitsLong', { count: stock })}
           </div>
         )}
 
@@ -266,7 +269,7 @@ export function ProductCard({
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
             <span className="flex items-center gap-2 rounded-full bg-gray-800 px-4 py-2 text-sm font-medium text-white">
               <AlertCircle className="h-4 w-4" />
-              {isMinimal ? 'Agotado' : 'Sin Stock'}
+              {isMinimal ? t('outOfStock') : t('noStock')}
             </span>
           </div>
         )}
@@ -278,7 +281,7 @@ export function ProductCard({
             className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium shadow-lg backdrop-blur transition-colors hover:bg-white"
           >
             <Eye className="h-4 w-4" />
-            Vista Rápida
+            {t('quickView')}
           </button>
         )}
       </div>
@@ -305,7 +308,7 @@ export function ProductCard({
         {displayQuantitySelector && inStock && (
           <div className="my-3 flex w-fit items-center gap-3 rounded-2xl bg-gray-50 p-2">
             <span className="pl-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              CANT.
+              {t('quantityShort')}
             </span>
             <input
               type="number"
@@ -368,18 +371,18 @@ export function ProductCard({
               lowStock ? (
                 <span className="flex items-center gap-1 font-semibold text-[var(--status-warning)]">
                   <AlertCircle className="h-3 w-3" />
-                  ¡Últimos {stock}!
+                  {t('lastUnits', { count: stock })}
                 </span>
               ) : (
                 <span className="flex items-center gap-1 font-medium text-[var(--status-success)]">
                   <Truck className="h-3.5 w-3.5" />
-                  Envío disponible
+                  {t('shippingAvailable')}
                 </span>
               )
             ) : (
               <span className="flex items-center gap-1 font-semibold text-[var(--status-error)]">
                 <AlertCircle className="h-3 w-3" />
-                Sin Stock
+                {t('noStock')}
               </span>
             )}
           </div>
@@ -401,12 +404,12 @@ export function ProductCard({
             ) : addedToCart ? (
               <>
                 <Check className="h-4 w-4" />
-                ¡Agregado!
+                {t('added')}
               </>
             ) : (
               <>
                 <ShoppingCart className="h-4 w-4" />
-                {isMinimal ? 'Agregar' : 'Agregar al carrito'}
+                {isMinimal ? t('add') : t('addToCart')}
               </>
             )}
           </button>
@@ -420,7 +423,7 @@ export function ProductCard({
         {displayLoyaltyPoints && inStock && product.current_price > 10000 && (
           <p className="mt-2 flex items-center justify-center gap-1 text-center text-xs text-[var(--text-muted)]">
             <Sparkles className="h-3 w-3 text-amber-500" />
-            Gana {Math.floor(product.current_price / 10000)} puntos
+            {t('earnPoints', { count: Math.floor(product.current_price / 10000) })}
           </p>
         )}
       </div>

@@ -1,8 +1,16 @@
 'use client'
 
+/**
+ * Time Off Types Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Plus,
   Edit2,
@@ -15,6 +23,7 @@ import {
   AlertCircle,
   Globe,
 } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface TimeOffType {
   id: string
@@ -67,95 +76,133 @@ const COLOR_OPTIONS = [
 export default function TimeOffTypesPage(): JSX.Element {
   const params = useParams()
   const clinic = params?.clinic as string
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  const [types, setTypes] = useState<TimeOffType[]>([])
-  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState<FormData>(DEFAULT_FORM)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchTypes()
-  }, [clinic])
-
-  const fetchTypes = async (): Promise<void> => {
-    setLoading(true)
-    try {
+  // React Query: Fetch types
+  const {
+    data: types = [],
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['time-off-types', clinic],
+    queryFn: async (): Promise<TimeOffType[]> => {
       const response = await fetch(
         `/api/staff/time-off/types?clinic=${clinic}&include_inactive=true`
       )
       if (!response.ok) throw new Error('Error al cargar')
       const result = await response.json()
-      setTypes(result.data || [])
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching types:', e)
-      }
-      setError('Error al cargar tipos de ausencia')
-    } finally {
-      setLoading(false)
-    }
-  }
+      return result.data || []
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  const handleSubmit = async (): Promise<void> => {
-    if (!formData.code.trim() || !formData.name.trim()) {
-      setError('Código y nombre son requeridos')
-      return
-    }
-
-    setSaving(true)
-    setError(null)
-
-    try {
+  // Mutation: Save type (create/update)
+  const saveMutation = useMutation({
+    mutationFn: async (params: { formData: FormData; editingId: string | null }) => {
       const payload = {
-        ...formData,
-        max_days_per_year: formData.max_days_per_year ? parseInt(formData.max_days_per_year) : null,
-        min_notice_days: parseInt(formData.min_notice_days) || 1,
+        ...params.formData,
+        max_days_per_year: params.formData.max_days_per_year ? parseInt(params.formData.max_days_per_year) : null,
+        min_notice_days: parseInt(params.formData.min_notice_days) || 1,
       }
 
-      if (editingId) {
-        // Update
+      if (params.editingId) {
         const response = await fetch('/api/staff/time-off/types', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editingId, ...payload }),
+          body: JSON.stringify({ id: params.editingId, ...payload }),
         })
-
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.error || 'Error al actualizar')
         }
+        return response.json()
       } else {
-        // Create
         const response = await fetch('/api/staff/time-off/types', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
-
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.error || 'Error al crear')
         }
+        return response.json()
       }
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['time-off-types', clinic] })
       setShowForm(false)
       setEditingId(null)
       setFormData(DEFAULT_FORM)
-      fetchTypes()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al guardar')
-    } finally {
-      setSaving(false)
+      setFormError(null)
+    },
+    onError: (err) => {
+      setFormError(err instanceof Error ? err.message : 'Error al guardar')
+    },
+  })
+
+  // Mutation: Delete type
+  const deleteMutation = useMutation({
+    mutationFn: async (typeId: string) => {
+      const response = await fetch(`/api/staff/time-off/types?id=${typeId}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Error al eliminar')
+      }
+      return response.json()
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['time-off-types', clinic] })
+      showToast({ title: result.message, variant: 'success' })
+    },
+    onError: (err) => {
+      setFormError(err instanceof Error ? err.message : 'Error al eliminar')
+    },
+  })
+
+  // Mutation: Toggle active
+  const toggleMutation = useMutation({
+    mutationFn: async (params: { typeId: string; isActive: boolean }) => {
+      const response = await fetch('/api/staff/time-off/types', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: params.typeId, is_active: params.isActive }),
+      })
+      if (!response.ok) throw new Error('Error al actualizar')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['time-off-types', clinic] })
+    },
+    onError: (err) => {
+      setFormError(err instanceof Error ? err.message : 'Error al actualizar')
+    },
+  })
+
+  const error = queryError?.message || formError
+  const saving = saveMutation.isPending
+
+  const handleSubmit = async (): Promise<void> => {
+    if (!formData.code.trim() || !formData.name.trim()) {
+      setFormError('Código y nombre son requeridos')
+      return
     }
+    setFormError(null)
+    await saveMutation.mutateAsync({ formData, editingId })
   }
 
   const handleEdit = (type: TimeOffType): void => {
     if (type.tenant_id === null) {
-      setError('No puedes editar tipos globales del sistema')
+      setFormError('No puedes editar tipos globales del sistema')
       return
     }
     setEditingId(type.id)
@@ -174,45 +221,16 @@ export default function TimeOffTypesPage(): JSX.Element {
 
   const handleDelete = async (type: TimeOffType): Promise<void> => {
     if (type.tenant_id === null) {
-      setError('No puedes eliminar tipos globales del sistema')
+      setFormError('No puedes eliminar tipos globales del sistema')
       return
     }
-
     if (!confirm(`¿Eliminar el tipo "${type.name}"?`)) return
-
-    try {
-      const response = await fetch(`/api/staff/time-off/types?id=${type.id}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Error al eliminar')
-      }
-
-      const result = await response.json()
-      alert(result.message)
-      fetchTypes()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al eliminar')
-    }
+    await deleteMutation.mutateAsync(type.id)
   }
 
   const handleToggleActive = async (type: TimeOffType): Promise<void> => {
     if (type.tenant_id === null) return
-
-    try {
-      const response = await fetch('/api/staff/time-off/types', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: type.id, is_active: !type.is_active }),
-      })
-
-      if (!response.ok) throw new Error('Error al actualizar')
-      fetchTypes()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al actualizar')
-    }
+    await toggleMutation.mutateAsync({ typeId: type.id, isActive: !type.is_active })
   }
 
   const globalTypes = types.filter((t) => t.tenant_id === null)
@@ -246,7 +264,7 @@ export default function TimeOffTypesPage(): JSX.Element {
         <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
           <p className="text-red-700">{error}</p>
-          <button onClick={() => setError(null)} className="ml-auto">
+          <button onClick={() => setFormError(null)} className="ml-auto">
             <X className="h-5 w-5 text-red-600" />
           </button>
         </div>
@@ -389,7 +407,7 @@ export default function TimeOffTypesPage(): JSX.Element {
                   setShowForm(false)
                   setEditingId(null)
                   setFormData(DEFAULT_FORM)
-                  setError(null)
+                  setFormError(null)
                 }}
                 className="rounded-lg px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100"
               >

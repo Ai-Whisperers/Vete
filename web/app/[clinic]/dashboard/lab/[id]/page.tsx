@@ -1,12 +1,21 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+/**
+ * Lab Order Detail Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/Toast'
 import { ResultViewer } from '@/components/lab/result-viewer'
 import { ResultEntry } from '@/components/lab/result-entry'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface LabOrder {
   id: string
@@ -68,37 +77,35 @@ const statusConfig: Record<
 }
 
 export default function LabOrderDetailPage() {
-  const [order, setOrder] = useState<LabOrder | null>(null)
-  const [comments, setComments] = useState<Comment[]>([])
-  const [attachments, setAttachments] = useState<Attachment[]>([])
-  const [loading, setLoading] = useState(true)
   const [showResultEntry, setShowResultEntry] = useState(false)
   const [newComment, setNewComment] = useState('')
-  const [addingComment, setAddingComment] = useState(false)
 
   const router = useRouter()
   const params = useParams()
   const orderId = params.id as string
   const clinic = params.clinic as string
   const supabase = createClient()
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    fetchOrderDetails()
-  }, [orderId])
-
-  const fetchOrderDetails = async () => {
-    setLoading(true)
-    try {
+  // React Query: Fetch order details
+  const {
+    data: orderData,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['lab-order', orderId],
+    queryFn: async (): Promise<{ order: LabOrder; comments: Comment[]; attachments: Attachment[] }> => {
       const {
         data: { session },
       } = await supabase.auth.getSession()
       if (!session?.user) {
         router.push(`/${clinic}`)
-        return
+        throw new Error('No session')
       }
 
       // Fetch order
-      const { data: orderData, error: orderError } = await supabase
+      const { data: orderResult, error: orderError } = await supabase
         .from('lab_orders')
         .select(
           `
@@ -120,8 +127,6 @@ export default function LabOrderDetailPage() {
 
       if (orderError) throw orderError
 
-      setOrder(orderData as unknown as LabOrder)
-
       // Fetch comments
       const { data: commentsData } = await supabase
         .from('lab_result_comments')
@@ -136,8 +141,6 @@ export default function LabOrderDetailPage() {
         .eq('lab_order_id', orderId)
         .order('created_at', { ascending: false })
 
-      setComments((commentsData as Comment[]) || [])
-
       // Fetch attachments
       const { data: attachmentsData } = await supabase
         .from('lab_result_attachments')
@@ -145,20 +148,23 @@ export default function LabOrderDetailPage() {
         .eq('order_id', orderId)
         .order('uploaded_at', { ascending: false })
 
-      setAttachments(attachmentsData || [])
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching order details:', error)
+      return {
+        order: orderResult as unknown as LabOrder,
+        comments: (commentsData as Comment[]) || [],
+        attachments: attachmentsData || [],
       }
-      alert('Error al cargar la orden')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-  const updateStatus = async (newStatus: string) => {
-    try {
+  const order = orderData?.order || null
+  const comments = orderData?.comments || []
+  const attachments = orderData?.attachments || []
+
+  // Mutation: Update status
+  const statusMutation = useMutation({
+    mutationFn: async (newStatus: string) => {
       const response = await fetch(`/api/lab-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -166,42 +172,51 @@ export default function LabOrderDetailPage() {
       })
 
       if (!response.ok) throw new Error('Error al actualizar estado')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lab-order', orderId] })
+    },
+    onError: () => {
+      showToast({ title: 'Error al actualizar el estado', variant: 'error' })
+    },
+  })
 
-      await fetchOrderDetails()
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error updating status:', error)
-      }
-      alert('Error al actualizar el estado')
-    }
-  }
-
-  const addComment = async () => {
-    if (!newComment.trim()) return
-
-    setAddingComment(true)
-    try {
+  // Mutation: Add comment
+  const commentMutation = useMutation({
+    mutationFn: async (comment: string) => {
       const response = await fetch(`/api/lab-orders/${orderId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment: newComment }),
+        body: JSON.stringify({ comment }),
       })
 
       if (!response.ok) throw new Error('Error al agregar comentario')
-
+      return response.json()
+    },
+    onSuccess: () => {
       setNewComment('')
-      await fetchOrderDetails()
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error adding comment:', error)
-      }
-      alert('Error al agregar comentario')
-    } finally {
-      setAddingComment(false)
-    }
+      queryClient.invalidateQueries({ queryKey: ['lab-order', orderId] })
+    },
+    onError: () => {
+      showToast({ title: 'Error al agregar comentario', variant: 'error' })
+    },
+  })
+
+  const updateStatus = (newStatus: string) => {
+    statusMutation.mutate(newStatus)
   }
+
+  const addComment = () => {
+    if (!newComment.trim()) return
+    commentMutation.mutate(newComment)
+  }
+
+  const fetchOrderDetails = async () => {
+    await refetch()
+  }
+
+  const addingComment = commentMutation.isPending
 
   const handlePrint = () => {
     window.print()

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Download, FileText } from 'lucide-react'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
+import { useToast } from '@/components/ui/Toast'
 
 interface OrderItem {
   id: string
@@ -361,6 +362,7 @@ export function OrderInvoicePDFButton({
   clinicName,
   variant = 'button',
 }: OrderInvoicePDFButtonProps): React.ReactElement {
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const handleDownload = async (): Promise<void> => {
@@ -383,7 +385,7 @@ export function OrderInvoicePDFButton({
       if (process.env.NODE_ENV === 'development') {
         console.error('Error generating PDF:', e)
       }
-      alert('Error al generar PDF')
+      showToast({ title: 'Error al generar PDF', variant: 'error' })
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,7 @@
 'use client'
 
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { calculateLineTotal, formatCurrency } from '@/lib/types/invoicing'
 
 interface Service {
@@ -28,6 +29,7 @@ interface LineItemRowProps {
 }
 
 export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: LineItemRowProps) {
+  const t = useTranslations('invoices.lineItem')
   const lineTotal = calculateLineTotal(item.quantity, item.unit_price, item.discount_percent)
 
   const handleServiceChange = (serviceId: string) => {
@@ -45,7 +47,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       {/* Service/Description */}
       <div className="flex-1">
         <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-          Servicio/Descripción
+          {t('serviceDescription')}
         </label>
         <select
           value={item.service_id || ''}
@@ -53,7 +55,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
           disabled={disabled}
           className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[var(--primary)]"
         >
-          <option value="">Personalizado</option>
+          <option value="">{t('custom')}</option>
           {services.map((service) => (
             <option key={service.id} value={service.id}>
               {service.name} - {formatCurrency(service.base_price)}
@@ -65,7 +67,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
           value={item.description}
           onChange={(e) => onUpdate({ ...item, description: e.target.value })}
           disabled={disabled}
-          placeholder="Descripción del artículo"
+          placeholder={t('descriptionPlaceholder')}
           className="mt-2 w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[var(--primary)]"
         />
       </div>
@@ -73,7 +75,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       {/* Quantity */}
       <div className="w-24">
         <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-          Cantidad
+          {t('quantity')}
         </label>
         <input
           type="number"
@@ -90,7 +92,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       {/* Unit Price */}
       <div className="w-32">
         <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-          Precio Unit.
+          {t('unitPrice')}
         </label>
         <input
           type="number"
@@ -107,7 +109,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       {/* Discount */}
       <div className="w-24">
         <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-          Desc. %
+          {t('discount')}
         </label>
         <input
           type="number"
@@ -128,7 +130,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       {/* Line Total */}
       <div className="flex w-32 flex-col justify-between">
         <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-          Subtotal
+          {t('subtotal')}
         </label>
         <p className="p-2 text-right font-medium text-[var(--text-primary)]">
           {formatCurrency(lineTotal)}
@@ -142,7 +144,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
             type="button"
             onClick={onRemove}
             className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
-            title="Eliminar"
+            title={t('remove')}
           >
             <Icons.Trash2 className="h-4 w-4" />
           </button>

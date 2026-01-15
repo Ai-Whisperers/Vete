@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Printer, Download, Loader2 } from 'lucide-react'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
+import { useToast } from '@/components/ui/Toast'
 
 interface InvoiceItem {
   id: string
@@ -151,13 +153,36 @@ function formatDate(dateString: string): string {
   })
 }
 
+interface PDFLabels {
+  invoiceLabel: string
+  date: string
+  dueDate: string
+  client: string
+  name: string
+  email: string
+  phone: string
+  pet: string
+  detail: string
+  description: string
+  quantity: string
+  price: string
+  subtotal: string
+  discount: string
+  tax: string
+  total: string
+  notes: string
+  thankYou: string
+}
+
 // PDF Document Component for Portal
 function PortalInvoicePDF({
   invoice,
   clinicName,
+  labels,
 }: {
   invoice: PortalInvoice
   clinicName: string
+  labels: PDFLabels
 }): React.ReactElement {
   return (
     <Document>
@@ -166,37 +191,37 @@ function PortalInvoicePDF({
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>{clinicName}</Text>
-            <Text style={{ color: '#666', marginTop: 4 }}>Factura</Text>
+            <Text style={{ color: '#666', marginTop: 4 }}>{labels.invoiceLabel}</Text>
           </View>
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
-            <Text>Fecha: {formatDate(invoice.created_at)}</Text>
-            {invoice.due_date && <Text>Vencimiento: {formatDate(invoice.due_date)}</Text>}
+            <Text>{labels.date}: {formatDate(invoice.created_at)}</Text>
+            {invoice.due_date && <Text>{labels.dueDate}: {formatDate(invoice.due_date)}</Text>}
           </View>
         </View>
 
         {/* Client Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Cliente</Text>
+          <Text style={styles.sectionTitle}>{labels.client}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Nombre:</Text>
+            <Text style={styles.label}>{labels.name}:</Text>
             <Text style={styles.value}>{invoice.owner?.full_name || 'N/A'}</Text>
           </View>
           {invoice.owner?.email && (
             <View style={styles.row}>
-              <Text style={styles.label}>Email:</Text>
+              <Text style={styles.label}>{labels.email}:</Text>
               <Text style={styles.value}>{invoice.owner.email}</Text>
             </View>
           )}
           {invoice.owner?.phone && (
             <View style={styles.row}>
-              <Text style={styles.label}>Teléfono:</Text>
+              <Text style={styles.label}>{labels.phone}:</Text>
               <Text style={styles.value}>{invoice.owner.phone}</Text>
             </View>
           )}
           {invoice.pet && (
             <View style={styles.row}>
-              <Text style={styles.label}>Mascota:</Text>
+              <Text style={styles.label}>{labels.pet}:</Text>
               <Text style={styles.value}>
                 {invoice.pet.name} ({invoice.pet.species})
               </Text>
@@ -206,13 +231,13 @@ function PortalInvoicePDF({
 
         {/* Items Table */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Detalle</Text>
+          <Text style={styles.sectionTitle}>{labels.detail}</Text>
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={styles.col1}>Descripción</Text>
-              <Text style={styles.col2}>Cant.</Text>
-              <Text style={styles.col3}>Precio</Text>
-              <Text style={styles.col4}>Subtotal</Text>
+              <Text style={styles.col1}>{labels.description}</Text>
+              <Text style={styles.col2}>{labels.quantity}</Text>
+              <Text style={styles.col3}>{labels.price}</Text>
+              <Text style={styles.col4}>{labels.subtotal}</Text>
             </View>
             {invoice.invoice_items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
@@ -228,23 +253,23 @@ function PortalInvoicePDF({
         {/* Totals */}
         <View style={styles.totals}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
+            <Text style={styles.totalLabel}>{labels.subtotal}</Text>
             <Text>{formatCurrency(invoice.subtotal)}</Text>
           </View>
           {invoice.discount_amount > 0 && (
             <View style={styles.totalRow}>
-              <Text style={{ color: 'green' }}>Descuento</Text>
+              <Text style={{ color: 'green' }}>{labels.discount}</Text>
               <Text style={{ color: 'green' }}>-{formatCurrency(invoice.discount_amount)}</Text>
             </View>
           )}
           {invoice.tax_amount > 0 && (
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>IVA ({invoice.tax_rate || 10}%)</Text>
+              <Text style={styles.totalLabel}>{labels.tax.replace('{rate}', String(invoice.tax_rate || 10))}</Text>
               <Text>{formatCurrency(invoice.tax_amount)}</Text>
             </View>
           )}
           <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text style={styles.totalValue}>Total</Text>
+            <Text style={styles.totalValue}>{labels.total}</Text>
             <Text style={styles.totalValue}>{formatCurrency(invoice.total)}</Text>
           </View>
         </View>
@@ -252,30 +277,54 @@ function PortalInvoicePDF({
         {/* Notes */}
         {invoice.notes && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notas</Text>
+            <Text style={styles.sectionTitle}>{labels.notes}</Text>
             <Text style={{ color: '#666' }}>{invoice.notes}</Text>
           </View>
         )}
 
         {/* Footer */}
-        <Text style={styles.footer}>Gracias por confiar en {clinicName}</Text>
+        <Text style={styles.footer}>{labels.thankYou.replace('{clinic}', clinicName)}</Text>
       </Page>
     </Document>
   )
 }
 
 export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): React.ReactElement {
+  const t = useTranslations('portal.invoiceActions')
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
 
   const handlePrint = (): void => {
     window.print()
   }
 
+  // Prepare labels for PDF generation
+  const pdfLabels: PDFLabels = {
+    invoiceLabel: t('invoiceLabel'),
+    date: t('date'),
+    dueDate: t('dueDate'),
+    client: t('client'),
+    name: t('name'),
+    email: t('email'),
+    phone: t('phone'),
+    pet: t('pet'),
+    detail: t('detail'),
+    description: t('description'),
+    quantity: t('quantity'),
+    price: t('price'),
+    subtotal: t('subtotal'),
+    discount: t('discount'),
+    tax: t('tax', { rate: '{rate}' }),
+    total: t('total'),
+    notes: t('notes'),
+    thankYou: t('thankYou', { clinic: '{clinic}' }),
+  }
+
   const handleDownload = async (): Promise<void> => {
     setLoading(true)
     try {
       const blob = await pdf(
-        <PortalInvoicePDF invoice={invoice} clinicName={clinicName} />
+        <PortalInvoicePDF invoice={invoice} clinicName={clinicName} labels={pdfLabels} />
       ).toBlob()
 
       const url = URL.createObjectURL(blob)
@@ -287,7 +336,7 @@ export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): Re
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch {
-      alert('Error al generar PDF. Por favor intente de nuevo.')
+      showToast({ title: t('pdfError'), variant: 'error' })
     } finally {
       setLoading(false)
     }
@@ -300,7 +349,7 @@ export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): Re
         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
       >
         <Printer className="h-4 w-4" />
-        Imprimir
+        {t('print')}
       </button>
       <button
         onClick={handleDownload}
@@ -308,7 +357,7 @@ export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): Re
         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        Descargar PDF
+        {t('downloadPdf')}
       </button>
     </>
   )

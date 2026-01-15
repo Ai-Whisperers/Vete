@@ -4,16 +4,17 @@ import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { login, loginWithGoogle } from '@/app/auth/actions'
 import { PasswordInput } from '@/components/ui/password-input'
 
-// Error messages for URL error params
-const ERROR_MESSAGES: Record<string, string> = {
-  no_profile: 'Tu cuenta necesita ser configurada. Por favor, inicia sesión nuevamente.',
-  profile_creation_failed: 'Error al crear tu perfil. Intenta de nuevo o contacta soporte.',
-  tenant_assignment_failed: 'Error al asignar tu clínica. Intenta de nuevo.',
-  tenant_mismatch: 'Tu cuenta pertenece a otra clínica.',
-  session_expired: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+// Error message keys for URL error params
+const ERROR_KEYS: Record<string, string> = {
+  no_profile: 'noProfile',
+  profile_creation_failed: 'profileCreationFailed',
+  tenant_assignment_failed: 'tenantAssignmentFailed',
+  tenant_mismatch: 'tenantMismatch',
+  session_expired: 'sessionExpired',
 }
 
 interface LoginFormProps {
@@ -27,17 +28,18 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
   const errorParam = searchParams.get('error')
   const [state, formAction, isPending] = useActionState(login, null)
   const [urlError, setUrlError] = useState<string | null>(null)
+  const t = useTranslations('auth')
 
   // Handle URL error params
   useEffect(() => {
-    if (errorParam && ERROR_MESSAGES[errorParam]) {
-      setUrlError(ERROR_MESSAGES[errorParam])
+    if (errorParam && ERROR_KEYS[errorParam]) {
+      setUrlError(t(`loginForm.errors.${ERROR_KEYS[errorParam]}`))
       // Clean URL without losing other params
       const newUrl = new URL(window.location.href)
       newUrl.searchParams.delete('error')
       router.replace(newUrl.pathname + newUrl.search, { scroll: false })
     }
-  }, [errorParam, router])
+  }, [errorParam, router, t])
 
   const googleLoginAction = loginWithGoogle.bind(null, clinic)
 
@@ -49,10 +51,10 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
         </div>
 
         <h1 className="font-heading text-xl font-black text-[var(--text-primary)] sm:text-2xl">
-          Portal de Dueños
+          {t('loginForm.title')}
         </h1>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Ingresa para ver la libreta de tus mascotas.
+          {t('loginForm.subtitle')}
         </p>
       </div>
 
@@ -82,14 +84,14 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
                 fill="#EA4335"
               />
             </svg>
-            Continuar con Google
+            {t('loginForm.continueWithGoogle')}
           </button>
         </form>
 
         <div className="relative flex items-center py-2">
           <div className="flex-grow border-t border-gray-200"></div>
           <span className="mx-4 flex-shrink-0 text-xs font-bold uppercase text-gray-400">
-            O con email
+            {t('loginForm.orWithEmail')}
           </span>
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
@@ -102,14 +104,14 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
               htmlFor="email"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Email
+              {t('loginForm.emailLabel')}
             </label>
             <input
               id="email"
               name="email"
               required
               type="email"
-              placeholder="tu@email.com"
+              placeholder={t('loginForm.emailPlaceholder')}
               className="min-h-[48px] w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-all focus:border-2 focus:border-[var(--primary)]"
             />
           </div>
@@ -118,7 +120,7 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
               htmlFor="password"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Contraseña
+              {t('loginForm.passwordLabel')}
             </label>
             <PasswordInput
               id="password"
@@ -144,7 +146,7 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
             disabled={isPending}
             className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95 disabled:pointer-events-none disabled:opacity-70"
           >
-            {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : 'Iniciar Sesión'}
+            {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : t('loginForm.loginButton')}
           </button>
 
           <div className="text-center">
@@ -152,7 +154,7 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
               href={`/${clinic}/portal/forgot-password`}
               className="text-sm text-[var(--primary)] hover:underline"
             >
-              ¿Olvidaste tu contraseña?
+              {t('forgotPassword')}
             </Link>
           </div>
         </form>
@@ -160,12 +162,12 @@ export function LoginForm({ clinic, redirectTo }: LoginFormProps) {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
-          ¿No tienes cuenta?{' '}
+          {t('noAccount')}{' '}
           <Link
             href={`/${clinic}/portal/signup${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
             className="font-bold text-[var(--primary)] hover:underline"
           >
-            Regístrate
+            {t('loginForm.signUp')}
           </Link>
         </p>
       </div>

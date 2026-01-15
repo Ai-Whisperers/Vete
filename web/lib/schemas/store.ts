@@ -84,7 +84,7 @@ export type ProductQueryParams = z.infer<typeof productQuerySchema>
 // ============================================
 
 /**
- * Schema for cart item
+ * Schema for basic cart item (product_id + quantity only)
  */
 export const cartItemSchema = z.object({
   product_id: uuidSchema,
@@ -92,6 +92,58 @@ export const cartItemSchema = z.object({
 })
 
 export type CartItem = z.infer<typeof cartItemSchema>
+
+/**
+ * Cart item ID - can be UUID (products) or composite string (services: serviceId-petId-variant)
+ */
+const cartItemIdSchema = z.string().min(1, 'ID requerido').max(150, 'ID muy largo')
+
+/**
+ * SEC-028: Schema for full cart item structure (used in cart sync/merge)
+ * This validates the complete cart item as stored in localStorage/database
+ */
+export const fullCartItemSchema = z
+  .object({
+    id: cartItemIdSchema,
+    name: z.string().min(1, 'Nombre requerido').max(255, 'Nombre muy largo'),
+    price: z.coerce.number().nonnegative('Precio debe ser positivo').finite(),
+    quantity: z.coerce.number().int().min(1, 'Cantidad mínima es 1').max(100, 'Cantidad máxima es 100'),
+    type: z.enum(['service', 'product']),
+    // Optional fields - allow empty strings by transforming to undefined
+    image_url: z.string().optional().nullable().transform((v) => (v && v.length > 0 ? v : null)),
+    stock: z.coerce.number().int().nonnegative().optional().nullable(),
+    sku: z.string().max(100).optional().nullable(),
+    requires_prescription: z.coerce.boolean().optional(),
+    // IDs can be UUID or undefined - be lenient
+    pet_id: z.string().optional().nullable(),
+    pet_name: z.string().max(100).optional().nullable(),
+    service_id: z.string().optional().nullable(),
+    variant_name: z.string().max(100).optional().nullable(),
+    // Accept both prescription_file and prescription_file_url from client
+    prescription_file_url: z.string().optional().nullable(),
+    prescription_file: z.string().optional().nullable(),
+  })
+  .passthrough()
+
+export type FullCartItem = z.infer<typeof fullCartItemSchema>
+
+/**
+ * SEC-028: Schema for cart PUT request (sync cart items)
+ */
+export const cartSyncSchema = z.object({
+  items: z.array(fullCartItemSchema).max(50, 'Máximo 50 items en el carrito'),
+})
+
+export type CartSyncInput = z.infer<typeof cartSyncSchema>
+
+/**
+ * SEC-028: Schema for cart POST request (merge carts)
+ */
+export const cartMergeSchema = z.object({
+  items: z.array(fullCartItemSchema).max(50, 'Máximo 50 items en el carrito'),
+})
+
+export type CartMergeInput = z.infer<typeof cartMergeSchema>
 
 /**
  * Schema for adding to cart
@@ -331,20 +383,26 @@ export const checkoutRequestSchema = z.object({
   items: z
     .array(
       z.object({
-        id: uuidSchema,
+        id: cartItemIdSchema, // Can be UUID (products) or composite ID (services)
         name: z.string().min(1),
         price: z.coerce.number().min(0),
         type: z.enum(['service', 'product']),
         quantity: z.coerce.number().int().min(1).max(99),
         requires_prescription: z.boolean().optional(),
-        prescription_file_url: z.string().url().optional().nullable(),
+        prescription_file_url: z
+          .string()
+          .url('URL de prescripción inválida')
+          .optional()
+          .nullable()
+          .or(z.literal(''))
+          .transform((v) => (v && v.length > 0 ? v : null)),
       })
     )
     .min(1, 'El carrito está vacío'),
   clinic: z.string().min(1, 'Clínica requerida'),
   notes: z.string().max(1000, 'Notas muy largas').optional().nullable(),
   // Pet ID for prescription products
-  pet_id: uuidSchema.optional().nullable(),
+  pet_id: z.string().optional().nullable(),
   // Flag indicating prescription review needed
   requires_prescription_review: z.boolean().optional(),
 })

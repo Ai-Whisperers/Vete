@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { QRGenerator } from '@/components/safety/qr-generator'
 
 interface PetProfileHeaderProps {
@@ -27,7 +28,9 @@ interface PetProfileHeaderProps {
 }
 
 export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps) {
-  // Calculate age
+  const t = useTranslations('pets')
+
+  // Calculate age with translations
   const calculateAge = (): string => {
     if (!pet.birth_date) return ''
     const birth = new Date(pet.birth_date)
@@ -39,9 +42,11 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
       months += 12
     }
     if (years > 0) {
-      return months > 0 ? `${years} años, ${months} meses` : `${years} años`
+      return months > 0
+        ? t('ageDisplay.yearsMonths', { years, months })
+        : t('ageDisplay.yearsOnly', { years })
     }
-    return months > 0 ? `${months} meses` : 'Menos de 1 mes'
+    return months > 0 ? t('ageDisplay.monthsOnly', { months }) : t('ageDisplay.lessThanMonth')
   }
 
   const age = calculateAge()
@@ -57,7 +62,7 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
             {pet.photo_url ? (
               <img
                 src={pet.photo_url}
-                alt={`Foto de ${pet.name}`}
+                alt={t('photoOf', { name: pet.name })}
                 className="h-full w-full rounded-full object-cover"
               />
             ) : (
@@ -80,7 +85,7 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
                 ) : (
                   <Icons.Cat className="h-3 w-3 sm:h-4 sm:w-4" />
                 )}
-                {pet.breed || 'Mestizo'}
+                {pet.breed || t('mixed')}
               </span>
               {age && (
                 <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs sm:px-3 sm:text-sm">
@@ -88,8 +93,8 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
                 </span>
               )}
               <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs capitalize sm:px-3 sm:text-sm">
-                {pet.sex === 'male' ? 'Macho' : pet.sex === 'female' ? 'Hembra' : 'Sexo desc.'}
-                {pet.is_neutered && ' (Castrado)'}
+                {pet.sex === 'male' ? t('male') : pet.sex === 'female' ? t('female') : t('sexUnknown')}
+                {pet.is_neutered && ` ${t('neuteredLabel')}`}
               </span>
               {pet.color && (
                 <span className="hidden items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm sm:flex">
@@ -118,7 +123,7 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
                 <div className="h-4 w-px bg-gray-300"></div>
                 <div className="flex items-center gap-2">
                   <Icons.Phone className="h-4 w-4" />{' '}
-                  <span>{pet.profiles.phone || 'Sin teléfono'}</span>
+                  <span>{pet.profiles.phone || t('noPhone')}</span>
                 </div>
               </div>
             )}
@@ -130,13 +135,13 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
               href={`/${clinic}/book?pet=${pet.id}`}
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 font-bold text-white shadow-md transition-all hover:opacity-90 hover:shadow-lg"
             >
-              <Icons.CalendarPlus className="h-4 w-4" /> Agendar Cita
+              <Icons.CalendarPlus className="h-4 w-4" /> {t('bookAppointment')}
             </Link>
             <Link
               href={`/${clinic}/portal/pets/${pet.id}/edit`}
               className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 font-bold text-gray-600 shadow-sm hover:bg-gray-50"
             >
-              <Icons.Edit2 className="h-4 w-4" /> Editar
+              <Icons.Edit2 className="h-4 w-4" /> {t('edit')}
             </Link>
             <QRGenerator petId={pet.id} petName={pet.name} />
           </div>
@@ -148,13 +153,13 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
             href={`/${clinic}/book?pet=${pet.id}`}
             className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--primary)] px-4 py-2.5 font-bold text-white shadow-md"
           >
-            <Icons.CalendarPlus className="h-4 w-4" /> Agendar
+            <Icons.CalendarPlus className="h-4 w-4" /> {t('book')}
           </Link>
           <Link
             href={`/${clinic}/portal/pets/${pet.id}/edit`}
             className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-bold text-gray-600 shadow-sm"
           >
-            <Icons.Edit2 className="h-4 w-4" /> Editar
+            <Icons.Edit2 className="h-4 w-4" /> {t('edit')}
           </Link>
           <QRGenerator petId={pet.id} petName={pet.name} />
         </div>

@@ -1,7 +1,14 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState } from 'react'
+/**
+ * Epidemiology Client Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import { Download, Activity, MapPin, AlertTriangle, BarChart2, Map } from 'lucide-react'
 import {
   BarChart,
@@ -30,48 +37,31 @@ interface ChartDataPoint {
 }
 
 export default function EpidemiologyPage({ params }: { params: { clinic: string } }) {
-  const [data, setData] = useState<HeatmapPoint[]>([])
-  const [loading, setLoading] = useState(true)
   const [speciesFilter, setSpeciesFilter] = useState<string>('all')
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const url = new URL('/api/epidemiology/heatmap', window.location.origin)
-        if (speciesFilter !== 'all') {
-          url.searchParams.set('species', speciesFilter)
-        }
-
-        const res = await fetch(url.toString())
-        const json = await res.json()
-
-        // Handle both array response and error response
-        if (Array.isArray(json)) {
-          setData(json.sort((a: HeatmapPoint, b: HeatmapPoint) => b.case_count - a.case_count))
-        } else {
-          // Client-side error logging - only in development
-          if (process.env.NODE_ENV === 'development') {
-            console.error('API Error:', json.error)
-          }
-          setData([])
-        }
-      } catch (e) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching epidemiology data:', e)
-        }
-        setData([])
-      } finally {
-        setLoading(false)
+  // React Query: Fetch heatmap data
+  const { data: rawData = [], isLoading: loading } = useQuery({
+    queryKey: ['epidemiology-heatmap', speciesFilter],
+    queryFn: async (): Promise<HeatmapPoint[]> => {
+      const url = new URL('/api/epidemiology/heatmap', window.location.origin)
+      if (speciesFilter !== 'all') {
+        url.searchParams.set('species', speciesFilter)
       }
-    }
+      const res = await fetch(url.toString())
+      const json = await res.json()
+      if (Array.isArray(json)) {
+        return json.sort((a: HeatmapPoint, b: HeatmapPoint) => b.case_count - a.case_count)
+      }
+      return []
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-    fetchData()
-  }, [speciesFilter])
+  const data = rawData
 
-  // Aggregate data for visualization
-  const locationData: ChartDataPoint[] = data
+  // Aggregate data for visualization (memoized)
+  const locationData: ChartDataPoint[] = useMemo(() => data
     .reduce((acc: ChartDataPoint[], curr) => {
       const existing = acc.find((x: ChartDataPoint) => x.name === curr.location_zone)
       if (existing) {
@@ -82,9 +72,9 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
       return acc
     }, [])
     .sort((a: ChartDataPoint, b: ChartDataPoint) => b.value - a.value)
-    .slice(0, 10)
+    .slice(0, 10), [data])
 
-  const diagnosisData: ChartDataPoint[] = data
+  const diagnosisData: ChartDataPoint[] = useMemo(() => data
     .reduce((acc: ChartDataPoint[], curr) => {
       const existing = acc.find((x: ChartDataPoint) => x.name === curr.diagnosis_name)
       if (existing) {
@@ -95,7 +85,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
       return acc
     }, [])
     .sort((a: ChartDataPoint, b: ChartDataPoint) => b.value - a.value)
-    .slice(0, 10)
+    .slice(0, 10), [data])
 
   const downloadCSV = () => {
     const headers = ['Diagnóstico', 'Especie', 'Zona', 'Semana', 'Casos', 'Severidad Promedio']

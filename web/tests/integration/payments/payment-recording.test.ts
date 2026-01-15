@@ -81,6 +81,9 @@ vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi.fn().mockResolvedValue({ success: true }),
 }))
 
+// Import routes AFTER mocks
+import { POST as recordPayment, GET as getPayments } from '@/app/api/invoices/[id]/payments/route'
+
 describe('Payment Recording API', () => {
   beforeEach(() => {
     vi.clearAllMocks()

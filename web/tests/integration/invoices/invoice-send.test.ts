@@ -29,6 +29,9 @@ vi.mock('@/lib/audit', () => ({
   logAudit: vi.fn(() => Promise.resolve()),
 }))
 
+// Import routes AFTER mocks
+import { POST } from '@/app/api/invoices/[id]/send/route'
+
 // Helper to create request
 function createRequest(): NextRequest {
   return new NextRequest('http://localhost:3000/api/invoices/invoice-draft/send', {

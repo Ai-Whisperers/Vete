@@ -1,6 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Reorder Suggestions Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ */
+
+import React, { useState, useEffect } from 'react'
 import {
   ShoppingCart,
   AlertCircle,
@@ -14,7 +21,9 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ReorderSuggestion {
   id: string
@@ -77,44 +86,29 @@ const urgencyConfig = {
 }
 
 export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps): React.ReactElement {
-  const [groups, setGroups] = useState<SupplierGroup[]>([])
-  const [summary, setSummary] = useState<Summary | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
 
-  const fetchSuggestions = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch reorder suggestions
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['inventory', 'reorder-suggestions', { groupBySupplier: true }],
+    queryFn: async (): Promise<{ grouped: SupplierGroup[]; summary: Summary }> => {
       const response = await fetch('/api/inventory/reorder-suggestions?groupBySupplier=true')
+      if (!response.ok) throw new Error('Error al cargar sugerencias')
+      return response.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      if (!response.ok) {
-        throw new Error('Error al cargar sugerencias')
-      }
+  const groups = data?.grouped || []
+  const summary = data?.summary || null
 
-      const data = await response.json()
-      setGroups(data.grouped || [])
-      setSummary(data.summary || null)
-
-      // Auto-expand first group
-      if (data.grouped?.length > 0) {
-        setExpandedGroups(new Set([data.grouped[0].supplier_id || 'no-supplier']))
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching reorder suggestions:', err)
-      }
-      setError('Error al cargar las sugerencias de reorden')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
+  // Auto-expand first group when data loads
   useEffect(() => {
-    fetchSuggestions()
-  }, [fetchSuggestions])
+    if (groups.length > 0 && expandedGroups.size === 0) {
+      setExpandedGroups(new Set([groups[0].supplier_id || 'no-supplier']))
+    }
+  }, [groups, expandedGroups.size])
 
   const toggleGroup = (groupId: string): void => {
     setExpandedGroups((prev) => {
@@ -136,7 +130,7 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
     }).format(amount)
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <div className="text-center">
@@ -151,9 +145,9 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
     return (
       <div className="flex items-center gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] px-4 py-3 text-[var(--status-error)]">
         <AlertCircle className="h-5 w-5" />
-        {error}
+        Error al cargar las sugerencias de reorden
         <button
-          onClick={fetchSuggestions}
+          onClick={() => refetch()}
           className="ml-auto flex items-center gap-1 rounded-lg bg-[var(--status-error-bg)] px-3 py-1 text-sm font-medium hover:opacity-80"
         >
           <RefreshCw className="h-4 w-4" />
@@ -225,7 +219,7 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
       {/* Refresh Button */}
       <div className="flex justify-end">
         <button
-          onClick={fetchSuggestions}
+          onClick={() => refetch()}
           className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
         >
           <RefreshCw className="h-4 w-4" />

@@ -10,6 +10,7 @@ import { MessageInput } from './message-input'
 import { TemplateSelector } from './template-selector'
 import { sendMessage, getMessages, getTemplates } from '@/app/actions/whatsapp'
 import type { WhatsAppConversation, WhatsAppMessage, WhatsAppTemplate } from '@/lib/types/whatsapp'
+import { useToast } from '@/components/ui/Toast'
 
 interface InboxProps {
   conversations: WhatsAppConversation[]
@@ -18,6 +19,7 @@ interface InboxProps {
 
 export function Inbox({ conversations, clinic }: InboxProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [selectedPhone, setSelectedPhone] = useState<string | null>(null)
   const [messages, setMessages] = useState<WhatsAppMessage[]>([])
   const [loading, setLoading] = useState(false)
@@ -73,7 +75,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
       loadMessages()
       router.refresh()
     } else {
-      alert(result.error || 'Error al enviar mensaje')
+      showToast({ title: result.error || 'Error al enviar mensaje', variant: 'error' })
     }
   }
 

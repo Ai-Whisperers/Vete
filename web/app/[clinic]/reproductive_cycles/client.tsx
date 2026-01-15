@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { ArrowLeft, Heart, CheckCircle2, Calendar, List, Trash2, Search, Dog } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -16,6 +17,7 @@ interface ReproductiveCycle {
 }
 
 export default function ReproductiveCyclesClient({ clinic }: { clinic: string }) {
+  const t = useTranslations('reproductiveCycles')
   const supabase = createClient()
   const { showToast } = useToast()
   const router = useRouter()
@@ -80,7 +82,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
         setStartDate('')
         setEndDate('')
         setNotes('')
-        showToast('Ciclo registrado correctamente')
+        showToast(t('cycleSaved'))
         router.refresh() // Update list
         // Refresh local cycles list
         const { data } = await supabase
@@ -91,14 +93,14 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
         if (data) setCycles(data)
       }
     } catch (err) {
-      showToast('Error al guardar el ciclo')
+      showToast(t('saveError'))
     } finally {
       setIsSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este registro de ciclo?')) return
+    if (!confirm(t('confirmDelete'))) return
     const res = await fetch('/api/reproductive_cycles', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -106,7 +108,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
     })
     if (res.ok) {
       setCycles((prev) => prev.filter((c) => c.id !== id))
-      showToast('Registro eliminado')
+      showToast(t('recordDeleted'))
     }
   }
 
@@ -139,22 +141,22 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
             </Link>
             <div>
               <h1 className="text-2xl font-black text-[var(--text-primary)]">
-                Monitor Reproductivo
+                {t('title')}
               </h1>
-              <p className="text-sm font-medium text-gray-500">Seguimiento de Ciclos y Celos</p>
+              <p className="text-sm font-medium text-gray-500">{t('subtitle')}</p>
             </div>
           </div>
 
           <div className="flex flex-col items-end">
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              Paciente (Hembras)
+              {t('patientFemales')}
             </span>
             <select
               value={petId}
               onChange={(e) => setPetId(e.target.value)}
               className="rounded-xl border-none bg-purple-50 px-4 py-2 font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="">Seleccionar Paciente...</option>
+              <option value="">{t('selectPatient')}</option>
               {pets.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.breed})
@@ -173,7 +175,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
               <div className="relative overflow-hidden rounded-[40px] border border-purple-100 bg-white p-8 shadow-xl shadow-purple-100/50">
                 <div className="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-purple-500 opacity-[0.05]"></div>
                 <h3 className="mb-6 text-sm font-black uppercase tracking-widest text-gray-400">
-                  Estado Actual
+                  {t('currentStatus')}
                 </h3>
 
                 {cycles.length > 0 ? (
@@ -183,9 +185,9 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                         <div className="mx-auto mb-4 flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-red-100 text-red-600">
                           <Heart className="h-10 w-10 fill-current" />
                         </div>
-                        <h4 className="mb-1 text-2xl font-black text-red-600">Celo Activo</h4>
+                        <h4 className="mb-1 text-2xl font-black text-red-600">{t('activeHeat')}</h4>
                         <p className="text-sm text-gray-500">
-                          Termina aprox. el {new Date(cycles[0].cycle_end).toLocaleDateString()}
+                          {t('endsApprox', { date: new Date(cycles[0].cycle_end).toLocaleDateString() })}
                         </p>
                       </div>
                     ) : (
@@ -193,9 +195,9 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600">
                           <CheckCircle2 className="h-10 w-10" />
                         </div>
-                        <h4 className="mb-1 text-2xl font-black text-gray-800">Inactiva</h4>
+                        <h4 className="mb-1 text-2xl font-black text-gray-800">{t('inactive')}</h4>
                         <p className="px-4 text-sm leading-relaxed text-gray-500">
-                          Próximo celo estimado para:
+                          {t('nextHeatEstimate')}
                         </p>
                         <p className="mt-2 text-lg font-black text-purple-600">
                           {getNextHeatEstimate(cycles[0].cycle_start).toLocaleDateString(
@@ -209,18 +211,18 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                 ) : (
                   <div className="py-6 text-center text-gray-400">
                     <Calendar className="mx-auto mb-4 h-12 w-12 opacity-20" />
-                    <p className="text-sm font-medium">Sin datos históricos para predecir.</p>
+                    <p className="text-sm font-medium">{t('noHistoricalData')}</p>
                   </div>
                 )}
               </div>
 
               {/* Add New Cycle Form */}
               <div className="rounded-[40px] border border-gray-100 bg-white p-8 shadow-xl">
-                <h3 className="mb-6 text-lg font-black text-gray-900">Registrar Nuevo Ciclo</h3>
+                <h3 className="mb-6 text-lg font-black text-gray-900">{t('registerNewCycle')}</h3>
                 <form onSubmit={handleAdd} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-400">
-                      Inicio del Celo
+                      {t('heatStart')}
                     </label>
                     <input
                       type="date"
@@ -232,7 +234,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                   </div>
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-400">
-                      Fin Estimado/Real
+                      {t('endEstimatedReal')}
                     </label>
                     <input
                       type="date"
@@ -244,12 +246,12 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                   </div>
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-400">
-                      Notas
+                      {t('notes')}
                     </label>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Observaciones sobre sangrado, comportamiento, etc."
+                      placeholder={t('notesPlaceholder')}
                       className="h-24 w-full rounded-2xl border-none bg-gray-50 p-4 font-medium text-gray-700 outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
@@ -258,7 +260,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                     disabled={isSaving}
                     className="w-full rounded-2xl bg-purple-600 py-4 font-black text-white shadow-lg shadow-purple-200 transition-all hover:-translate-y-1 hover:shadow-xl disabled:opacity-50"
                   >
-                    {isSaving ? 'Guardando...' : 'Registrar Ciclo'}
+                    {isSaving ? t('saving') : t('registerCycle')}
                   </button>
                 </form>
               </div>
@@ -269,7 +271,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
               <div className="rounded-[40px] border border-gray-100 bg-white p-10 shadow-xl">
                 <h3 className="mb-8 flex items-center gap-3 text-xl font-black text-gray-900">
                   <List className="h-6 w-6 text-purple-500" />
-                  Historial de Ciclos
+                  {t('cycleHistory')}
                 </h3>
 
                 <div className="space-y-6">
@@ -299,12 +301,12 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                                 </span>
                                 {isCurrentlyActive(c.cycle_start, c.cycle_end) && (
                                   <span className="rounded-full bg-red-500 px-3 py-1 text-[10px] font-black uppercase text-white shadow-lg shadow-red-200">
-                                    Actual
+                                    {t('current')}
                                   </span>
                                 )}
                               </div>
                               <p className="text-sm font-medium leading-relaxed text-gray-500">
-                                {c.notes || 'Sin notas adicionales.'}
+                                {c.notes || t('noAdditionalNotes')}
                               </p>
                             </div>
                             <button
@@ -321,7 +323,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                     <div className="rounded-[40px] border-2 border-dashed border-gray-200 bg-gray-50 py-20 text-center">
                       <Search className="mx-auto mb-4 h-12 w-12 text-gray-300" />
                       <p className="font-medium text-gray-500">
-                        No hay ciclos registrados para este paciente.
+                        {t('noCyclesRegistered')}
                       </p>
                     </div>
                   )}
@@ -334,10 +336,9 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
             <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-[40px] bg-purple-50 text-purple-200">
               <Dog className="h-12 w-12" />
             </div>
-            <h2 className="mb-4 text-3xl font-black text-gray-900">Monitor de Reproducción</h2>
+            <h2 className="mb-4 text-3xl font-black text-gray-900">{t('reproductionMonitor')}</h2>
             <p className="mx-auto max-w-sm font-medium text-gray-500">
-              Seleccione una paciente hembra para ver su historial reproductivo, tendencias y
-              predicciones de celo.
+              {t('selectFemalePatient')}
             </p>
           </div>
         )}

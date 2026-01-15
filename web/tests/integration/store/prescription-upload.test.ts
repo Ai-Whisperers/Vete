@@ -24,6 +24,9 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(() => Promise.resolve(createStatefulSupabaseMock())),
 }))
 
+// Import routes AFTER mocks
+import { POST } from '@/app/api/store/prescriptions/upload/route'
+
 // Helper to create a mock File
 function createMockFile(
   name: string,

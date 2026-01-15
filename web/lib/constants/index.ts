@@ -56,20 +56,57 @@ import type { AppointmentStatus, InvoiceStatus } from '@/lib/types/status'
 // =============================================================================
 
 export const LIMITS = {
+  // Pagination
   DEFAULT_PAGE_SIZE: 20,
   MAX_PAGE_SIZE: 100,
+
+  // File sizes - Generic
   MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
   MAX_DOCUMENT_SIZE: 10 * 1024 * 1024, // 10MB
   MAX_VIDEO_SIZE: 50 * 1024 * 1024, // 50MB
+
+  // File sizes - Specific use cases (TECH-005)
+  MAX_LOGO_SIZE: 2 * 1024 * 1024, // 2MB - Logo upload during signup
+  MAX_PET_DOCUMENT_SIZE: 20 * 1024 * 1024, // 20MB - Pet documents (vaccines, records)
+  MAX_IMPORT_FILE_SIZE: 5 * 1024 * 1024, // 5MB - Excel/CSV imports
+  MAX_PRESCRIPTION_SIZE: 5 * 1024 * 1024, // 5MB - Prescription uploads
+  MAX_ATTACHMENT_SIZE: 10 * 1024 * 1024, // 10MB - Message attachments
+  MAX_IMPORT_ROWS: 1000, // Max rows in Excel/CSV import
+
+  // Cart/Store limits
+  MAX_QUANTITY_PER_ITEM: 99,
+  MAX_CART_ITEMS: 50,
+
+  // Text lengths
   MAX_NAME_LENGTH: 100,
   MAX_DESCRIPTION_LENGTH: 1000,
   MAX_NOTES_LENGTH: 5000,
+
+  // Entity limits
   MAX_PETS_PER_OWNER: 20,
-  APPOINTMENT_BUFFER_MINUTES: 15,
-  APPOINTMENT_SLOT_DURATION_MINUTES: 30,
   MAX_VACCINE_REACTIONS: 10,
   MAX_ATTACHMENTS_PER_RECORD: 5,
+
+  // Appointment settings
+  APPOINTMENT_BUFFER_MINUTES: 15,
+  APPOINTMENT_SLOT_DURATION_MINUTES: 30,
 } as const
+
+/**
+ * Format bytes to human-readable string (e.g., "5 MB")
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/**
+ * Get standardized file size error message in Spanish
+ */
+export function getFileSizeError(limit: number): string {
+  return `El archivo excede el tamaño máximo de ${formatFileSize(limit)}`
+}
 
 // =============================================================================
 // USER ROLES

@@ -12,6 +12,7 @@ import {
   Download,
   FileText,
 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Invoice {
   id: string
@@ -50,8 +51,12 @@ export function PetFinancesTab({
   payments,
   clinic,
 }: PetFinancesTabProps) {
+  const t = useTranslations('pets.tabs.finances')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PY', {
+    return new Intl.NumberFormat(localeStr, {
       style: 'currency',
       currency: 'PYG',
       minimumFractionDigits: 0,
@@ -59,7 +64,7 @@ export function PetFinancesTab({
   }
 
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString('es-PY', {
+    return new Date(dateStr).toLocaleDateString(localeStr, {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -74,15 +79,15 @@ export function PetFinancesTab({
   const getStatusConfig = (status: Invoice['status']) => {
     switch (status) {
       case 'paid':
-        return { label: 'Pagada', color: 'bg-green-100 text-green-700', icon: CheckCircle2 }
+        return { label: t('statusPaid'), color: 'bg-green-100 text-green-700', icon: CheckCircle2 }
       case 'sent':
-        return { label: 'Pendiente', color: 'bg-amber-100 text-amber-700', icon: Clock }
+        return { label: t('statusPending'), color: 'bg-amber-100 text-amber-700', icon: Clock }
       case 'overdue':
-        return { label: 'Vencida', color: 'bg-red-100 text-red-700', icon: AlertCircle }
+        return { label: t('statusOverdue'), color: 'bg-red-100 text-red-700', icon: AlertCircle }
       case 'cancelled':
-        return { label: 'Cancelada', color: 'bg-gray-100 text-gray-700', icon: AlertCircle }
+        return { label: t('statusCancelled'), color: 'bg-gray-100 text-gray-700', icon: AlertCircle }
       default:
-        return { label: 'Borrador', color: 'bg-gray-100 text-gray-500', icon: FileText }
+        return { label: t('statusDraft'), color: 'bg-gray-100 text-gray-500', icon: FileText }
     }
   }
 
@@ -94,10 +99,12 @@ export function PetFinancesTab({
         <div className="rounded-xl border border-gray-100 bg-white p-4">
           <div className="mb-2 flex items-center gap-2 text-gray-500">
             <CreditCard className="h-4 w-4" />
-            <span className="text-xs font-medium">Total Pagado</span>
+            <span className="text-xs font-medium">{t('totalPaid')}</span>
           </div>
           <p className="text-2xl font-black text-green-600">{formatCurrency(totalPaid)}</p>
-          <p className="mt-1 text-xs text-gray-400">{payments.length} pagos registrados</p>
+          <p className="mt-1 text-xs text-gray-400">
+            {payments.length !== 1 ? t('paymentsRecordedPlural', { count: payments.length }) : t('paymentsRecorded', { count: payments.length })}
+          </p>
         </div>
 
         {/* Pending */}
@@ -106,7 +113,7 @@ export function PetFinancesTab({
         >
           <div className="mb-2 flex items-center gap-2 text-gray-500">
             <Clock className="h-4 w-4" />
-            <span className="text-xs font-medium">Pendiente</span>
+            <span className="text-xs font-medium">{t('pending')}</span>
           </div>
           <p
             className={`text-2xl font-black ${totalPending > 0 ? 'text-amber-600' : 'text-gray-400'}`}
@@ -114,8 +121,7 @@ export function PetFinancesTab({
             {formatCurrency(totalPending)}
           </p>
           <p className="mt-1 text-xs text-gray-400">
-            {pendingInvoices.length} factura{pendingInvoices.length !== 1 ? 's' : ''} pendiente
-            {pendingInvoices.length !== 1 ? 's' : ''}
+            {pendingInvoices.length !== 1 ? t('invoicesPendingPlural', { count: pendingInvoices.length }) : t('invoicesPending', { count: pendingInvoices.length })}
           </p>
         </div>
       </div>
@@ -125,7 +131,7 @@ export function PetFinancesTab({
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
           <div className="mb-3 flex items-center gap-2 font-bold text-amber-700">
             <AlertCircle className="h-5 w-5" />
-            Facturas Pendientes de Pago
+            {t('pendingInvoicesAlert')}
           </div>
           <div className="space-y-2">
             {pendingInvoices.slice(0, 3).map((invoice) => (
@@ -140,7 +146,7 @@ export function PetFinancesTab({
                 <div className="text-right">
                   <p className="font-bold text-amber-700">{formatCurrency(invoice.total)}</p>
                   {invoice.due_date && new Date(invoice.due_date) < new Date() && (
-                    <p className="text-xs text-red-600">Vencida</p>
+                    <p className="text-xs text-red-600">{t('statusOverdue')}</p>
                   )}
                 </div>
               </div>
@@ -151,7 +157,7 @@ export function PetFinancesTab({
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
           >
             <CreditCard className="h-4 w-4" />
-            Pagar Ahora
+            {t('payNow')}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -162,13 +168,13 @@ export function PetFinancesTab({
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <Receipt className="h-5 w-5 text-blue-500" />
-            Historial de Facturas
+            {t('invoiceHistory')}
           </h3>
           <Link
             href={`/${clinic}/portal/invoices`}
             className="text-sm font-medium text-[var(--primary)] hover:underline"
           >
-            Ver todas
+            {t('viewAll')}
           </Link>
         </div>
 
@@ -221,7 +227,7 @@ export function PetFinancesTab({
         ) : (
           <div className="py-8 text-center text-gray-400">
             <Receipt className="mx-auto mb-2 h-10 w-10 opacity-50" />
-            <p className="text-sm">Sin facturas registradas</p>
+            <p className="text-sm">{t('noInvoices')}</p>
           </div>
         )}
       </div>
@@ -231,7 +237,7 @@ export function PetFinancesTab({
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <CreditCard className="h-5 w-5 text-green-500" />
-            Historial de Pagos
+            {t('paymentHistory')}
           </h3>
         </div>
 
@@ -247,7 +253,7 @@ export function PetFinancesTab({
                     <CheckCircle2 className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Pago recibido</p>
+                    <p className="text-sm font-medium">{t('paymentReceived')}</p>
                     <p className="flex items-center gap-1 text-xs text-gray-500">
                       <Calendar className="h-3 w-3" />
                       {formatDate(payment.payment_date)}
@@ -263,7 +269,7 @@ export function PetFinancesTab({
         ) : (
           <div className="py-8 text-center text-gray-400">
             <CreditCard className="mx-auto mb-2 h-10 w-10 opacity-50" />
-            <p className="text-sm">Sin pagos registrados</p>
+            <p className="text-sm">{t('noPayments')}</p>
           </div>
         )}
       </div>

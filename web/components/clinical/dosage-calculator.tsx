@@ -1,7 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Dosage Calculator Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Automatic caching of drug data
+ */
+
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Calculator, AlertTriangle } from 'lucide-react'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Drug {
   id: string
@@ -25,29 +36,23 @@ export function DosageCalculator({
   initialWeightKg?: number
   species?: 'dog' | 'cat'
 }) {
-  const [drugs, setDrugs] = useState<Drug[]>([])
   const [selectedDrugId, setSelectedDrugId] = useState('')
   const [weight, setWeight] = useState(initialWeightKg || 0)
-  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const fetchDrugs = async () => {
-      setLoading(true)
-      try {
-        const url = species ? `/api/drug_dosages?species=${species}` : '/api/drug_dosages'
-        const res = await fetch(url)
-        if (res.ok) {
-          const data = await res.json()
-          setDrugs(data)
-        }
-      } catch {
-        // Error fetching drugs - silently fail
-      } finally {
-        setLoading(false)
+  // React Query for data fetching
+  const { data: drugs = [], isLoading: loading } = useQuery({
+    queryKey: queryKeys.clinical.drugDosages(),
+    queryFn: async (): Promise<Drug[]> => {
+      const url = species ? `/api/drug_dosages?species=${species}` : '/api/drug_dosages'
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error('Error al cargar medicamentos')
       }
-    }
-    fetchDrugs()
-  }, [species])
+      return response.json()
+    },
+    staleTime: staleTimes.STATIC,
+    gcTime: gcTimes.LONG,
+  })
 
   const selectedDrug = drugs.find((d) => d.id === selectedDrugId)
 

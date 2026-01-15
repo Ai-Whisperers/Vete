@@ -2,6 +2,7 @@
 
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import {
   CheckCircle,
   Clock,
@@ -120,46 +121,40 @@ const variantIcons: Record<string, LucideIcon> = {
   unknown: CircleDot,
 }
 
-// Spanish labels for each variant
-const variantLabels: Record<string, string> = {
-  success: 'Éxito',
-  confirmed: 'Confirmada',
-  paid: 'Pagada',
-  verified: 'Verificada',
-  completed: 'Completada',
-  active: 'Activa',
-
-  warning: 'Advertencia',
-  pending: 'Pendiente',
-  review: 'En revisión',
-  upcoming: 'Próximamente',
-  expiring: 'Por vencer',
-
-  error: 'Error',
-  rejected: 'Rechazada',
-  overdue: 'Vencida',
-  cancelled: 'Cancelada',
-  critical: 'Crítico',
-  expired: 'Expirada',
-
-  info: 'Info',
-  scheduled: 'Agendada',
-  sent: 'Enviada',
-  'in-progress': 'En proceso',
-  processing: 'Procesando',
-
-  purple: 'Especial',
-  'in-consultation': 'En consulta',
-  hospitalized: 'Internado',
-
-  orange: 'Atención',
-  'no-show': 'No asistió',
-  urgent: 'Urgente',
-
-  neutral: 'Neutral',
-  draft: 'Borrador',
-  inactive: 'Inactiva',
-  unknown: 'Desconocido',
+// Map variant keys to translation keys (handles hyphenated variants)
+const variantToTranslationKey: Record<string, string> = {
+  success: 'success',
+  confirmed: 'confirmed',
+  paid: 'paid',
+  verified: 'verified',
+  completed: 'completed',
+  active: 'active',
+  warning: 'warning',
+  pending: 'pending',
+  review: 'review',
+  upcoming: 'upcoming',
+  expiring: 'expiring',
+  error: 'error',
+  rejected: 'rejected',
+  overdue: 'overdue',
+  cancelled: 'cancelled',
+  critical: 'critical',
+  expired: 'expired',
+  info: 'info',
+  scheduled: 'scheduled',
+  sent: 'sent',
+  'in-progress': 'inProgress',
+  processing: 'processing',
+  purple: 'purple',
+  'in-consultation': 'inConsultation',
+  hospitalized: 'hospitalized',
+  orange: 'orange',
+  'no-show': 'noShow',
+  urgent: 'urgent',
+  neutral: 'neutral',
+  draft: 'draft',
+  inactive: 'inactive',
+  unknown: 'unknown',
 }
 
 export interface StatusBadgeProps
@@ -178,15 +173,17 @@ export function StatusBadge({
   pulse = false,
   ...props
 }: StatusBadgeProps): React.ReactElement {
+  const t = useTranslations('common.status')
   const Icon = variant ? variantIcons[variant] || CircleDot : CircleDot
-  const defaultLabel = variant ? variantLabels[variant] || variant : ''
+  const translationKey = variant ? variantToTranslationKey[variant] || 'unknown' : 'unknown'
+  const defaultLabel = t(translationKey)
   const displayLabel = label || defaultLabel
   const isAnimated = variant === 'in-progress' || variant === 'processing'
 
   return (
     <span
       className={cn(statusBadgeVariants({ variant, size }), pulse && 'animate-pulse', className)}
-      aria-label={`Estado: ${displayLabel}`}
+      aria-label={t('ariaLabel', { status: displayLabel })}
       {...props}
     >
       {showIcon && (

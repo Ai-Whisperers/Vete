@@ -102,34 +102,6 @@ export const POST = withApiAuth(
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-
-    // Insert fields if provided
-    if (fields && Array.isArray(fields) && fields.length > 0) {
-      const fieldsToInsert = fields.map((field: ConsentField) => ({
-        template_id: data.id,
-        field_name: field.field_name,
-        field_type: field.field_type,
-        field_label: field.field_label,
-        is_required: field.is_required || false,
-        field_options: field.field_options || null,
-        display_order: field.display_order || 0,
-      }))
-
-      const { error: fieldsError } = await supabase
-        .from('consent_template_fields')
-        .insert(fieldsToInsert)
-
-      if (fieldsError) {
-        logger.error('Error creating consent template fields', {
-          tenantId: profile.tenant_id,
-          templateId: data.id,
-          error: fieldsError.message,
-        })
-        // Don't fail the whole request, just log the error
-      }
-    }
-
-    return NextResponse.json(data, { status: 201 })
   },
-  { roles: ['admin'] }
+  { roles: ['admin'], rateLimit: 'write' }
 )

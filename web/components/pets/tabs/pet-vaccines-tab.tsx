@@ -12,6 +12,7 @@ import {
   FileText,
   ChevronRight,
 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 import { MissingVaccinesCard } from '../missing-vaccines-card'
 
 interface Vaccine {
@@ -56,6 +57,10 @@ export function PetVaccinesTab({
   clinic,
   isStaff = false,
 }: PetVaccinesTabProps) {
+  const t = useTranslations('pets.tabs.vaccines')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   // Extract vaccine codes and names from existing vaccines for the recommendation API
   const existingVaccineCodes = vaccines
     .map((v) => v.vaccine_code)
@@ -85,8 +90,8 @@ export function PetVaccinesTab({
   }
 
   const formatDate = (dateStr: string | null | undefined): string => {
-    if (!dateStr) return 'Sin fecha'
-    return new Date(dateStr).toLocaleDateString('es-PY', {
+    if (!dateStr) return t('noDate')
+    return new Date(dateStr).toLocaleDateString(localeStr, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -126,7 +131,7 @@ export function PetVaccinesTab({
               {hasReactions && (
                 <span className="flex items-center gap-1 rounded bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
                   <AlertTriangle className="h-3 w-3" />
-                  Reacción
+                  {t('reaction')}
                 </span>
               )}
             </div>
@@ -134,7 +139,7 @@ export function PetVaccinesTab({
             <div className="space-y-1 text-sm text-gray-500">
               <p className="flex items-center gap-2">
                 <Calendar className="h-3.5 w-3.5" />
-                Aplicada: {formatDate(vaccine.administered_date)}
+                {t('applied')}: {formatDate(vaccine.administered_date)}
               </p>
               {vaccine.next_due_date && (
                 <p
@@ -148,17 +153,17 @@ export function PetVaccinesTab({
                 >
                   <Clock className="h-3.5 w-3.5" />
                   {status === 'overdue' ? (
-                    <>Vencida hace {Math.abs(getDaysUntil(vaccine.next_due_date))} días</>
+                    t('expiredDaysAgo', { count: Math.abs(getDaysUntil(vaccine.next_due_date)) })
                   ) : status === 'upcoming' ? (
-                    <>Próxima en {getDaysUntil(vaccine.next_due_date)} días</>
+                    t('upcomingInDays', { count: getDaysUntil(vaccine.next_due_date) })
                   ) : (
-                    <>Próxima: {formatDate(vaccine.next_due_date)}</>
+                    <>{t('nextDate')}: {formatDate(vaccine.next_due_date)}</>
                   )}
                 </p>
               )}
               {vaccine.manufacturer && (
                 <p className="text-xs text-gray-400">
-                  {vaccine.manufacturer} {vaccine.lot_number && `• Lote: ${vaccine.lot_number}`}
+                  {vaccine.manufacturer} {vaccine.lot_number && `• ${t('lot')}: ${vaccine.lot_number}`}
                 </p>
               )}
             </div>
@@ -178,7 +183,7 @@ export function PetVaccinesTab({
                   >
                     <span className="font-medium">{reaction.reaction_type}</span>
                     {reaction.severity && ` (${reaction.severity})`}
-                    {reaction.onset_hours && ` - ${reaction.onset_hours}h después`}
+                    {reaction.onset_hours && ` - ${t('hoursAfter', { count: reaction.onset_hours })}`}
                   </div>
                 ))}
               </div>
@@ -210,10 +215,9 @@ export function PetVaccinesTab({
       {/* Header with actions */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Vacunas de {petName}</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('title', { petName })}</h2>
           <p className="text-sm text-gray-500">
-            {vaccines.length} vacuna{vaccines.length !== 1 ? 's' : ''} registrada
-            {vaccines.length !== 1 ? 's' : ''}
+            {vaccines.length !== 1 ? t('vaccineCountPlural', { count: vaccines.length }) : t('vaccineCount', { count: vaccines.length })}
           </p>
         </div>
         <div className="flex gap-2">
@@ -222,7 +226,7 @@ export function PetVaccinesTab({
             className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
           >
             <FileText className="h-4 w-4" />
-            Certificado
+            {t('certificate')}
           </Link>
           {isStaff && (
             <Link
@@ -230,7 +234,7 @@ export function PetVaccinesTab({
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4" />
-              Nueva Vacuna
+              {t('newVaccine')}
             </Link>
           )}
         </div>
@@ -246,7 +250,7 @@ export function PetVaccinesTab({
           >
             {overdueVaccines.length}
           </div>
-          <div className="text-xs font-medium text-gray-500">Vencidas</div>
+          <div className="text-xs font-medium text-gray-500">{t('overdue')}</div>
         </div>
         <div
           className={`rounded-xl p-4 text-center ${upcomingVaccines.length > 0 ? 'bg-[var(--status-warning-bg)]' : 'bg-gray-50'}`}
@@ -256,11 +260,11 @@ export function PetVaccinesTab({
           >
             {upcomingVaccines.length}
           </div>
-          <div className="text-xs font-medium text-gray-500">Próximas</div>
+          <div className="text-xs font-medium text-gray-500">{t('upcoming')}</div>
         </div>
         <div className="rounded-xl bg-[var(--status-success-bg)] p-4 text-center">
           <div className="text-2xl font-black text-[var(--status-success)]">{upToDateVaccines.length}</div>
-          <div className="text-xs font-medium text-gray-500">Al día</div>
+          <div className="text-xs font-medium text-gray-500">{t('upToDate')}</div>
         </div>
       </div>
 
@@ -269,7 +273,7 @@ export function PetVaccinesTab({
         <div className="rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
           <div className="mb-3 flex items-center gap-2 font-bold text-[var(--status-error-text)]">
             <AlertCircle className="h-5 w-5" />
-            Vacunas Vencidas - Requieren Atención
+            {t('overdueAlert')}
           </div>
           <div className="space-y-3">
             {overdueVaccines.map((vaccine) => (
@@ -281,7 +285,7 @@ export function PetVaccinesTab({
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--status-error)] py-3 font-bold text-white transition-colors hover:opacity-90"
           >
             <Calendar className="h-4 w-4" />
-            Agendar Vacunación
+            {t('scheduleVaccination')}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -292,7 +296,7 @@ export function PetVaccinesTab({
         <div>
           <h3 className="mb-3 flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <Clock className="h-4 w-4 text-[var(--status-warning)]" />
-            Próximas (30 días)
+            {t('upcomingDays')}
           </h3>
           <div className="space-y-3">
             {upcomingVaccines.map((vaccine) => (
@@ -307,7 +311,7 @@ export function PetVaccinesTab({
         <div>
           <h3 className="mb-3 flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <CheckCircle2 className="h-4 w-4 text-[var(--status-success)]" />
-            Al Día
+            {t('upToDateSection')}
           </h3>
           <div className="space-y-3">
             {upToDateVaccines.map((vaccine) => (
@@ -336,9 +340,9 @@ export function PetVaccinesTab({
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
               <Syringe className="h-6 w-6 text-gray-400" />
             </div>
-            <h3 className="mb-1 font-bold text-gray-900">Sin vacunas registradas</h3>
+            <h3 className="mb-1 font-bold text-gray-900">{t('noVaccinesTitle')}</h3>
             <p className="mx-auto max-w-xs text-sm text-gray-500">
-              No hay registros de vacunación para {petName}
+              {t('noVaccinesDesc', { petName })}
             </p>
           </div>
         </div>

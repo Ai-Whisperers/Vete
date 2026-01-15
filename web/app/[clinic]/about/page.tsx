@@ -27,6 +27,7 @@ import { FacilitiesGallery } from '@/components/about/facilities-gallery'
 import { CertificationBadge } from '@/components/about/certification-badge'
 import { TeamSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
+import { getTranslations } from 'next-intl/server'
 
 // Generate metadata for SEO
 export async function generateMetadata({
@@ -101,6 +102,8 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
   if (!data) notFound()
 
   const { about, config } = data
+  const t = await getTranslations('about')
+  const tNav = await getTranslations('nav')
   const heroImage = about.intro?.image
 
   // Default stats that can be overridden by config
@@ -113,8 +116,8 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
 
   // Breadcrumb items for structured data
   const breadcrumbItems = [
-    { name: 'Inicio', url: `/${clinic}` },
-    { name: 'Nosotros', url: `/${clinic}/about` },
+    { name: tNav('home'), url: `/${clinic}` },
+    { name: tNav('about'), url: `/${clinic}/about` },
   ]
 
   // Team members for Person schema
@@ -218,7 +221,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
           <div className="container relative z-10 mx-auto max-w-4xl px-4 text-center">
             <span className="bg-[var(--primary)]/10 mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)] backdrop-blur-sm">
               <Heart className="h-4 w-4" />
-              {data.config.ui_labels?.about?.intro_badge || 'Nuestra Historia'}
+              {data.config.ui_labels?.about?.intro_badge || t('ourHistory')}
             </span>
 
             <h1 className="font-heading mb-8 text-4xl font-black leading-tight text-[var(--text-primary)] md:text-5xl lg:text-6xl">
@@ -247,7 +250,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   {stats.pets_served}
                 </p>
                 <p className="text-xs font-medium text-[var(--text-muted)] sm:text-sm">
-                  Mascotas Atendidas
+                  {t('petsServed')}
                 </p>
               </div>
               <div className="rounded-xl bg-white/60 p-3 text-center backdrop-blur-sm sm:p-4">
@@ -255,7 +258,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   {stats.years_experience}
                 </p>
                 <p className="text-xs font-medium text-[var(--text-muted)] sm:text-sm">
-                  Años de Experiencia
+                  {t('yearsExperience')}
                 </p>
               </div>
               <div className="rounded-xl bg-white/60 p-3 text-center backdrop-blur-sm sm:p-4">
@@ -263,7 +266,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   {stats.emergency_hours}
                 </p>
                 <p className="text-xs font-medium text-[var(--text-muted)] sm:text-sm">
-                  Atención Urgencias
+                  {t('emergencyAttention')}
                 </p>
               </div>
               <div className="rounded-xl bg-white/60 p-3 text-center backdrop-blur-sm sm:p-4">
@@ -271,7 +274,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   {stats.rating}
                 </p>
                 <p className="text-xs font-medium text-[var(--text-muted)] sm:text-sm">
-                  Calificación Google
+                  {t('googleRating')}
                 </p>
               </div>
             </div>
@@ -334,10 +337,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               <div className="mb-12 text-center">
                 <span className="bg-[var(--primary)]/10 mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                   <Calendar className="h-4 w-4" />
-                  Historia
+                  {t('history')}
                 </span>
                 <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                  Nuestra Trayectoria
+                  {t('ourJourney')}
                 </h2>
               </div>
 
@@ -382,13 +385,13 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
             <div className="mb-12 text-center md:mb-16">
               <span className="bg-[var(--primary)]/10 mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                 <Users className="h-4 w-4" />
-                Equipo
+                {t('team')}
               </span>
               <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                {data.config.ui_labels?.about?.team_title || 'Nuestro Equipo'}
+                {data.config.ui_labels?.about?.team_title || t('ourTeam')}
               </h2>
               <p className="mx-auto max-w-2xl text-[var(--text-secondary)]">
-                Profesionales apasionados dedicados al bienestar de tu mascota
+                {t('teamDescription')}
               </p>
             </div>
 
@@ -428,10 +431,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
             <div className="mb-12 text-center">
               <span className="bg-[var(--primary)]/10 mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                 <Heart className="h-4 w-4" />
-                Valores
+                {t('values')}
               </span>
               <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                Nuestros Valores
+                {t('ourValues')}
               </h2>
             </div>
 
@@ -466,10 +469,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                       <Heart className="h-8 w-8 text-white" />
                     </div>
                     <h3 className="mb-2 font-bold text-[var(--text-primary)]">
-                      Amor por los Animales
+                      {t('animalLove')}
                     </h3>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Tratamos a cada paciente como si fuera nuestro propio compañero.
+                      {t('animalLoveText')}
                     </p>
                   </div>
 
@@ -478,10 +481,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                       <Award className="h-8 w-8 text-white" />
                     </div>
                     <h3 className="mb-2 font-bold text-[var(--text-primary)]">
-                      Excelencia Profesional
+                      {t('professionalExcellence')}
                     </h3>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Formación continua y tecnología de punta para el mejor diagnóstico.
+                      {t('professionalExcellenceText')}
                     </p>
                   </div>
 
@@ -490,10 +493,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                       <Users className="h-8 w-8 text-white" />
                     </div>
                     <h3 className="mb-2 font-bold text-[var(--text-primary)]">
-                      Compromiso Familiar
+                      {t('familyCommitment')}
                     </h3>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Acompañamos a las familias en cada etapa de la vida de sus mascotas.
+                      {t('familyCommitmentText')}
                     </p>
                   </div>
                 </>
@@ -509,10 +512,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               <div className="mb-12 text-center md:mb-16">
                 <span className="bg-[var(--primary)]/10 mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                   <Building2 className="h-4 w-4" />
-                  Instalaciones
+                  {t('facilities')}
                 </span>
                 <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                  {about.facilities.title || 'Nuestras Instalaciones'}
+                  {about.facilities.title || t('ourFacilities')}
                 </h2>
                 <p className="mx-auto max-w-2xl text-[var(--text-secondary)]">
                   {about.facilities.description}
@@ -561,13 +564,13 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               <div className="mb-12 text-center">
                 <span className="bg-[var(--primary)]/10 mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                   <BadgeCheck className="h-4 w-4" />
-                  Certificaciones
+                  {t('certifications')}
                 </span>
                 <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                  Avales y Certificaciones
+                  {t('certificationsTitle')}
                 </h2>
                 <p className="mx-auto max-w-2xl text-[var(--text-secondary)]">
-                  Cumplimos con los más altos estándares de calidad y regulaciones sanitarias
+                  {t('certificationsText')}
                 </p>
               </div>
 
@@ -596,11 +599,10 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="font-heading mb-4 text-3xl font-black text-white md:text-4xl">
-                ¿Listo para Conocernos?
+                {t('readyToMeetUs')}
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-lg text-white/80">
-                Agenda tu primera consulta y descubre por qué miles de familias confían en nosotros
-                para el cuidado de sus mascotas.
+                {t('ctaDescription')}
               </p>
 
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
@@ -609,7 +611,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 font-bold text-[var(--primary)] shadow-lg transition-colors hover:bg-gray-100"
                 >
                   <Calendar className="h-5 w-5" />
-                  Agendar Cita
+                  {t('bookAppointment')}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
 
@@ -618,7 +620,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-8 py-4 font-bold text-white transition-colors hover:bg-white/20"
                 >
                   <Phone className="h-5 w-5" />
-                  Llamar Ahora
+                  {t('callNow')}
                 </a>
               </div>
 
@@ -626,7 +628,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               <div className="mt-10 flex flex-wrap justify-center gap-8 border-t border-white/20 pt-8 text-white/80">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  <span>Urgencias 24/7</span>
+                  <span>{t('emergency247')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-5 w-5" />

@@ -69,6 +69,12 @@ export interface ClinicSettings {
   modules: ModuleSettings
   /** Google Sheets template URL for inventory import */
   inventory_template_google_sheet_url?: string | null
+  /** BUG-015: Tax rate as decimal (0.1 = 10%). Default 10% (IVA Paraguay) */
+  tax_rate?: number
+  /** Tax name displayed to customers (e.g., 'IVA', 'VAT') */
+  tax_name?: string
+  /** Whether prices already include tax */
+  is_tax_inclusive?: boolean
 }
 
 // ============================================================================

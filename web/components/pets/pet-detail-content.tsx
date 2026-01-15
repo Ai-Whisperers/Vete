@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { PetDetailTabs, TabId } from './pet-detail-tabs'
 import {
   PetSummaryTab,
@@ -157,6 +158,7 @@ export function PetDetailContent({
   invoices,
   payments,
 }: PetDetailContentProps) {
+  const t = useTranslations('pets.detailContent')
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -223,7 +225,7 @@ export function PetDetailContent({
       const result = await uploadPetDocuments(pet.id, formData)
 
       if (!result.success) {
-        throw new Error(result.error || 'Error al subir documentos')
+        throw new Error(result.error || t('uploadError'))
       }
 
       // Update local state with new documents
@@ -240,7 +242,7 @@ export function PetDetailContent({
       const result = await deletePetDocument(documentId, clinic)
 
       if (!result.success) {
-        throw new Error(result.error || 'Error al eliminar documento')
+        throw new Error(result.error || t('deleteError'))
       }
 
       // Remove from local state

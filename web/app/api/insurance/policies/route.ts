@@ -49,9 +49,9 @@ export const GET = withApiAuth(
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
-      return NextResponse.json({ data: policies })
+      return NextResponse.json({ data: policies || [] })
     } catch (e) {
-      logger.error('Unexpected error in insurance policies GET', {
+      logger.error('Unexpected error fetching insurance policies', {
         tenantId: profile.tenant_id,
         error: e instanceof Error ? e.message : 'Unknown',
       })

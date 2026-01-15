@@ -8,6 +8,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
+import { sanitizeRedirectUrl } from '@/lib/auth/redirect'
 
 // TICKET-TYPE-002: Define proper state interface for server actions
 interface ActionState {
@@ -122,8 +123,13 @@ export async function login(
     return { error: error.message }
   }
 
-  // Use redirect if provided, otherwise default to dashboard
-  const redirectPath = redirectParam || `/${data.clinic}/portal/dashboard`
+  // SEC-018: Sanitize redirect to prevent open redirect attacks
+  const defaultRedirect = `/${data.clinic}/portal/dashboard`
+  const redirectPath = sanitizeRedirectUrl(
+    redirectParam || defaultRedirect,
+    defaultRedirect,
+    process.env.NEXT_PUBLIC_SITE_URL
+  )
 
   revalidatePath(`/${data.clinic}/portal`, 'layout')
   redirect(redirectPath)

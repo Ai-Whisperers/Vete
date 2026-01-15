@@ -32,6 +32,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { GET } from '@/app/api/cron/generate-recurring/route'
+
 // Store original env
 const originalEnv = process.env
 

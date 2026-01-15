@@ -1,13 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/lib/hooks/use-toast'
+import { generatePrescriptionPDF } from '@/lib/pdf/prescription-generator'
 import dynamic from 'next/dynamic'
+import type { ClinicData } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
 import { DrugSearch } from '@/components/clinical/drug-search'
 import { DosageCalculator } from '@/components/clinical/dosage-calculator'
 import { DigitalSignature } from '@/components/clinical/digital-signature'
+import { useToast } from '@/components/ui/Toast'
 
 // Dynamic import for PDF Button to avoid SSR issues
 const PrescriptionDownloadButton = dynamic(
@@ -15,14 +20,24 @@ const PrescriptionDownloadButton = dynamic(
   { ssr: false, loading: () => <button className="btn disabled">Cargando PDF...</button> }
 )
 
+interface Patient {
+  id: string
+  name: string
+  species: string
+  breed: string | null
+  weight_kg: number | null
+  owner_id: string
+}
+
 interface PrescriptionFormProps {
-  clinic: any
-  patient?: any
-  vetName: string // From auth session presumably
+  clinic: ClinicData
+  patient?: Patient | null
+  vetName: string
 }
 
 export default function NewPrescriptionForm({ clinic, patient, vetName }: PrescriptionFormProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [drugs, setDrugs] = useState<Array<{ name: string; dose: string; instructions: string }>>(
     []
   )
@@ -44,8 +59,14 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
   }
 
   const handleSave = async () => {
-    if (!patient) return alert('Seleccione un paciente')
-    if (!signatureDataUrl) return alert('Por favor, firme la receta para continuar')
+    if (!patient) {
+      showToast({ title: 'Seleccione un paciente', variant: 'warning' })
+      return
+    }
+    if (!signatureDataUrl) {
+      showToast({ title: 'Por favor, firme la receta para continuar', variant: 'warning' })
+      return
+    }
     setIsSaving(true)
 
     try {
@@ -78,7 +99,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
       if (process.env.NODE_ENV === 'development') {
         console.error(e)
       }
-      alert('Error al guardar receta')
+      showToast({ title: 'Error al guardar receta', variant: 'error' })
     } finally {
       setIsSaving(false)
     }

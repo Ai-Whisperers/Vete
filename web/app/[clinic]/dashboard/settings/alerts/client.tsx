@@ -1,6 +1,14 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+/**
+ * Alert Settings Client
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import React, { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Bell,
   Mail,
@@ -58,17 +66,17 @@ const defaultPreferences: AlertPreferences = {
 export default function AlertSettingsClient({
   clinic,
 }: AlertSettingsClientProps): React.ReactElement {
+  const queryClient = useQueryClient()
   const [preferences, setPreferences] = useState<AlertPreferences>(defaultPreferences)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  const fetchPreferences = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    setError(null)
-
-    try {
+  // React Query: Fetch preferences
+  const {
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['alert-preferences'],
+    queryFn: async (): Promise<AlertPreferences> => {
       const response = await fetch('/api/dashboard/alert-preferences')
 
       if (!response.ok) {
@@ -76,75 +84,70 @@ export default function AlertSettingsClient({
       }
 
       const data = await response.json()
-      setPreferences(data.preferences || defaultPreferences)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching preferences:', err)
-      }
-      setError('Error al cargar las preferencias')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      const prefs = data.preferences || defaultPreferences
+      setPreferences(prefs)
+      return prefs
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  useEffect(() => {
-    fetchPreferences()
-  }, [fetchPreferences])
-
-  const handleSave = async (): Promise<void> => {
-    setSaving(true)
-    setError(null)
-    setSuccess(null)
-
-    try {
+  // Mutation: Save preferences
+  const saveMutation = useMutation({
+    mutationFn: async (prefs: AlertPreferences) => {
       const response = await fetch('/api/dashboard/alert-preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(preferences),
+        body: JSON.stringify(prefs),
       })
 
       if (!response.ok) {
         throw new Error('Error al guardar preferencias')
       }
 
-      const data = await response.json()
+      return response.json()
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['alert-preferences'] })
       setPreferences(data.preferences)
       setSuccess('Preferencias guardadas correctamente')
-
       setTimeout(() => setSuccess(null), 3000)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error saving preferences:', err)
+    },
+  })
+
+  // Mutation: Reset preferences
+  const resetMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/dashboard/alert-preferences', {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al restablecer preferencias')
       }
-      setError('Error al guardar las preferencias')
-    } finally {
-      setSaving(false)
-    }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alert-preferences'] })
+      setPreferences(defaultPreferences)
+      setSuccess('Preferencias restablecidas')
+      setTimeout(() => setSuccess(null), 3000)
+    },
+  })
+
+  const error = queryError?.message || saveMutation.error?.message || resetMutation.error?.message || null
+  const saving = saveMutation.isPending
+
+  const handleSave = async (): Promise<void> => {
+    await saveMutation.mutateAsync(preferences)
   }
 
   const handleReset = async (): Promise<void> => {
     if (!confirm('¿Restablecer las preferencias a valores predeterminados?')) {
       return
     }
-
-    try {
-      await fetch('/api/dashboard/alert-preferences', {
-        method: 'DELETE',
-      })
-
-      setPreferences(defaultPreferences)
-      setSuccess('Preferencias restablecidas')
-
-      setTimeout(() => setSuccess(null), 3000)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error resetting preferences:', err)
-      }
-      setError('Error al restablecer las preferencias')
-    }
+    await resetMutation.mutateAsync()
   }
 
   const updatePreference = <K extends keyof AlertPreferences>(

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface QoLAssessmentProps {
   onComplete: (score: number, notes: string) => void
@@ -12,6 +13,7 @@ const CRITICAL_THRESHOLD = 2 // Score <= 2 in any category is critical
 const POOR_TOTAL_THRESHOLD = 35
 
 export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
+  const t = useTranslations('clinical.qolAssessment')
   const [scores, setScores] = useState({
     hurt: 5,
     hunger: 5,
@@ -22,50 +24,15 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
     goodDays: 5,
   })
 
-  const categories = [
-    {
-      id: 'hurt',
-      label: 'Dolor (Hurt)',
-      desc: '0 = Dolor severo sin control. 10 = Sin dolor o bien controlado.',
-      critical: true,
-    },
-    {
-      id: 'hunger',
-      label: 'Hambre (Hunger)',
-      desc: '0 = No come nada. 10 = Come con normalidad.',
-      critical: true,
-    },
-    {
-      id: 'hydration',
-      label: 'Hidratación (Hydration)',
-      desc: '0 = Deshidratación severa. 10 = Bien hidratado.',
-      critical: true,
-    },
-    {
-      id: 'hygiene',
-      label: 'Higiene (Hygiene)',
-      desc: '0 = Llagas/incontinencia sin tratamiento. 10 = Se mantiene limpio.',
-      critical: false,
-    },
-    {
-      id: 'happiness',
-      label: 'Felicidad (Happiness)',
-      desc: '0 = Deprimido/sin respuesta. 10 = Alegre e interactivo.',
-      critical: false,
-    },
-    {
-      id: 'mobility',
-      label: 'Movilidad (Mobility)',
-      desc: '0 = No puede moverse. 10 = Se mueve libremente.',
-      critical: false,
-    },
-    {
-      id: 'goodDays',
-      label: 'Días Buenos (More Good Days)',
-      desc: '0 = Solo días malos. 10 = Mayoría días buenos.',
-      critical: false,
-    },
-  ]
+  const categoryIds = ['hurt', 'hunger', 'hydration', 'hygiene', 'happiness', 'mobility', 'goodDays'] as const
+  type CategoryId = typeof categoryIds[number]
+
+  const categories = categoryIds.map((id) => ({
+    id,
+    label: t(`categories.${id}.label`),
+    desc: t(`categories.${id}.desc`),
+    critical: ['hurt', 'hunger', 'hydration'].includes(id),
+  }))
 
   const total = Object.values(scores).reduce((a, b) => a + b, 0)
 
@@ -75,18 +42,17 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
     categories.forEach((cat) => {
       const score = scores[cat.id as keyof typeof scores]
       if (score <= CRITICAL_THRESHOLD && cat.critical) {
-        warnings.push(`${cat.label}: Puntuación crítica (${score}/10)`)
+        warnings.push(t('criticalWarningScore', { category: cat.label, score }))
       }
     })
     return warnings
-  }, [scores])
+  }, [scores, categories, t])
 
   return (
     <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-xl">
-      <h3 className="mb-2 text-xl font-black text-gray-900">Escala HHHHHMM</h3>
+      <h3 className="mb-2 text-xl font-black text-gray-900">{t('title')}</h3>
       <p className="mb-4 text-sm text-gray-500">
-        Escala de Calidad de Vida (Dr. Alice Villalobos). Score {'>'} 35 sugiere calidad de vida
-        aceptable.
+        {t('subtitle')}
       </p>
 
       {/* Important disclaimer */}
@@ -94,11 +60,9 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
         <div className="flex gap-3">
           <Icons.AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-warning)]" />
           <div className="text-sm text-[var(--status-warning-text)]">
-            <p className="mb-1 font-bold">Esta herramienta es solo una guía</p>
+            <p className="mb-1 font-bold">{t('disclaimerTitle')}</p>
             <p className="text-[var(--status-warning-text)]">
-              Las decisiones sobre el final de la vida deben tomarse junto con un veterinario,
-              considerando el contexto completo del paciente. Esta escala NO sustituye el juicio
-              profesional.
+              {t('disclaimerText')}
             </p>
           </div>
         </div>
@@ -132,15 +96,14 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
           <div className="flex gap-3">
             <Icons.AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-error)]" />
             <div>
-              <p className="mb-2 font-bold text-[var(--status-error-text)]">Valores críticos detectados:</p>
+              <p className="mb-2 font-bold text-[var(--status-error-text)]">{t('criticalWarningsTitle')}</p>
               <ul className="space-y-1 text-sm text-[var(--status-error-text)]">
                 {criticalWarnings.map((warning, idx) => (
                   <li key={idx}>• {warning}</li>
                 ))}
               </ul>
               <p className="mt-2 text-sm font-medium text-[var(--status-error)]">
-                Puntuaciones críticas en categorías esenciales requieren atención veterinaria
-                inmediata.
+                {t('criticalWarningNote')}
               </p>
             </div>
           </div>
@@ -150,14 +113,14 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
       <div className="mt-8 rounded-2xl bg-gray-900 p-6 text-white">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest opacity-50">Puntaje Total</p>
+            <p className="text-xs font-bold uppercase tracking-widest opacity-50">{t('totalScore')}</p>
             <p className="text-4xl font-black">{total} / 70</p>
           </div>
           <div className="text-right">
             <p
               className={`text-xl font-black uppercase tracking-tighter ${total > POOR_TOTAL_THRESHOLD ? 'text-[var(--status-success)]' : 'text-[var(--status-error)]'}`}
             >
-              {total > POOR_TOTAL_THRESHOLD ? 'Calidad Aceptable' : 'Calidad Comprometida'}
+              {total > POOR_TOTAL_THRESHOLD ? t('acceptableQuality') : t('compromisedQuality')}
             </p>
           </div>
         </div>
@@ -165,14 +128,13 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
         {/* Score interpretation guide */}
         <div className="mt-4 border-t border-gray-700 pt-4 text-xs opacity-70">
           <p className="mb-1">
-            <span className="text-[var(--status-success)]">{'>'} 35:</span> Calidad de vida aceptable
+            <span className="text-[var(--status-success)]">{t('interpretationGuide.acceptable')}</span>
           </p>
           <p className="mb-1">
-            <span className="text-[var(--status-warning)]">25-35:</span> Calidad comprometida, evaluar opciones
+            <span className="text-[var(--status-warning)]">{t('interpretationGuide.compromised')}</span>
           </p>
           <p>
-            <span className="text-[var(--status-error)]">{'<'} 25:</span> Calidad pobre, considerar cuidados
-            paliativos
+            <span className="text-[var(--status-error)]">{t('interpretationGuide.poor')}</span>
           </p>
         </div>
       </div>
@@ -181,14 +143,15 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
         onClick={() => {
           const criticalNote =
             criticalWarnings.length > 0 ? ` ALERTA: ${criticalWarnings.join('; ')}.` : ''
+          const quality = total > POOR_TOTAL_THRESHOLD ? t('acceptableNote') : t('compromisedNote')
           onComplete(
             total,
-            `Evaluación HHHHHMM: Total ${total}/70.${criticalNote} ${total > POOR_TOTAL_THRESHOLD ? 'Calidad aceptable.' : 'Calidad comprometida - evaluar opciones con el veterinario.'}`
+            t('resultNote', { total, criticalNote, quality })
           )
         }}
         className="mt-6 w-full rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:shadow-xl"
       >
-        Confirmar y Agregar a Notas
+        {t('submitButton')}
       </button>
     </div>
   )

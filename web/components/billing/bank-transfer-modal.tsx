@@ -9,6 +9,7 @@
 import { Modal, ModalFooter } from '@/components/ui/modal'
 import { Building2, Copy, CheckCircle, Info } from 'lucide-react'
 import { useState } from 'react'
+import { useCopyTimeout } from '@/lib/hooks'
 
 interface BankTransferModalProps {
   isOpen: boolean
@@ -32,12 +33,15 @@ export function BankTransferModal({
 }: BankTransferModalProps): React.ReactElement {
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
+  // BUG-008: Safe timeout with cleanup for copy feedback
+  useCopyTimeout(copiedField !== null, () => setCopiedField(null))
+
   async function copyToClipboard(text: string, field: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text)
       setCopiedField(field)
-      setTimeout(() => setCopiedField(null), 2000)
-    } catch (e) {
+      // BUG-008: Timer handled by useCopyTimeout hook
+    } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea')
       textArea.value = text
@@ -46,7 +50,7 @@ export function BankTransferModal({
       document.execCommand('copy')
       document.body.removeChild(textArea)
       setCopiedField(field)
-      setTimeout(() => setCopiedField(null), 2000)
+      // BUG-008: Timer handled by useCopyTimeout hook
     }
   }
 

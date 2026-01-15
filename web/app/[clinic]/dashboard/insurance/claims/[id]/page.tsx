@@ -1,8 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+/**
+ * Claim Detail Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState, use } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import { useToast } from '@/components/ui/Toast'
 import ClaimTracker from '@/components/insurance/claim-tracker'
 import ClaimStatusBadge from '@/components/insurance/claim-status-badge'
@@ -118,90 +125,85 @@ interface Claim {
 }
 
 export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
-  const supabase = createClient()
   const router = useRouter()
   const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  const [loading, setLoading] = useState(true)
-  const [claim, setClaim] = useState<Claim | null>(null)
-  const [claimId, setClaimId] = useState<string>('')
+  // Use React 19 use() hook for async params
+  const { id: claimId } = use(params)
+
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [newStatus, setNewStatus] = useState('')
   const [showNoteModal, setShowNoteModal] = useState(false)
   const [newNote, setNewNote] = useState('')
 
-  useEffect(() => {
-    params.then((p) => {
-      setClaimId(p.id)
-      loadClaim(p.id)
-    })
-  }, [])
+  // React Query: Fetch claim details
+  const { data: claim, isLoading: loading, refetch } = useQuery({
+    queryKey: ['insurance-claim', claimId],
+    queryFn: async (): Promise<Claim> => {
+      const response = await fetch(`/api/insurance/claims/${claimId}`)
+      if (!response.ok) throw new Error('Error al cargar reclamo')
+      return response.json()
+    },
+    enabled: !!claimId,
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-  const loadClaim = async (id: string) => {
-    setLoading(true)
-
-    try {
-      const response = await fetch(`/api/insurance/claims/${id}`)
-      if (!response.ok) {
-        throw new Error('Error al cargar reclamo')
-      }
-
-      const data = await response.json()
-      setClaim(data)
-    } catch (error) {
-      // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const updateClaimStatus = async (status: string) => {
-    try {
+  // Mutation: Update claim status
+  const statusMutation = useMutation({
+    mutationFn: async (status: string) => {
       const response = await fetch(`/api/insurance/claims/${claimId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       })
-
-      if (!response.ok) {
-        throw new Error('Error al actualizar estado')
-      }
-
-      showToast('Estado actualizado')
-      loadClaim(claimId)
+      if (!response.ok) throw new Error('Error al actualizar estado')
+      return response.json()
+    },
+    onSuccess: () => {
+      showToast({ title: 'Estado actualizado', variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['insurance-claim', claimId] })
+      queryClient.invalidateQueries({ queryKey: ['insurance-claims'] })
       setShowStatusModal(false)
-    } catch (error) {
-      // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido')
-    }
-  }
+    },
+    onError: (error) => {
+      showToast({ title: error instanceof Error ? error.message : 'Error desconocido', variant: 'error' })
+    },
+  })
 
-  const addNote = async () => {
-    if (!newNote.trim()) return
-
-    try {
+  // Mutation: Add note
+  const noteMutation = useMutation({
+    mutationFn: async (noteText: string) => {
       const response = await fetch(`/api/insurance/claims/${claimId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           internal_notes:
-            (claim?.internal_notes || '') + '\n\n' + new Date().toISOString() + ':\n' + newNote,
+            (claim?.internal_notes || '') + '\n\n' + new Date().toISOString() + ':\n' + noteText,
         }),
       })
-
-      if (!response.ok) {
-        throw new Error('Error al agregar nota')
-      }
-
-      showToast('Nota agregada')
+      if (!response.ok) throw new Error('Error al agregar nota')
+      return response.json()
+    },
+    onSuccess: () => {
+      showToast({ title: 'Nota agregada', variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['insurance-claim', claimId] })
       setNewNote('')
       setShowNoteModal(false)
-      loadClaim(claimId)
-    } catch (error) {
-      // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido')
-    }
+    },
+    onError: (error) => {
+      showToast({ title: error instanceof Error ? error.message : 'Error desconocido', variant: 'error' })
+    },
+  })
+
+  const updateClaimStatus = (status: string) => {
+    statusMutation.mutate(status)
+  }
+
+  const addNote = () => {
+    if (!newNote.trim()) return
+    noteMutation.mutate(newNote)
   }
 
   if (loading) {

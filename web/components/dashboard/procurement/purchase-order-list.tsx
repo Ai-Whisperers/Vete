@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+/**
+ * Purchase Order List Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ */
+
+import { useState, useMemo } from 'react'
 import {
   Plus,
   FileText,
@@ -16,7 +23,10 @@ import {
   RefreshCw,
   Building2,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface PurchaseOrderItem {
   id: string
@@ -69,35 +79,30 @@ export function PurchaseOrderList({
   onViewClick,
   onEditClick,
 }: PurchaseOrderListProps): React.ReactElement {
-  const [orders, setOrders] = useState<PurchaseOrder[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  // Build filters object for query key
+  const filters = useMemo(() => ({
+    status: statusFilter || undefined,
+  }), [statusFilter])
 
-    try {
+  // React Query: Fetch purchase orders with filters
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.procurement.orders(filters),
+    queryFn: async (): Promise<{ orders: PurchaseOrder[] }> => {
       const params = new URLSearchParams()
-      if (statusFilter) params.set('status', statusFilter)
+      if (filters.status) params.set('status', filters.status)
 
       const res = await fetch(`/api/procurement/orders?${params.toString()}`)
       if (!res.ok) throw new Error('Error al cargar órdenes')
+      return res.json()
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
 
-      const data = await res.json()
-      setOrders(data.orders || [])
-    } catch (err) {
-      setError('Error al cargar las órdenes de compra')
-    } finally {
-      setLoading(false)
-    }
-  }, [statusFilter])
-
-  useEffect(() => {
-    fetchOrders()
-  }, [fetchOrders])
+  const orders = data?.orders || []
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('es-PY', {
@@ -107,7 +112,7 @@ export function PurchaseOrderList({
     })
   }
 
-  if (loading && orders.length === 0) {
+  if (isLoading && orders.length === 0) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
@@ -135,7 +140,7 @@ export function PurchaseOrderList({
           </select>
 
           <button
-            onClick={fetchOrders}
+            onClick={() => refetch()}
             className="rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
             title="Actualizar"
           >
@@ -154,7 +159,7 @@ export function PurchaseOrderList({
 
       {error && (
         <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-[var(--status-error)]">
-          {error}
+          {error instanceof Error ? error.message : 'Error al cargar las órdenes de compra'}
         </div>
       )}
 

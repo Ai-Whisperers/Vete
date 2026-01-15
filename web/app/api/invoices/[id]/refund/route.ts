@@ -16,10 +16,10 @@ export const POST = withApiAuthParams(
       const body = await request.json()
       const { amount, reason, payment_id } = body
 
-      // Basic validation before calling RPC
-      if (!amount || typeof amount !== 'number') {
+      // SEC-019: Validate positive amount for refunds
+      if (!amount || typeof amount !== 'number' || amount <= 0) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { field: 'amount' },
+          details: { field: 'amount', message: 'El monto debe ser positivo' },
         })
       }
 

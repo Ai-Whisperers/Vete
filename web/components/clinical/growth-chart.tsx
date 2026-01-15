@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+/**
+ * Growth Chart Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Automatic caching of growth standards by breed/gender
+ */
+
+import { useEffect, useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   LineChart,
   Line,
@@ -12,6 +21,9 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { AlertTriangle, TrendingUp, Info, Loader2, AlertCircle } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface GrowthStandard {
   age_weeks: number
@@ -138,15 +150,12 @@ function getBreedCategory(breed: string): {
 
   // Default to medium for dogs if no match found
   // Note: cats should be detected by species, but if only breed is passed, assume dog
-  return { category: 'medium', displayName: 'Perro Mediano', isExact: false }
+  return { category: 'medium', displayName: '', isExact: false } // displayName set via translation
 }
 
 export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps) {
-  const [standardData, setStandardData] = useState<GrowthStandard[]>([])
-  const [loading, setLoading] = useState(true)
-  const [usingFallback, setUsingFallback] = useState(false)
-  const [actualBreedUsed, setActualBreedUsed] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
+  const t = useTranslations('clinical.growthChart')
+  const locale = useLocale()
   const [mounted, setMounted] = useState(false)
 
   // Wait for client-side mount to avoid ResponsiveContainer SSR issues
@@ -154,32 +163,30 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    const fetchStandard = async () => {
-      setLoading(true)
-      setError(null)
+  // Determine breed category (memoized to avoid recalculation)
+  const { category, displayName, isExact } = useMemo(() => getBreedCategory(breed), [breed])
+  const usingFallback = !isExact
+  const actualBreedUsed = displayName
 
-      // Determine which breed category to search for
-      const { category, displayName, isExact } = getBreedCategory(breed)
-      setActualBreedUsed(displayName)
-      setUsingFallback(!isExact)
-
-      try {
-        // Fetch by breed_category (not breed name)
-        const res = await fetch(
-          `/api/growth_standards?breed_category=${encodeURIComponent(category)}&gender=${gender}`
-        )
-        const data = res.ok ? await res.json() : []
-
-        setStandardData(data || [])
-      } catch {
-        setError('No se pudieron cargar los datos de crecimiento estándar.')
-      } finally {
-        setLoading(false)
+  // React Query for fetching growth standards
+  const {
+    data: standardData = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.clinical.growthStandards(category, gender),
+    queryFn: async (): Promise<GrowthStandard[]> => {
+      const response = await fetch(
+        `/api/growth_standards?breed_category=${encodeURIComponent(category)}&gender=${gender}`
+      )
+      if (!response.ok) {
+        throw new Error('errorLoading')
       }
-    }
-    fetchStandard()
-  }, [breed, gender])
+      return response.json()
+    },
+    staleTime: staleTimes.STATIC,
+    gcTime: gcTimes.LONG,
+  })
 
   // Determine max age from patient records or default to 52 weeks
   const patientMaxAge = Math.max(
@@ -200,6 +207,14 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     Patient: number | null
   }> = []
 
+  // Helper for axis labels
+  const getAgeLabel = (weeks: number): string => {
+    if (maxWeeks > 52) {
+      return t('monthLabel', { months: Math.round(weeks / 4.33) })
+    }
+    return t('weekLabel', { weeks })
+  }
+
   if (hasAgeData) {
     // Age-based chart (growth chart mode)
     const step = maxWeeks > 104 ? 8 : 4 // Use larger steps for older pets
@@ -212,7 +227,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
       )
 
       chartData.push({
-        name: maxWeeks > 52 ? `${Math.round(i / 4.33)} m` : `${i} sem`,
+        name: getAgeLabel(i),
         age: i,
         Standard: std ? std.weight_kg : null,
         Patient: patient ? patient.weight_kg : null,
@@ -230,7 +245,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
           (d) => d.age_weeks >= p.age_weeks! && d.age_weeks < p.age_weeks! + 4
         )
         chartData.push({
-          name: maxWeeks > 52 ? `${Math.round(p.age_weeks / 4.33)} m` : `${p.age_weeks} sem`,
+          name: getAgeLabel(p.age_weeks),
           age: p.age_weeks,
           Standard: std ? std.weight_kg : null,
           Patient: p.weight_kg,
@@ -245,7 +260,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     patientRecords.forEach((p, idx) => {
       const date = new Date(p.date)
       chartData.push({
-        name: date.toLocaleDateString('es-PY', { day: 'numeric', month: 'short' }),
+        name: date.toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', { day: 'numeric', month: 'short' }),
         age: idx,
         Standard: null,
         Patient: p.weight_kg,
@@ -258,7 +273,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
       <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="text-center">
           <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-[var(--primary)]" />
-          <p className="text-gray-400">Cargando gráfico...</p>
+          <p className="text-gray-400">{t('loading')}</p>
         </div>
       </div>
     )
@@ -269,11 +284,14 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-3 text-[var(--status-error)]">
           <AlertCircle className="h-5 w-5" />
-          <p>{error}</p>
+          <p>{t('errorLoading')}</p>
         </div>
       </div>
     )
   }
+
+  // Get the display breed name, using translation for default
+  const displayBreed = actualBreedUsed || t('defaultBreed')
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -281,10 +299,10 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         <div>
           <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <TrendingUp className="h-5 w-5 text-[var(--primary)]" />
-            Curva de Crecimiento
+            {t('title')}
           </h3>
           <p className="text-sm text-gray-500">
-            Comparativa vs Estándar ({actualBreedUsed || breed})
+            {t('subtitle', { breed: actualBreedUsed || breed })}
           </p>
         </div>
       </div>
@@ -295,8 +313,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
           <div className="flex gap-2 text-sm">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--status-warning)]" />
             <p className="text-[var(--status-warning-text)]">
-              No hay datos específicos para "{breed}". Usando datos de referencia para{' '}
-              {actualBreedUsed}. Los valores pueden no ser exactos para esta raza.
+              {t('fallbackWarning', { breed, fallbackBreed: displayBreed })}
             </p>
           </div>
         </div>
@@ -308,7 +325,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
           <div className="flex gap-2 text-sm">
             <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
             <p className="text-blue-700">
-              No hay registros de peso. Haz clic en el botón "Peso" para agregar el primer registro.
+              {t('noRecordsInfo')}
             </p>
           </div>
         </div>
@@ -334,7 +351,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
               stroke="#E5E7EB"
               strokeWidth={2}
               dot={false}
-              name="Promedio Raza"
+              name={t('legendStandard')}
             />
             <Line
               type="monotone"
@@ -343,7 +360,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
               strokeWidth={3}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}
-              name="Paciente"
+              name={t('legendPatient')}
             />
           </LineChart>
         </ResponsiveContainer>

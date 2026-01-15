@@ -28,6 +28,10 @@ import { POST as approveProduct } from '@/app/api/admin/products/[id]/approve/ro
 // Mock Supabase with stateful mock
 vi.mock('@/lib/supabase/server', () => getSupabaseServerMock())
 
+// Import routes AFTER mocks
+import { GET as getPendingProducts } from '@/app/api/admin/products/pending/route'
+import { POST as approveProduct } from '@/app/api/admin/products/[id]/approve/route'
+
 // =============================================================================
 // Request Factories
 // =============================================================================

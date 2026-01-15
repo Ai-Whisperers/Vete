@@ -121,7 +121,7 @@ export const POST = withApiAuthParams<{ id: string }>(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
 
 // GET /api/store/orders/[id]/prescription-override

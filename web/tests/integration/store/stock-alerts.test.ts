@@ -81,6 +81,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
+// Import routes AFTER mocks
+import { POST, DELETE } from '@/app/api/store/stock-alerts/route'
+
 // Helper to set auth state
 function setAuthUser(user: { id: string; email: string } | null) {
   currentAuthUser = user

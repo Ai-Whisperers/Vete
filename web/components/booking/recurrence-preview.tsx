@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { Calendar, Clock } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface RecurrencePattern {
   frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'custom'
@@ -26,6 +27,9 @@ export function RecurrencePreview({
   count = 5,
   className = '',
 }: RecurrencePreviewProps): React.ReactElement {
+  const t = useTranslations('booking.recurrencePreview')
+  const locale = useLocale()
+
   const nextDates = useMemo(() => {
     const dates: Date[] = []
     const current = new Date(startDate)
@@ -92,7 +96,7 @@ export function RecurrencePreview({
   }, [pattern, startDate, count])
 
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('es-PY', {
+    return date.toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
@@ -103,20 +107,20 @@ export function RecurrencePreview({
     switch (pattern.frequency) {
       case 'daily':
         return pattern.interval_value === 1
-          ? 'Diariamente'
-          : `Cada ${pattern.interval_value} días`
+          ? t('frequencyLabels.daily')
+          : t('frequencyLabels.everyXDays', { count: pattern.interval_value })
       case 'weekly':
-        return 'Semanalmente'
+        return t('frequencyLabels.weekly')
       case 'biweekly':
-        return 'Cada 2 semanas'
+        return t('frequencyLabels.biweekly')
       case 'monthly':
         return pattern.interval_value === 1
-          ? 'Mensualmente'
-          : `Cada ${pattern.interval_value} meses`
+          ? t('frequencyLabels.monthly')
+          : t('frequencyLabels.everyXMonths', { count: pattern.interval_value })
       case 'custom':
-        return `Cada ${pattern.interval_value} días`
+        return t('frequencyLabels.everyXDays', { count: pattern.interval_value })
       default:
-        return 'Personalizado'
+        return t('frequencyLabels.custom')
     }
   }
 
@@ -130,7 +134,7 @@ export function RecurrencePreview({
         <span>{pattern.preferred_time}</span>
       </div>
 
-      <p className="mb-2 text-xs text-purple-600">Próximas {nextDates.length} citas:</p>
+      <p className="mb-2 text-xs text-purple-600">{t('nextAppointments', { count: nextDates.length })}</p>
 
       <div className="flex flex-wrap gap-2">
         {nextDates.map((date, index) => (
@@ -145,18 +149,22 @@ export function RecurrencePreview({
 
       {pattern.end_date && (
         <p className="mt-3 text-xs text-purple-500">
-          Finaliza el{' '}
-          {new Date(pattern.end_date).toLocaleDateString('es-PY', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
+          {t('endsOn', {
+            date: new Date(pattern.end_date).toLocaleDateString(
+              locale === 'es' ? 'es-PY' : 'en-US',
+              {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              }
+            ),
           })}
         </p>
       )}
 
       {pattern.max_occurrences && (
         <p className="mt-1 text-xs text-purple-500">
-          Máximo {pattern.max_occurrences} citas
+          {t('maxAppointments', { count: pattern.max_occurrences })}
         </p>
       )}
     </div>

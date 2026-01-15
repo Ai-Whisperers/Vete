@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './'),
       redis: resolve(__dirname, './tests/__mocks__/redis.ts'),
+      'server-only': resolve(__dirname, './tests/__mocks__/server-only.ts'),
     },
   },
   test: {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Syringe, AlertTriangle, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import { NotificationBanner } from '@/components/ui/notification-banner'
@@ -49,6 +50,7 @@ export function MandatoryVaccinesAlert({
   clinic,
   pets,
 }: MandatoryVaccinesAlertProps): React.ReactElement | null {
+  const t = useTranslations('portal.vaccines')
   const [alerts, setAlerts] = useState<PetAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
@@ -109,10 +111,14 @@ export function MandatoryVaccinesAlert({
   // Build summary message
   const petNames = alerts.map((a) => a.pet.name)
   const petNamesStr =
-    petNames.length <= 2 ? petNames.join(' y ') : `${petNames.slice(0, 2).join(', ')} y más`
+    petNames.length <= 2 ? petNames.join(' y ') : `${petNames.slice(0, 2).join(', ')} ${t('andMore')}`
 
-  const overdueMessage = totalOverdue > 0 ? `${totalOverdue} vencida${totalOverdue > 1 ? 's' : ''}` : ''
-  const dueMessage = totalDue > 0 ? `${totalDue} próxima${totalDue > 1 ? 's' : ''}` : ''
+  const overdueMessage = totalOverdue > 0
+    ? (totalOverdue > 1 ? t('overdueCountPlural', { count: totalOverdue }) : t('overdueCount', { count: totalOverdue }))
+    : ''
+  const dueMessage = totalDue > 0
+    ? (totalDue > 1 ? t('dueCountPlural', { count: totalDue }) : t('dueCount', { count: totalDue }))
+    : ''
   const vaccineCountStr = [overdueMessage, dueMessage].filter(Boolean).join(' y ')
 
   return (
@@ -121,14 +127,14 @@ export function MandatoryVaccinesAlert({
       <NotificationBanner
         variant={hasOverdue ? 'urgent' : 'warning'}
         icon="Syringe"
-        title={
-          hasOverdue
-            ? `¡Vacunas Obligatorias Vencidas!`
-            : 'Vacunas Obligatorias Próximas a Vencer'
+        title={hasOverdue ? t('overdueTitle') : t('dueSoonTitle')}
+        message={
+          alerts.length > 1
+            ? t('petsHaveVaccines', { names: petNamesStr, vaccines: vaccineCountStr })
+            : t('petHasVaccines', { names: petNamesStr, vaccines: vaccineCountStr })
         }
-        message={`${petNamesStr} tiene${alerts.length > 1 ? 'n' : ''} ${vaccineCountStr} vacuna${totalOverdue + totalDue > 1 ? 's' : ''} obligatoria${totalOverdue + totalDue > 1 ? 's' : ''}.`}
         action={{
-          label: 'Agendar Vacunación',
+          label: t('scheduleVaccination'),
           href: `/${clinic}/book?service=vacunacion`,
         }}
         dismissible={!hasOverdue}
@@ -142,7 +148,7 @@ export function MandatoryVaccinesAlert({
           onClick={() => setExpanded(!expanded)}
           className="flex w-full items-center justify-center gap-1 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
         >
-          {expanded ? 'Ocultar detalles' : 'Ver detalles'}
+          {expanded ? t('hideDetails') : t('showDetails')}
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
       )}
@@ -183,7 +189,7 @@ export function MandatoryVaccinesAlert({
                 className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
               >
                 <Syringe className="h-4 w-4" />
-                Agendar
+                {t('schedule')}
               </Link>
             </div>
           ))}

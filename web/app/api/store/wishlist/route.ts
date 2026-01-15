@@ -82,7 +82,8 @@ export async function GET() {
  * POST /api/store/wishlist
  * Add a product to wishlist
  */
-export const POST = withApiAuth(async ({ user, profile, supabase, request }: ApiHandlerContext) => {
+export const POST = withApiAuth(
+  async ({ user, profile, supabase, request }: ApiHandlerContext) => {
   const { productId } = await request.json()
 
   if (!productId) {
@@ -115,7 +116,9 @@ export const POST = withApiAuth(async ({ user, profile, supabase, request }: Api
   }
 
   return NextResponse.json({ success: true, added: true })
-})
+  },
+  { rateLimit: 'write' }
+)
 
 /**
  * DELETE /api/store/wishlist
@@ -151,5 +154,6 @@ export const DELETE = withApiAuth(
     }
 
     return NextResponse.json({ success: true })
-  }
+  },
+  { rateLimit: 'write' }
 )

@@ -48,11 +48,19 @@ vi.mock('@/lib/auth', () => ({
       }
 
       const supabase = createStatefulSupabaseMock()
+      // Mock logger for API context
+      const log = {
+        info: () => {},
+        warn: () => {},
+        error: () => {},
+        debug: () => {},
+      }
       return handler({
         request,
         user: mockState.user,
         profile: mockState.profile,
         supabase,
+        log,
       })
     }
   },
@@ -89,6 +97,13 @@ vi.mock('@/lib/logger', () => ({
 vi.mock('@/lib/audit', () => ({
   logAudit: vi.fn().mockResolvedValue(undefined),
 }))
+
+// Mock feature access for ecommerce
+vi.mock('@/lib/features/server', () => ({
+  checkFeatureAccess: vi.fn().mockResolvedValue({ allowed: true }),
+  requireFeature: vi.fn().mockResolvedValue(null),
+}))
+
 
 // Helper to create POST request
 function createRequest(body: Record<string, unknown>): NextRequest {

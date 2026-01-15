@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import * as Icons from 'lucide-react'
 import { templateCategoryConfig, type WhatsAppTemplate } from '@/lib/types/whatsapp'
+import { useToast } from '@/components/ui/Toast'
 
 interface TemplateSelectorProps {
   isOpen: boolean
@@ -21,6 +22,7 @@ export function TemplateSelector({
   clientName,
   petName,
 }: TemplateSelectorProps) {
+  const { showToast } = useToast()
   const [selectedTemplate, setSelectedTemplate] = useState<WhatsAppTemplate | null>(null)
   const [variables, setVariables] = useState<Record<string, string>>({})
   const [search, setSearch] = useState('')
@@ -68,7 +70,7 @@ export function TemplateSelector({
     // Check all variables are filled
     const missingVars = selectedTemplate.variables.filter((v) => !variables[v]?.trim())
     if (missingVars.length > 0) {
-      alert(`Completa las variables: ${missingVars.join(', ')}`)
+      showToast({ title: `Completa las variables: ${missingVars.join(', ')}`, variant: 'warning' })
       return
     }
 

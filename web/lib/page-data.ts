@@ -60,7 +60,7 @@ export async function getDashboardContext(clinic: string) {
   const context = await getPageContext(clinic)
 
   if (!context.user || !context.profile) {
-    redirect('/auth/login')
+    redirect(`/${clinic}/portal/login`)
   }
 
   if (!context.isStaff) {
@@ -85,7 +85,7 @@ export async function getPortalContext(clinic: string) {
   const context = await getPageContext(clinic)
 
   if (!context.user || !context.profile) {
-    redirect('/auth/login')
+    redirect(`/${clinic}/portal/login`)
   }
 
   if (context.profile.tenant_id !== clinic) {

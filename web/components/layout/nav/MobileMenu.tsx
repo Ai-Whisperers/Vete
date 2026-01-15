@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Menu,
@@ -62,20 +63,22 @@ export function MobileMenu({
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null)
   const currentLocale = useLocale()
+  const tNav = useTranslations('nav')
+  const tAuth = useTranslations('auth')
 
   const toolsItems = [
     {
-      label: config.ui_labels?.tools?.age_calculator?.title || 'Calculadora de Edad',
+      label: config.ui_labels?.tools?.age_calculator?.title || tNav('ageCalculator'),
       href: `/${clinic}/tools/age-calculator`,
       icon: Calculator,
     },
     {
-      label: config.ui_labels?.tools?.toxic_food?.title || 'Alimentos Tóxicos',
+      label: config.ui_labels?.tools?.toxic_food?.title || tNav('toxicFood'),
       href: `/${clinic}/tools/toxic-food`,
       icon: Apple,
     },
     {
-      label: config.ui_labels?.nav?.faq || 'Preguntas Frecuentes',
+      label: config.ui_labels?.nav?.faq || tNav('faq'),
       href: `/${clinic}/faq`,
       icon: HelpCircle,
     },
@@ -157,16 +160,16 @@ export function MobileMenu({
                 className="border-[var(--primary)]/10 fixed right-0 top-0 z-[10000] flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l bg-[var(--bg-default)] shadow-2xl md:hidden"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Menú de navegación"
+                aria-label={tNav('navigationMenu')}
               >
                 <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4">
                   <span className="text-lg font-bold text-[var(--text-primary)]">
-                    {config.ui_labels?.nav?.menu || 'Menú'}
+                    {config.ui_labels?.nav?.menu || tNav('menu')}
                   </span>
                   <button
                     onClick={() => setIsOpen(false)}
                     className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] transition-colors hover:bg-gray-100 hover:text-[var(--primary)]"
-                    aria-label="Cerrar menú"
+                    aria-label={tNav('closeMenu')}
                   >
                     <X size={24} />
                   </button>
@@ -190,7 +193,7 @@ export function MobileMenu({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-bold text-[var(--text-primary)]">
-                          {profile.full_name || 'Usuario'}
+                          {profile.full_name || tNav('user')}
                         </p>
                         <p className="truncate text-xs text-[var(--text-muted)]">{user.email}</p>
                       </div>
@@ -205,13 +208,13 @@ export function MobileMenu({
                     className="flex min-h-[52px] w-full items-center justify-center gap-3 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-opacity hover:opacity-90"
                   >
                     <Calendar className="h-5 w-5" />
-                    {config.ui_labels?.nav.book_btn || 'Agendar Cita'}
+                    {config.ui_labels?.nav.book_btn || tNav('bookAppointment')}
                   </Link>
                 </div>
 
                 <div className="flex-1 px-4 sm:px-6">
                   <p className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    {config.ui_labels?.nav?.navigation || 'Navegación'}
+                    {config.ui_labels?.nav?.navigation || tNav('navigation')}
                   </p>
                   <div className="flex flex-col gap-1">
                     {navItems.map((item) => {
@@ -235,7 +238,7 @@ export function MobileMenu({
                   </div>
 
                   <p className="mb-3 mt-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    {config.ui_labels?.nav?.tools || 'Herramientas'}
+                    {config.ui_labels?.nav?.tools || tNav('tools')}
                   </p>
                   <div className="flex flex-col gap-1">
                     {toolsItems.map((tool) => {
@@ -259,7 +262,7 @@ export function MobileMenu({
                   </div>
 
                   <p className="mb-3 mt-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    {config.ui_labels?.nav?.my_account || 'Mi Cuenta'}
+                    {config.ui_labels?.nav?.my_account || tAuth('myAccount')}
                   </p>
                   <div className="flex flex-col gap-1">
                     {isLoading ? (
@@ -280,8 +283,8 @@ export function MobileMenu({
                         <PawPrint className="h-5 w-5" />
                         <span className="font-bold">
                           {user
-                            ? config.ui_labels?.nav.my_pets || 'Mis Mascotas'
-                            : config.ui_labels?.nav.login || 'Iniciar Sesión'}
+                            ? config.ui_labels?.nav.my_pets || tNav('myPets')
+                            : config.ui_labels?.nav.login || tAuth('login')}
                         </span>
                       </Link>
                     )}
@@ -299,7 +302,7 @@ export function MobileMenu({
                         >
                           <User className="h-5 w-5" />
                           <span className="font-bold">
-                            {config.ui_labels?.nav.profile || 'Mi Perfil'}
+                            {config.ui_labels?.nav.profile || tNav('myProfile')}
                           </span>
                         </Link>
                         <Link
@@ -313,7 +316,7 @@ export function MobileMenu({
                         >
                           <Settings className="h-5 w-5" />
                           <span className="font-bold">
-                            {config.ui_labels?.nav?.settings || 'Configuración'}
+                            {config.ui_labels?.nav?.settings || tNav('settings')}
                           </span>
                         </Link>
                       </>
@@ -324,7 +327,7 @@ export function MobileMenu({
                   {user && profile && (profile.role === 'admin' || profile.role === 'vet') && (
                     <>
                       <p className="mb-3 mt-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                        Staff
+                        {tNav('staff')}
                       </p>
                       <div className="flex flex-col gap-1">
                         <Link
@@ -337,7 +340,7 @@ export function MobileMenu({
                           }`}
                         >
                           <LayoutDashboard className="h-5 w-5" />
-                          <span className="font-bold">Dashboard</span>
+                          <span className="font-bold">{tNav('dashboard')}</span>
                         </Link>
                         <Link
                           href={`/${clinic}/portal/inventory`}
@@ -349,7 +352,7 @@ export function MobileMenu({
                           }`}
                         >
                           <Package className="h-5 w-5" />
-                          <span className="font-bold">Inventario</span>
+                          <span className="font-bold">{tNav('inventory')}</span>
                         </Link>
                       </div>
                     </>
@@ -365,14 +368,14 @@ export function MobileMenu({
                       className="mt-2 flex min-h-[48px] w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-[var(--status-error,#ef4444)] transition-colors hover:bg-[var(--status-error-bg,#fef2f2)] disabled:opacity-50"
                     >
                       <LogOut className="h-5 w-5" />
-                      <span className="font-bold">Cerrar sesión</span>
+                      <span className="font-bold">{tAuth('logout')}</span>
                     </button>
                   )}
 
                   {/* Language Selection */}
                   <p className="mb-3 mt-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
                     <Globe className="mr-2 inline-block h-4 w-4" />
-                    Idioma
+                    {tNav('language')}
                   </p>
                   <div className="py-2">
                     <LanguageSelector currentLocale={currentLocale} variant="inline" />
@@ -386,7 +389,7 @@ export function MobileMenu({
                       className="mb-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--status-error,#ef4444)] py-4 font-bold text-white"
                     >
                       <Phone className="h-4 w-4" />
-                      {config.ui_labels?.nav.emergency_btn || 'Urgencias 24hs'}
+                      {config.ui_labels?.nav.emergency_btn || tNav('emergency')}
                     </a>
                   )}
                   <p className="text-center text-xs text-[var(--text-muted)]">
@@ -407,7 +410,7 @@ export function MobileMenu({
         ref={mobileMenuTriggerRef}
         className="flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-[var(--primary)]"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
+        aria-label={isOpen ? tNav('closeMenu') : tNav('openMenu')}
         aria-expanded={isOpen}
       >
         <Menu size={28} />

@@ -1,9 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Wishlist Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Heart,
   ShoppingCart,
@@ -14,6 +22,7 @@ import {
   Share2,
   AlertCircle,
 } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
 
@@ -38,6 +47,7 @@ interface WishlistItem {
 export default function WishlistPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
+  const { showToast } = useToast()
   const {
     items: wishlistIds,
     removeFromWishlist,
@@ -46,38 +56,33 @@ export default function WishlistPage(): React.ReactElement {
   } = useWishlist()
   const { addItem } = useCart()
 
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [addingToCart, setAddingToCart] = useState<string | null>(null)
   const [removingItem, setRemovingItem] = useState<string | null>(null)
+  const [localWishlistItems, setLocalWishlistItems] = useState<WishlistItem[] | null>(null)
 
-  // Fetch full wishlist data
-  useEffect(() => {
-    const fetchWishlist = async (): Promise<void> => {
-      try {
-        const response = await fetch('/api/store/wishlist')
-        if (response.ok) {
-          const data = await response.json()
-          setWishlistItems(data.items || [])
-        } else {
-          setError('Error al cargar lista de deseos')
-        }
-      } catch (e) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching wishlist:', e)
-        }
-        setError('Error de conexión')
-      } finally {
-        setIsLoading(false)
+  // React Query: Fetch wishlist data
+  const {
+    data: fetchedWishlistItems = [],
+    isLoading: queryLoading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['store-wishlist', wishlistIds],
+    queryFn: async (): Promise<WishlistItem[]> => {
+      const response = await fetch('/api/store/wishlist')
+      if (!response.ok) {
+        throw new Error('Error al cargar lista de deseos')
       }
-    }
+      const data = await response.json()
+      return data.items || []
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.MEDIUM,
+    enabled: !contextLoading && isLoggedIn,
+  })
 
-    if (!contextLoading) {
-      fetchWishlist()
-    }
-  }, [contextLoading, wishlistIds])
+  const wishlistItems = localWishlistItems ?? fetchedWishlistItems
+  const isLoading = contextLoading || queryLoading
+  const error = queryError?.message || null
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('es-PY', {
@@ -113,7 +118,10 @@ export default function WishlistPage(): React.ReactElement {
     setRemovingItem(productId)
     try {
       await removeFromWishlist(productId)
-      setWishlistItems((prev) => prev.filter((item) => item.product_id !== productId))
+      // Optimistically update local state
+      setLocalWishlistItems((prev) =>
+        (prev ?? wishlistItems).filter((item) => item.product_id !== productId)
+      )
     } finally {
       setRemovingItem(null)
     }
@@ -140,7 +148,7 @@ export default function WishlistPage(): React.ReactElement {
       // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(shareUrl)
-        alert('Enlace copiado al portapapeles')
+        showToast({ title: 'Enlace copiado al portapapeles', variant: 'success' })
       } catch (e) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
@@ -174,7 +182,7 @@ export default function WishlistPage(): React.ReactElement {
             Guarda tus productos favoritos iniciando sesión en tu cuenta.
           </p>
           <Link
-            href={`/${clinic}/auth/login?redirect=/${clinic}/store/wishlist`}
+            href={`/${clinic}/portal/login?redirect=/${clinic}/store/wishlist`}
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition hover:opacity-90"
           >
             Iniciar Sesión

@@ -1,15 +1,21 @@
 'use client'
 
+/**
+ * Consents Page
+ *
+ * RES-001: Migrated to React Query for data fetching
+ */
+
 import type { JSX } from 'react'
-import { useEffect, useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useQuery } from '@tanstack/react-query'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   FileText,
   Search,
   Filter,
   Plus,
-  AlertCircle,
   CheckCircle,
   XCircle,
   Clock,
@@ -37,51 +43,30 @@ interface ConsentDocument {
 }
 
 export default function ConsentsPage(): JSX.Element {
-  const [consents, setConsents] = useState<ConsentDocument[]>([])
-  const [filteredConsents, setFilteredConsents] = useState<ConsentDocument[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const router = useRouter()
-  const supabase = createClient()
 
-  useEffect(() => {
-    fetchConsents()
-  }, [])
-
-  useEffect(() => {
-    filterConsents()
-  }, [consents, searchTerm, statusFilter, categoryFilter])
-
-  const fetchConsents = async (): Promise<void> => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session?.user) {
-        router.push('/')
-        return
-      }
-
+  // React Query: Fetch consents
+  const {
+    data: consents = [],
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ['consents'],
+    queryFn: async (): Promise<ConsentDocument[]> => {
       const response = await fetch('/api/consents')
       if (!response.ok) {
         throw new Error('Error al cargar consentimientos')
       }
+      return response.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+  })
 
-      const data = await response.json()
-      setConsents(data)
-    } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching consents:', error)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterConsents = (): void => {
+  // Filter consents using useMemo
+  const filteredConsents = useMemo(() => {
     let filtered = [...consents]
 
     // Search filter
@@ -105,8 +90,8 @@ export default function ConsentsPage(): JSX.Element {
       filtered = filtered.filter((consent) => consent.template.category === categoryFilter)
     }
 
-    setFilteredConsents(filtered)
-  }
+    return filtered
+  }, [consents, searchTerm, statusFilter, categoryFilter])
 
   const getStatusBadge = (status: string): JSX.Element => {
     const statusConfig: Record<string, { color: string; icon: JSX.Element; label: string }> = {

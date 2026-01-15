@@ -234,5 +234,5 @@ export const POST = withApiAuth(
       errors: errors.length > 0 ? errors : undefined,
     })
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
 )

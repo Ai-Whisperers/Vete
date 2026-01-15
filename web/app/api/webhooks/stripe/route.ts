@@ -77,9 +77,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         break
 
       case 'customer.subscription.created':
+        await handleSubscriptionCreated(supabase, event.data.object as Stripe.Subscription)
+        break
+
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted':
-        // Future: Handle subscription events
+        // Future: Handle subscription update/cancellation events
         logger.info('Subscription event received', {
           type: event.type,
           subscriptionId: (event.data.object as Stripe.Subscription).id,
@@ -350,6 +353,100 @@ async function handleChargeRefunded(
         })
       }
     }
+  }
+}
+
+/**
+ * Handle new subscription created
+ * Triggers ambassador conversion if applicable
+ */
+async function handleSubscriptionCreated(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  subscription: Stripe.Subscription
+): Promise<void> {
+  const customerId = subscription.customer as string
+  const subscriptionAmount = subscription.items.data.reduce(
+    (total, item) => total + (item.price?.unit_amount || 0),
+    0
+  )
+
+  logger.info('Subscription created', {
+    subscriptionId: subscription.id,
+    customerId,
+    status: subscription.status,
+    amount: subscriptionAmount,
+  })
+
+  // Only process if subscription is active (paid)
+  if (subscription.status !== 'active') {
+    logger.info('Subscription not active, skipping ambassador conversion', {
+      subscriptionId: subscription.id,
+      status: subscription.status,
+    })
+    return
+  }
+
+  // Find tenant by Stripe customer ID
+  const { data: tenant, error: tenantError } = await supabase
+    .from('tenants')
+    .select('id, referred_by_ambassador_id')
+    .eq('stripe_customer_id', customerId)
+    .single()
+
+  if (tenantError || !tenant) {
+    logger.warn('Tenant not found for subscription', { customerId })
+    return
+  }
+
+  // Check if tenant has ambassador referral
+  if (!tenant.referred_by_ambassador_id) {
+    logger.info('Tenant has no ambassador referral, skipping', {
+      tenantId: tenant.id,
+    })
+    return
+  }
+
+  // Trigger ambassador conversion
+  try {
+    const internalSecret = process.env.INTERNAL_API_SECRET || process.env.CRON_SECRET
+    if (!internalSecret) {
+      logger.error('No internal API secret configured for ambassador conversion')
+      return
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const response = await fetch(`${baseUrl}/api/ambassador/process-conversion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${internalSecret}`,
+      },
+      body: JSON.stringify({
+        tenantId: tenant.id,
+        subscriptionAmount: subscriptionAmount / 100, // Convert from cents
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      logger.error('Ambassador conversion API failed', {
+        tenantId: tenant.id,
+        status: response.status,
+        error: errorData,
+      })
+      return
+    }
+
+    const result = await response.json()
+    logger.info('Ambassador conversion triggered', {
+      tenantId: tenant.id,
+      result,
+    })
+  } catch (error) {
+    logger.error('Error triggering ambassador conversion', {
+      tenantId: tenant.id,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
   }
 }
 

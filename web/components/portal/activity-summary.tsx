@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Activity, Clock, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useAsyncData } from '@/lib/hooks'
@@ -67,6 +68,7 @@ export function PortalActivitySummary({
   userId,
   clinic,
 }: PortalActivitySummaryProps): React.ReactElement {
+  const t = useTranslations('portal.activity')
   const { data, isLoading } = useAsyncData<ActivityItem[]>(
     () =>
       fetch(`/api/portal/activity?userId=${userId}&limit=3`)
@@ -82,12 +84,12 @@ export function PortalActivitySummary({
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <h3 className="mb-4 flex items-center gap-2 font-bold text-[var(--text-primary)]">
         <Activity className="h-5 w-5 text-[var(--primary)]" />
-        Actividad Reciente
+        {t('title')}
       </h3>
 
       {!data || data.length === 0 ? (
         <p className="py-2 text-center text-sm text-[var(--text-secondary)]">
-          Sin actividad reciente
+          {t('noActivity')}
         </p>
       ) : (
         <div className="space-y-3">
@@ -101,7 +103,7 @@ export function PortalActivitySummary({
         href={`/${clinic}/portal/appointments`}
         className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
       >
-        Ver historial completo
+        {t('viewHistory')}
         <ArrowRight className="h-3 w-3" />
       </Link>
     </div>

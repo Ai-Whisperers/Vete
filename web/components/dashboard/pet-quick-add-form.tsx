@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Pet Quick Add Form Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+Supabase with useQuery hook
+ * - Replaced manual mutation with useMutation hook
+ */
+
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   PawPrint,
@@ -12,7 +20,9 @@ import {
   ChevronDown,
   Search,
 } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface Client {
   id: string
@@ -52,11 +62,8 @@ export function PetQuickAddForm({
   onCancel,
 }: PetQuickAddFormProps): React.ReactElement {
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [clients, setClients] = useState<Client[]>([])
   const [clientSearch, setClientSearch] = useState('')
   const [showClientDropdown, setShowClientDropdown] = useState(false)
 
@@ -72,9 +79,10 @@ export function PetQuickAddForm({
   const [microchipNumber, setMicrochipNumber] = useState('')
   const [notes, setNotes] = useState('')
 
-  // Fetch clients on mount
-  useEffect(() => {
-    const fetchClients = async (): Promise<void> => {
+  // React Query: Fetch clients
+  const { data: clients = [], isLoading: loading } = useQuery({
+    queryKey: ['clients', clinic, 'owners'],
+    queryFn: async (): Promise<Client[]> => {
       const supabase = createClient()
 
       const { data, error: fetchError } = await supabase
@@ -85,27 +93,24 @@ export function PetQuickAddForm({
         .order('full_name')
 
       if (fetchError) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching clients:', fetchError)
-        }
-        setError('Error al cargar clientes')
-      } else {
-        setClients((data || []) as Client[])
-
-        // If preselected, set the name
-        if (preselectedClientId) {
-          const client = data?.find((c) => c.id === preselectedClientId)
-          if (client) {
-            setSelectedClientName(client.full_name)
-          }
-        }
+        throw new Error('Error al cargar clientes')
       }
-      setLoading(false)
-    }
 
-    fetchClients()
-  }, [clinic, preselectedClientId])
+      return (data || []) as Client[]
+    },
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  // Set preselected client name when data loads
+  useEffect(() => {
+    if (preselectedClientId && clients.length > 0 && !selectedClientName) {
+      const client = clients.find((c) => c.id === preselectedClientId)
+      if (client) {
+        setSelectedClientName(client.full_name)
+      }
+    }
+  }, [preselectedClientId, clients, selectedClientName])
 
   // Filter clients based on search
   const filteredClients = clients.filter(
@@ -121,12 +126,20 @@ export function PetQuickAddForm({
     setShowClientDropdown(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
-    try {
+  // Mutation: Create pet
+  const createMutation = useMutation({
+    mutationFn: async (params: {
+      clinic: string
+      ownerId: string
+      name: string
+      species: string
+      breed: string
+      sex: string
+      birthDate: string
+      weight: string
+      microchipNumber: string
+      notes: string
+    }) => {
       const supabase = createClient()
 
       // Get current user
@@ -137,11 +150,11 @@ export function PetQuickAddForm({
         throw new Error('No autorizado')
       }
 
-      if (!selectedClientId) {
+      if (!params.ownerId) {
         throw new Error('Debe seleccionar un propietario')
       }
 
-      if (!petName.trim()) {
+      if (!params.name.trim()) {
         throw new Error('Debe ingresar el nombre de la mascota')
       }
 
@@ -149,28 +162,27 @@ export function PetQuickAddForm({
       const { data: newPet, error: insertError } = await supabase
         .from('pets')
         .insert({
-          tenant_id: clinic,
-          owner_id: selectedClientId,
-          name: petName.trim(),
-          species,
-          breed: breed.trim() || null,
-          sex,
-          birth_date: birthDate || null,
-          weight: weight ? parseFloat(weight) : null,
-          microchip_number: microchipNumber.trim() || null,
-          notes: notes.trim() || null,
+          tenant_id: params.clinic,
+          owner_id: params.ownerId,
+          name: params.name.trim(),
+          species: params.species,
+          breed: params.breed.trim() || null,
+          sex: params.sex,
+          birth_date: params.birthDate || null,
+          weight: params.weight ? parseFloat(params.weight) : null,
+          microchip_number: params.microchipNumber.trim() || null,
+          notes: params.notes.trim() || null,
         })
         .select('id')
         .single()
 
       if (insertError) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Pet insert error:', insertError)
-        }
         throw new Error('Error al registrar la mascota')
       }
 
+      return newPet
+    },
+    onSuccess: (newPet) => {
       setSuccess(true)
       router.refresh()
 
@@ -178,15 +190,28 @@ export function PetQuickAddForm({
       setTimeout(() => {
         onSuccess?.(newPet.id)
       }, 1500)
-    } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error creating pet:', err)
-      }
+    },
+    onError: (err) => {
       setError(err instanceof Error ? err.message : 'Error al registrar mascota')
-    } finally {
-      setIsSubmitting(false)
-    }
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault()
+    setError(null)
+
+    createMutation.mutate({
+      clinic,
+      ownerId: selectedClientId,
+      name: petName,
+      species,
+      breed,
+      sex,
+      birthDate,
+      weight,
+      microchipNumber,
+      notes,
+    })
   }
 
   if (loading) {
@@ -414,17 +439,17 @@ export function PetQuickAddForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSubmitting}
+          disabled={createMutation.isPending}
           className="flex-1 rounded-xl px-4 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || !selectedClientId || !petName.trim()}
+          disabled={createMutation.isPending || !selectedClientId || !petName.trim()}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-3 font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {isSubmitting ? (
+          {createMutation.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Registrando...

@@ -1,6 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+/**
+ * Appointments Chart
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useAsyncData with useQuery hook
+ */
+
+import { useState, useMemo } from 'react'
 import {
   AreaChart,
   Area,
@@ -12,8 +19,11 @@ import {
   Legend,
 } from 'recharts'
 import { Calendar } from 'lucide-react'
-import { useAsyncData } from '@/hooks/use-async-data'
+import { useTranslations, useLocale } from 'next-intl'
+import { useQuery } from '@tanstack/react-query'
 import { ErrorBoundary, LoadingSpinner } from '@/components/shared'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface AppointmentData {
   period_start: string
@@ -29,42 +39,52 @@ interface AppointmentsChartProps {
 }
 
 export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
+  const t = useTranslations('dashboard.appointmentsChart')
+  const locale = useLocale()
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week')
 
-  const { data, isLoading, error, refetch } = useAsyncData<AppointmentData[]>(
-    async () => {
+  // React Query: Fetch appointment chart data
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.dashboard.appointmentsChart(clinic, period),
+    queryFn: async (): Promise<AppointmentData[]> => {
       const res = await fetch(`/api/dashboard/appointments?clinic=${clinic}&period=${period}`)
       if (!res.ok) {
         throw new Error('Failed to fetch appointment data')
       }
       return res.json()
     },
-    [clinic, period],
-    {
-      enabled: true,
-      retryCount: 2,
-    }
-  )
+    staleTime: staleTimes.MEDIUM,
+    gcTime: gcTimes.MEDIUM,
+  })
+
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     if (period === 'day') {
-      return date.toLocaleDateString('es-PY', { weekday: 'short', day: 'numeric' })
+      return date.toLocaleDateString(localeStr, { weekday: 'short', day: 'numeric' })
     }
-    return date.toLocaleDateString('es-PY', { month: 'short', day: 'numeric' })
+    return date.toLocaleDateString(localeStr, { month: 'short', day: 'numeric' })
   }
+
+  // Build legend labels map
+  const legendLabels: Record<string, string> = useMemo(() => ({
+    completed: t('legend.completed'),
+    cancelled: t('legend.cancelled'),
+    no_shows: t('legend.noShows'),
+  }), [t])
 
   if (error) {
     return (
       <div className="rounded-xl bg-[var(--bg-paper)] p-6 shadow-sm">
         <div className="flex h-64 items-center justify-center text-[var(--text-secondary)]">
           <div className="text-center">
-            <p>Error al cargar datos de citas</p>
+            <p>{t('errorLoading')}</p>
             <button
               onClick={() => refetch()}
               className="mt-2 text-sm text-[var(--primary)] hover:underline"
             >
-              Intentar de nuevo
+              {t('retry')}
             </button>
           </div>
         </div>
@@ -82,7 +102,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
       <div className="rounded-xl bg-[var(--bg-paper)] p-6 shadow-sm">
         {isLoading && (
           <div className="flex h-64 items-center justify-center">
-            <LoadingSpinner text="Cargando datos..." />
+            <LoadingSpinner text={t('loadingData')} />
           </div>
         )}
 
@@ -90,7 +110,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-[var(--text-secondary)]" />
-              <h3 className="font-semibold text-[var(--text-primary)]">Citas</h3>
+              <h3 className="font-semibold text-[var(--text-primary)]">{t('title')}</h3>
             </div>
             <div className="flex gap-1 rounded-lg bg-[var(--bg-subtle)] p-1">
               {(['day', 'week', 'month'] as const).map((p) => (
@@ -103,7 +123,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  {p === 'day' ? 'Día' : p === 'week' ? 'Semana' : 'Mes'}
+                  {t(`period.${p}`)}
                 </button>
               ))}
             </div>
@@ -112,7 +132,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
 
         {(data || []).length === 0 ? (
           <div className="flex h-64 items-center justify-center text-[var(--text-secondary)]">
-            No hay datos de citas para mostrar
+            {t('noData')}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
@@ -147,22 +167,12 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 }}
                 formatter={(value?: number, name?: string) => {
-                  const labels: Record<string, string> = {
-                    completed: 'Completadas',
-                    cancelled: 'Canceladas',
-                    no_shows: 'No asistieron',
-                  }
-                  return [value ?? 0, labels[name || ''] || name || '']
+                  return [value ?? 0, legendLabels[name || ''] || name || '']
                 }}
               />
               <Legend
                 formatter={(value: string) => {
-                  const labels: Record<string, string> = {
-                    completed: 'Completadas',
-                    cancelled: 'Canceladas',
-                    no_shows: 'No asistieron',
-                  }
-                  return labels[value] || value
+                  return legendLabels[value] || value
                 }}
               />
               <Area

@@ -88,13 +88,14 @@ export const GET = withApiAuth(
         })
       }
 
-      // Generate PDF (simplified - would need a proper PDF library for production)
-      if (format === 'pdf') {
-        // For now, return a JSON response indicating PDF generation
-        // In production, use @react-pdf/renderer or similar
+      // Return JSON data for client-side PDF generation
+      if (format === 'pdf' || format === 'json') {
         return NextResponse.json({
-          message: 'PDF generation not yet implemented',
-          suggestion: 'Use CSV export for now',
+          type,
+          title: config.title,
+          columns: config.columns.map((col) => ({ key: col.key, header: col.header })),
+          data,
+          period: { startDate, endDate },
         })
       }
 

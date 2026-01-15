@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageSquare, X, Users, Crown, AlertCircle, Building2, Heart, Tag } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations } from 'next-intl'
 import { ClientSelector } from './client-selector'
 import { MessageComposer } from './message-composer'
 import { MessageReview } from './message-review'
@@ -45,7 +45,8 @@ const TEMPLATE_IDS = ['reminder', 'promo', 'checkup', 'custom'] as const
  * - SendProgress: Step 4 - Sending progress and results
  */
 export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): React.ReactElement {
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.bulkMessaging')
+  const tCommon = useTranslations('common')
 
   // State
   const [step, setStep] = useState<BulkMessagingStep>('select')
@@ -61,28 +62,19 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
   const [sendResult, setSendResult] = useState<SendResult | null>(null)
 
   // Build filter options with labels
-  const filterOptions: FilterOption[] = FILTER_CONFIGS.map((config) => ({
-    ...config,
-    label: labels.clients.filters[config.id as keyof typeof labels.clients.filters] as string,
-  }))
+  const filterOptions: FilterOption[] = useMemo(() =>
+    FILTER_CONFIGS.map((config) => ({
+      ...config,
+      label: t(`filters.${config.id}`),
+    })), [t])
 
   // Build message templates with labels
-  const messageTemplates: MessageTemplate[] = TEMPLATE_IDS.map((id) => ({
-    id,
-    title: labels.bulk_messaging.templates[
-      id as keyof typeof labels.bulk_messaging.templates
-    ] as string,
-    message:
-      id === 'custom'
-        ? ''
-        : `Hola {nombre}, ${
-            id === 'reminder'
-              ? 'te recordamos que {mascota} tiene una vacuna pendiente. ¡Agenda tu cita!'
-              : id === 'promo'
-                ? 'este mes tenemos 20% de descuento en baños y cortes. ¡Te esperamos!'
-                : 'ha pasado un año desde el último chequeo de {mascota}. Es hora de una revisión.'
-          }`,
-  }))
+  const messageTemplates: MessageTemplate[] = useMemo(() =>
+    TEMPLATE_IDS.map((id) => ({
+      id,
+      title: t(`templates.${id}`),
+      message: id === 'custom' ? '' : t(`templateMessages.${id}`),
+    })), [t])
 
   // Fetch clients based on filter
   useEffect(() => {
@@ -208,12 +200,12 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
   }, [onClose])
 
   // Step descriptions for header
-  const stepDescriptions: Record<BulkMessagingStep, string> = {
-    select: labels.bulk_messaging.steps.select,
-    compose: labels.bulk_messaging.steps.compose,
-    review: labels.bulk_messaging.steps.review,
-    sending: labels.bulk_messaging.steps.sending,
-  }
+  const stepDescriptions: Record<BulkMessagingStep, string> = useMemo(() => ({
+    select: t('steps.select'),
+    compose: t('steps.compose'),
+    review: t('steps.review'),
+    sending: t('steps.sending'),
+  }), [t])
 
   return (
     <AnimatePresence>
@@ -240,13 +232,14 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
               <div className="flex items-center gap-3">
                 <MessageSquare className="h-6 w-6 text-white" />
                 <div>
-                  <h2 className="text-lg font-bold text-white">{labels.bulk_messaging.title}</h2>
+                  <h2 className="text-lg font-bold text-white">{t('title')}</h2>
                   <p className="text-sm text-white/70">{stepDescriptions[step]}</p>
                 </div>
               </div>
               <button
                 onClick={resetAndClose}
                 className="rounded-lg bg-white/20 p-2 transition-colors hover:bg-white/30"
+                aria-label={tCommon('close')}
               >
                 <X className="h-5 w-5 text-white" />
               </button>
@@ -262,11 +255,11 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
                 selectedFilter={selectedFilter}
                 filterOptions={filterOptions}
                 labels={{
-                  search_placeholder: labels.clients.search_placeholder,
-                  selected_count: labels.bulk_messaging.selected_count,
-                  select_all: labels.bulk_messaging.select_all,
-                  clear: labels.bulk_messaging.clear,
-                  continue_with: labels.bulk_messaging.continue_with,
+                  search_placeholder: t('searchPlaceholder'),
+                  selected_count: t('selectedCount', { count: selectedClients.size, total: filteredClients.length }),
+                  select_all: t('selectAll'),
+                  clear: t('clear'),
+                  continue_with: t('continueWith', { count: selectedClients.size }),
                 }}
                 onSearchChange={setSearchQuery}
                 onFilterChange={setSelectedFilter}
@@ -284,13 +277,17 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
                 selectedTemplate={selectedTemplate}
                 templates={messageTemplates}
                 labels={{
-                  channel: labels.bulk_messaging.channel,
-                  channels: labels.bulk_messaging.channels,
-                  template: labels.bulk_messaging.template,
-                  message: labels.bulk_messaging.message,
-                  variables_hint: labels.bulk_messaging.variables_hint,
-                  back: labels.common.back,
-                  review: labels.bulk_messaging.steps.review,
+                  channel: t('channel'),
+                  channels: {
+                    whatsapp: t('channels.whatsapp'),
+                    email: t('channels.email'),
+                    sms: t('channels.sms'),
+                  },
+                  template: t('template'),
+                  message: t('message'),
+                  variables_hint: t('variablesHint'),
+                  back: tCommon('back'),
+                  review: t('steps.review'),
                 }}
                 onChannelChange={setChannel}
                 onTemplateSelect={handleSelectTemplate}
@@ -306,13 +303,13 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
                 channel={channel}
                 message={message}
                 labels={{
-                  client_label: labels.search.types.client,
-                  channel_label: labels.bulk_messaging.channel,
-                  message_label: labels.bulk_messaging.message,
-                  confirm_send: labels.bulk_messaging.confirm_send,
-                  send_warning: labels.bulk_messaging.send_warning,
-                  edit: labels.common.edit,
-                  send: labels.bulk_messaging.send,
+                  client_label: t('clientLabel'),
+                  channel_label: t('channelLabel'),
+                  message_label: t('messageLabel'),
+                  confirm_send: t('confirmSend'),
+                  send_warning: t('sendWarning', { count: selectedClients.size }),
+                  edit: tCommon('edit'),
+                  send: t('send'),
                 }}
                 onBack={() => setStep('compose')}
                 onSend={handleSend}
@@ -324,11 +321,11 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
                 progress={sendProgress}
                 result={sendResult}
                 labels={{
-                  sending: labels.bulk_messaging.steps.sending,
-                  completed: labels.bulk_messaging.completed,
-                  sent_count: labels.bulk_messaging.sent_count,
-                  failed_count: labels.bulk_messaging.failed_count,
-                  close: labels.common.close,
+                  sending: t('steps.sending'),
+                  completed: t('completed'),
+                  sent_count: sendResult ? t('sentCount', { success: sendResult.success }) : '',
+                  failed_count: sendResult ? t('failedCount', { failed: sendResult.failed }) : '',
+                  close: tCommon('close'),
                 }}
                 onClose={resetAndClose}
               />

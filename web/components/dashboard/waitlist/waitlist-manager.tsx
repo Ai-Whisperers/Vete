@@ -1,12 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+/**
+ * Waitlist Manager Component
+ *
+ * RES-001: Migrated to React Query for data fetching
+ * - Replaced useEffect+fetch with useQuery hook
+ * - Auto-refresh via refetchInterval
+ */
+
+import { useState, useMemo } from 'react'
 import {
   Clock,
   Calendar,
   User,
   Search,
-  Filter,
   ChevronDown,
   Send,
   CheckCircle,
@@ -17,8 +24,11 @@ import {
   Phone,
   Mail,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { OfferSlotModal } from './offer-slot-modal'
 import { Badge } from '@/components/ui/badge'
+import { queryKeys } from '@/lib/queries'
+import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface WaitlistEntry {
   id: string
@@ -66,35 +76,30 @@ const statusConfig = {
 }
 
 export function WaitlistManager(): React.ReactElement {
-  const [entries, setEntries] = useState<WaitlistEntry[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [dateFilter, setDateFilter] = useState<string>('')
   const [selectedEntry, setSelectedEntry] = useState<WaitlistEntry | null>(null)
   const [showOfferModal, setShowOfferModal] = useState(false)
 
-  const fetchEntries = async () => {
-    setLoading(true)
-    try {
+  // React Query: Fetch waitlist entries with filters
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['appointments', 'waitlist', { status: statusFilter, date: dateFilter }],
+    queryFn: async (): Promise<{ waitlist: WaitlistEntry[] }> => {
       const params = new URLSearchParams()
       if (statusFilter !== 'all') params.append('status', statusFilter)
       if (dateFilter) params.append('date', dateFilter)
 
       const res = await fetch(`/api/appointments/waitlist?${params}`)
       if (!res.ok) throw new Error('Error al cargar')
-      const data = await res.json()
-      setEntries(data.waitlist || [])
-    } catch (error) {
-      console.error('Error fetching waitlist:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+      return res.json()
+    },
+    staleTime: staleTimes.SHORT,
+    gcTime: gcTimes.SHORT,
+    refetchInterval: 60000, // Auto-refresh every minute
+  })
 
-  useEffect(() => {
-    fetchEntries()
-  }, [statusFilter, dateFilter])
+  const entries = data?.waitlist || []
 
   const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleDateString('es-PY', {
@@ -109,34 +114,40 @@ export function WaitlistManager(): React.ReactElement {
     return timeStr.substring(0, 5)
   }
 
-  // Filter entries by search
-  const filteredEntries = entries.filter((entry) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      entry.pet.name.toLowerCase().includes(query) ||
-      entry.owner?.owner?.full_name?.toLowerCase().includes(query) ||
-      entry.service.name.toLowerCase().includes(query)
+  // Filter entries by search - memoized
+  const filteredEntries = useMemo(() => {
+    return entries.filter((entry) => {
+      if (!searchQuery) return true
+      const query = searchQuery.toLowerCase()
+      return (
+        entry.pet.name.toLowerCase().includes(query) ||
+        entry.owner?.owner?.full_name?.toLowerCase().includes(query) ||
+        entry.service.name.toLowerCase().includes(query)
+      )
+    })
+  }, [entries, searchQuery])
+
+  // Group by date - memoized
+  const { groupedByDate, sortedDates } = useMemo(() => {
+    const grouped = filteredEntries.reduce(
+      (acc, entry) => {
+        const date = entry.preferred_date
+        if (!acc[date]) acc[date] = []
+        acc[date].push(entry)
+        return acc
+      },
+      {} as Record<string, WaitlistEntry[]>
     )
-  })
-
-  // Group by date
-  const groupedByDate = filteredEntries.reduce(
-    (acc, entry) => {
-      const date = entry.preferred_date
-      if (!acc[date]) acc[date] = []
-      acc[date].push(entry)
-      return acc
-    },
-    {} as Record<string, WaitlistEntry[]>
-  )
-
-  const sortedDates = Object.keys(groupedByDate).sort()
+    return {
+      groupedByDate: grouped,
+      sortedDates: Object.keys(grouped).sort(),
+    }
+  }, [filteredEntries])
 
   const handleOfferSuccess = () => {
     setShowOfferModal(false)
     setSelectedEntry(null)
-    fetchEntries()
+    refetch()
   }
 
   return (
@@ -152,7 +163,7 @@ export function WaitlistManager(): React.ReactElement {
           </p>
         </div>
         <button
-          onClick={fetchEntries}
+          onClick={() => refetch()}
           className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200"
         >
           <RefreshCw className="h-4 w-4" />
@@ -209,7 +220,7 @@ export function WaitlistManager(): React.ReactElement {
       </div>
 
       {/* Content */}
-      {loading ? (
+      {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
         </div>

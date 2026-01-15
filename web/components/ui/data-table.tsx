@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 
 /**
@@ -63,7 +64,7 @@ export function DataTable<T extends Record<string, any>>({
   columns,
   keyExtractor = (item, index) => item.id || index.toString(),
   onRowClick,
-  emptyMessage = 'No hay datos para mostrar',
+  emptyMessage,
   emptyIcon,
   pageSize = 10,
   showPagination = false,
@@ -71,6 +72,8 @@ export function DataTable<T extends Record<string, any>>({
   rowClassName = '',
   mobileRender,
 }: DataTableProps<T>) {
+  const t = useTranslations('dataTable')
+  const resolvedEmptyMessage = emptyMessage ?? t('noData')
   const [sortColumn, setSortColumn] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
@@ -132,7 +135,7 @@ export function DataTable<T extends Record<string, any>>({
     return (
       <div className={`rounded-xl bg-[var(--bg-default)] p-12 text-center shadow-md ${className}`}>
         {emptyIcon && <div className="mb-4">{emptyIcon}</div>}
-        <p className="text-[var(--text-secondary)]">{emptyMessage}</p>
+        <p className="text-[var(--text-secondary)]">{resolvedEmptyMessage}</p>
       </div>
     )
   }
@@ -227,26 +230,29 @@ export function DataTable<T extends Record<string, any>>({
       {showPagination && totalPages > 1 && (
         <div className="flex items-center justify-between rounded-lg bg-[var(--bg-default)] px-4 py-3 shadow-md">
           <div className="text-sm text-[var(--text-secondary)]">
-            Mostrando {(currentPage - 1) * pageSize + 1} -{' '}
-            {Math.min(currentPage * pageSize, sortedData.length)} de {sortedData.length} resultados
+            {t('showing', {
+              start: (currentPage - 1) * pageSize + 1,
+              end: Math.min(currentPage * pageSize, sortedData.length),
+              total: sortedData.length,
+            })}
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="rounded-md border border-gray-200 px-3 py-1 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Página anterior"
+              aria-label={t('previousPage')}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span className="text-sm text-[var(--text-secondary)]">
-              Página {currentPage} de {totalPages}
+              {t('pageOf', { current: currentPage, total: totalPages })}
             </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="rounded-md border border-gray-200 px-3 py-1 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Página siguiente"
+              aria-label={t('nextPage')}
             >
               <ChevronRight className="h-4 w-4" />
             </button>

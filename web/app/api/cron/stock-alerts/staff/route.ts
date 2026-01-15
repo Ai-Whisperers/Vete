@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail } from '@/lib/email/client'
+import { sendEmailWithRetry } from '@/lib/api/cron-external-calls'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { logger } from '@/lib/logger'
 import { checkCronAuth } from '@/lib/api/cron-auth'
@@ -195,23 +195,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             }
           }
 
-          // Send email if enabled
+          // Send email if enabled (with timeout/retry protection)
           if (staff.email_enabled) {
             const email = staff.notification_email || staff.profile?.email
             if (email) {
-              const emailResult = await sendStaffAlertEmail({
-                to: email,
-                staffName: staff.profile?.full_name || 'Staff',
-                clinicName: tenant.name,
-                lowStockProducts: staff.low_stock_alerts ? lowStockProducts : [],
-                outOfStockProducts: staff.out_of_stock_alerts ? outOfStockProducts : [],
-                expiringProducts: staff.expiry_alerts ? expiringProducts : [],
-              })
-
-              if (emailResult.success) {
+              try {
+                await sendStaffAlertEmail({
+                  to: email,
+                  staffName: staff.profile?.full_name || 'Staff',
+                  clinicName: tenant.name,
+                  lowStockProducts: staff.low_stock_alerts ? lowStockProducts : [],
+                  outOfStockProducts: staff.out_of_stock_alerts ? outOfStockProducts : [],
+                  expiringProducts: staff.expiry_alerts ? expiringProducts : [],
+                })
                 results.alertsSent++
-              } else {
-                results.errors.push(`Email to ${email}: ${emailResult.error}`)
+                logger.info('Staff alert email sent successfully', {
+                  email,
+                  tenantId: tenant.id,
+                })
+              } catch (error) {
+                const errorMsg = error instanceof Error ? error.message : String(error)
+                results.errors.push(`Email to ${email}: ${errorMsg}`)
+                logger.error('Failed to send staff alert email after retries', {
+                  email,
+                  tenantId: tenant.id,
+                  error: errorMsg,
+                })
               }
             }
           }
@@ -277,9 +286,7 @@ interface SendEmailParams {
   expiringProducts: ExpiringProduct[] | null
 }
 
-async function sendStaffAlertEmail(
-  params: SendEmailParams
-): Promise<{ success: boolean; error?: string }> {
+async function sendStaffAlertEmail(params: SendEmailParams): Promise<void> {
   const { to, staffName, clinicName, lowStockProducts, outOfStockProducts, expiringProducts } =
     params
 
@@ -412,7 +419,7 @@ async function sendStaffAlertEmail(
     </html>
   `
 
-  return sendEmail({
+  await sendEmailWithRetry({
     to,
     subject,
     html,
@@ -431,7 +438,7 @@ interface SendWhatsAppParams {
 async function sendStaffAlertWhatsApp(
   params: SendWhatsAppParams
 ): Promise<{ success: boolean; error?: string }> {
-  const { to, staffName, lowStockCount, outOfStockCount, expiringCount } = params
+  const { to, lowStockCount, outOfStockCount, expiringCount } = params
 
   const lines: string[] = ['⚠️ *Alerta de Inventario*', '']
 

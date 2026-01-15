@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail } from '@/lib/email/client'
+import { sendEmailWithRetry } from '@/lib/api/cron-external-calls'
 import { logger } from '@/lib/logger'
 import { checkCronAuth } from '@/lib/api/cron-auth'
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   // SEC-006: Use timing-safe cron authentication
   const { authorized, errorResponse } = checkCronAuth(request)
   if (!authorized) {
-    return errorResponse!
+    return errorResponse ?? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const supabase = await createClient()
@@ -101,13 +101,14 @@ export async function GET(request: NextRequest) {
         // Build product URL (assuming store page)
         const productUrl = `/${tenant_id}/store/products/${product.slug || product.id}`
 
-        // Send email to each subscriber
+        // Send email to each subscriber (with timeout/retry protection)
         const emailResults = await Promise.allSettled(
           alerts.map(async (alert) => {
-            const emailResult = await sendEmail({
-              to: alert.email,
-              subject: `¡${product.name} está disponible! - ${clinicName}`,
-              html: `
+            try {
+              await sendEmailWithRetry({
+                to: alert.email,
+                subject: `¡${product.name} está disponible! - ${clinicName}`,
+                html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -149,23 +150,35 @@ export async function GET(request: NextRequest) {
             </body>
             </html>
           `,
-              text: `¡${product.name} está disponible en ${clinicName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades. Visita: ${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}${productUrl}`,
-            })
-
-            if (!emailResult.success) {
-              throw new Error(`Failed to send email to ${alert.email}: ${emailResult.error}`)
-            }
-
-            // Mark alert as notified
-            await supabase
-              .from('store_stock_alerts')
-              .update({
-                notified: true,
-                notified_at: new Date().toISOString(),
+                text: `¡${product.name} está disponible en ${clinicName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades. Visita: ${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}${productUrl}`,
               })
-              .eq('id', alert.id)
 
-            return alert.email
+              // Mark alert as notified only on successful send
+              await supabase
+                .from('store_stock_alerts')
+                .update({
+                  notified: true,
+                  notified_at: new Date().toISOString(),
+                })
+                .eq('id', alert.id)
+
+              logger.info('Stock alert email sent successfully', {
+                alertId: alert.id,
+                email: alert.email,
+                productId: product.id,
+              })
+
+              return alert.email
+            } catch (error) {
+              // Log failure but don't crash - continue to next alert
+              logger.error('Failed to send stock alert email after retries', {
+                alertId: alert.id,
+                email: alert.email,
+                productId: product.id,
+                error: error instanceof Error ? error.message : String(error),
+              })
+              throw error // Re-throw so Promise.allSettled catches it as rejected
+            }
           })
         )
 

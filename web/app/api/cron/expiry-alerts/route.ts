@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail } from '@/lib/email/client'
+import { sendEmailWithRetry } from '@/lib/api/cron-external-calls'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { logger } from '@/lib/logger'
 import { checkCronAuth } from '@/lib/api/cron-auth'
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // SEC-006: Use timing-safe cron authentication
   const { authorized, errorResponse } = checkCronAuth(request)
   if (!authorized) {
-    return errorResponse!
+    return errorResponse ?? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const supabase = await createClient()
@@ -178,25 +178,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             continue
           }
 
-          // Send email if enabled
+          // Send email if enabled (with timeout/retry protection)
           if (staff.email_enabled) {
             const email = staff.notification_email || staff.profile?.email
             if (email) {
-              const emailResult = await sendExpiryAlertEmail({
-                to: email,
-                staffName: staff.profile?.full_name || 'Staff',
-                clinicName: tenant.name,
-                expiredProducts: expiredProducts || [],
-                criticalProducts: critical,
-                highProducts: high,
-                mediumProducts: medium,
-                summary,
-              })
-
-              if (emailResult.success) {
+              try {
+                await sendExpiryAlertEmail({
+                  to: email,
+                  staffName: staff.profile?.full_name || 'Staff',
+                  clinicName: tenant.name,
+                  expiredProducts: expiredProducts || [],
+                  criticalProducts: critical,
+                  highProducts: high,
+                  mediumProducts: medium,
+                  summary,
+                })
                 results.alertsSent++
-              } else {
-                results.errors.push(`Email to ${email}: ${emailResult.error}`)
+                logger.info('Expiry alert email sent successfully', {
+                  email,
+                  tenantId: tenant.id,
+                })
+              } catch (error) {
+                const errorMsg = error instanceof Error ? error.message : String(error)
+                results.errors.push(`Email to ${email}: ${errorMsg}`)
+                logger.error('Failed to send expiry alert email after retries', {
+                  email,
+                  tenantId: tenant.id,
+                  error: errorMsg,
+                })
               }
             }
           }
@@ -265,9 +274,7 @@ interface SendEmailParams {
   summary: { urgency_level: string; product_count: number; total_units: number }[] | null
 }
 
-async function sendExpiryAlertEmail(
-  params: SendEmailParams
-): Promise<{ success: boolean; error?: string }> {
+async function sendExpiryAlertEmail(params: SendEmailParams): Promise<void> {
   const {
     to,
     staffName,
@@ -472,7 +479,7 @@ async function sendExpiryAlertEmail(
 
   const totalExpiring = criticalProducts.length + highProducts.length + mediumProducts.length
 
-  return sendEmail({
+  await sendEmailWithRetry({
     to,
     subject,
     html,

@@ -118,8 +118,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 1. Get all active tenants
-    const { data: tenants, error: tenantsError } = await supabase.from('tenants').select('id, name')
+    // 1. Get all active tenants (limit to prevent OOM on large installations)
+    const { data: tenants, error: tenantsError } = await supabase
+      .from('tenants')
+      .select('id, name')
+      .limit(1000) // Safety limit - process max 1000 tenants per run
 
     if (tenantsError) {
       logger.error('Error fetching tenants', {
@@ -231,7 +234,7 @@ async function generateVaccineReminders(
   targetDate.setDate(today.getDate() + rule.days_offset)
   const targetDateStr = targetDate.toISOString().split('T')[0]
 
-  // Find vaccines matching the criteria
+  // Find vaccines matching the criteria (with safety limit)
   let query = supabase
     .from('vaccines')
     .select(
@@ -242,6 +245,7 @@ async function generateVaccineReminders(
     )
     .eq('pet.tenant_id', tenantId)
     .not('next_due_date', 'is', null)
+    .limit(500) // Safety limit - process max 500 vaccines per tenant per run
 
   if (mode === 'due') {
     // Vaccines due on the target date
@@ -327,7 +331,7 @@ async function generateAppointmentReminders(
   targetDate.setDate(today.getDate() + Math.abs(rule.days_offset))
   const targetDateStr = targetDate.toISOString().split('T')[0]
 
-  const { data: appointments, error } = await supabase
+  const { data: appointments, error} = await supabase
     .from('appointments')
     .select(
       `
@@ -340,6 +344,7 @@ async function generateAppointmentReminders(
     .gte('start_time', `${targetDateStr}T00:00:00`)
     .lt('start_time', `${targetDateStr}T23:59:59`)
     .in('status', ['pending', 'confirmed'])
+    .limit(200) // Safety limit - max 200 appointments per day per tenant
 
   if (error) {
     results.errors.push(`Appointment query error: ${error.message}`)
@@ -425,6 +430,7 @@ async function generateBirthdayReminders(
     )
     .eq('tenant_id', tenantId)
     .not('birth_date', 'is', null)
+    .limit(1000) // Safety limit - max 1000 pets per tenant per run
 
   if (error) {
     results.errors.push(`Birthday query error: ${error.message}`)
@@ -518,6 +524,7 @@ async function generateFollowUpReminders(
     .eq('status', 'completed')
     .gte('start_time', `${targetDateStr}T00:00:00`)
     .lt('start_time', `${targetDateStr}T23:59:59`)
+    .limit(200) // Safety limit - max 200 completed appointments per day
 
   if (error) {
     results.errors.push(`Follow-up query error: ${error.message}`)

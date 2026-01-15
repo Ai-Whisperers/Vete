@@ -43,6 +43,7 @@ async function handler(_request: NextRequest, _context: CronContext): Promise<Ne
 
   try {
     // 1. Get invoices due today or overdue (status: sent or overdue)
+    // Process in batches to prevent OOM on large installations
     const { data: invoices, error: invoicesError } = await supabase
       .from('platform_invoices')
       .select(`
@@ -56,6 +57,7 @@ async function handler(_request: NextRequest, _context: CronContext): Promise<Ne
       .in('status', ['sent', 'overdue'])
       .lte('due_date', today)
       .order('due_date', { ascending: true })
+      .limit(50) // Safety limit - process 50 invoices per run (prevents payment gateway overload)
 
     if (invoicesError) {
       throw new Error(`Error fetching invoices: ${invoicesError.message}`)

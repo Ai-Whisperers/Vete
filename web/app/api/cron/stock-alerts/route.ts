@@ -77,12 +77,13 @@ export async function GET(request: NextRequest) {
 
         const clinicName = tenant?.name || 'Veterinaria'
 
-        // Get all pending alerts for this product
+        // Get pending alerts for this product (with safety limit)
         const { data: alerts, error: alertsError } = await supabase
           .from('store_stock_alerts')
           .select('id, email, user_id')
           .eq('product_id', product_id)
           .eq('notified', false)
+          .limit(100) // Safety limit - max 100 emails per product per batch
 
         if (alertsError) {
           throw new Error(`Failed to fetch alerts: ${alertsError.message}`)

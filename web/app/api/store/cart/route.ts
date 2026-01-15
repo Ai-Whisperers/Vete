@@ -303,75 +303,110 @@ export async function POST(request: NextRequest) {
   const featureCheck = await checkEcommerceAccess(tenantId)
   if (featureCheck) return featureCheck
 
-  // Get existing cart
-  const { data: existingCart } = await supabase
-    .from('store_carts')
-    .select('items')
-    .eq('customer_id', user.id)
-    .eq('tenant_id', tenantId)
-    .single()
+  // Use atomic merge function to prevent race condition
+  // This function uses FOR UPDATE to lock the cart row during merge
+  const { data: result, error: rpcError } = await supabase.rpc('merge_cart_atomic', {
+    p_customer_id: user.id,
+    p_tenant_id: tenantId,
+    p_new_items: localItems,
+  })
 
-  // Merge carts - use RPC function if available, otherwise do client-side merge
-  let mergedItems = localItems
-
-  if (existingCart?.items && Array.isArray(existingCart.items)) {
-    const existingMap = new Map<string, (typeof localItems)[0]>()
-
-    // Add existing items to map
-    for (const item of existingCart.items) {
-      const key = `${item.id}-${item.type}`
-      existingMap.set(key, item)
-    }
-
-    // Merge local items (prefer higher quantity)
-    for (const localItem of localItems) {
-      const key = `${localItem.id}-${localItem.type}`
-      const existing = existingMap.get(key)
-
-      if (existing) {
-        existing.quantity = Math.max(existing.quantity, localItem.quantity)
-      } else {
-        existingMap.set(key, localItem)
-      }
-    }
-
-    mergedItems = Array.from(existingMap.values())
-  }
-
-  // Save merged cart
-  const { error } = await supabase.from('store_carts').upsert(
-    {
-      customer_id: user.id,
-      tenant_id: tenantId,
-      items: mergedItems,
-      updated_at: new Date().toISOString(),
-    },
-    {
-      onConflict: 'customer_id,tenant_id',
-    }
-  )
-
-  if (error) {
-    // Handle table not existing - return local items as merged result
-    if (error.code === 'PGRST205') {
-      return NextResponse.json({
-        success: true,
-        items: localItems,
-        local_only: true,
-      })
-    }
-    logger.error('Error merging cart', {
+  if (rpcError) {
+    logger.error('Atomic cart merge RPC error', {
       userId: user.id,
       tenantId,
-      error: error instanceof Error ? error.message : String(error),
+      error: rpcError.message,
+      code: rpcError.code,
     })
+
+    // Provide specific error messages based on error code
+    if (rpcError.code === '42883') {
+      // Function doesn't exist - database not migrated
+      logger.warn('merge_cart_atomic function not found - falling back to non-atomic merge')
+
+      // Fallback to non-atomic merge (legacy behavior)
+      // TODO: Remove this fallback after migration 090 is applied
+      const { data: existingCart } = await supabase
+        .from('store_carts')
+        .select('items')
+        .eq('customer_id', user.id)
+        .eq('tenant_id', tenantId)
+        .single()
+
+      let mergedItems = localItems
+
+      if (existingCart?.items && Array.isArray(existingCart.items)) {
+        const existingMap = new Map<string, (typeof localItems)[0]>()
+
+        for (const item of existingCart.items) {
+          const key = `${item.id}-${item.type}`
+          existingMap.set(key, item)
+        }
+
+        for (const localItem of localItems) {
+          const key = `${localItem.id}-${localItem.type}`
+          const existing = existingMap.get(key)
+
+          if (existing) {
+            existing.quantity = Math.max(existing.quantity, localItem.quantity)
+          } else {
+            existingMap.set(key, localItem)
+          }
+        }
+
+        mergedItems = Array.from(existingMap.values())
+      }
+
+      const { error: upsertError } = await supabase.from('store_carts').upsert({
+        customer_id: user.id,
+        tenant_id: tenantId,
+        items: mergedItems,
+        updated_at: new Date().toISOString(),
+      })
+
+      if (upsertError) {
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+          details: { message: 'Error al fusionar carrito' },
+        })
+      }
+
+      return NextResponse.json({
+        success: true,
+        items: mergedItems,
+        fallback: true,
+      })
+    }
+
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'Error al fusionar carrito' },
     })
   }
 
+  // Handle atomic function response
+  if (!result?.success) {
+    const errorMessage = result?.message || 'Error al fusionar carrito'
+
+    logger.warn('Cart merge rejected', {
+      userId: user.id,
+      tenantId,
+      error: result?.error,
+      message: errorMessage,
+    })
+
+    return apiError('CART_MERGE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: errorMessage },
+    })
+  }
+
+  logger.info('Cart merged successfully', {
+    userId: user.id,
+    tenantId,
+    itemCount: result.item_count,
+  })
+
   return NextResponse.json({
     success: true,
-    items: mergedItems,
+    items: result.items,
+    item_count: result.item_count,
   })
 }

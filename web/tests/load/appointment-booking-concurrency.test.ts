@@ -1,20 +1,15 @@
 /**
- * Load test for atomic appointment booking under concurrent load
- * 
- * This test verifies that the atomic booking functions prevent double-booking
- * when multiple users try to book the same time slot simultaneously.
- * 
- * Prerequisites:
- * - Migrations 088-089 must be applied to the database
- * - Test database with test tenant, vet, service, and pet data
- * 
- * Usage:
- *   npm run test:load:appointments
- *   or
- *   vitest tests/load/appointment-booking-concurrency.test.ts
+ * Load Test: Appointment Booking Concurrency
+ *
+ * Tests the atomic appointment booking function under concurrent load to verify
+ * that race conditions are properly prevented.
+ *
+ * Run with: npm run test:load:appointments
+ *
+ * @ts-nocheck - Load test file with runtime RPC calls (Supabase types not available)
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 
 // Test configuration
@@ -46,15 +41,8 @@ describe('Atomic Appointment Booking - Concurrency Tests', () => {
       },
     })
 
-    // Verify atomic function exists
-    const { data: functionExists, error } = await supabase.rpc('pg_get_functiondef', {
-      funcoid: 'book_appointment_atomic'::regproc,
-    })
-
-    if (error) {
-      console.error('⚠️  Atomic booking function not found. Have you run migrations 088-089?')
-      throw new Error('Migration 088 (book_appointment_atomic) not applied')
-    }
+    // Note: If tests fail with "function book_appointment_atomic does not exist",
+    // run migrations: psql $DATABASE_URL -f web/db/migrations/088_atomic_appointment_booking.sql
   })
 
   beforeEach(async () => {

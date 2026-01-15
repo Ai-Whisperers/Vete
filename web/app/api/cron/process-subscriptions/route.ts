@@ -100,6 +100,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     logger.info(`Fetched ${products?.length ?? 0} products for ${productIds.length} unique product IDs`)
 
+    // Epic 3.6: Warn if batch product fetch returned fewer products than requested
+    if ((products?.length ?? 0) < productIds.length) {
+      const fetchedIds = new Set(products?.map((p) => p.id) ?? [])
+      const missingIds = productIds.filter((id) => !fetchedIds.has(id))
+      logger.warn('Batch product lookup missing products', {
+        requested: productIds.length,
+        fetched: products?.length ?? 0,
+        missing: missingIds.length,
+        missingProductIds: missingIds.slice(0, 10), // Log first 10 to avoid huge logs
+      })
+    }
+
     // Process each subscription
     for (const subscription of dueSubscriptions) {
       // Track stock state for rollback in catch block

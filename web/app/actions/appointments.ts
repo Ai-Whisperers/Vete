@@ -90,48 +90,14 @@ export const cancelAppointment = withActionAuth(
 
 /**
  * Reschedule an appointment to a new date/time
- * Only pet owners can reschedule their own appointments
+ * Pet owners and staff can reschedule appointments
+ * 
+ * Uses atomic database function to prevent race condition double-booking.
+ * The function uses row-level locks to serialize concurrent reschedule attempts.
  */
 export const rescheduleAppointment = withActionAuth(
   async ({ user, profile, supabase }, appointmentId: string, newDate: string, newTime: string) => {
-    // Get appointment with pet to verify ownership
-    const { data: appointment, error: fetchError } = await supabase
-      .from('appointments')
-      .select(
-        `
-        id,
-        tenant_id,
-        start_time,
-        end_time,
-        status,
-        pets!inner(owner_id)
-      `
-      )
-      .eq('id', appointmentId)
-      .single()
-
-    if (fetchError || !appointment) {
-      return actionError('Cita no encontrada')
-    }
-
-    // Transform pets array to single object (Supabase returns array from join)
-    const pet = Array.isArray(appointment.pets) ? appointment.pets[0] : appointment.pets
-
-    // Check ownership
-    const isOwner = pet.owner_id === user.id
-    const isStaff = ['vet', 'admin'].includes(profile.role)
-    const sameTenant = profile.tenant_id === appointment.tenant_id
-
-    if (!isOwner && !(isStaff && sameTenant)) {
-      return actionError('No tienes permiso para reprogramar esta cita')
-    }
-
-    // Check if appointment can be rescheduled
-    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
-      return actionError('Esta cita no puede ser reprogramada')
-    }
-
-    // Parse and validate new date/time
+    // Parse and validate new date/time early
     const newDateTime = new Date(`${newDate}T${newTime}`)
     if (isNaN(newDateTime.getTime())) {
       return actionError('Fecha u hora inválida')
@@ -141,66 +107,53 @@ export const rescheduleAppointment = withActionAuth(
       return actionError('La nueva fecha debe ser en el futuro')
     }
 
-    // Calculate original duration and new end time
-    const originalStart = new Date(appointment.start_time)
-    const originalEnd = new Date(appointment.end_time)
-    const durationMs = originalEnd.getTime() - originalStart.getTime()
-    const newEndDateTime = new Date(newDateTime.getTime() + durationMs)
+    // Determine if user is staff
+    const isStaff = ['vet', 'admin'].includes(profile.role)
 
-    // Check slot availability - prevent overlapping appointments using database function
-    const newStartTimeStr = newDateTime.toTimeString().slice(0, 5) // HH:MM
-    const newEndTimeStr = newEndDateTime.toTimeString().slice(0, 5) // HH:MM
-
-    // Use the database function to check for overlaps
-    const { data: hasOverlap, error: overlapCheckError } = await supabase.rpc(
-      'check_appointment_overlap',
+    // Use atomic reschedule function to prevent race conditions
+    // This function acquires row locks, validates authorization, checks for conflicts,
+    // and updates the appointment in a single atomic operation
+    const { data: result, error: rpcError } = await supabase.rpc(
+      'reschedule_appointment_atomic',
       {
-        p_tenant_id: appointment.tenant_id,
-        p_date: newDate,
-        p_start_time: newStartTimeStr,
-        p_end_time: newEndTimeStr,
-        p_vet_id: null, // Check across all vets for now
-        p_exclude_id: appointmentId, // Exclude current appointment being rescheduled
+        p_appointment_id: appointmentId,
+        p_new_start_time: newDateTime.toISOString(),
+        p_user_id: user.id,
+        p_is_staff: isStaff,
       }
     )
 
-    if (overlapCheckError) {
-      logger.error('Overlap check error', {
+    if (rpcError) {
+      logger.error('Reschedule appointment RPC error', {
         appointmentId,
-        tenantId: appointment.tenant_id,
+        tenantId: profile.tenant_id,
+        userId: user.id,
         newDate,
         newTime,
-        error:
-          overlapCheckError instanceof Error
-            ? overlapCheckError.message
-            : String(overlapCheckError),
+        error: rpcError.message,
+        code: rpcError.code,
       })
-      return actionError('Error al verificar disponibilidad del horario')
-    }
 
-    if (hasOverlap) {
-      return actionError('El horario seleccionado no está disponible. Por favor elige otro.')
-    }
+      // Provide specific error messages based on error code
+      if (rpcError.code === '42883') {
+        // Function doesn't exist - database not migrated
+        return actionError('Sistema no actualizado. Contacte al administrador.')
+      }
 
-    // Update appointment
-    const { error: updateError } = await supabase
-      .from('appointments')
-      .update({
-        start_time: newDateTime.toISOString(),
-        end_time: newEndDateTime.toISOString(),
-        status: 'pending', // Reset to pending for re-confirmation
-      })
-      .eq('id', appointmentId)
-
-    if (updateError) {
-      logger.error('Reschedule appointment error', {
-        appointmentId,
-        tenantId: appointment.tenant_id,
-        newDate,
-        newTime,
-        error: updateError instanceof Error ? updateError.message : String(updateError),
-      })
       return actionError('Error al reprogramar la cita')
+    }
+
+    // Handle atomic function response
+    if (!result?.success) {
+      const errorMessage = result?.message || 'Error al reprogramar la cita'
+      
+      logger.warn('Reschedule appointment rejected', {
+        appointmentId,
+        errorCode: result?.error,
+        message: errorMessage,
+      })
+
+      return actionError(errorMessage)
     }
 
     // Revalidate paths
@@ -208,7 +161,138 @@ export const rescheduleAppointment = withActionAuth(
     revalidatePath(`/[clinic]/portal/dashboard`)
     revalidatePath(`/[clinic]/portal/schedule`)
 
+    logger.info('Appointment rescheduled successfully', {
+      appointmentId,
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      newStartTime: result.new_start_time,
+      newEndTime: result.new_end_time,
+    })
+
     return actionSuccess({ newDate, newTime })
+  }
+)
+
+/**
+ * Book a new appointment
+ * Pet owners and staff can book appointments
+ * 
+ * Uses atomic database function to prevent race condition double-booking.
+ * The function uses row-level locks to serialize concurrent booking attempts.
+ */
+export const bookAppointment = withActionAuth(
+  async (
+    { user, profile, supabase },
+    params: {
+      tenantId: string
+      petId: string
+      serviceId: string
+      vetId: string
+      startTime: string // ISO 8601 format
+      durationMinutes?: number
+      reason?: string
+      notes?: string
+    }
+  ) => {
+    const {
+      tenantId,
+      petId,
+      serviceId,
+      vetId,
+      startTime,
+      durationMinutes = 30,
+      reason,
+      notes,
+    } = params
+
+    // Validate tenant access
+    if (profile.tenant_id !== tenantId) {
+      return actionError('No tienes acceso a esta clínica')
+    }
+
+    // Parse and validate start time
+    const startDateTime = new Date(startTime)
+    if (isNaN(startDateTime.getTime())) {
+      return actionError('Fecha u hora inválida')
+    }
+
+    if (startDateTime < new Date()) {
+      return actionError('La fecha de la cita debe ser en el futuro')
+    }
+
+    // Use atomic booking function to prevent race conditions
+    // This function acquires row locks, validates entities, checks for conflicts,
+    // and creates the appointment in a single atomic operation
+    const { data: result, error: rpcError } = await supabase.rpc('book_appointment_atomic', {
+      p_tenant_id: tenantId,
+      p_pet_id: petId,
+      p_service_id: serviceId,
+      p_vet_id: vetId,
+      p_start_time: startTime,
+      p_duration_minutes: durationMinutes,
+      p_reason: reason || null,
+      p_notes: notes || null,
+      p_booked_by: user.id,
+    })
+
+    if (rpcError) {
+      logger.error('Book appointment RPC error', {
+        tenantId,
+        petId,
+        serviceId,
+        vetId,
+        userId: user.id,
+        error: rpcError.message,
+        code: rpcError.code,
+      })
+
+      // Provide specific error messages based on error code
+      if (rpcError.code === '42883') {
+        // Function doesn't exist - database not migrated
+        return actionError('Sistema no actualizado. Contacte al administrador.')
+      }
+
+      return actionError('Error al crear la cita')
+    }
+
+    // Handle atomic function response
+    if (!result?.success) {
+      const errorMessage = result?.message || 'Error al crear la cita'
+
+      logger.warn('Book appointment rejected', {
+        tenantId,
+        petId,
+        errorCode: result?.error,
+        message: errorMessage,
+      })
+
+      return actionError(errorMessage)
+    }
+
+    // Revalidate paths
+    revalidatePath(`/[clinic]/portal/appointments`)
+    revalidatePath(`/[clinic]/portal/dashboard`)
+    revalidatePath(`/[clinic]/portal/schedule`)
+    revalidatePath(`/[clinic]/dashboard/appointments`)
+    revalidatePath(`/[clinic]/dashboard/calendar`)
+
+    logger.info('Appointment booked successfully', {
+      appointmentId: result.appointment_id,
+      tenantId,
+      petId,
+      serviceId,
+      vetId,
+      userId: user.id,
+      startTime: result.start_time,
+      endTime: result.end_time,
+    })
+
+    return actionSuccess({
+      appointmentId: result.appointment_id,
+      startTime: result.start_time,
+      endTime: result.end_time,
+      status: result.status,
+    })
   }
 )
 

@@ -427,7 +427,8 @@ export async function createAppointmentJson(input: {
     .single()
   const clinicDisplayName = tenant?.name || clinic
 
-  // Send Confirmation Email
+  // Send Confirmation Email (Epic 3.5)
+  let emailFailed = false
   try {
     const userEmail = user.email || 'correo_desconocido@example.com'
     const userName = user.user_metadata?.full_name || user.email
@@ -451,6 +452,7 @@ export async function createAppointmentJson(input: {
       }),
     })
   } catch (emailError) {
+    emailFailed = true
     logger.error('Failed to send appointment confirmation email (JSON)', {
       error: emailError instanceof Error ? emailError : undefined,
       userId: user.id,
@@ -461,9 +463,13 @@ export async function createAppointmentJson(input: {
 
   revalidatePath(`/${clinic}/portal/dashboard`)
 
+  // Epic 3.5: Notify user if email failed
   return {
     success: true,
-    message: 'Cita creada exitosamente',
+    message: emailFailed 
+      ? 'Cita creada exitosamente. Nota: No pudimos enviar el correo de confirmación, pero tu cita está guardada.'
+      : 'Cita creada exitosamente',
+    warning: emailFailed ? 'No se pudo enviar el correo de confirmación' : undefined,
   }
 }
 
@@ -710,7 +716,8 @@ export async function createMultiServiceAppointmentJson(input: {
     .single()
   const clinicDisplayName = tenant?.name || clinic
 
-  // Send Confirmation Email for the group
+  // Send Confirmation Email for the group (Epic 3.5)
+  let emailFailed = false
   try {
     const userEmail = user.email || 'correo_desconocido@example.com'
     const userName = user.user_metadata?.full_name || user.email
@@ -741,6 +748,7 @@ export async function createMultiServiceAppointmentJson(input: {
       }),
     })
   } catch (emailError) {
+    emailFailed = true
     logger.error('Failed to send multi-service confirmation email', {
       error: emailError instanceof Error ? emailError : undefined,
       userId: user.id,
@@ -752,9 +760,14 @@ export async function createMultiServiceAppointmentJson(input: {
 
   revalidatePath(`/${clinic}/portal/dashboard`)
 
+  // Epic 3.5: Notify user if email failed
+  const baseMessage = service_ids.length > 1 ? 'Citas creadas exitosamente' : 'Cita creada exitosamente'
   return {
     success: true,
-    message: service_ids.length > 1 ? 'Citas creadas exitosamente' : 'Cita creada exitosamente',
+    message: emailFailed 
+      ? `${baseMessage}. Nota: No pudimos enviar el correo de confirmación, pero tus citas están guardadas.`
+      : baseMessage,
+    warning: emailFailed ? 'No se pudo enviar el correo de confirmación' : undefined,
     data: {
       booking_group_id: result.booking_group_id,
       appointment_ids: result.appointment_ids,

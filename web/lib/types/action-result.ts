@@ -19,6 +19,11 @@ export type FieldErrors = Record<string, string>
  * return { success: true }
  * ```
  *
+ * @example Success with warning (Epic 3.5)
+ * ```ts
+ * return { success: true, message: 'Guardado', warning: 'Email no enviado' }
+ * ```
+ *
  * @example General error
  * ```ts
  * return { success: false, error: 'No autorizado' }
@@ -34,7 +39,7 @@ export type FieldErrors = Record<string, string>
  * ```
  */
 export type ActionResult<T = void> =
-  | { success: true; data?: T; message?: string }
+  | { success: true; data?: T; message?: string; warning?: string }
   | { success: false; error: string; fieldErrors?: FieldErrors }
 
 /**
@@ -42,7 +47,7 @@ export type ActionResult<T = void> =
  */
 export function isSuccess<T>(
   result: ActionResult<T>
-): result is { success: true; data?: T; message?: string } {
+): result is { success: true; data?: T; message?: string; warning?: string } {
   return result.success === true
 }
 

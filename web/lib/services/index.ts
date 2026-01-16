@@ -1,53 +1,78 @@
 /**
- * Service Layer - Barrel Export
+ * Service Layer Exports
  *
- * All domain services are exported from this file for convenient importing.
+ * Central export point for all business logic services.
+ * Services encapsulate database operations, validation, and business rules.
  *
  * @example
  * ```typescript
- * import { AppointmentService, InvoiceService } from '@/lib/services';
- * import type { ServiceResult } from '@/lib/services';
+ * import { PetService, AppointmentService } from '@/lib/services';
+ *
+ * const petService = new PetService(supabase);
+ * const result = await petService.list(ownerId, tenantId);
  * ```
  */
 
-// Base service and types
-export { BaseService, type ServiceResult, type ServiceSuccess, type ServiceError } from './base-service';
+export { BaseService } from './base-service';
+export type { ServiceResult } from './base-service';
 
-// Domain services
-export { AppointmentService, type AppointmentListFilters, type SlotAvailabilityOptions } from './appointment-service';
-export { 
-  InvoiceService, 
-  type InvoiceListFilters, 
-  type CreateInvoiceInput,
-  type UpdateInvoiceInput,
-  type RevenueSummary
-} from './invoice-service';
-export { 
-  PetService, 
-  type PetListFilters,
-  type CreatePetData,
-  type UpdatePetData
+export { PetService } from './pet-service';
+export type {
+  PetListFilters,
+  CreatePetData,
+  UpdatePetData,
 } from './pet-service';
-export {
-  PaymentService,
-  type ProcessPaymentInput,
-  type PaymentListFilters,
-  type Payment,
-  type PaymentWithInvoice,
-  type PaymentMethod,
-  type PaymentStatus
+
+export { AppointmentService } from './appointment-service';
+export type {
+  AppointmentFilters,
+  CreateAppointmentData,
+  UpdateAppointmentData,
+  CheckInData,
+  CompleteAppointmentData,
+  CancelAppointmentData,
+  AvailableSlot,
+  SlotFilters,
+} from './appointment-service';
+
+export { InvoiceService } from './invoice-service';
+export type {
+  InvoiceFilters,
+  CreateInvoiceData,
+  InvoiceLineItem,
+  PaymentData,
+  RefundData,
+} from './invoice-service';
+
+export { PaymentService } from './payment-service';
+export type {
+  PaymentFilters,
+  ProcessPaymentData,
+  UpdatePaymentStatusData,
 } from './payment-service';
-export {
-  StoreService,
-  type Product,
-  type ProductWithStock,
-  type Cart,
-  type CartItem,
-  type Order,
-  type OrderWithItems,
-  type CheckoutInput,
-  type ProductFilters
+
+export { StoreService } from './store-service';
+export type {
+  ProductFilters,
+  CartItem,
+  CheckoutData,
 } from './store-service';
+
+export { MedicalRecordService } from './medical-record-service';
+export type {
+  MedicalRecordType,
+  VaccineStatus,
+  MedicalRecord,
+  Vaccine,
+  Prescription,
+  CreateMedicalRecordData,
+  CreateVaccineData,
+  CreatePrescriptionData,
+  MedicalRecordFilters,
+  VaccineFilters,
+} from './medical-record-service';
 
 // Add more services as they're created:
 // export { InventoryService } from './inventory-service';
+// export { UserService } from './user-service';
+// export { MessagingService } from './messaging-service';

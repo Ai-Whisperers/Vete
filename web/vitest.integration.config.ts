@@ -7,39 +7,45 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './'),
-      redis: resolve(__dirname, './tests/__mocks__/redis.ts'),
-      'server-only': resolve(__dirname, './tests/__mocks__/server-only.ts'),
     },
   },
   test: {
     globals: true,
-    environment: 'node', // Integration tests often run better in node env for DB access, though jsdom is fine too. Let's stick to node or jsdom? Original was jsdom. DB client works in both.
-    // Use the specific setup file that DOES NOT mock Supabase
-    setupFiles: ['./vitest.integration.setup.ts'],
+    environment: 'node', // Node environment for real database operations
+    
+    // NO setup files - avoid global mocks
+    setupFiles: [],
+    
+    // Longer timeout for database operations
+    testTimeout: 30000,
+    
+    // Test file patterns
+    include: ['tests/integration/**/*.test.ts', 'tests/integration/**/*.test.tsx'],
+    
+    // Exclude other test types
+    exclude: ['node_modules/**', 'tests/unit/**', 'tests/api/**', 'tests/e2e/**'],
+    
+    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      reportsDirectory: './coverage-integration',
+      reportsDirectory: './coverage/integration',
       exclude: [
         'node_modules/**',
-        '.next/**',
         'tests/__fixtures__/**',
         'tests/__helpers__/**',
-        '**/*.d.ts',
-        '**/*.config.*',
+        'tests/__mocks__/**',
       ],
     },
-    testTimeout: 30000, // Longer timeout for integration tests
-    include: ['tests/integration/**/*.test.ts', 'tests/integration/**/*.test.tsx'],
-    // Exclude E2E tests
-    exclude: ['node_modules/**', 'e2e/**', '.next/**'],
+    
+    // Reporter
     reporters: ['verbose'],
-    pool: 'forks', // Forks might be better for DB isolation than threads
+    
+    // Pool configuration - use forks to completely isolate from mocks
+    pool: 'forks',
     isolate: true,
-    sequence: {
-      shuffle: false,
-    },
-    retry: 0, // Don't retry integration tests blindly
-    watch: false,
+    
+    // No retry for integration tests (they should be deterministic)
+    retry: 0,
   },
 })

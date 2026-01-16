@@ -2,11 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/lib/hooks/use-toast'
-import { generatePrescriptionPDF } from '@/lib/pdf/prescription-generator'
 import dynamic from 'next/dynamic'
 import type { ClinicData } from '@/lib/types'
-import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
 import { DrugSearch } from '@/components/clinical/drug-search'

@@ -30,11 +30,15 @@ afterEach(() => {
 // Default Supabase Mock (for tests that don't use mockState)
 // =============================================================================
 
-// Check if this is a load test (real database connection needed)
-const isLoadTest = process.env.VITEST_POOL_ID?.includes('load')
+// Check if we should skip mocking (for load tests, integration tests, or when explicitly disabled)
+const skipMocking = 
+  process.env.SKIP_MOCKS === 'true' ||
+  process.env.VITEST_POOL_ID?.includes('load') ||
+  process.env.VITEST_POOL_ID?.includes('integration') || 
+  process.argv.some(arg => arg.includes('integration'))
 
-// Mock Supabase client globally as fallback (skip for load tests)
-if (!isLoadTest) {
+// Mock Supabase client globally as fallback (skip when real database needed)
+if (!skipMocking) {
   vi.mock('@supabase/supabase-js', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@supabase/supabase-js')>()
     return {

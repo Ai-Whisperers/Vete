@@ -72,7 +72,18 @@ export type {
   VaccineFilters,
 } from './medical-record-service';
 
+export { UserService } from './user-service';
+export type {
+  UserRole,
+  ContactMethod,
+  DocumentType,
+  UserProfile,
+  CreateUserData,
+  UpdateUserData,
+  UserListFilters,
+  ClinicInvite,
+} from './user-service';
+
 // Add more services as they're created:
 // export { InventoryService } from './inventory-service';
-// export { UserService } from './user-service';
 // export { MessagingService } from './messaging-service';

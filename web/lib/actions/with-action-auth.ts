@@ -25,12 +25,31 @@ interface ActionAuthOptions {
 /**
  * Wraps a server action with automatic authentication and authorization.
  * IMPORTANT: The file using this wrapper MUST have 'use server' at the top.
+ *
+ * Supports both direct calls and useActionState usage:
+ * - Direct: action(formData) -> ActionResult
+ * - useActionState: action(prevState, formData) -> ActionResult
  */
 export function withActionAuth<T = void, Args extends unknown[] = []>(
   action: AuthenticatedAction<T, Args>,
   options: ActionAuthOptions = {}
 ) {
-  return async (...args: Args): Promise<ActionResult<T>> => {
+  // Return function that handles both (formData) and (prevState, formData) signatures
+  return async (...rawArgs: unknown[]): Promise<ActionResult<T>> => {
+    // Detect if called from useActionState (first arg is prevState, not FormData)
+    // useActionState passes (prevState, formData) where prevState is our ActionResult or null
+    let args: Args
+    if (
+      rawArgs.length >= 2 &&
+      rawArgs[1] instanceof FormData &&
+      (rawArgs[0] === null || (typeof rawArgs[0] === 'object' && rawArgs[0] !== null && 'success' in rawArgs[0]))
+    ) {
+      // Called from useActionState: (prevState, formData, ...rest)
+      args = rawArgs.slice(1) as Args
+    } else {
+      // Direct call: (formData, ...rest)
+      args = rawArgs as Args
+    }
     const supabase = await createClient()
 
     const {

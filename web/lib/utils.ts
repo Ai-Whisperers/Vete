@@ -1,11 +1,7 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
 /**
- * Utility function for merging Tailwind CSS classes
- * Used by shadcn/ui components
+ * Utility Functions
+ *
+ * This file re-exports all utilities from lib/utils/.
+ * Imports from '@/lib/utils' will work seamlessly.
  */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-export * from './utils/sanitize'
+export * from './utils/index'

@@ -81,8 +81,11 @@ export function useQuickAddForm({ slotInfo, isOpen, services }: UseQuickAddFormP
           const data = await response.json()
           setConflicts(data.conflicts || [])
         }
-      } catch {
-        // Silently fail - conflicts won't prevent booking
+      } catch (error) {
+        // Log availability check failure - non-critical, conflicts won't prevent booking
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[QuickAdd/checkAvailability] Failed to check conflicts:', error)
+        }
       } finally {
         setIsCheckingAvailability(false)
       }

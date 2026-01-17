@@ -61,7 +61,7 @@ export const deleteProduct = withActionAuth(
         const fileName = urlParts.slice(-3).join('/') // products/tenant_id/timestamp.ext
         await supabase.storage.from('products').remove([fileName])
       } catch (e) {
-        // Silently fail - not critical if image cleanup fails
+        // Log but continue - image cleanup is non-critical, product is already deleted
         logger.warn('Failed to delete product image', {
           error: e instanceof Error ? e.message : 'Unknown error',
           productId,

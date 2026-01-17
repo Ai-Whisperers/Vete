@@ -1,2 +1,0 @@
-consent_preference_audit
-consent_preferences

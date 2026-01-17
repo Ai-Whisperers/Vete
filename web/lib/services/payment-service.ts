@@ -73,8 +73,10 @@ export interface ProcessPaymentInput {
   invoice_id: string;
   amount: number;
   method: PaymentMethod; // Maps to payment_method in DB
-  reference_number?: string | null; // DB column name
+  reference_number?: string | null; // Legacy DB column
+  transaction_reference?: string | null; // External transaction reference
   notes?: string | null;
+  stripe_payment_intent_id?: string | null; // For Stripe payments
 }
 
 /**

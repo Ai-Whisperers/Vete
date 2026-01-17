@@ -297,9 +297,15 @@ export abstract class BaseService {
     data: Record<string, unknown>,
     requiredFields: string[]
   ): void {
-    const missing = requiredFields.filter(
-      (field) => !data[field] || (typeof data[field] === 'string' && !data[field].trim())
-    );
+    const missing = requiredFields.filter((field) => {
+      const value = data[field];
+      // Null or undefined are missing
+      if (value === null || value === undefined) return true;
+      // Empty strings or whitespace-only strings are missing
+      if (typeof value === 'string' && !value.trim()) return true;
+      // 0, false, and other falsy values are VALID
+      return false;
+    });
 
     if (missing.length > 0) {
       throw new Error(`Campos requeridos faltantes: ${missing.join(', ')}`);

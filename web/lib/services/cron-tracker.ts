@@ -15,6 +15,7 @@
 
 import { createServiceClient } from '@/lib/supabase/service'
 import { logger } from '@/lib/logger'
+import { alertOnCronFailure } from './cron-alerting'
 
 // =============================================================================
 // Types
@@ -127,6 +128,16 @@ export async function trackCronExecution<T extends CronExecutionResult>(
       runId,
       durationMs: Date.now() - startTime,
     })
+
+    // Send alert for failed job
+    try {
+      await alertOnCronFailure(jobName, errorMessage, runId)
+    } catch (alertError) {
+      // Don't fail tracking if alerting fails
+      logger.warn(`Failed to send alert for ${jobName}`, {
+        error: alertError instanceof Error ? alertError.message : 'Unknown',
+      })
+    }
 
     return {
       success: false,

@@ -131,7 +131,7 @@ try {
 
   // Check each critical table
   let tablesWithRLS = 0;
-  let tablesWithoutRLS = [];
+  const tablesWithoutRLS = [];
 
   for (const table of CRITICAL_TABLES) {
     // Query information_schema for RLS status (not available in standard schemas)

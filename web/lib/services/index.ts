@@ -269,3 +269,36 @@ export type {
   LostPetFilters,
   DiseaseReportFilters,
 } from './safety-service';
+
+export { VaccineService } from './vaccine-service';
+export type {
+  VaccineStatus as VaccineRecordStatus,
+  VaccineRoute,
+  ReactionSeverity,
+  ReactionType,
+  Vaccine as VaccineRecord,
+  VaccineWithRelations,
+  VaccineTemplate,
+  VaccineReaction,
+  RecordVaccineInput,
+  ScheduleVaccineInput,
+  RecordReactionInput,
+  VaccineFilters as VaccineRecordFilters,
+} from './vaccine-service';
+
+export { ReminderService } from './reminder-service';
+export type {
+  ReminderType,
+  ReminderStatus,
+  RuleType,
+  NotificationChannel,
+  NotificationStatus,
+  ReminderRule,
+  Reminder,
+  ReminderWithRelations,
+  Notification,
+  CreateRuleInput,
+  CreateReminderInput,
+  ReminderFilters,
+  NotificationFilters,
+} from './reminder-service';

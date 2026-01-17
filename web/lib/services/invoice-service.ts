@@ -30,6 +30,11 @@ import type {
   RecordPaymentInput,
   Refund,
 } from '@/lib/types/entities/invoice';
+import {
+  mapInvoiceWithDetails,
+  mapInvoicesWithDetails,
+  type RawInvoiceWithDetails,
+} from './mappers/invoice-mapper';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -201,7 +206,7 @@ export class InvoiceService extends BaseService {
         }
 
         return {
-          invoices: (data as unknown as InvoiceWithDetails[]) || [],
+          invoices: mapInvoicesWithDetails((data || []) as RawInvoiceWithDetails[]),
           count: count || 0,
           page,
           limit,
@@ -262,7 +267,7 @@ export class InvoiceService extends BaseService {
           throw new Error('No tiene permisos para ver esta factura');
         }
 
-        return invoice as unknown as InvoiceWithDetails;
+        return mapInvoiceWithDetails(invoice as RawInvoiceWithDetails);
       },
       'Error al cargar factura',
       { context: { invoiceId: id, tenantId } }
@@ -1022,7 +1027,7 @@ export class InvoiceService extends BaseService {
           throw new Error(this.mapDatabaseError(error));
         }
 
-        return (invoices || []) as unknown as InvoiceWithDetails[];
+        return mapInvoicesWithDetails((invoices || []) as RawInvoiceWithDetails[]);
       },
       'Error al cargar facturas vencidas',
       { context: { tenantId } }

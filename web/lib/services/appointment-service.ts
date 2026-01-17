@@ -27,6 +27,11 @@ import type {
   UpdateAppointmentInput,
   AppointmentSlot,
 } from '@/lib/types/entities/appointment';
+import {
+  mapAppointmentsWithDetails,
+  mapAppointmentWithDetails,
+  type RawAppointmentWithDetails,
+} from './mappers/appointment-mapper';
 
 // =============================================================================
 // SERVICE-SPECIFIC TYPES
@@ -175,7 +180,7 @@ export class AppointmentService extends BaseService {
         const { data, error } = await query;
 
         if (error) throw error;
-        return data as unknown as AppointmentWithDetails[];
+        return mapAppointmentsWithDetails(data as RawAppointmentWithDetails[]);
       },
       'Error al obtener las citas',
       { context: { tenantId, filters } }
@@ -231,7 +236,7 @@ export class AppointmentService extends BaseService {
         if (error) throw error;
         if (!data) throw new Error('Cita no encontrada');
 
-        return data as AppointmentWithDetails;
+        return mapAppointmentWithDetails(data as RawAppointmentWithDetails);
       },
       'Error al obtener la cita',
       { context: { appointmentId: id, tenantId } }
@@ -247,15 +252,13 @@ export class AppointmentService extends BaseService {
   async create(input: CreateAppointmentInput): Promise<ServiceResult<Appointment>> {
     return this.handleError(
       async () => {
-        // Validate required fields
-        this.validateRequiredFields(input as unknown as Record<string, unknown>, [
-          'tenant_id',
-          'pet_id',
-          'start_time',
-          'end_time',
-          'reason',
-          'created_by',
-        ]);
+        // Validate required fields using type-safe approach
+        const requiredFields = ['tenant_id', 'pet_id', 'start_time', 'end_time', 'reason', 'created_by'] as const;
+        for (const field of requiredFields) {
+          if (!input[field]) {
+            throw new Error(`Campo requerido: ${field}`);
+          }
+        }
 
         // Check for overlapping appointments
         const { data: overlapping } = await this.supabase

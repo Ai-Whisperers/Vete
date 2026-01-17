@@ -33,6 +33,10 @@ import type {
   CreatePetInput,
   UpdatePetInput,
 } from '@/lib/types/entities/pet';
+import {
+  mapPetsWithOwner,
+  type RawPetWithOwner,
+} from './mappers/pet-mapper';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -504,7 +508,7 @@ export class PetService extends BaseService {
           throw new Error(this.mapDatabaseError(error));
         }
 
-        return (data || []) as unknown as PetWithOwner[];
+        return mapPetsWithOwner((data || []) as RawPetWithOwner[]);
       },
       'Error al cargar mascotas con dueños',
       { context: { tenantId, filters } }

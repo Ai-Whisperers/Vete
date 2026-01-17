@@ -146,6 +146,35 @@
     "default_max_iterations": 100,
     "state_dir": ".opencode/"
   },
+  "mcpServers": {
+    "vete-supabase-tenant": {
+      "command": "node",
+      "args": ["web/mcp/dist/supabase-tenant-wrapper.js"],
+      "env": {
+        "NEXT_PUBLIC_SUPABASE_URL": "https://okddppczckbjdotrxiev.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c"
+      },
+      "// DESCRIPTION": "Multi-tenant safe Supabase queries with automatic tenant_id filtering"
+    },
+    "veterinary-tools": {
+      "command": "node",
+      "args": ["web/mcp/dist/veterinary-server.js"],
+      "env": {
+        "NEXT_PUBLIC_SUPABASE_URL": "https://okddppczckbjdotrxiev.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c"
+      },
+      "// DESCRIPTION": "Spanish-first veterinary tools: appointments, medical history, vaccines"
+    },
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp"],
+      "env": {
+        "NEXT_DEV_PORT": "3000"
+      },
+      "// DESCRIPTION": "Next.js DevTools - route analysis, runtime diagnostics, doc search",
+      "// USAGE": "Start dev server first: npm run dev in web/"
+    }
+  },
   "google_auth": true,
   "auto_update": true
 }

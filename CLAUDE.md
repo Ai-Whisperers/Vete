@@ -23,6 +23,7 @@
 | **Language** | All UI text in Spanish |
 | **Server-first** | Default to Server Components |
 | **Auth** | Every API route checks auth first |
+| **Error Handling** | NEVER silently swallow errors - always log or rethrow |
 
 ## Critical Warnings
 
@@ -33,7 +34,32 @@
 ⛔ NEVER skip tenant_id in queries
 ⛔ NEVER use raw SQL in components - use Supabase client
 ⛔ NEVER commit .env files or credentials
+⛔ NEVER silently swallow errors in catch blocks
 ```
+
+### Error Handling (MANDATORY)
+
+**"Throw it in the ocean and hope it floats" is FORBIDDEN.**
+
+```typescript
+// ❌ FORBIDDEN patterns
+try { await op(); } catch (e) { /* silently fail */ }
+try { await op(); } catch (e) { return null; }
+try { await op(); } catch (e) { /* not critical */ }
+
+// ✅ REQUIRED patterns
+try {
+  await op();
+} catch (error) {
+  console.error('[Module/fn] Error:', error);
+  throw error; // OR return { success: false, error: msg }
+}
+```
+
+Every catch block MUST either:
+1. **Log + Rethrow** - For critical operations
+2. **Log + Return structured error** - For service methods
+3. **Log warning + Fallback** - For truly optional operations (document why)
 
 ---
 

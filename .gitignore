@@ -70,3 +70,21 @@ supabase/supabase/
 .worktrees/
 .security-key
 logs/security/
+
+# Temp Claude files
+tmpclaude*
+
+# Backup files
+*.backup
+
+# Archive (old planning docs)
+archive/
+
+# OpenCode
+.opencode/
+
+# Ralphy
+.ralphy/
+
+# AntiGravity
+.antigravity/

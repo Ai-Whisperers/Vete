@@ -20,7 +20,7 @@ interface Appointment {
   id: string
   start_time: string
   end_time?: string
-  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+  status: 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
   service?: {
     id: string
     name: string

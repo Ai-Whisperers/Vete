@@ -69,7 +69,7 @@ interface Appointment {
   id: string
   start_time: string
   end_time?: string
-  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+  status: 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
   service?: {
     id: string
     name: string
@@ -99,8 +99,8 @@ interface Invoice {
   id: string
   invoice_number: string
   total: number
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
-  due_date?: string
+  status: 'draft' | 'sent' | 'viewed' | 'partial' | 'paid' | 'overdue' | 'void' | 'refunded' | 'cancelled'
+  due_date?: string | null
   created_at: string
 }
 

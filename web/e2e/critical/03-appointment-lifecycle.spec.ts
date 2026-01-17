@@ -16,23 +16,17 @@
 
 /* eslint-disable no-console */
 import { test, expect, Page } from '@playwright/test'
+import { TEST_USERS, TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
 
-const TENANT_SLUG = 'adris'
+const TENANT_SLUG = E2E_TEST_TENANT
 const BOOKING_URL = `/${TENANT_SLUG}/book`
 const STAFF_DASHBOARD_URL = `/${TENANT_SLUG}/dashboard/appointments`
 const PORTAL_APPOINTMENTS_URL = `/${TENANT_SLUG}/portal/appointments`
 const LOGIN_URL = `/${TENANT_SLUG}/portal/login`
 
-// Test credentials (should exist in test database)
-const OWNER_USER = {
-  email: 'owner@test.com',
-  password: 'TestPassword123!',
-}
-
-const VET_USER = {
-  email: 'vet@test.com',
-  password: 'TestPassword123!',
-}
+// Use centralized test credentials
+const OWNER_USER = TEST_USERS.owner
+const VET_USER = TEST_USERS.vet
 
 /**
  * Helper: Login as specific user type

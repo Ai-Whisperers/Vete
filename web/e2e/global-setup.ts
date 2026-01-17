@@ -37,16 +37,33 @@ export const E2E_TEST_OWNER = {
   fullName: 'E2E Test Owner',
 }
 
+export const E2E_TEST_VET = {
+  email: 'e2e-vet@test.local',
+  password: 'E2ETestPassword123!',
+  fullName: 'E2E Test Vet',
+}
+
+export const E2E_TEST_ADMIN = {
+  email: 'e2e-admin@test.local',
+  password: 'E2ETestPassword123!',
+  fullName: 'E2E Test Admin',
+}
+
 // Store created IDs for cleanup
 export interface E2ETestData {
   ownerId: string
   ownerProfileId: string
+  vetId: string
+  vetProfileId: string
+  adminId: string
+  adminProfileId: string
   pets: Array<{ id: string; name: string; species: string }>
   vaccines: string[]
   products: Array<{ id: string; name: string; sku: string }>
   services: Array<{ id: string; name: string }>
   loyaltyPoints: number
   appointments: string[]
+  pendingBookingRequests: string[]
   invoices: string[]
   conversations: string[]
 }
@@ -135,6 +152,89 @@ async function setupTestOwner(supabase: SupabaseClient): Promise<{ userId: strin
   }
 
   return { userId, profileId: userId }
+}
+
+/**
+ * Creates or reuses test staff users (vet and admin)
+ */
+async function setupTestStaffUsers(
+  supabase: SupabaseClient
+): Promise<{ vetId: string; vetProfileId: string; adminId: string; adminProfileId: string }> {
+  console.log('[E2E Setup] Setting up test staff users...')
+
+  const staffUsers = [
+    { ...E2E_TEST_VET, role: 'vet' as const },
+    { ...E2E_TEST_ADMIN, role: 'admin' as const },
+  ]
+
+  const results: Record<string, { userId: string; profileId: string }> = {}
+
+  for (const staffUser of staffUsers) {
+    // Check if user already exists
+    const { data: existingUsers } = await supabase.auth.admin.listUsers()
+    const existingUser = existingUsers?.users?.find((u) => u.email === staffUser.email)
+
+    let userId: string
+
+    if (existingUser) {
+      console.log(`[E2E Setup] Reusing existing ${staffUser.role} user`)
+      userId = existingUser.id
+    } else {
+      // Create new auth user
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: staffUser.email,
+        password: staffUser.password,
+        email_confirm: true,
+      })
+
+      if (authError || !authData.user) {
+        throw new Error(`[E2E Setup] Failed to create ${staffUser.role} auth user: ${authError?.message}`)
+      }
+
+      userId = authData.user.id
+      console.log(`[E2E Setup] Created new ${staffUser.role} auth user`)
+    }
+
+    // Check if profile exists
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id, role')
+      .eq('id', userId)
+      .single()
+
+    if (!existingProfile) {
+      // Create profile with staff role
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: userId,
+        tenant_id: E2E_TEST_TENANT,
+        role: staffUser.role,
+        email: staffUser.email,
+        full_name: staffUser.fullName,
+        phone: staffUser.role === 'vet' ? '+595981654321' : '+595981999999',
+      })
+
+      if (profileError) {
+        throw new Error(`[E2E Setup] Failed to create ${staffUser.role} profile: ${profileError.message}`)
+      }
+      console.log(`[E2E Setup] Created ${staffUser.role} profile`)
+    } else if (existingProfile.role !== staffUser.role) {
+      // Update role if different
+      await supabase
+        .from('profiles')
+        .update({ role: staffUser.role })
+        .eq('id', userId)
+      console.log(`[E2E Setup] Updated ${staffUser.role} profile role`)
+    }
+
+    results[staffUser.role] = { userId, profileId: userId }
+  }
+
+  return {
+    vetId: results.vet.userId,
+    vetProfileId: results.vet.profileId,
+    adminId: results.admin.userId,
+    adminProfileId: results.admin.profileId,
+  }
 }
 
 /**
@@ -465,6 +565,83 @@ async function setupTestCoupon(supabase: SupabaseClient): Promise<void> {
 }
 
 /**
+ * Creates pending booking requests for staff scheduling tests
+ */
+async function setupTestPendingBookingRequests(
+  supabase: SupabaseClient,
+  pets: E2ETestData['pets'],
+  services: E2ETestData['services']
+): Promise<string[]> {
+  console.log('[E2E Setup] Setting up pending booking requests...')
+
+  const createdRequestIds: string[] = []
+
+  // Only create for first pet if we have pets and services
+  if (pets.length === 0 || services.length === 0) {
+    console.log('[E2E Setup] No pets or services available for booking requests')
+    return createdRequestIds
+  }
+
+  const pet = pets[0]
+  const service = services[0]
+
+  // Check if pending request already exists for this pet
+  const { data: existingRequests } = await supabase
+    .from('appointments')
+    .select('id')
+    .eq('pet_id', pet.id)
+    .eq('scheduling_status', 'pending_scheduling')
+    .neq('status', 'cancelled')
+
+  if (existingRequests && existingRequests.length > 0) {
+    console.log('[E2E Setup] Pending booking request already exists')
+    return existingRequests.map((r) => r.id)
+  }
+
+  // Create a pending booking request using sentinel time (23:30)
+  const sentinelDate = new Date()
+  sentinelDate.setHours(23, 30, 0, 0)
+  sentinelDate.setDate(sentinelDate.getDate() + 7) // 7 days in future
+
+  const endTime = new Date(sentinelDate)
+  endTime.setMinutes(endTime.getMinutes() + 30)
+
+  const { data: newRequest, error } = await supabase
+    .from('appointments')
+    .insert({
+      pet_id: pet.id,
+      tenant_id: E2E_TEST_TENANT,
+      reason: `E2E Test: ${service.name}`,
+      notes: 'Pending booking request for E2E testing',
+      start_time: sentinelDate.toISOString(),
+      end_time: endTime.toISOString(),
+      status: 'scheduled',
+      scheduling_status: 'pending_scheduling',
+      preferred_date_start: sentinelDate.toISOString().split('T')[0],
+      preferred_date_end: new Date(sentinelDate.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      preferred_time_of_day: 'morning',
+    })
+    .select('id')
+    .single()
+
+  if (error) {
+    console.warn(`[E2E Setup] Failed to create pending booking request: ${error.message}`)
+    return createdRequestIds
+  }
+
+  createdRequestIds.push(newRequest.id)
+
+  // Link service to appointment
+  await supabase.from('appointment_services').insert({
+    appointment_id: newRequest.id,
+    service_id: service.id,
+  })
+
+  console.log(`[E2E Setup] Created pending booking request: ${newRequest.id}`)
+  return createdRequestIds
+}
+
+/**
  * Creates loyalty points for test owner
  */
 async function setupTestLoyaltyPoints(
@@ -585,34 +762,45 @@ async function globalSetup(config: FullConfig): Promise<void> {
     // 1. Create test owner
     const { userId, profileId } = await setupTestOwner(supabase)
 
-    // 2. Create test pets
+    // 2. Create test staff users (vet and admin)
+    const { vetId, vetProfileId, adminId, adminProfileId } = await setupTestStaffUsers(supabase)
+
+    // 3. Create test pets
     const pets = await setupTestPets(supabase, userId)
 
-    // 3. Create vaccine records
+    // 4. Create vaccine records
     const vaccines = await setupTestVaccines(supabase, pets)
 
-    // 4. Create test products
+    // 5. Create test products
     const products = await setupTestProducts(supabase)
 
-    // 5. Create test services
+    // 6. Create test services
     const services = await setupTestServices(supabase)
 
-    // 6. Setup loyalty points
+    // 7. Setup loyalty points
     const loyaltyPoints = await setupTestLoyaltyPoints(supabase, userId)
 
-    // 7. Setup test coupon for discount validation
+    // 8. Setup test coupon for discount validation
     await setupTestCoupon(supabase)
+
+    // 9. Setup pending booking requests for staff scheduling tests
+    const pendingBookingRequests = await setupTestPendingBookingRequests(supabase, pets, services)
 
     // Compile test data
     const testData: E2ETestData = {
       ownerId: userId,
       ownerProfileId: profileId,
+      vetId,
+      vetProfileId,
+      adminId,
+      adminProfileId,
       pets,
       vaccines,
       products,
       services,
       loyaltyPoints,
       appointments: [],
+      pendingBookingRequests,
       invoices: [],
       conversations: [],
     }
@@ -628,11 +816,14 @@ async function globalSetup(config: FullConfig): Promise<void> {
     console.log('========================================\n')
     console.log('Test Data Summary:')
     console.log(`  Owner: ${E2E_TEST_OWNER.email}`)
+    console.log(`  Vet: ${E2E_TEST_VET.email}`)
+    console.log(`  Admin: ${E2E_TEST_ADMIN.email}`)
     console.log(`  Pets: ${pets.length}`)
     console.log(`  Vaccines: ${vaccines.length}`)
     console.log(`  Products: ${products.length}`)
     console.log(`  Services: ${services.length}`)
     console.log(`  Loyalty Points: ${loyaltyPoints}`)
+    console.log(`  Pending Booking Requests: ${pendingBookingRequests.length}`)
     console.log('')
   } catch (error) {
     console.error('\n[E2E Setup] FATAL ERROR:', error)

@@ -17,17 +17,15 @@
 
 import { test, expect, Page } from '@playwright/test'
 import { DEFAULT_TENANT } from '../fixtures/tenants'
+import { TEST_USERS } from '../fixtures/test-users'
 
 const STORE_URL = `/${DEFAULT_TENANT.slug}/store`
 const CART_URL = `/${DEFAULT_TENANT.slug}/cart`
 const CHECKOUT_URL = `/${DEFAULT_TENANT.slug}/cart/checkout`
 const LOGIN_URL = `/${DEFAULT_TENANT.slug}/portal/login`
 
-// Test user credentials
-const TEST_OWNER = {
-  email: 'owner@test.com',
-  password: 'TestPassword123!',
-}
+// Use centralized test credentials
+const TEST_OWNER = TEST_USERS.owner
 
 /**
  * Helper: Login via UI

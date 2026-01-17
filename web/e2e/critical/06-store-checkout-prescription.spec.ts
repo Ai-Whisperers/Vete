@@ -20,8 +20,9 @@
 /* eslint-disable no-console */
 import { test, expect, Page } from '@playwright/test'
 import path from 'path'
+import { TEST_USERS, E2E_TEST_TENANT } from '../fixtures/test-users'
 
-const TENANT_SLUG = 'adris'
+const TENANT_SLUG = E2E_TEST_TENANT
 const STORE_URL = `/${TENANT_SLUG}/store`
 const CART_URL = `/${TENANT_SLUG}/cart`
 const CHECKOUT_URL = `/${TENANT_SLUG}/cart/checkout`
@@ -29,15 +30,9 @@ const PORTAL_ORDERS_URL = `/${TENANT_SLUG}/store/orders`
 const STAFF_ORDERS_URL = `/${TENANT_SLUG}/dashboard/store/orders`
 const LOGIN_URL = `/${TENANT_SLUG}/portal/login`
 
-const OWNER_USER = {
-  email: 'owner@test.com',
-  password: 'TestPassword123!',
-}
-
-const ADMIN_USER = {
-  email: 'admin@test.com',
-  password: 'TestPassword123!',
-}
+// Use centralized test credentials
+const OWNER_USER = TEST_USERS.owner
+const ADMIN_USER = TEST_USERS.admin
 
 /**
  * Helper: Login as specific user type

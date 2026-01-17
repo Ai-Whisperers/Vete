@@ -16,21 +16,16 @@
 
 /* eslint-disable no-console */
 import { test, expect, Page } from '@playwright/test'
+import { TEST_USERS, E2E_TEST_TENANT } from '../fixtures/test-users'
 
-const TENANT_SLUG = 'adris'
+const TENANT_SLUG = E2E_TEST_TENANT
 const PORTAL_PETS_URL = `/${TENANT_SLUG}/portal/pets`
 const STAFF_PETS_URL = `/${TENANT_SLUG}/dashboard/pets`
 const LOGIN_URL = `/${TENANT_SLUG}/portal/login`
 
-const OWNER_USER = {
-  email: 'owner@test.com',
-  password: 'TestPassword123!',
-}
-
-const VET_USER = {
-  email: 'vet@test.com',
-  password: 'TestPassword123!',
-}
+// Use centralized test credentials
+const OWNER_USER = TEST_USERS.owner
+const VET_USER = TEST_USERS.vet
 
 async function login(page: Page, userType: 'owner' | 'vet'): Promise<void> {
   const credentials = userType === 'owner' ? OWNER_USER : VET_USER

@@ -102,6 +102,8 @@ export const POST = withApiAuth(
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
+
+    return NextResponse.json(data, { status: HTTP_STATUS.CREATED })
   },
   { roles: ['admin'], rateLimit: 'write' }
 )

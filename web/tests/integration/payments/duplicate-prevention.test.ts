@@ -178,7 +178,7 @@ vi.mock('@/lib/rate-limit', () => ({
 
 // Import after mocks
 import { POST as recordPayment } from '@/app/api/invoices/[id]/payments/route'
-import { logAudit } from '@/lib/audit'
+import { logAudit } from '@/lib/audit/logger'
 import { mockState, testStaffOnlyEndpoint, TENANTS } from '@/lib/test-utils'
 
 // =============================================================================

@@ -47,7 +47,7 @@ vi.mock('@/lib/audit', () => ({
 // Import after mocks
 import { POST } from '@/app/api/hospitalizations/[id]/discharge/route'
 import { generateHospitalizationInvoice } from '@/lib/billing/hospitalization'
-import { logAudit } from '@/lib/audit'
+import { logAudit } from '@/lib/audit/logger'
 
 // =============================================================================
 // Request Factories

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createClient } from '@/lib/supabase/server'
-import { getTodayAppointmentsForClinic } from '@/lib/appointments'
+import { getTodayAppointmentsForClinic } from '@/lib/domain/appointments/queries'
 
 // Mock the server client
 vi.mock('@/lib/supabase/server')

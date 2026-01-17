@@ -21,6 +21,25 @@ interface PDFDownloadButtonProps {
   notes?: string
 }
 
+// Props for dynamically imported PDF components
+interface PDFDownloadLinkProps {
+  document: React.ReactElement
+  fileName: string
+  children: (props: { loading: boolean }) => React.ReactNode
+}
+
+interface AppointmentTicketPDFProps {
+  clinicName: string
+  petName: string
+  date: string
+  startTime: string
+  endTime?: string
+  services: ServiceItem[]
+  totalDuration: number
+  totalPrice: number
+  notes?: string
+}
+
 /**
  * Client-only PDF download button that handles lazy loading of @react-pdf/renderer
  * This component isolates the ESM module loading from the main bundle
@@ -39,8 +58,8 @@ export function PDFDownloadButton({
   const [isClient, setIsClient] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [PDFComponents, setPDFComponents] = useState<{
-    PDFDownloadLink: React.ComponentType<any>
-    AppointmentTicketPDF: React.ComponentType<any>
+    PDFDownloadLink: React.ComponentType<PDFDownloadLinkProps>
+    AppointmentTicketPDF: React.ComponentType<AppointmentTicketPDFProps>
   } | null>(null)
 
   useEffect(() => {

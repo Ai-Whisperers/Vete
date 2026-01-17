@@ -126,6 +126,28 @@ export interface ProductFilters {
   in_stock_only?: boolean;
 }
 
+/**
+ * Cart item as stored in JSONB column
+ * This is the shape of items in store_carts.items[]
+ */
+export interface CartItemJsonb {
+  id: string;
+  sku: string;
+  name: string;
+  type: 'product' | 'service';
+  price: number;
+  quantity: number;
+  stock?: number;
+  image_url?: string | null;
+}
+
+/**
+ * Raw product row from Supabase with nested inventory
+ */
+interface ProductRow extends Product {
+  inventory?: { stock_quantity: number } | null;
+}
+
 // =============================================================================
 // STORE SERVICE
 // =============================================================================
@@ -179,22 +201,22 @@ export class StoreService extends BaseService {
         }
 
         // Map to ProductWithStock
-        const products = (data || []).map((p: any) => {
+        const products = (data || []).map((p: ProductRow) => {
           const stockQuantity = p.inventory?.stock_quantity || 0;
           return {
             ...p,
             stock_quantity: stockQuantity,
             is_in_stock: stockQuantity > 0,
             inventory: undefined, // Remove nested inventory
-          };
+          } as ProductWithStock;
         });
 
         // Filter by stock if requested
         if (in_stock_only) {
-          return products.filter((p: any) => p.is_in_stock);
+          return products.filter((p) => p.is_in_stock);
         }
 
-        return products as ProductWithStock[];
+        return products;
       },
       'Error al cargar productos',
       { context: { tenantId, filters } }
@@ -311,10 +333,10 @@ export class StoreService extends BaseService {
         }
 
         // Get current items array
-        const items = (cart.items as any[]) || [];
+        const items = (cart.items as CartItemJsonb[]) || [];
 
         // Check if product already in cart
-        const existingIndex = items.findIndex((item: any) => item.id === productId);
+        const existingIndex = items.findIndex((item) => item.id === productId);
 
         if (existingIndex >= 0) {
           // Update existing item quantity
@@ -419,10 +441,10 @@ export class StoreService extends BaseService {
         }
 
         // Get items array
-        const items = (cart.items as any[]) || [];
+        const items = (cart.items as CartItemJsonb[]) || [];
 
         // Find item by product ID
-        const itemIndex = items.findIndex((item: any) => item.id === itemId);
+        const itemIndex = items.findIndex((item) => item.id === itemId);
 
         if (itemIndex < 0) {
           throw new Error('Ítem del carrito no encontrado');
@@ -487,10 +509,10 @@ export class StoreService extends BaseService {
         }
 
         // Get items array
-        const items = (cart.items as any[]) || [];
+        const items = (cart.items as CartItemJsonb[]) || [];
 
         // Find item by product ID
-        const itemIndex = items.findIndex((item: any) => item.id === itemId);
+        const itemIndex = items.findIndex((item) => item.id === itemId);
 
         if (itemIndex < 0) {
           throw new Error('Ítem del carrito no encontrado');
@@ -682,11 +704,11 @@ export class StoreService extends BaseService {
 
     // Items are already in JSONB format with product info
     // Format: [{ id, sku, name, type, price, quantity, stock, image_url }]
-    const jsonbItems = (cart.items as any[]) || [];
+    const jsonbItems = (cart.items as CartItemJsonb[]) || [];
 
     // Enrich items with full product data if needed
     const enrichedItems = await Promise.all(
-      jsonbItems.map(async (item: any) => {
+      jsonbItems.map(async (item) => {
         // Get full product with current stock
         const { data: product } = await this.supabase
           .from('store_products')

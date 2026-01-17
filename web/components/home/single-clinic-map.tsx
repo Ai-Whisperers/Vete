@@ -20,12 +20,36 @@ export function SingleClinicMap({
   googleMapsId,
   mapButtonLabel = 'Ver en Google Maps',
 }: SingleClinicMapProps) {
-  // Leaflet component types (dynamically imported)
+  // Prop types for dynamically imported Leaflet components
+  interface MapContainerProps {
+    center: [number, number]
+    zoom: number
+    scrollWheelZoom?: boolean
+    dragging?: boolean
+    style?: React.CSSProperties
+    children?: React.ReactNode
+  }
+
+  interface TileLayerProps {
+    attribution: string
+    url: string
+  }
+
+  interface MarkerProps {
+    position: [number, number]
+    icon?: L.DivIcon
+    children?: React.ReactNode
+  }
+
+  interface PopupProps {
+    children?: React.ReactNode
+  }
+
   type LeafletComponents = {
-    MapContainer: React.ComponentType<any>
-    TileLayer: React.ComponentType<any>
-    Marker: React.ComponentType<any>
-    Popup: React.ComponentType<any>
+    MapContainer: React.ComponentType<MapContainerProps>
+    TileLayer: React.ComponentType<TileLayerProps>
+    Marker: React.ComponentType<MarkerProps>
+    Popup: React.ComponentType<PopupProps>
     L: typeof import('leaflet')
   }
 

@@ -264,55 +264,45 @@ describe('StoreService', () => {
   describe('addToCart', () => {
     it('should add product to new cart', async () => {
       const product = createMockProductWithStock();
-      const newCart = createMockCart();
+      const newCart = createMockCart({ id: 'cart-123', items: [] });
       const cartWithItem = createMockCart({
+        id: 'cart-123',
         items: [createMockCartItem()],
       });
 
-      let cartCreated = false;
+      // Track cart select calls to return different data
+      let cartSelectCalls = 0;
+
+      // Helper to create chainable mock
+      const createChainable = (finalValue: unknown) => {
+        const chain: Record<string, unknown> = {};
+        const methods = ['select', 'eq', 'neq', 'in', 'is', 'not', 'or', 'ilike', 'gte', 'lte', 'order', 'limit', 'range'];
+        methods.forEach(method => {
+          chain[method] = vi.fn().mockReturnValue(chain);
+        });
+        chain.single = vi.fn().mockResolvedValue(finalValue);
+        chain.maybeSingle = vi.fn().mockResolvedValue(finalValue);
+        return chain;
+      };
 
       mockClient.from.mockImplementation((table: string) => {
         if (table === 'store_products') {
-          return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                eq: vi.fn().mockReturnValue({
-                  single: vi.fn().mockResolvedValue({ data: product, error: null }),
-                }),
-              }),
-            }),
-          };
+          return createChainable({ data: product, error: null });
         }
         if (table === 'store_carts') {
-          if (!cartCreated) {
-            // First call - get cart (doesn't exist)
-            return {
-              select: vi.fn().mockReturnValue({
-                eq: vi.fn().mockReturnValue({
-                  eq: vi.fn().mockReturnValue({
-                    single: vi.fn().mockResolvedValue({ data: null, error: null }),
-                  }),
-                }),
-              }),
-              insert: vi.fn().mockImplementation(() => {
-                cartCreated = true;
-                return {
-                  select: vi.fn().mockReturnValue({
-                    single: vi.fn().mockResolvedValue({ data: newCart, error: null }),
-                  }),
-                };
-              }),
-              update: vi.fn().mockReturnValue({
-                eq: vi.fn().mockResolvedValue({ error: null }),
-              }),
-            };
-          }
-          // After creation - return cart
+          cartSelectCalls++;
+          // First call returns null (no cart), subsequent calls return cart
+          const cartData = cartSelectCalls === 1 ? null : cartWithItem;
+          const selectChain = createChainable({ data: cartData, error: null });
           return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: cartWithItem, error: null }),
+            ...selectChain,
+            insert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: newCart, error: null }),
               }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ data: null, error: null }),
             }),
           };
         }
@@ -373,17 +363,19 @@ describe('StoreService', () => {
 
   describe('getCart', () => {
     it('should return cart with items', async () => {
-      const cart = createMockCart({ items: [createMockCartItem()] });
+      const cart = createMockCart({ id: 'cart-123', items: [createMockCartItem()] });
       const product = createMockProductWithStock();
 
       mockClient.from.mockImplementation((table: string) => {
         if (table === 'store_carts') {
+          // Both queries to store_carts return the same cart
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({ data: cart, error: null }),
                 }),
+                single: vi.fn().mockResolvedValue({ data: cart, error: null }),
               }),
             }),
           };
@@ -434,8 +426,8 @@ describe('StoreService', () => {
 
   describe('updateCartItem', () => {
     it('should update item quantity', async () => {
-      const cart = createMockCart({ items: [createMockCartItem({ quantity: 1 })] });
-      const updatedCart = createMockCart({ items: [createMockCartItem({ quantity: 3 })] });
+      const cart = createMockCart({ id: 'cart-123', items: [createMockCartItem({ quantity: 1 })] });
+      const updatedCart = createMockCart({ id: 'cart-123', items: [createMockCartItem({ quantity: 3 })] });
       const inventory = { stock_quantity: 50 };
       const product = createMockProductWithStock();
 
@@ -447,10 +439,11 @@ describe('StoreService', () => {
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({ data: cart, error: null }),
                 }),
+                single: vi.fn().mockResolvedValue({ data: updatedCart, error: null }),
               }),
             }),
             update: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({ error: null }),
+              eq: vi.fn().mockResolvedValue({ data: null, error: null }),
             }),
           };
         }
@@ -534,8 +527,8 @@ describe('StoreService', () => {
 
   describe('removeFromCart', () => {
     it('should remove item from cart', async () => {
-      const cart = createMockCart({ items: [createMockCartItem()] });
-      const emptyCart = createMockCart({ items: [] });
+      const cart = createMockCart({ id: 'cart-123', items: [createMockCartItem()] });
+      const emptyCart = createMockCart({ id: 'cart-123', items: [] });
       const product = createMockProductWithStock();
 
       mockClient.from.mockImplementation((table: string) => {
@@ -546,10 +539,11 @@ describe('StoreService', () => {
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({ data: cart, error: null }),
                 }),
+                single: vi.fn().mockResolvedValue({ data: emptyCart, error: null }),
               }),
             }),
             update: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({ error: null }),
+              eq: vi.fn().mockResolvedValue({ data: null, error: null }),
             }),
           };
         }
@@ -600,6 +594,7 @@ describe('StoreService', () => {
   describe('checkout', () => {
     it('should create order from cart', async () => {
       const cart = createMockCart({
+        id: 'cart-123',
         items: [createMockCartItem()],
       });
       const order = createMockOrder();
@@ -613,6 +608,7 @@ describe('StoreService', () => {
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({ data: cart, error: null }),
                 }),
+                single: vi.fn().mockResolvedValue({ data: cart, error: null }),
               }),
             }),
           };
@@ -645,13 +641,13 @@ describe('StoreService', () => {
         }
         if (table === 'store_order_items') {
           return {
-            insert: vi.fn().mockResolvedValue({ error: null }),
+            insert: vi.fn().mockResolvedValue({ data: null, error: null }),
           };
         }
         if (table === 'store_cart_items') {
           return {
             delete: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({ error: null }),
+              eq: vi.fn().mockResolvedValue({ data: null, error: null }),
             }),
           };
         }
@@ -683,6 +679,7 @@ describe('StoreService', () => {
 
     it('should flag prescription required items', async () => {
       const cart = createMockCart({
+        id: 'cart-123',
         items: [createMockCartItem()],
       });
       const prescriptionProduct = createMockProductWithStock({ is_prescription_required: true });
@@ -696,6 +693,7 @@ describe('StoreService', () => {
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({ data: cart, error: null }),
                 }),
+                single: vi.fn().mockResolvedValue({ data: cart, error: null }),
               }),
             }),
           };
@@ -728,13 +726,13 @@ describe('StoreService', () => {
         }
         if (table === 'store_order_items') {
           return {
-            insert: vi.fn().mockResolvedValue({ error: null }),
+            insert: vi.fn().mockResolvedValue({ data: null, error: null }),
           };
         }
         if (table === 'store_cart_items') {
           return {
             delete: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({ error: null }),
+              eq: vi.fn().mockResolvedValue({ data: null, error: null }),
             }),
           };
         }

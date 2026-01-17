@@ -516,12 +516,12 @@ describe('UserService', () => {
     });
 
     it('should handle deletion errors', async () => {
+      // The delete method uses update().eq().eq().is() without single()
+      // So the error should be returned from .is()
       mockClient.from.mockReturnValue({
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue(createMockError('Foreign key violation', '23503')),
+        is: vi.fn().mockResolvedValue({ data: null, error: { message: 'Foreign key violation', code: '23503' } }),
       });
 
       const result = await service.delete('user-123', TENANT_ID, 'admin-789');

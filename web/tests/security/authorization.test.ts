@@ -145,9 +145,10 @@ const MANUAL_AUTH_WHITELIST = [
   'app/api/pets/[id]/route.ts', // Manual owner check
   'app/api/notifications/route.ts', // Filtered by user.id
   'app/api/notifications/mark-all-read/route.ts', // User's own notifications
-  'app/api/consent/audit/route.ts', // Filtered by user.id + tenant
-  'app/api/consent/export/route.ts', // User consent export
-  'app/api/consent/preferences/route.ts', // User preferences
+  'app/api/consents/preferences/audit/route.ts', // Filtered by user.id + tenant
+  'app/api/consents/preferences/export/route.ts', // User consent export
+  'app/api/consents/preferences/route.ts', // User preferences
+  'app/api/consents/preferences/analytics/route.ts', // Admin consent analytics
   'app/api/privacy/accept/route.ts', // User accepting policy
   'app/api/privacy/status/route.ts', // User's own status
   'app/api/user/notification-settings/route.ts', // User settings

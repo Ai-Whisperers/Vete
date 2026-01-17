@@ -415,7 +415,7 @@ export type {
 // WHATSAPP TYPES
 // =============================================================================
 export {
-  messageStatusConfig,
+  whatsAppStatusConfig,
   templateCategoryConfig,
   conversationTypeLabels,
   WHATSAPP_GREEN,

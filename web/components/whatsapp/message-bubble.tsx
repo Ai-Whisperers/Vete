@@ -3,7 +3,7 @@
 import * as Icons from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { messageStatusConfig, type WhatsAppMessage } from '@/lib/types/whatsapp'
+import { whatsAppStatusConfig, type WhatsAppMessage } from '@/lib/types/whatsapp'
 
 interface MessageBubbleProps {
   message: WhatsAppMessage
@@ -11,7 +11,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isOutbound = message.direction === 'outbound'
-  const statusConfig = messageStatusConfig[message.status]
+  const statusConfig = whatsAppStatusConfig[message.status]
 
   return (
     <div className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>

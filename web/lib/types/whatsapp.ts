@@ -1,6 +1,10 @@
 // WhatsApp Message Types
 export type MessageDirection = 'inbound' | 'outbound'
-export type MessageStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed'
+/**
+ * WhatsApp-specific message status (uses 'queued' instead of generic 'pending')
+ * Note: For generic message status, use MessageStatus from '@/lib/types/status'
+ */
+export type WhatsAppMessageStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed'
 export type ConversationType = 'appointment_reminder' | 'vaccine_reminder' | 'general' | 'support'
 export type TemplateCategory = ConversationType
 
@@ -12,7 +16,7 @@ export interface WhatsAppMessage {
   direction: MessageDirection
   content: string
   media_url?: string | null
-  status: MessageStatus
+  status: WhatsAppMessageStatus
   twilio_sid?: string | null
   conversation_type?: ConversationType | null
   related_id?: string | null
@@ -55,7 +59,7 @@ export interface WhatsAppConversation {
 // Extended conversation interface for UI display
 export interface Conversation extends WhatsAppConversation {
   last_message_direction?: MessageDirection
-  last_message_status?: MessageStatus
+  last_message_status?: WhatsAppMessageStatus
 }
 
 // Twilio webhook payload
@@ -71,8 +75,8 @@ export interface TwilioWhatsAppWebhook {
 }
 
 // Status Configuration
-export const messageStatusConfig: Record<
-  MessageStatus,
+export const whatsAppStatusConfig: Record<
+  WhatsAppMessageStatus,
   { label: string; icon: string; className: string }
 > = {
   queued: { label: 'En cola', icon: 'clock', className: 'text-gray-400' },

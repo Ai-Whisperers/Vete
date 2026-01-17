@@ -15,6 +15,10 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import type { MessageStatus } from '@/lib/types/status';
+
+// Re-export for consumers
+export type { MessageStatus };
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -54,11 +58,6 @@ export type MessageType =
   | 'invoice_card'
   | 'prescription_card'
   | 'system';
-
-/**
- * Message delivery status
- */
-export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
 
 /**
  * Message template category

@@ -120,7 +120,7 @@ export default function FinanceDashboardClient() {
             Expense Breakdown
           </h3>
 
-          {Object.keys(data?.breakdown || {}).length > 0 ? (
+          {data?.breakdown && Object.keys(data.breakdown).length > 0 ? (
             <div className="space-y-4">
               {Object.entries(data.breakdown).map(([cat, amount]: [string, any]) => (
                 <div key={cat} className="group flex items-center gap-4">
@@ -130,7 +130,7 @@ export default function FinanceDashboardClient() {
                   <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray-50">
                     <div
                       className="h-full rounded-full bg-indigo-500"
-                      style={{ width: `${Math.min((amount / data.expenses) * 100, 100)}%` }}
+                      style={{ width: `${Math.min((amount / (data.expenses || 1)) * 100, 100)}%` }}
                     ></div>
                   </div>
                   <div className="w-32 text-right font-black text-gray-900">

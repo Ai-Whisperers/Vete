@@ -104,7 +104,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
 
   const pdfData = {
     clinicName: clinic.config.name,
-    clinicAddress: clinic.config.address || 'Calle Ficticia 123',
+    clinicAddress: clinic.config.contact?.address || 'Calle Ficticia 123',
     petName: patient?.name || 'Desconocido',
     ownerName: 'Propietario',
     date: new Date().toLocaleDateString(),
@@ -254,7 +254,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
                   <Icons.X className="h-5 w-5 text-gray-400" />
                 </button>
               </div>
-              <DosageCalculator initialWeightKg={patient?.weight_kg} />
+              <DosageCalculator initialWeightKg={patient?.weight_kg ?? undefined} />
             </div>
           )}
 
@@ -292,7 +292,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
                     fileName={`Receta_${patient?.name || 'Paciente'}.pdf`}
                   />
                   <Link
-                    href={`/${clinic.id}/portal/pets/${patient.id}`}
+                    href={`/${clinic.config.id}/portal/pets/${patient?.id || ''}`}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-100 py-4 font-black text-gray-600 transition-all hover:bg-gray-200"
                   >
                     Volver al Perfil

@@ -393,8 +393,8 @@ export async function POST(request: NextRequest) {
       message: errorMessage,
     })
 
-    return apiError('CART_MERGE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: errorMessage },
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: errorMessage, context: 'cart_merge' },
     })
   }
 

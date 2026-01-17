@@ -238,8 +238,10 @@ export const GET = withApiAuth(
 
         if (lastAppts) {
           const processedOwners = new Set<string>()
-          lastAppts.forEach((appt: { start_time: string; pets?: { owner_id: string } | null }) => {
-            const ownerId = appt.pets?.owner_id
+          lastAppts.forEach((appt) => {
+            // pets is an array when using !inner join
+            const pets = appt.pets as { owner_id: string }[] | null
+            const ownerId = pets?.[0]?.owner_id
             if (ownerId && !processedOwners.has(ownerId)) {
               lastAppointmentMap.set(ownerId, appt.start_time)
               processedOwners.add(ownerId)

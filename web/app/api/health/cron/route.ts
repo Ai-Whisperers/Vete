@@ -29,6 +29,9 @@ interface CronJobDefinition {
 }
 
 const CRON_JOBS: CronJobDefinition[] = [
+  // ==========================================================================
+  // CRITICAL JOBS - Business-critical operations
+  // ==========================================================================
   {
     name: 'release-reservations',
     description: 'Release expired cart stock reservations',
@@ -42,6 +45,70 @@ const CRON_JOBS: CronJobDefinition[] = [
     expectedIntervalMinutes: 60,
     gracePeriodMinutes: 120,
     critical: true,
+  },
+  {
+    name: 'billing/auto-charge',
+    description: 'Auto-charge subscription payments',
+    expectedIntervalMinutes: 60,
+    gracePeriodMinutes: 120,
+    critical: true,
+  },
+  {
+    name: 'generate-recurring',
+    description: 'Generate recurring appointments',
+    expectedIntervalMinutes: 60,
+    gracePeriodMinutes: 120,
+    critical: true,
+  },
+
+  // ==========================================================================
+  // HIGH PRIORITY - Financial operations
+  // ==========================================================================
+  {
+    name: 'billing/generate-platform-invoices',
+    description: 'Generate monthly platform invoices',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+  {
+    name: 'generate-commission-invoices',
+    description: 'Generate commission invoices',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+  {
+    name: 'billing/evaluate-grace',
+    description: 'Evaluate subscription grace periods',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+  {
+    name: 'billing/send-reminders',
+    description: 'Send billing payment reminders',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+
+  // ==========================================================================
+  // NOTIFICATION JOBS
+  // ==========================================================================
+  {
+    name: 'reminders',
+    description: 'Process scheduled appointment/vaccine reminders',
+    expectedIntervalMinutes: 60,
+    gracePeriodMinutes: 180,
+    critical: false,
+  },
+  {
+    name: 'reminders/generate',
+    description: 'Generate reminder queue',
+    expectedIntervalMinutes: 60,
+    gracePeriodMinutes: 180,
+    critical: false,
   },
   {
     name: 'expiry-alerts',
@@ -58,10 +125,49 @@ const CRON_JOBS: CronJobDefinition[] = [
     critical: false,
   },
   {
-    name: 'reminders',
-    description: 'Process scheduled appointment/vaccine reminders',
+    name: 'stock-alerts/staff',
+    description: 'Send staff stock notifications',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+
+  // ==========================================================================
+  // MAINTENANCE JOBS
+  // ==========================================================================
+  {
+    name: 'cleanup-exports',
+    description: 'Cleanup old export files',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 4320, // 72 hours
+    critical: false,
+  },
+  {
+    name: 'retention',
+    description: 'Data retention cleanup',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 4320, // 72 hours
+    critical: false,
+  },
+  {
+    name: 'capture-metrics',
+    description: 'Capture system metrics',
     expectedIntervalMinutes: 60,
     gracePeriodMinutes: 180,
+    critical: false,
+  },
+  {
+    name: 'verify-backup',
+    description: 'Verify database backups',
+    expectedIntervalMinutes: 1440, // 24 hours
+    gracePeriodMinutes: 2880, // 48 hours
+    critical: false,
+  },
+  {
+    name: 'check-health',
+    description: 'Check cron health and send alerts',
+    expectedIntervalMinutes: 5,
+    gracePeriodMinutes: 15,
     critical: false,
   },
 ]

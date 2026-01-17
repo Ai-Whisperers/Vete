@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/logger'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 export const dynamic = 'force-dynamic'
@@ -9,20 +8,9 @@ export const dynamic = 'force-dynamic'
  * POST /api/store/cart/items
  * Add or update a cart item with stock reservation
  */
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Require authentication for reservations
-  if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED, {
-      details: { message: 'Inicia sesión para agregar al carrito' },
-    })
-  }
-
-  const { productId, quantity, clinic } = await request.json()
+export const POST = withApiAuth(async ({ supabase, user, profile, log, request }: ApiHandlerContext) => {
+  const requestData = await request.json()
+  const { productId, quantity, clinic } = requestData || {}
 
   if (!productId || typeof quantity !== 'number' || quantity < 0) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
@@ -30,22 +18,15 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  // Determine tenant_id
-  let tenantId = clinic
-  if (!tenantId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
+  // Use provided clinic or fall back to user's tenant
+  const tenantId = clinic || profile.tenant_id
 
-    if (!profile) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Perfil no encontrado' },
-      })
-    }
-    tenantId = profile.tenant_id
-  }
+  log.info('Cart item operation', {
+    action: 'cart.update_item',
+    productId,
+    quantity,
+    tenantId,
+  })
 
   // Get or create cart
   const { data: cart } = await supabase
@@ -70,12 +51,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (createError || !newCart) {
-      logger.error('Error creating cart', { error: createError })
+      log.error('Error creating cart', { error: createError })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: 'Error al crear carrito' },
       })
     }
     cartId = newCart.id
+    log.info('Created new cart', { cartId })
   } else {
     cartId = cart.id
   }
@@ -90,13 +72,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (reserveError) {
-      logger.error('Error reserving stock', { error: reserveError })
+      log.error('Error reserving stock', { error: reserveError })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: 'Error al reservar stock' },
       })
     }
 
     if (!reserveResult?.success) {
+      log.warn('Stock reservation failed', {
+        productId,
+        requestedQty: quantity,
+        available: reserveResult?.available,
+      })
       return NextResponse.json(
         {
           success: false,
@@ -114,7 +101,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (releaseError) {
-      logger.error('Error releasing reservation', { error: releaseError })
+      log.error('Error releasing reservation', { error: releaseError })
     }
   }
 
@@ -147,36 +134,33 @@ export async function POST(request: NextRequest) {
     .eq('id', cartId)
 
   if (updateError) {
-    logger.error('Error updating cart', { error: updateError })
+    log.error('Error updating cart', { error: updateError })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'Error al actualizar carrito' },
     })
   }
+
+  log.info('Cart updated successfully', {
+    cartId,
+    itemCount: updatedItems.length,
+    productId,
+    newQuantity: quantity,
+  })
 
   return NextResponse.json({
     success: true,
     items: updatedItems,
     reserved: quantity,
   })
-}
+})
 
 /**
  * DELETE /api/store/cart/items
  * Remove item from cart and release reservation
  */
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED, {
-      details: { message: 'Inicia sesión' },
-    })
-  }
-
-  const { productId, clinic } = await request.json()
+export const DELETE = withApiAuth(async ({ supabase, user, profile, log, request }: ApiHandlerContext) => {
+  const requestData = await request.json()
+  const { productId, clinic } = requestData || {}
 
   if (!productId) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
@@ -184,22 +168,14 @@ export async function DELETE(request: NextRequest) {
     })
   }
 
-  // Determine tenant_id
-  let tenantId = clinic
-  if (!tenantId) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
+  // Use provided clinic or fall back to user's tenant
+  const tenantId = clinic || profile.tenant_id
 
-    if (!profile) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Perfil no encontrado' },
-      })
-    }
-    tenantId = profile.tenant_id
-  }
+  log.info('Cart item removal', {
+    action: 'cart.remove_item',
+    productId,
+    tenantId,
+  })
 
   // Get cart
   const { data: cart } = await supabase
@@ -233,14 +209,20 @@ export async function DELETE(request: NextRequest) {
     .eq('id', cart.id)
 
   if (updateError) {
-    logger.error('Error updating cart', { error: updateError })
+    log.error('Error updating cart', { error: updateError })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'Error al actualizar carrito' },
     })
   }
 
+  log.info('Cart item removed', {
+    cartId: cart.id,
+    productId,
+    remainingItems: updatedItems.length,
+  })
+
   return NextResponse.json({
     success: true,
     items: updatedItems,
   })
-}
+})

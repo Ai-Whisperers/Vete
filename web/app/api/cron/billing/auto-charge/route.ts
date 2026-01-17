@@ -247,7 +247,7 @@ async function processInvoice(
         },
         {
           maxRetries: 3,
-          initialDelayMs: 1000,
+          baseDelayMs: 1000,
           maxDelayMs: 5000,
         }
       )

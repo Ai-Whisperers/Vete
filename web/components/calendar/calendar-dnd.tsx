@@ -20,7 +20,7 @@ import { calendarLocalizer } from './calendar-localizer'
 import { CALENDAR_MESSAGES, CALENDAR_CONFIG } from './calendar-constants'
 import { getEventStyle } from './calendar-styling'
 import { CalendarEventComponent } from './CalendarEvent'
-import { CalendarStyles } from './CalendarStyles'
+import { calendarStyles } from './CalendarStyles'
 import { useCalendarState } from './useCalendarState'
 
 // Create DnD-enhanced calendar with proper types
@@ -227,8 +227,7 @@ export function CalendarDnD({
   )
 
   return (
-    <div className={`calendar-wrapper ${className}`}>
-      <CalendarStyles />
+    <div className={`${calendarStyles.calendarWrapper} ${className}`}>
       <style jsx global>{`
         /* DnD specific styles */
         .rbc-addons-dnd .rbc-event {

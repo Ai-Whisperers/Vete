@@ -21,7 +21,7 @@ import { calendarLocalizer } from './calendar-localizer'
 import { CALENDAR_MESSAGES, CALENDAR_CONFIG } from './calendar-constants'
 import { getEventStyle } from './calendar-styling'
 import { CalendarEventComponent } from './CalendarEvent'
-import { CalendarStyles } from './CalendarStyles'
+import { calendarStyles, getCalendarWrapperClass } from './CalendarStyles'
 import { useCalendarState } from './useCalendarState'
 import {
   ResourceHeader,
@@ -230,36 +230,36 @@ export function Calendar({
 
           {/* Readable day summary - only in month view */}
           {currentView === 'month' && hasEvents && (
-            <div className="month-day-summary">
+            <div className={calendarStyles.monthDaySummary}>
               {/* Appointments section */}
               {dayDetails.appointments.length > 0 && (
-                <div className="day-section appointments-section">
-                  <div className="section-header">
-                    <span className="section-icon">🐾</span>
-                    <span className="section-count">{appointmentCount}</span>
-                    <span className="section-label">
+                <div className={calendarStyles.appointmentsSection}>
+                  <div className={calendarStyles.sectionHeader}>
+                    <span className={calendarStyles.sectionIcon}>🐾</span>
+                    <span className={calendarStyles.sectionCount}>{appointmentCount}</span>
+                    <span className={calendarStyles.sectionLabel}>
                       {appointmentCount === 1 ? 'cita' : 'citas'}
                     </span>
                   </div>
                   {dayDetails.firstTime && (
-                    <div className="time-range">
+                    <div className={calendarStyles.timeRange}>
                       {dayDetails.firstTime}
                       {dayDetails.lastTime && dayDetails.lastTime !== dayDetails.firstTime && (
                         <> - {dayDetails.lastTime}</>
                       )}
                     </div>
                   )}
-                  <div className="pet-names">
+                  <div className={calendarStyles.petNames}>
                     {displayPets.join(', ')}
-                    {morePets > 0 && <span className="more-pets">+{morePets}</span>}
+                    {morePets > 0 && <span className={calendarStyles.morePets}>+{morePets}</span>}
                   </div>
                 </div>
               )}
 
               {/* Staff time off */}
               {dayDetails.timeOff.length > 0 && (
-                <div className="day-section timeoff-section">
-                  <span className="section-icon">🏖️</span>
+                <div className={calendarStyles.timeoffSection}>
+                  <span className={calendarStyles.sectionIcon}>🏖️</span>
                   <span className="section-text">
                     {dayDetails.timeOff.length === 1
                       ? dayDetails.timeOff[0].staffName
@@ -270,8 +270,8 @@ export function Calendar({
 
               {/* Shifts */}
               {dayDetails.shifts > 0 && (
-                <div className="day-section shifts-section">
-                  <span className="section-icon">👤</span>
+                <div className={calendarStyles.shiftsSection}>
+                  <span className={calendarStyles.sectionIcon}>👤</span>
                   <span className="section-text">
                     {dayDetails.shifts} {dayDetails.shifts === 1 ? 'turno' : 'turnos'}
                   </span>
@@ -283,7 +283,7 @@ export function Calendar({
           {/* Capacity indicator bar at bottom of cell */}
           {appointmentCount > 0 && (
             <div
-              className="capacity-bar"
+              className={calendarStyles.capacityBar}
               title={`${appointmentCount} cita${appointmentCount !== 1 ? 's' : ''} - ${
                 appointmentCount <= 3
                   ? 'Disponible'
@@ -295,7 +295,7 @@ export function Calendar({
               }`}
             >
               <div
-                className="capacity-fill"
+                className={calendarStyles.capacityFill}
                 style={{
                   width: `${capacityWidth}%`,
                   backgroundColor: capacityColor,
@@ -336,8 +336,7 @@ export function Calendar({
     : {}
 
   return (
-    <div className={`calendar-wrapper ${showResourceView ? 'resource-mode' : ''} ${className}`}>
-      <CalendarStyles />
+    <div className={`${getCalendarWrapperClass(showResourceView)} ${className}`}>
       <BigCalendar
         localizer={calendarLocalizer}
         events={filteredEvents}

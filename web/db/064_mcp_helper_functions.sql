@@ -76,7 +76,7 @@ BEGIN
       FROM pg_roles 
       WHERE oid = ANY(pol.polroles)
     ) AS policy_roles,
-    pg_get_expr(pol.polusing, pol.polrelid)::TEXT AS policy_using,
+    pg_get_expr(pol.polqual, pol.polrelid)::TEXT AS policy_using,
     pg_get_expr(pol.polwithcheck, pol.polrelid)::TEXT AS policy_check
   FROM pg_policy pol
   JOIN pg_class c ON c.oid = pol.polrelid
@@ -261,8 +261,8 @@ BEGIN
     JOIN pg_class c ON c.oid = p.polrelid
     WHERE c.relname = table_name
       AND (
-        pg_get_expr(p.polusing, p.polrelid) LIKE '%is_staff_of%'
-        OR pg_get_expr(p.polusing, p.polrelid) LIKE '%tenant_id%'
+        pg_get_expr(p.polqual, p.polrelid) LIKE '%is_staff_of%'
+        OR pg_get_expr(p.polqual, p.polrelid) LIKE '%tenant_id%'
       )
   ) THEN
     RETURN QUERY SELECT 

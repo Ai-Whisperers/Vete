@@ -138,29 +138,31 @@ export class PetRepository {
   }
 
   private transformPet(data: Record<string, unknown>): Pet {
+    const profiles = data.profiles as Record<string, unknown> | null
+
     return {
-      id: data.id,
-      tenant_id: data.tenant_id,
-      owner_id: data.owner_id,
-      name: data.name,
-      species: data.species,
-      breed: data.breed,
-      date_of_birth: data.date_of_birth ? new Date(data.date_of_birth) : undefined,
-      gender: data.gender,
-      color: data.color,
-      weight_kg: data.weight_kg,
-      microchip_number: data.microchip_number,
-      photo_url: data.photo_url,
-      notes: data.notes,
-      is_active: data.is_active,
-      created_at: new Date(data.created_at),
-      updated_at: new Date(data.updated_at),
-      owner: data.profiles
+      id: data.id as string,
+      tenant_id: data.tenant_id as string,
+      owner_id: data.owner_id as string,
+      name: data.name as string,
+      species: data.species as Pet['species'],
+      breed: (data.breed as string | null) ?? undefined,
+      date_of_birth: data.date_of_birth ? new Date(data.date_of_birth as string) : undefined,
+      gender: (data.gender as Pet['gender'] | null) ?? undefined,
+      color: (data.color as string | null) ?? undefined,
+      weight_kg: (data.weight_kg as number | null) ?? undefined,
+      microchip_number: (data.microchip_number as string | null) ?? undefined,
+      photo_url: (data.photo_url as string | null) ?? undefined,
+      notes: (data.notes as string | null) ?? undefined,
+      is_active: data.is_active as boolean,
+      created_at: new Date(data.created_at as string),
+      updated_at: new Date(data.updated_at as string),
+      owner: profiles
         ? {
-            id: data.profiles.id,
-            full_name: data.profiles.full_name,
-            phone: data.profiles.phone,
-            email: data.profiles.email,
+            id: profiles.id as string,
+            full_name: profiles.full_name as string,
+            phone: (profiles.phone as string | null) ?? undefined,
+            email: (profiles.email as string | null) ?? undefined,
           }
         : undefined,
     }

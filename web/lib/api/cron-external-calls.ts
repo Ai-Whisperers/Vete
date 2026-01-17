@@ -13,7 +13,7 @@
  * ```
  */
 
-import { sendEmail, type SendEmailOptions } from '@/lib/email/client'
+import { sendEmail, type EmailOptions } from '@/lib/email/client'
 import { processAutoCharge, type AutoChargeParams } from '@/lib/billing/stripe'
 import { withTimeout, withRetry, TIMEOUT_PRESETS, isRetryableError } from '@/lib/utils/timeout'
 import { logger } from '@/lib/logger'
@@ -28,7 +28,7 @@ import { logger } from '@/lib/logger'
  * @returns Promise resolving to email send result
  * @throws TimeoutError if email sending takes longer than 15 seconds
  */
-export async function sendEmailWithTimeout(options: SendEmailOptions) {
+export async function sendEmailWithTimeout(options: EmailOptions) {
   try {
     return await withTimeout(
       sendEmail(options),
@@ -55,7 +55,7 @@ export async function sendEmailWithTimeout(options: SendEmailOptions) {
  * @param options - Email options
  * @returns Promise resolving to email send result
  */
-export async function sendEmailWithRetry(options: SendEmailOptions) {
+export async function sendEmailWithRetry(options: EmailOptions) {
   return withRetry(
     () => sendEmail(options),
     {

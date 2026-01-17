@@ -178,6 +178,7 @@ type RedisClientType = {
   connect(): Promise<void>
   get(key: string): Promise<string | null>
   setEx(key: string, ttl: number, value: string): Promise<void>
+  del(key: string): Promise<number>
 }
 
 /**

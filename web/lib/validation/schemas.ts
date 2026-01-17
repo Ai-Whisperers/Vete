@@ -34,29 +34,31 @@ export const petSchema: ValidationSchema = {
   },
   species: {
     required: true,
-    custom: (value) => ['dog', 'cat', 'bird', 'rabbit', 'other'].includes(value),
+    custom: (value: unknown) =>
+      typeof value === 'string' && ['dog', 'cat', 'bird', 'rabbit', 'other'].includes(value),
     message: 'Especie inválida',
   },
   breed: {
     maxLength: 50,
   },
   date_of_birth: {
-    custom: (value) => {
+    custom: (value: unknown) => {
       if (!value) return true
-      const date = new Date(value)
+      const date = new Date(value as string)
       const now = new Date()
       return date <= now && date >= new Date('1900-01-01')
     },
     message: 'Fecha de nacimiento inválida',
   },
   gender: {
-    custom: (value) => !value || ['male', 'female'].includes(value),
+    custom: (value: unknown) =>
+      !value || (typeof value === 'string' && ['male', 'female'].includes(value)),
     message: 'Género debe ser macho o hembra',
   },
   weight_kg: {
     min: 0.1,
     max: 200,
-    custom: (value) =>
+    custom: (value: unknown) =>
       value === undefined || value === null || (typeof value === 'number' && value > 0),
   },
   color: {
@@ -77,18 +79,19 @@ export const appointmentSchema: ValidationSchema = {
   },
   start_time: {
     required: true,
-    custom: (value) => {
-      const date = new Date(value)
+    custom: (value: unknown) => {
+      const date = new Date(value as string)
       return date > new Date() && date.getTime() === date.getTime() // Valid date and in future
     },
     message: 'Fecha de inicio debe ser en el futuro',
   },
   end_time: {
     required: true,
-    custom: (value, data) => {
-      if (!data?.start_time) return false
-      const start = new Date(data.start_time)
-      const end = new Date(value)
+    custom: (value: unknown, data: unknown) => {
+      const dataObj = data as Record<string, unknown> | undefined
+      if (!dataObj?.start_time) return false
+      const start = new Date(dataObj.start_time as string)
+      const end = new Date(value as string)
       return end > start && end.getTime() - start.getTime() <= 4 * 60 * 60 * 1000 // Max 4 hours
     },
     message: 'Fecha de fin debe ser posterior a inicio y máximo 4 horas',
@@ -151,9 +154,10 @@ export const productSchema: ValidationSchema = {
   cost_price: {
     min: 0,
     max: 999999.99,
-    custom: (value, data) => {
-      if (value && data?.price) {
-        return value <= data.price
+    custom: (value: unknown, data: unknown) => {
+      const dataObj = data as Record<string, unknown> | undefined
+      if (value && dataObj?.price) {
+        return (value as number) <= (dataObj.price as number)
       }
       return true
     },
@@ -166,9 +170,10 @@ export const productSchema: ValidationSchema = {
   },
   min_stock_level: {
     min: 0,
-    custom: (value, data) => {
-      if (value && data?.stock_quantity) {
-        return value <= data.stock_quantity
+    custom: (value: unknown, data: unknown) => {
+      const dataObj = data as Record<string, unknown> | undefined
+      if (value && dataObj?.stock_quantity) {
+        return (value as number) <= (dataObj.stock_quantity as number)
       }
       return true
     },
@@ -192,7 +197,7 @@ export const invoiceSchema: ValidationSchema = {
   },
   items: {
     required: true,
-    custom: (value) => Array.isArray(value) && value.length > 0,
+    custom: (value: unknown) => Array.isArray(value) && value.length > 0,
     message: 'La factura debe tener al menos un item',
   },
   subtotal: {
@@ -205,18 +210,23 @@ export const invoiceSchema: ValidationSchema = {
   total: {
     required: true,
     min: 0,
-    custom: (value, data) => {
-      if (data?.subtotal && data?.tax_amount) {
-        return Math.abs(value - (data.subtotal + data.tax_amount)) < 0.01 // Allow small rounding differences
+    custom: (value: unknown, data: unknown) => {
+      const dataObj = data as Record<string, unknown> | undefined
+      if (dataObj?.subtotal && dataObj?.tax_amount) {
+        return (
+          Math.abs(
+            (value as number) - ((dataObj.subtotal as number) + (dataObj.tax_amount as number))
+          ) < 0.01
+        ) // Allow small rounding differences
       }
       return true
     },
     message: 'Total no coincide con subtotal + impuestos',
   },
   due_date: {
-    custom: (value) => {
+    custom: (value: unknown) => {
       if (!value) return true
-      const date = new Date(value)
+      const date = new Date(value as string)
       return date >= new Date()
     },
     message: 'Fecha de vencimiento debe ser hoy o en el futuro',

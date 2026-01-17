@@ -245,6 +245,91 @@ export async function getPaymentIntent(paymentIntentId: string): Promise<Stripe.
 }
 
 // =============================================================================
+// AUTO-CHARGE (for cron jobs)
+// =============================================================================
+
+/**
+ * Parameters for auto-charging a customer
+ */
+export interface AutoChargeParams {
+  customerId: string
+  amount: number
+  currency?: string
+  invoiceId?: string
+  description?: string
+  metadata?: Record<string, string>
+}
+
+/**
+ * Result of an auto-charge operation
+ */
+export interface AutoChargeResult {
+  success: boolean
+  paymentIntentId?: string
+  error?: string
+}
+
+/**
+ * Process auto-charge for a customer (used by cron jobs)
+ *
+ * Attempts to charge the customer using their default payment method.
+ * Returns a result object indicating success or failure.
+ *
+ * @param params - Auto-charge parameters
+ * @returns Promise resolving to charge result
+ */
+export async function processAutoCharge(params: AutoChargeParams): Promise<AutoChargeResult> {
+  const stripe = getStripeClient()
+  const { customerId, amount, currency = 'pyg', invoiceId, description, metadata } = params
+
+  try {
+    // Get customer to find default payment method
+    const customer = await stripe.customers.retrieve(customerId)
+
+    if (customer.deleted) {
+      return { success: false, error: 'Customer has been deleted' }
+    }
+
+    const defaultPaymentMethod = customer.invoice_settings?.default_payment_method
+
+    if (!defaultPaymentMethod) {
+      return { success: false, error: 'No default payment method on file' }
+    }
+
+    // Create and confirm payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: toStripeAmount(amount, currency),
+      currency: currency.toLowerCase(),
+      customer: customerId,
+      payment_method: typeof defaultPaymentMethod === 'string'
+        ? defaultPaymentMethod
+        : defaultPaymentMethod.id,
+      confirm: true,
+      off_session: true,
+      description: description || 'Auto-charge',
+      metadata: {
+        invoice_id: invoiceId || '',
+        auto_charge: 'true',
+        ...metadata,
+      },
+    })
+
+    if (paymentIntent.status === 'succeeded') {
+      return { success: true, paymentIntentId: paymentIntent.id }
+    }
+
+    return {
+      success: false,
+      paymentIntentId: paymentIntent.id,
+      error: `Payment status: ${paymentIntent.status}`
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return { success: false, error: message }
+  }
+}
+
+// =============================================================================
 // REFUNDS
 // =============================================================================
 

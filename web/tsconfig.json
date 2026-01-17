@@ -37,6 +37,6 @@
     "lib/middleware/**/*",
     "scripts/**/*",
     "supabase/**/*",
-    "tests/load/**/*"
+    "tests/**/*"
   ]
 }

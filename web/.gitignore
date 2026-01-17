@@ -63,3 +63,12 @@ deployment.log
 
 # Generated templates
 inventory_template_vete.xlsx
+
+# Storybook
+storybook-static/
+
+# Backup files (should not be tracked)
+*.backup
+
+# Archive (temporary/deprecated code)
+_archive/

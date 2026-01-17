@@ -373,13 +373,17 @@ export class PaymentService extends BaseService {
         }
 
         // Update payment
-        const updates: any = {
+        const updates: {
+          status: string
+          updated_at: string
+          transaction_reference?: string
+        } = {
           status,
           updated_at: new Date().toISOString(),
-        };
+        }
 
         if (transactionReference) {
-          updates.transaction_reference = transactionReference;
+          updates.transaction_reference = transactionReference
         }
 
         const { data: payment, error: updateError } = await this.supabase

@@ -30,7 +30,7 @@ interface AuditLogEntry {
   id: string
   action: string
   created_at: string
-  details: any
+  details: Record<string, unknown> | null
   performed_by: {
     full_name: string
   }
@@ -40,7 +40,7 @@ interface ConsentDocument {
   id: string
   status: string
   custom_content: string | null
-  field_values: Record<string, any>
+  field_values: Record<string, string | number | boolean | null>
   signature_data: string
   signed_at: string
   signed_by_id: string

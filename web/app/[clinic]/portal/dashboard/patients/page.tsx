@@ -5,6 +5,21 @@ import * as Icons from 'lucide-react'
 import NetworkSearch from './NetworkSearch'
 import PatientRequestButton from './PatientRequestButton'
 
+/** Patient search result from RPC or local query */
+interface PatientSearchResult {
+  id: string
+  name: string
+  species: string
+  breed: string | null
+  photo_url: string | null
+  owner_name: string | null
+  owner_phone: string | null
+  is_local: boolean
+  has_access: boolean
+  home_clinic_id?: string
+  home_clinic_name?: string
+}
+
 export default async function PatientsPage({
   params,
   searchParams,
@@ -47,7 +62,7 @@ export default async function PatientsPage({
   // Ideally we filter by `is_local` if scope is local.
   // But `search_pets_global` requires a query string. If empty, it might return nothing?
 
-  let pets: any[] = []
+  let pets: PatientSearchResult[] = []
   let error = null
 
   if (searchQuery) {

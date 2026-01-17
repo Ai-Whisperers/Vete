@@ -182,14 +182,19 @@ export function isRetryableError(error: Error): boolean {
   }
 
   // HTTP 5xx errors are retryable
-  if ('status' in error && typeof (error as any).status === 'number') {
-    const status = (error as any).status
-    return status >= 500 && status < 600
+  if ('status' in error) {
+    const errorWithStatus = error as { status: unknown }
+    if (typeof errorWithStatus.status === 'number') {
+      return errorWithStatus.status >= 500 && errorWithStatus.status < 600
+    }
   }
 
   // Stripe rate limit errors are retryable
-  if ('type' in error && (error as any).type === 'StripeRateLimitError') {
-    return true
+  if ('type' in error) {
+    const errorWithType = error as { type: unknown }
+    if (errorWithType.type === 'StripeRateLimitError') {
+      return true
+    }
   }
 
   // Default: not retryable

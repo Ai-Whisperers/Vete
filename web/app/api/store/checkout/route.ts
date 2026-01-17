@@ -3,6 +3,7 @@ import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { requireFeature } from '@/lib/features/server'
 import { checkoutRequestSchema } from '@/lib/schemas/store'
+import type { PostgrestError } from '@supabase/supabase-js'
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
@@ -167,18 +168,21 @@ export const POST = withApiAuth(
         // Epic 3.1: Distinguish between real database errors vs "no data" responses
         // Real database errors (connection failures, timeouts, function errors) should FAIL the checkout
         // Only allow "no data" scenarios where the function succeeded but returned empty results
-        
+
+        // Type the error as PostgrestError for proper access to code/details
+        const pgError = prescriptionError as PostgrestError
+
         log.error('Prescription verification failed', {
           action: 'checkout.prescription_error',
           error: prescriptionError instanceof Error ? prescriptionError : new Error(String(prescriptionError)),
-          errorCode: (prescriptionError as any)?.code,
-          errorDetails: (prescriptionError as any)?.details,
+          errorCode: pgError.code,
+          errorDetails: pgError.details,
         })
 
         // Check if this is a real database error (not just "no results")
         // PostgrestError codes: https://postgrest.org/en/stable/references/errors.html
         // Common real errors: PGRST000 (connection), PGRST301 (function error), etc.
-        const errorCode = (prescriptionError as any)?.code
+        const errorCode = pgError.code
         const isRealDatabaseError = errorCode && !errorCode.startsWith('PGRST116') // PGRST116 is "no rows returned" which is OK
         
         if (isRealDatabaseError) {

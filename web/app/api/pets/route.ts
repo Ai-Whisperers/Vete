@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { PetService } from '@/lib/services/pet-service'
+import { PetService, type CreatePetData, type PetListFilters } from '@/lib/services/pet-service'
 import { PET_SPECIES } from '@/lib/schemas/pet'
 import { z } from 'zod'
 
@@ -67,7 +67,7 @@ export const POST = withApiAuth(async ({ user, supabase, request }: ApiHandlerCo
     // Create pet using service
     const createResult = await petService.create(user.id, clinic, {
       name,
-      species: species as any, // Species enum from validation
+      species: species as CreatePetData['species'], // Validated by zod schema
       breed: breed || null,
     })
 
@@ -159,12 +159,19 @@ export const GET = withApiAuth(async ({ user, profile, supabase, request }: ApiH
 
   // Use PetService to list pets
   const petService = new PetService(supabase)
+
+  // Validate species filter if provided
+  const validSpecies: PetListFilters['species'][] = ['dog', 'cat', 'bird', 'rabbit', 'other']
+  const speciesFilter = species && validSpecies.includes(species as PetListFilters['species'])
+    ? (species as PetListFilters['species'])
+    : undefined
+
   const result = await petService.list(
     userId,
     profile.tenant_id,
     {
       query: query || undefined,
-      species: species as any || undefined,
+      species: speciesFilter,
     },
     isStaff
   )

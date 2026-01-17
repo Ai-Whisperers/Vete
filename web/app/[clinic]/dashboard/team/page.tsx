@@ -10,6 +10,13 @@ interface Props {
   params: Promise<{ clinic: string }>
 }
 
+interface ClinicInvite {
+  id: string
+  email: string
+  role: 'admin' | 'vet'
+  created_at: string
+}
+
 export default async function DashboardTeamPage({ params }: Props) {
   const { clinic } = await params
   const t = await getTranslations('dashboard.team')
@@ -125,7 +132,7 @@ export default async function DashboardTeamPage({ params }: Props) {
         </div>
         <div className="divide-y divide-[var(--border-light)]">
           {invites && invites.length > 0 ? (
-            invites.map((invite: any) => (
+            (invites as ClinicInvite[]).map((invite) => (
               <div key={invite.id} className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
                   <div

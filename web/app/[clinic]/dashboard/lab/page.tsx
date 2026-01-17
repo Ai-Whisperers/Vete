@@ -84,8 +84,17 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
     logger.error('Error fetching lab orders', { error: error.message })
   }
 
-  // Transform data
-  let labOrders: LabOrder[] = (orders || []).map((order: any) => ({
+  // Transform data - type the raw database row
+  interface RawLabOrder {
+    id: string
+    order_number: string
+    ordered_at: string
+    status: string
+    priority: string
+    has_critical_values: boolean
+    pets: { id: string; name: string; species: string } | Array<{ id: string; name: string; species: string }>
+  }
+  let labOrders: LabOrder[] = (orders || []).map((order: RawLabOrder) => ({
     id: order.id,
     order_number: order.order_number,
     ordered_at: order.ordered_at,

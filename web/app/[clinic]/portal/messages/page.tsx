@@ -12,6 +12,17 @@ interface Props {
   searchParams: Promise<{ status?: string; search?: string }>
 }
 
+interface Conversation {
+  id: string
+  subject: string
+  status: 'open' | 'closed' | 'pending'
+  last_message_at: string | null
+  created_at: string
+  client_name: string
+  staff_name: string | null
+  unread_count: number
+}
+
 export async function generateStaticParams() {
   return [{ clinic: 'adris' }, { clinic: 'petlife' }]
 }
@@ -40,7 +51,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
     )
   }
 
-  const conversations = result.data as any[]
+  const conversations = result.data as Conversation[]
 
   // Get context for isStaff check
   const authContext = await AuthService.getContext()

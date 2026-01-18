@@ -84,7 +84,7 @@ interface ConsentDocument {
 export default function ConsentDetailPage(): JSX.Element {
   const [showRevokeModal, setShowRevokeModal] = useState(false)
   const [revocationReason, setRevocationReason] = useState('')
-  const router = useRouter()
+  const _router = useRouter() // Reserved for future use
   const params = useParams()
   const { showToast } = useToast()
   const queryClient = useQueryClient()
@@ -263,7 +263,7 @@ export default function ConsentDetailPage(): JSX.Element {
     if (consent.field_values) {
       Object.keys(consent.field_values).forEach((key) => {
         const value = consent.field_values[key]
-        content = content.replace(new RegExp(`{{${key}}}`, 'g'), value || '')
+        content = content.replace(new RegExp(`{{${key}}}`, 'g'), String(value || ''))
       })
     }
 

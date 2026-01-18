@@ -55,7 +55,7 @@ export async function sendWhatsAppMessage({
       sid: message.sid,
       status: message.status,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // TICKET-TYPE-004: Proper error handling without any
     console.error('WhatsApp send error:', error)
     return {
@@ -76,7 +76,7 @@ export async function getMessageStatus(messageSid: string): Promise<string | nul
   try {
     const message = await client.messages(messageSid).fetch()
     return message.status
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching message status:', error)
     return null
   }

@@ -917,7 +917,7 @@ export class ConsentService extends BaseService {
         action,
         metadata,
       });
-    } catch {
+    } catch (_error: unknown) {
       // Don't fail the main operation if audit logging fails
       console.error('Failed to log consent action:', action);
     }

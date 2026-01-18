@@ -77,7 +77,7 @@ export async function logAudit(
     if (error) {
       console.error('[Audit] Failed to insert audit log:', error)
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // Don't throw - audit logging should never break the main flow
     console.error('[Audit] Error logging audit event:', error)
   }
@@ -115,7 +115,7 @@ export async function logAuditWithContext(
     if (error) {
       console.error('[Audit] Failed to insert audit log:', error)
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Audit] Error logging audit event:', error)
   }
 }

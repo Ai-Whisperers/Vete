@@ -49,7 +49,7 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
 
       // Execute handler
       return await handler(authResult.context, ...args)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Action error:', error)
       return actionError('Error interno del servidor')
     }

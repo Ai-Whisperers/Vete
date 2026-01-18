@@ -163,7 +163,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         }
       })
       setResults(initialResults)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching order items - silently fail
     } finally {
       setLoading(false)

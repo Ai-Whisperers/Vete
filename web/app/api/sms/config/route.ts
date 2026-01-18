@@ -202,7 +202,7 @@ async function testTwilioConfig(
     }
 
     return { success: true }
-  } catch {
+  } catch (_error: unknown) {
     return { success: false, error: 'No se pudo conectar a Twilio' }
   }
 }

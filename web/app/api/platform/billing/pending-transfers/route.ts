@@ -109,7 +109,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                 reported_by: content.reported_by,
               }
             }
-          } catch {
+          } catch (_error: unknown) {
             // Ignore parsing errors
           }
         }

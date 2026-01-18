@@ -78,7 +78,7 @@ export async function checkRowCounts(): Promise<IntegrityCheckResult[]> {
           table,
         })
       }
-    } catch (err) {
+    } catch (err: unknown) {
       results.push({
         name: `Row count: ${table}`,
         category: 'row_count',
@@ -212,7 +212,7 @@ export async function checkCriticalData(
           table,
         })
       }
-    } catch (err) {
+    } catch (err: unknown) {
       results.push({
         name: `Data presence: ${table}`,
         category: 'data_presence',
@@ -244,7 +244,7 @@ export async function getTableStats(): Promise<TableStats[]> {
         rowCount: count ?? 0,
         lastUpdated: new Date(),
       })
-    } catch {
+    } catch (_error: unknown) {
       stats.push({
         tableName: table,
         rowCount: -1,
@@ -285,7 +285,7 @@ export async function runSampleQueries(): Promise<IntegrityCheckResult[]> {
         message: duration < 5000 ? `Query completed in ${duration}ms` : `Query slow: ${duration}ms`,
       })
     }
-  } catch (err) {
+  } catch (err: unknown) {
     results.push({
       name: 'Sample query: SELECT',
       category: 'custom',
@@ -319,7 +319,7 @@ export async function runSampleQueries(): Promise<IntegrityCheckResult[]> {
         message: duration < 5000 ? `JOIN completed in ${duration}ms` : `JOIN slow: ${duration}ms`,
       })
     }
-  } catch (err) {
+  } catch (err: unknown) {
     results.push({
       name: 'Sample query: JOIN',
       category: 'custom',

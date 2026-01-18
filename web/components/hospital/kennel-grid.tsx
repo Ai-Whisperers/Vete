@@ -53,7 +53,7 @@ export default function KennelGrid({ onKennelClick }: KennelGridProps): JSX.Elem
 
       const data = await response.json()
       setKennels(data)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching kennels - silently fail
     } finally {
       setLoading(false)

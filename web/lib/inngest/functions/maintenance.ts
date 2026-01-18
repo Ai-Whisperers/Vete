@@ -233,7 +233,7 @@ export const healthCheck = inngest.createFunction(
         const supabase = await createClient('service_role')
         await supabase.from('tenants').select('id').limit(1)
         checks.database = { status: 'ok', latencyMs: Date.now() - dbStart }
-      } catch (e) {
+      } catch (e: unknown) {
         checks.database = { status: 'error', error: e instanceof Error ? e.message : 'Unknown' }
       }
 
@@ -243,7 +243,7 @@ export const healthCheck = inngest.createFunction(
         const supabase = await createClient('service_role')
         await supabase.storage.from('pets').list('', { limit: 1 })
         checks.storage = { status: 'ok', latencyMs: Date.now() - storageStart }
-      } catch (e) {
+      } catch (e: unknown) {
         checks.storage = { status: 'error', error: e instanceof Error ? e.message : 'Unknown' }
       }
 
@@ -321,7 +321,7 @@ export const processSubscriptions = inngest.createFunction(
             .eq('id', subscription.id)
 
           renewed++
-        } catch (e) {
+        } catch (e: unknown) {
           logger.error('Subscription renewal failed', {
             subscriptionId: subscription.id,
             error: e instanceof Error ? e.message : 'Unknown',

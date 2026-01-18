@@ -89,7 +89,7 @@ export function withLogging(options: LoggingOptions = {}) {
           })
           logData.body = sanitizedBody
         }
-      } catch {
+      } catch (_error: unknown) {
         // Ignore body parsing errors
       }
     }

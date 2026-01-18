@@ -89,7 +89,7 @@ export function isValidRedirectUrl(url: string, allowedOrigin?: string): boolean
       const parsed = new URL(url)
       const allowed = new URL(allowedOrigin)
       return parsed.origin === allowed.origin
-    } catch {
+    } catch (_error: unknown) {
       return false
     }
   }

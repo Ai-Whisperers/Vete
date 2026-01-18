@@ -42,7 +42,7 @@ export const POST = withApiAuth(
     let rawBody: unknown
     try {
       rawBody = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: 'JSON inválido' },
       })
@@ -316,7 +316,7 @@ export const POST = withApiAuth(
         },
         { status: 201 }
       )
-    } catch (e) {
+    } catch (e: unknown) {
       log.error('Checkout error', {
         action: 'checkout.error',
         itemCount: items.length,

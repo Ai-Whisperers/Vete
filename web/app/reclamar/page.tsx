@@ -79,7 +79,7 @@ export default function ReclamarPage() {
           setStatus('not_found')
           setError(data.message || 'Clínica no encontrada')
         }
-      } catch {
+      } catch (_error: unknown) {
         setStatus('error')
         setError('Error al verificar disponibilidad')
       }
@@ -146,7 +146,7 @@ export default function ReclamarPage() {
       } else {
         setError(data.message || 'Error al reclamar la clínica')
       }
-    } catch {
+    } catch (_error: unknown) {
       setError('Error de conexión. Intentá de nuevo.')
     } finally {
       setIsSubmitting(false)

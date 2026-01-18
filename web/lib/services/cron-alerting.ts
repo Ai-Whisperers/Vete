@@ -81,7 +81,7 @@ async function logAlertToDatabase(payload: AlertPayload): Promise<void> {
       details: payload.details || {},
       created_at: new Date().toISOString(),
     })
-  } catch (error) {
+  } catch (error: unknown) {
     // Don't fail alerting if DB logging fails
     logger.warn('Failed to log cron alert to database', {
       error: error instanceof Error ? error.message : 'Unknown',
@@ -143,7 +143,7 @@ async function sendSlackAlert(payload: AlertPayload): Promise<void> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message),
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn('Failed to send Slack alert', {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -181,7 +181,7 @@ Please investigate immediately.
       },
       created_at: new Date().toISOString(),
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn('Failed to send email alert', {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -244,7 +244,7 @@ export async function checkAndAlertUnhealthyJobs(): Promise<{
       checked: health.jobs.length,
       alerts: alertsSent,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Failed to check cron health for alerting', {
       error: error instanceof Error ? error.message : 'Unknown',
     })

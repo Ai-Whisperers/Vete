@@ -265,7 +265,6 @@ Located in `lib/hooks/`:
 | Hook | Purpose |
 |------|---------|
 | `useAsyncData` | Data fetching with loading/error states |
-| `useFormState` | Form management with Zod validation |
 | `useModal` | Modal state management |
 | `useSyncedState` | localStorage + API sync |
 | `useDashboardLabels` | Dashboard label provider |

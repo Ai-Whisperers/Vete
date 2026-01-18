@@ -204,7 +204,7 @@ async function processStockNotification(notification: {
           .eq('id', alert.id)
 
         emailsSent++
-      } catch (emailError) {
+      } catch (emailError: unknown) {
         logger.error('Failed to send stock alert email', {
           alertId: alert.id,
           email: alert.email,
@@ -219,7 +219,7 @@ async function processStockNotification(notification: {
       .eq('id', notification.id)
 
     return { success: true, emailsSent }
-  } catch (e) {
+  } catch (e: unknown) {
     const errorMsg = e instanceof Error ? e.message : 'Unknown error'
 
     await supabase

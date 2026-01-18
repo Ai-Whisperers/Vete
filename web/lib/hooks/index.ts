@@ -2,10 +2,11 @@
  * Custom React Hooks Library
  *
  * This module exports reusable hooks for common patterns in the application.
+ * For form handling, use react-hook-form directly.
  *
  * @example
  * ```typescript
- * import { useAsyncData, useFormState, useModal } from '@/lib/hooks'
+ * import { useAsyncData, useModal, useSyncedState } from '@/lib/hooks'
  * ```
  */
 
@@ -17,15 +18,6 @@ export {
   type AsyncDataStatus,
   type UseAsyncDataOptions,
 } from './use-async-data'
-
-// Form handling
-export {
-  useFormState,
-  type FormStateResult,
-  type FieldErrors,
-  type FormStatus,
-  type UseFormStateOptions,
-} from './use-form-state'
 
 // Modal management
 export {

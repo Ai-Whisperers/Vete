@@ -92,7 +92,7 @@ export function PhotoUpload({
 
         // Notify parent
         onFileSelect?.(file)
-      } catch {
+      } catch (_error: unknown) {
         setError(t('errorProcessing'))
       } finally {
         setIsValidating(false)

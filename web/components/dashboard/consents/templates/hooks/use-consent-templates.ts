@@ -117,7 +117,7 @@ export function useConsentTemplates(): UseConsentTemplatesResult {
     try {
       await saveMutation.mutateAsync(template)
       return true
-    } catch {
+    } catch (_error: unknown) {
       return false
     }
   }, [saveMutation])
@@ -126,7 +126,7 @@ export function useConsentTemplates(): UseConsentTemplatesResult {
     try {
       await createMutation.mutateAsync(data)
       return true
-    } catch {
+    } catch (_error: unknown) {
       return false
     }
   }, [createMutation])

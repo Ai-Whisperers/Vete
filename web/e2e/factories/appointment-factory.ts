@@ -54,7 +54,7 @@ export async function getTestDataIds(page: Page): Promise<{
     })
 
     return testData
-  } catch {
+  } catch (_error: unknown) {
     return null
   }
 }
@@ -149,7 +149,7 @@ export async function createPendingBookingRequest(
     try {
       const data = await response.json()
       appointmentId = data?.data?.appointment_id || data?.appointment_id
-    } catch {
+    } catch (_error: unknown) {
       // Ignore JSON parse errors
     }
   }

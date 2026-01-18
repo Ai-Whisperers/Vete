@@ -311,7 +311,7 @@ export function deserializeCart(json: string): CartForPersistence | null {
     const parsed = JSON.parse(json)
     if (!parsed.items || !parsed.tenantId) return null
     return parsed as CartForPersistence
-  } catch {
+  } catch (_error: unknown) {
     return null
   }
 }

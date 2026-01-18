@@ -63,7 +63,7 @@ export const POST = withApiAuth(
     let body: { consentType: string; granted: boolean; source?: string }
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
@@ -130,7 +130,7 @@ export const PUT = withApiAuth(
     let body: { preferences: Array<{ consentType: string; granted: boolean }>; source?: string }
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 

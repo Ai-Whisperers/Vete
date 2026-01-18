@@ -71,7 +71,7 @@ export function withErrorTracking(handler: NextApiHandler): NextApiHandler {
       recordApiError(method, endpoint, response.status, duration)
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       // Record the error
       const duration = Date.now() - startTime
       recordApiError(method, endpoint, 500, duration)

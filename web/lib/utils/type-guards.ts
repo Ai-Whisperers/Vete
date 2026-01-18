@@ -119,7 +119,7 @@ export function safeJsonParse<T>(
   try {
     const parsed = JSON.parse(json)
     return validator(parsed) ? parsed : null
-  } catch {
+  } catch (_error: unknown) {
     return null
   }
 }

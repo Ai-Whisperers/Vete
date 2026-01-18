@@ -103,7 +103,7 @@ export function useFormSubmit<TInput, TOutput = unknown>(
           onError?.(errorMessage)
           return result
         }
-      } catch (e) {
+      } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : 'Error inesperado'
         setError(errorMessage)
         onError?.(errorMessage)

@@ -52,7 +52,7 @@ export function QuickAddModal({
     try {
       await onSave(data)
       onClose()
-    } catch {
+    } catch (_error: unknown) {
       // Error is handled by the hook
     } finally {
       setIsSaving(false)

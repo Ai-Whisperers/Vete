@@ -60,7 +60,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     try {
       const body = await request.json()
       notes = body.notes
-    } catch {
+    } catch (_error: unknown) {
       // No body is fine
     }
 

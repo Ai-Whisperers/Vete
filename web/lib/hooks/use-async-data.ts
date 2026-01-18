@@ -116,7 +116,7 @@ export function useAsyncData<T>(
         setStatus('success')
         onSuccess?.(result)
       }
-    } catch (err) {
+    } catch (err: unknown) {
       // Only update if this is still the latest fetch and component is mounted
       if (isMountedRef.current && currentFetchId === fetchIdRef.current) {
         const error = err instanceof Error ? err : new Error(String(err))

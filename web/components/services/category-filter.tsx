@@ -63,7 +63,7 @@ export function CategoryFilter({
     if (key) {
       try {
         return t(key)
-      } catch {
+      } catch (_error: unknown) {
         return fallbackLabel
       }
     }
@@ -76,7 +76,7 @@ export function CategoryFilter({
     if (key) {
       try {
         return tDesc(key)
-      } catch {
+      } catch (_error: unknown) {
         return ''
       }
     }

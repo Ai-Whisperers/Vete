@@ -48,7 +48,7 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
   let body
   try {
     body = await request.json()
-  } catch {
+  } catch (_error: unknown) {
     return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
@@ -116,7 +116,7 @@ export const PUT = withApiAuth(async ({ request, user, profile, supabase }: ApiH
   let body
   try {
     body = await request.json()
-  } catch {
+  } catch (_error: unknown) {
     return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
@@ -186,7 +186,7 @@ export const DELETE = withApiAuth(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 

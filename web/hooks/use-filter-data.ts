@@ -48,7 +48,7 @@ export function useFilterData(clinic: string): UseFilterDataResult {
 
       setCategories(categoriesData.categories || [])
       setBrands(brandsData.brands || [])
-    } catch (err) {
+    } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       console.error('Error fetching filters:', err)
     } finally {

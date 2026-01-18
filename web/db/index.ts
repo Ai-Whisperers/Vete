@@ -69,7 +69,7 @@ export async function isDatabaseHealthy(): Promise<boolean> {
   try {
     await client`SELECT 1`
     return true
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

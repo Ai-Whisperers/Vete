@@ -152,7 +152,7 @@ async function waitForPageLoad(page: Page): Promise<void> {
       if (hasLoader) {
         await page.waitForSelector(selector, { state: 'hidden', timeout: 8000 })
       }
-    } catch {
+    } catch (_error: unknown) {
       // Selector not found or timeout, continue
     }
   }
@@ -207,7 +207,7 @@ async function getElementId(element: Locator): Promise<string> {
       const className = el.className?.toString().slice(0, 30) || ''
       return `text:${text}|class:${className}`
     })
-  } catch {
+  } catch (_error: unknown) {
     return `unknown:${Date.now()}`
   }
 }
@@ -270,11 +270,11 @@ async function expandAllCollapsibles(page: Page, depth = 0): Promise<void> {
           }).catch(() => 300)
 
           await page.waitForTimeout(animDuration)
-        } catch {
+        } catch (_error: unknown) {
           // Click failed, continue
         }
       }
-    } catch {
+    } catch (_error: unknown) {
       // Selector error, continue
     }
   }

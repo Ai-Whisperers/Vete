@@ -56,7 +56,7 @@ export const PUT = withApiAuth(
     let body: unknown
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', 400)
     }
 

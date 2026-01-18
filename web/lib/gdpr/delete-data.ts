@@ -52,7 +52,7 @@ export async function deleteUserData(
   try {
     await deleteFullyDeletableData(supabase, userId, tenantId, petIds)
     deletedCategories.push(...DATA_CATEGORIES.deletable)
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'deletable_data',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -63,7 +63,7 @@ export async function deleteUserData(
   try {
     await anonymizeMedicalRecords(supabase, userId, tenantId, petIds)
     anonymizedCategories.push('medical_records')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'medical_records',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -74,7 +74,7 @@ export async function deleteUserData(
   try {
     await anonymizePrescriptions(supabase, userId, tenantId, petIds)
     anonymizedCategories.push('prescriptions')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'prescriptions',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -85,7 +85,7 @@ export async function deleteUserData(
   try {
     await anonymizeConsentDocuments(supabase, userId, tenantId, petIds)
     anonymizedCategories.push('consent_documents')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'consent_documents',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -96,7 +96,7 @@ export async function deleteUserData(
   try {
     await anonymizeInvoices(supabase, userId, tenantId)
     anonymizedCategories.push('invoices')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'invoices',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -107,7 +107,7 @@ export async function deleteUserData(
   try {
     await anonymizeAuditLogs(supabase, userId, tenantId)
     anonymizedCategories.push('audit_logs')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'audit_logs',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -118,7 +118,7 @@ export async function deleteUserData(
   try {
     await anonymizeProfile(supabase, userId)
     anonymizedCategories.push('profile')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'profile',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -129,7 +129,7 @@ export async function deleteUserData(
   try {
     await deletePets(supabase, userId, tenantId)
     deletedCategories.push('pets')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'pets',
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -140,7 +140,7 @@ export async function deleteUserData(
   try {
     await adminClient.auth.admin.deleteUser(userId)
     deletedCategories.push('auth_user')
-  } catch (error) {
+  } catch (error: unknown) {
     errors.push({
       category: 'auth_user',
       error: error instanceof Error ? error.message : 'Error desconocido',

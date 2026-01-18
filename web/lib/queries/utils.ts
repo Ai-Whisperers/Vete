@@ -56,7 +56,7 @@ export function createFetcher<T>(
     const response = await fetch(url.toString(), fetchOptions)
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+      const errorData = await parseErrorResponse(response, 'fetcher')
       throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`)
     }
 
@@ -91,7 +91,7 @@ export function createMutationFn<TInput, TOutput>(
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+      const errorData = await parseErrorResponse(response, 'mutation')
       throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`)
     }
 
@@ -140,6 +140,34 @@ export const gcTimes = {
   /** Extended cache duration */
   LONG: 1000 * 60 * 30, // 30 minutes
 } as const
+
+/**
+ * Safely parse JSON error response with logging
+ *
+ * When API returns an error, attempts to parse the JSON body.
+ * If parsing fails (e.g., server returned HTML error page), logs the failure
+ * and returns an empty object so the caller can use a fallback message.
+ *
+ * @param response - The fetch Response object
+ * @param context - Optional context string for logging (e.g., 'inventory/list')
+ * @returns Parsed error object or empty object
+ */
+export async function parseErrorResponse(
+  response: Response,
+  context?: string
+): Promise<{ error?: string; message?: string; details?: unknown }> {
+  try {
+    return await response.json()
+  } catch (parseError: unknown) {
+    // Log the parse failure - this indicates the server returned non-JSON (e.g., HTML error page)
+    const parseMessage = parseError instanceof Error ? parseError.message : String(parseError)
+    console.warn(
+      `[Query${context ? `/${context}` : ''}] Failed to parse error response (status ${response.status}):`,
+      parseMessage
+    )
+    return {}
+  }
+}
 
 /**
  * Helper to build URL with query parameters

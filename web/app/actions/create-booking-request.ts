@@ -278,7 +278,7 @@ export const createBookingRequest = withActionAuth(
           clinicName: clinicDisplayName,
         }),
       })
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       logger.error('Failed to send booking request email', {
         error: emailError instanceof Error ? emailError : undefined,
         userId: user.id,

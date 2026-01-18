@@ -167,7 +167,7 @@ export function useImportWizard({
         const data = await res.json()
         setSavedMappings(data.mappings || [])
       }
-    } catch (e) {
+    } catch (e: unknown) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error loading mappings:', e)
       }
@@ -225,7 +225,7 @@ export function useImportWizard({
         setRawRows(data.rows || [])
         autoDetectMappings(data.headers || [])
         setCurrentStep(1)
-      } catch (e) {
+      } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Error al leer el archivo')
       } finally {
         setIsParsingFile(false)
@@ -289,7 +289,7 @@ export function useImportWizard({
       } else {
         throw new Error(await res.text())
       }
-    } catch (e) {
+    } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al guardar mapeo')
     } finally {
       setIsSavingMapping(false)
@@ -309,7 +309,7 @@ export function useImportWizard({
             setSelectedMappingId(null)
           }
         }
-      } catch (e) {
+      } catch (e: unknown) {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error deleting mapping:', e)
         }
@@ -349,7 +349,7 @@ export function useImportWizard({
       const data = await res.json()
       setPreviewResult(data)
       setCurrentStep(3)
-    } catch (e) {
+    } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error en vista previa')
     } finally {
       setIsLoadingPreview(false)
@@ -394,7 +394,7 @@ export function useImportWizard({
           method: 'POST',
         })
       }
-    } catch (e) {
+    } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error en importación')
     } finally {
       setIsImporting(false)

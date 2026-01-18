@@ -52,7 +52,7 @@ export function WishlistProvider({ children }: { readonly children: React.ReactN
       if (savedWishlist) {
         try {
           localItems = JSON.parse(savedWishlist)
-        } catch (e) {
+        } catch (e: unknown) {
           console.error('Failed to parse wishlist', e)
         }
       }
@@ -105,7 +105,7 @@ export function WishlistProvider({ children }: { readonly children: React.ReactN
           setItems(localItems)
           setSyncStatus('idle')
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error loading wishlist:', error)
         setItems(localItems)
         setSyncError('Error de conexión')
@@ -128,7 +128,7 @@ export function WishlistProvider({ children }: { readonly children: React.ReactN
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ productId }),
         })
-      } catch (e) {
+      } catch (e: unknown) {
         console.error('Failed to sync item to server:', e)
       }
     }
@@ -171,7 +171,7 @@ export function WishlistProvider({ children }: { readonly children: React.ReactN
           }
           setSyncStatus('synced')
           setSyncError(null)
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Error adding to wishlist:', error)
           setSyncError(error instanceof Error ? error.message : 'Error al agregar')
           setSyncStatus('error')
@@ -204,7 +204,7 @@ export function WishlistProvider({ children }: { readonly children: React.ReactN
           }
           setSyncStatus('synced')
           setSyncError(null)
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Error removing from wishlist:', error)
           setSyncError(error instanceof Error ? error.message : 'Error al eliminar')
           setSyncStatus('error')

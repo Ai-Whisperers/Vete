@@ -71,7 +71,7 @@ export default function NewConversationDialog({
           const data = await response.json()
           setClients(data.clients || [])
         }
-      } catch {
+      } catch (_error: unknown) {
         // Error searching clients - silently fail
       } finally {
         setSearchLoading(false)

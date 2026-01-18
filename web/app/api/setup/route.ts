@@ -126,7 +126,7 @@ export async function GET(): Promise<NextResponse> {
           .select('count', { count: 'exact', head: true })
           .limit(1)
         status[table] = !error
-      } catch {
+      } catch (_error: unknown) {
         status[table] = false
       }
     }

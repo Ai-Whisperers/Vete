@@ -90,7 +90,7 @@ export async function parseResponse<T = unknown>(
     }
 
     return { data: data as T, error: null, status }
-  } catch {
+  } catch (_error: unknown) {
     return {
       data: null,
       error: 'Failed to parse response',

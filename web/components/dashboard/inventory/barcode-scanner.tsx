@@ -87,7 +87,7 @@ export function BarcodeScanner({
         try {
           await scannerRef.current.stop()
           scannerRef.current.clear()
-        } catch {
+        } catch (_error: unknown) {
           // Ignore cleanup errors
         }
       }
@@ -137,7 +137,7 @@ export function BarcodeScanner({
       try {
         await scannerRef.current.stop()
         scannerRef.current.clear()
-      } catch {
+      } catch (_error: unknown) {
         // Ignore cleanup errors
       }
       scannerRef.current = null

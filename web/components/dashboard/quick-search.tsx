@@ -114,7 +114,7 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
     if (saved) {
       try {
         setRecentSearches(JSON.parse(saved))
-      } catch {
+      } catch (_error: unknown) {
         // Invalid data, ignore
       }
     }

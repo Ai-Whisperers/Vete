@@ -186,7 +186,7 @@ async function processTenanReminders(
           await generateFollowUpReminders(supabase, tenantId, rule, result)
           break
       }
-    } catch (ruleError) {
+    } catch (ruleError: unknown) {
       const errorMessage = ruleError instanceof Error ? ruleError.message : 'Unknown error'
       result.errors.push(`Rule ${rule.id}: ${errorMessage}`)
     }
@@ -577,7 +577,7 @@ export const processReminders = inngest.createFunction(
             .eq('id', reminder.id)
 
           sent++
-        } catch (e) {
+        } catch (e: unknown) {
           await supabase
             .from('reminders')
             .update({

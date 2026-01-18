@@ -73,7 +73,7 @@ export class AuthService {
         supabase,
         isAuthenticated: true,
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Auth context error:', error)
       return {
         user: null,

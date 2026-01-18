@@ -87,7 +87,7 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
 
     try {
       return await action({ user, profile, isStaff, isAdmin, supabase }, ...args)
-    } catch (error) {
+    } catch (error: unknown) {
       // Re-throw Next.js redirect errors - they're not actual errors
       if (isRedirectError(error)) {
         throw error

@@ -252,7 +252,7 @@ export function withApiAuth(
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error with full context
       log.error('API route error', {
         error: error instanceof Error ? error : new Error(String(error)),
@@ -456,7 +456,7 @@ export function withApiAuthParams<P extends Record<string, string>>(
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error with full context
       log.error('API route error', {
         error: error instanceof Error ? error : new Error(String(error)),

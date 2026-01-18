@@ -24,7 +24,7 @@ export function ReportFoundButton({ petId }: { petId: string }) {
             navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
           })
           location = `${position.coords.latitude}, ${position.coords.longitude}`
-        } catch {
+        } catch (_error: unknown) {
           // Location access denied - continue without location
         }
       }

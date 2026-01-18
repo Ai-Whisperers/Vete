@@ -254,7 +254,7 @@ export const scheduleAppointment = withActionAuth(
           }),
         })
       }
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       logger.error('Failed to send scheduling confirmation email', {
         error: emailError instanceof Error ? emailError : undefined,
         userId: user.id,

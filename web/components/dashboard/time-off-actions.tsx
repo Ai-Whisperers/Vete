@@ -34,7 +34,7 @@ export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): Reac
           variant: 'error',
         })
       }
-    } catch {
+    } catch (_error: unknown) {
       // BUG-009: Replace alert with toast notification
       showToast({
         title: 'Error de conexión',

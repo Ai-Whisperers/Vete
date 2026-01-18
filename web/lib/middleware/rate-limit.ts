@@ -63,7 +63,7 @@ export function withRateLimit(options: RateLimitOptions = {}) {
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Rate limit error:', error)
       // On rate limit service error, allow the request
       return NextResponse.next()

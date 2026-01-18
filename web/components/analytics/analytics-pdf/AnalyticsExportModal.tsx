@@ -73,7 +73,7 @@ export function AnalyticsExportModal({
         URL.revokeObjectURL(url)
       }
       onClose()
-    } catch {
+    } catch (_error: unknown) {
       // Error handled silently - could add toast notification
     } finally {
       setLoading(false)

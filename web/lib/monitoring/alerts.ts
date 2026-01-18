@@ -198,7 +198,7 @@ export async function sendAlert(payload: AlertPayload): Promise<void> {
         job: payload.job,
         recipients: recipients.length,
       })
-    } catch (error) {
+    } catch (error: unknown) {
       // Log email failure but don't throw - alerts should never break main flow
       logger.error('Failed to send alert email', {
         error: error instanceof Error ? error.message : String(error),

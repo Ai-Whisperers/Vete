@@ -65,7 +65,7 @@ export function AnalyticsPDFButton({
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    } catch {
+    } catch (_error: unknown) {
       // Fallback: try CSV export
       window.open(
         `/api/analytics/export?type=${exportType}&format=csv&startDate=${startDate}&endDate=${endDate}`

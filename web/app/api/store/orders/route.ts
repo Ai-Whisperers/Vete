@@ -114,7 +114,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let rawBody: unknown
     try {
       rawBody = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: 'Formato de solicitud inválido' },
       })

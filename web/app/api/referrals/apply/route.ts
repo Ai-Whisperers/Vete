@@ -80,7 +80,7 @@ function verifyInternalAuth(request: NextRequest): boolean {
     }
 
     return timingSafeEqual(authBuffer, expectedBuffer)
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

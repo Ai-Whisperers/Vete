@@ -127,7 +127,7 @@ export abstract class BaseService {
     try {
       const data = await operation();
       return { success: true, data };
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error with context
       logger.error(errorMessage, {
         error: error instanceof Error ? error.message : String(error),

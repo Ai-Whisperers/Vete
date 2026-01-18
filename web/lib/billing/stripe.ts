@@ -323,7 +323,7 @@ export async function processAutoCharge(params: AutoChargeParams): Promise<AutoC
       paymentIntentId: paymentIntent.id,
       error: `Payment status: ${paymentIntent.status}`
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return { success: false, error: message }
   }

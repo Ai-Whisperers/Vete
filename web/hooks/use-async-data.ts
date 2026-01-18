@@ -66,7 +66,7 @@ export function useAsyncData<T>(
             isRefetching: false,
           })
           return
-        } catch (error) {
+        } catch (error: unknown) {
           attempt++
 
           if (attempt === maxAttempts) {

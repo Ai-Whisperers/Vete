@@ -19,7 +19,7 @@ export function getClinicSlugs(): string[] {
       .map((entry) => entry.name)
 
     return clinicSlugsCache
-  } catch {
+  } catch (_error: unknown) {
     // Fallback to known clinics
     return ['adris', 'petlife']
   }

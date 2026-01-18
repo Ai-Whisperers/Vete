@@ -220,7 +220,7 @@ class RedisStore {
       await this.client.connect()
       this.isConnected = true
       // Redis rate limiting enabled
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Redis connection failed, falling back to in-memory store:', error)
       this.isConnected = false
     }
@@ -234,7 +234,7 @@ class RedisStore {
     try {
       const data = await this.client.get(key)
       return data ? JSON.parse(data) : []
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Redis get error:', error)
       return inMemoryStore.get(key)
     }
@@ -250,7 +250,7 @@ class RedisStore {
       const timestamps = await this.get(key)
       timestamps.push(timestamp)
       await this.client.setEx(key, ttlSeconds, JSON.stringify(timestamps))
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Redis add error:', error)
       inMemoryStore.add(key, timestamp)
     }
@@ -271,7 +271,7 @@ class RedisStore {
       } else {
         await this.client.setEx(key, ttlSeconds, JSON.stringify(filtered))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Redis prune error:', error)
       inMemoryStore.prune(key, windowStart)
     }

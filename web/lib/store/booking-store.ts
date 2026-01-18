@@ -271,7 +271,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         set({ submitError: result.error || 'No se pudo procesar la solicitud' })
         return false
       }
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e)
       set({ submitError: 'Error de conexión con el servidor. Por favor intenta de nuevo.' })
       return false

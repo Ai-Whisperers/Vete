@@ -127,7 +127,7 @@ async function loadProgress(): Promise<ProgressState> {
   try {
     const content = await fs.readFile(PROGRESS_FILE, 'utf-8')
     return JSON.parse(content)
-  } catch {
+  } catch (_error: unknown) {
     return { processed: [], failed: [], lastUpdated: new Date().toISOString() }
   }
 }
@@ -141,7 +141,7 @@ async function loadImageMappings(): Promise<ImageMapping[]> {
   try {
     const content = await fs.readFile(MAPPING_FILE, 'utf-8')
     return JSON.parse(content)
-  } catch {
+  } catch (_error: unknown) {
     console.log('No image-urls.json found. Creating template...')
     return []
   }

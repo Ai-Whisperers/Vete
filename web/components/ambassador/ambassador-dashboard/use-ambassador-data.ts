@@ -62,7 +62,7 @@ export function useAmbassadorData() {
     try {
       await navigator.clipboard.writeText(ambassador.referral_code)
       setCopied(true)
-    } catch {
+    } catch (_error: unknown) {
       const textArea = document.createElement('textarea')
       textArea.value = ambassador.referral_code
       document.body.appendChild(textArea)
@@ -82,7 +82,7 @@ export function useAmbassadorData() {
           text: ambassador.share_message,
           url: ambassador.share_url,
         })
-      } catch {
+      } catch (_error: unknown) {
         // User cancelled
       }
     } else {

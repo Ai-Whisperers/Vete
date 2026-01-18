@@ -112,7 +112,7 @@ export async function withRetry<T>(
       // Wrap the function call with timeout
       const result = await withTimeout(fn(), timeoutMs, operationName)
       return result
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error instanceof Error ? error : new Error(String(error))
 
       // If this is the last attempt or error is not retryable, throw

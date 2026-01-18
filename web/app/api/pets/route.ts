@@ -106,7 +106,7 @@ export const POST = withApiAuth(async ({ user, supabase, request }: ApiHandlerCo
       },
       { status: 201 }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Error in POST /api/pets', {
       error: error instanceof Error ? error.message : String(error),
     })

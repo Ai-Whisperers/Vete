@@ -58,7 +58,7 @@ export const POST = withApiAuth(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
@@ -121,7 +121,7 @@ export const PUT = withApiAuth(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
@@ -181,7 +181,7 @@ export const DELETE = withApiAuth(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 

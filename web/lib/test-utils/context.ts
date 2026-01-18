@@ -236,7 +236,7 @@ class TestContext {
         if (error && !error.message.includes('column "tenant_id" does not exist')) {
           console.warn(`  ${table}: ${error.message}`)
         }
-      } catch {
+      } catch (_error: unknown) {
         // Table might not exist
       }
     }

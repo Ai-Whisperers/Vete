@@ -60,7 +60,7 @@ class ApiClient {
         message: data.message,
         status: response.status,
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof ApiError) {
         throw error
       }

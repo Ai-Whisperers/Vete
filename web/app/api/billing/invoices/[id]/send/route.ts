@@ -85,7 +85,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       const body = await request.json()
       shouldSendEmail = body.send_email !== false
       _channels = body.channels || []
-    } catch {
+    } catch (_error: unknown) {
       // Body is optional
     }
 

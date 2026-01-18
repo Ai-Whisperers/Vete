@@ -61,7 +61,7 @@ export function useBarcodeScanner(
         try {
           await scannerRef.current.stop()
           scannerRef.current.clear()
-        } catch {
+        } catch (_error: unknown) {
           // Ignore cleanup errors
         }
       }
@@ -87,7 +87,7 @@ export function useBarcodeScanner(
       )
 
       setIsLoading(false)
-    } catch (e) {
+    } catch (e: unknown) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
         console.error('Camera error:', e)
@@ -111,7 +111,7 @@ export function useBarcodeScanner(
       try {
         await scannerRef.current.stop()
         scannerRef.current.clear()
-      } catch {
+      } catch (_error: unknown) {
         // Ignore cleanup errors
       }
       scannerRef.current = null

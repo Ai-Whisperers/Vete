@@ -732,7 +732,7 @@ export async function checkAvailableSlots(
       })) || []
 
     return { data: availableSlots, error: null }
-  } catch (e) {
+  } catch (e: unknown) {
     logger.error('Unexpected error checking slots', {
       clinicSlug,
       date,

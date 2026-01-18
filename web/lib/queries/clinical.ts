@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface Drug {
@@ -96,7 +96,7 @@ export function useDrugSearch(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/drug-search')
         throw new Error(error.error || 'Error al buscar medicamentos')
       }
       return response.json()
@@ -126,7 +126,7 @@ export function useDiagnosisSearch(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/diagnosis-search')
         throw new Error(error.error || 'Error al buscar diagnósticos')
       }
       return response.json()
@@ -156,7 +156,7 @@ export function useDosageCalculation(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/dosage-calculation')
         throw new Error(error.error || 'Error al calcular dosis')
       }
       return response.json()
@@ -176,7 +176,7 @@ export function useLabTestCatalog(clinic: string, options?: { enabled?: boolean 
     queryFn: async (): Promise<LabTest[]> => {
       const response = await fetch(`/api/${clinic}/lab/tests`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/lab-tests')
         throw new Error(error.error || 'Error al cargar catálogo de pruebas')
       }
       return response.json()
@@ -196,7 +196,7 @@ export function useLabPanels(clinic: string, options?: { enabled?: boolean }) {
     queryFn: async (): Promise<LabPanel[]> => {
       const response = await fetch(`/api/${clinic}/lab/panels`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/lab-panels')
         throw new Error(error.error || 'Error al cargar paneles')
       }
       return response.json()
@@ -223,7 +223,7 @@ export function useDrugDosages(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'clinical/dosages')
         throw new Error(error.error || 'Error al cargar dosificaciones')
       }
       return response.json()

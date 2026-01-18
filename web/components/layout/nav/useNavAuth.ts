@@ -66,7 +66,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
       setProfile(null)
       router.push(`/${clinic}/portal/login`)
       router.refresh()
-    } catch {
+    } catch (_error: unknown) {
       setLogoutError('Error al cerrar sesión. Intente de nuevo.')
       setTimeout(() => setLogoutError(null), 5000)
     } finally {
@@ -105,7 +105,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
           setCachedProfile(userId, prof as UserProfile)
         }
         return prof as UserProfile | null
-      } catch {
+      } catch (_error: unknown) {
         return null
       }
     }
@@ -141,7 +141,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
             if (isMounted && prof) setProfile(prof)
           })
         }
-      } catch {
+      } catch (_error: unknown) {
         if (isMounted) {
           setUser(null)
           setProfile(null)

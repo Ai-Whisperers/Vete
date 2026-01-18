@@ -122,7 +122,7 @@ export class ValidationEngine {
       if (rule.url) {
         try {
           new URL(value)
-        } catch {
+        } catch (_error: unknown) {
           return {
             field,
             code: 'URL',

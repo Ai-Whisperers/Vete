@@ -102,7 +102,7 @@ export async function cleanupTenantData(tenantId: string): Promise<void> {
       if (error && !error.message.includes('column "tenant_id"')) {
         console.warn(`Failed to cleanup ${table} for tenant ${tenantId}:`, error.message)
       }
-    } catch {
+    } catch (_error: unknown) {
       // Some tables might not have tenant_id
     }
   }
@@ -177,7 +177,7 @@ export async function testConnection(): Promise<boolean> {
     const client = getTestClient()
     const { error } = await client.from('tenants').select('id').limit(1)
     return !error
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

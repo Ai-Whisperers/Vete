@@ -89,7 +89,7 @@ async function getReferenceData(
         break
       }
     }
-  } catch {
+  } catch (_error: unknown) {
     // Ignore errors, return empty
   }
 

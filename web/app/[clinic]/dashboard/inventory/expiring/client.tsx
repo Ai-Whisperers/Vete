@@ -213,7 +213,7 @@ export default function ExpiringProductsClient({
       }
 
       return true
-    } catch {
+    } catch (_error: unknown) {
       return false
     }
   }

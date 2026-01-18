@@ -104,7 +104,7 @@ export async function trackCronExecution<T extends CronExecutionResult>(
       data: result,
       durationMs: Date.now() - startTime,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
     // Record failure
@@ -116,7 +116,7 @@ export async function trackCronExecution<T extends CronExecutionResult>(
           p_error_message: errorMessage,
           p_metadata: {},
         })
-      } catch (trackError) {
+      } catch (trackError: unknown) {
         logger.warn(`Failed to record cron failure for ${jobName}`, {
           error: trackError instanceof Error ? trackError.message : 'Unknown',
         })
@@ -132,7 +132,7 @@ export async function trackCronExecution<T extends CronExecutionResult>(
     // Send alert for failed job
     try {
       await alertOnCronFailure(jobName, errorMessage, runId)
-    } catch (alertError) {
+    } catch (alertError: unknown) {
       // Don't fail tracking if alerting fails
       logger.warn(`Failed to send alert for ${jobName}`, {
         error: alertError instanceof Error ? alertError.message : 'Unknown',
@@ -168,7 +168,7 @@ export async function getCronJobStatus(): Promise<CronJobStatus[]> {
     }
 
     return data || []
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn('Error getting cron job status', {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -209,7 +209,7 @@ export async function getJobHistory(
     }
 
     return data || []
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`Error getting job history for ${jobName}`, {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -237,7 +237,7 @@ export async function cleanupOldRuns(): Promise<number> {
     }
 
     return data || 0
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn('Error cleaning up old cron runs', {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -267,7 +267,7 @@ export async function startCronRun(jobName: string): Promise<string | null> {
     }
 
     return data
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`Error starting cron run for ${jobName}`, {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -295,7 +295,7 @@ export async function completeCronRun(
     if (error) {
       logger.warn(`Failed to complete cron run ${runId}`, { error: error.message })
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`Error completing cron run ${runId}`, {
       error: error instanceof Error ? error.message : 'Unknown',
     })
@@ -322,7 +322,7 @@ export async function failCronRun(
     if (error) {
       logger.warn(`Failed to record cron failure ${runId}`, { error: error.message })
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`Error failing cron run ${runId}`, {
       error: error instanceof Error ? error.message : 'Unknown',
     })

@@ -58,7 +58,7 @@ export function useSearch({
       try {
         const searchResults = await searchFn(debouncedQuery, clinic)
         setResults(searchResults)
-      } catch (err) {
+      } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Search failed')
         setResults([])
       } finally {

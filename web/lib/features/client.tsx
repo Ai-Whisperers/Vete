@@ -119,7 +119,7 @@ export function FeatureFlagsProvider({
 
       const data = await response.json()
       setFeatures(data)
-    } catch (e) {
+    } catch (e: unknown) {
       setError(e instanceof Error ? e : new Error('Unknown error'))
     } finally {
       setIsLoading(false)

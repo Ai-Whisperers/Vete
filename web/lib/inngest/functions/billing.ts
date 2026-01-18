@@ -227,7 +227,7 @@ async function processInvoiceCharge(invoice: {
           stripe_charge_id: (paymentIntent.latest_charge as string) || null,
         })
         .eq('id', transaction.id)
-    } catch (stripeError) {
+    } catch (stripeError: unknown) {
       const isTimeout = isTimeoutError(stripeError)
       const errorMsg = stripeError instanceof Error ? stripeError.message : 'Unknown Stripe error'
 
@@ -271,7 +271,7 @@ async function processInvoiceCharge(invoice: {
         .eq('id', transaction.id)
       return { ...baseResult, status: 'failed', error: `Status: ${paymentIntent.status}` }
     }
-  } catch (e) {
+  } catch (e: unknown) {
     return { ...baseResult, status: 'failed', error: e instanceof Error ? e.message : 'Unknown error' }
   }
 }

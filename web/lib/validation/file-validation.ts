@@ -117,7 +117,7 @@ export async function verifyFileContent(file: File): Promise<FileValidationResul
     }
 
     return { valid: true }
-  } catch {
+  } catch (_error: unknown) {
     return {
       valid: false,
       error: 'Error al verificar el archivo',

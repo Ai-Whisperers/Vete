@@ -280,7 +280,7 @@ export function InvoicePDFButton({
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    } catch {
+    } catch (_error: unknown) {
       showToast({ title: 'Error al generar PDF', variant: 'error' })
     } finally {
       setLoading(false)

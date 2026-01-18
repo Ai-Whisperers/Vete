@@ -62,7 +62,7 @@ export function withAuthMiddleware(options: AuthMiddlewareOptions = {}) {
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Auth middleware error:', error)
       // On auth error, redirect to login
       const loginUrl = new URL(redirectTo, request.url)

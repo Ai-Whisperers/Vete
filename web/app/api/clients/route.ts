@@ -181,7 +181,7 @@ export const GET = withApiAuth(
           p_tenant_id: profile.tenant_id,
         })
         petAggregates = data
-      } catch {
+      } catch (_error: unknown) {
         // RPC function may not exist, fall back to batch query
       }
 
@@ -193,7 +193,7 @@ export const GET = withApiAuth(
           p_tenant_id: profile.tenant_id,
         })
         apptAggregates = data
-      } catch {
+      } catch (_error: unknown) {
         // RPC function may not exist, fall back to batch query
       }
 
@@ -282,7 +282,7 @@ export const GET = withApiAuth(
         clients: enrichedClients,
         ...paginatedResponse(enrichedClients, totalCount || 0, { page, limit, offset }),
       })
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Unexpected error in clients API', {
         tenantId: profile.tenant_id,
         userId: user.id,

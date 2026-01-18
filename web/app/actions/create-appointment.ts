@@ -246,7 +246,7 @@ export async function createAppointment(
         clinicName: clinicDisplayName,
       }),
     })
-  } catch (emailError) {
+  } catch (emailError: unknown) {
     logger.error('Failed to send appointment confirmation email', {
       error: emailError instanceof Error ? emailError : undefined,
       userId: user.id,
@@ -747,7 +747,7 @@ export async function createMultiServiceAppointmentJson(input: {
         clinicName: clinicDisplayName,
       }),
     })
-  } catch (emailError) {
+  } catch (emailError: unknown) {
     emailFailed = true
     logger.error('Failed to send multi-service confirmation email', {
       error: emailError instanceof Error ? emailError : undefined,

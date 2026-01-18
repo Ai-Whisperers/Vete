@@ -222,7 +222,7 @@ export function withAuth<P extends Record<string, string> = Record<string, strin
         return await (handler as AuthHandlerWithParams<P>)(authContext, context)
       }
       return await (handler as AuthHandler)(authContext)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('API route error:', error)
       return apiError('SERVER_ERROR', 500)
     }

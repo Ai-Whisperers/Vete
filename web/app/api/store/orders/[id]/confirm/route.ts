@@ -69,7 +69,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     let body = {}
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       // Empty body is fine, will use defaults
     }
 

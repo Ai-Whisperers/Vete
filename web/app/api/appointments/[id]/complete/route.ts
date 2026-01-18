@@ -23,7 +23,7 @@ export const POST = withApiAuthParams<Params>(
     try {
       const body = await request.json();
       notes = body.notes;
-    } catch {
+    } catch (_error: unknown) {
       // No body is fine
     }
 

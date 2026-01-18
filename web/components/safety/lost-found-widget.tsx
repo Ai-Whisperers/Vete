@@ -71,7 +71,7 @@ export function LostFoundWidget() {
 
         if (error) throw error
         setLostPets((data as LostPet[]) || [])
-      } catch {
+      } catch (_error: unknown) {
         // Error fetching lost pets - silently fail
       } finally {
         setLoading(false)

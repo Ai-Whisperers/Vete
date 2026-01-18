@@ -116,7 +116,7 @@ export function useSyncedState<T>(
     try {
       const stored = localStorage.getItem(storageKey)
       return stored ? JSON.parse(stored) : initialState
-    } catch {
+    } catch (_error: unknown) {
       return initialState
     }
   })
@@ -135,7 +135,7 @@ export function useSyncedState<T>(
     if (typeof window === 'undefined' || !storageKey) return
     try {
       localStorage.setItem(storageKey, JSON.stringify(state))
-    } catch (e) {
+    } catch (e: unknown) {
       console.error('Error saving to localStorage:', e)
     }
   }, [state, storageKey])
@@ -247,7 +247,7 @@ export function useSyncedState<T>(
         setHasUnsavedChanges(false)
         onLoad?.(remoteState)
       }
-    } catch (e) {
+    } catch (e: unknown) {
       if (isMountedRef.current) {
         setSyncStatus('error')
         setSyncError(e instanceof Error ? e : new Error(String(e)))

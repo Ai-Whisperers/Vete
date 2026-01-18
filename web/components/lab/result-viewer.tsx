@@ -120,7 +120,7 @@ export function ResultViewer({
         }) || []
 
       setResults(formattedResults)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching results - silently fail
     } finally {
       setLoading(false)
@@ -174,7 +174,7 @@ export function ResultViewer({
       })
 
       setHistoricalData(grouped)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching historical data - silently fail
     }
   }

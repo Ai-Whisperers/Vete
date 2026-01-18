@@ -109,7 +109,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart))
-      } catch (e) {
+      } catch (e: unknown) {
         console.error('Failed to parse cart', e)
       }
     }
@@ -164,7 +164,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
       } else {
         setIsLoggedIn(false)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error checking auth:', error)
       setIsLoggedIn(false)
     }
@@ -217,7 +217,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
         setSyncError(data.error || 'Error al sincronizar')
         setSyncStatus('error')
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error syncing cart:', error)
       setSyncError('Error de conexión')
       setSyncStatus('error')
@@ -246,7 +246,7 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
         setSyncError(data.error || 'Error al cargar')
         setSyncStatus('error')
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error loading cart:', error)
       setSyncError('Error de conexión')
       setSyncStatus('error')

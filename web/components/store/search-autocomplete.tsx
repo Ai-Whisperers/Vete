@@ -44,7 +44,7 @@ export default function SearchAutocomplete({
     if (stored) {
       try {
         setRecentSearches(JSON.parse(stored))
-      } catch {
+      } catch (_error: unknown) {
         // Ignore parse errors
       }
     }
@@ -67,7 +67,7 @@ export default function SearchAutocomplete({
           const data = await res.json()
           setSuggestions(data.suggestions || [])
         }
-      } catch {
+      } catch (_error: unknown) {
         // Search error - silently fail
       } finally {
         setLoading(false)

@@ -37,7 +37,7 @@ function verifyInternalAuth(authHeader: string | null): boolean {
       Buffer.from(expected, 'utf8'),
       Buffer.from(provided, 'utf8')
     )
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let payload: ConversionPayload
   try {
     payload = await request.json()
-  } catch {
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 

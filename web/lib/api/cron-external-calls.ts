@@ -35,7 +35,7 @@ export async function sendEmailWithTimeout(options: EmailOptions) {
       TIMEOUT_PRESETS.EMAIL, // 15 seconds
       `Email to ${options.to}`
     )
-  } catch (error) {
+  } catch (error: unknown) {
     // Log timeout/failure but don't crash the cron job
     logger.error('Email sending failed or timed out in cron job', {
       to: options.to,
@@ -144,7 +144,7 @@ export async function fetchWithTimeout(
       timeoutMs,
       `HTTP ${options?.method || 'GET'} ${url}`
     )
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('HTTP fetch failed or timed out in cron job', {
       url,
       method: options?.method || 'GET',

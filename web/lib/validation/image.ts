@@ -62,7 +62,7 @@ export async function validateImageFile(
           error: `La imagen es muy pequeña. Mínimo: ${minWidth}x${minHeight}px`,
         }
       }
-    } catch {
+    } catch (_error: unknown) {
       return {
         valid: false,
         error: 'No se pudo verificar las dimensiones de la imagen',

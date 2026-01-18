@@ -22,7 +22,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface InventoryProduct {
@@ -106,7 +106,7 @@ export function useInventoryList(
 
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al cargar inventario')
       }
       return response.json()
@@ -126,7 +126,7 @@ export function useInventoryStats(clinic: string, options?: { enabled?: boolean 
     queryFn: async (): Promise<InventoryStats> => {
       const response = await fetch(`/api/${clinic}/inventory/stats`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al cargar estadísticas')
       }
       return response.json()
@@ -146,7 +146,7 @@ export function useInventoryAlerts(clinic: string, options?: { enabled?: boolean
     queryFn: async () => {
       const response = await fetch(`/api/${clinic}/inventory/alerts`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al cargar alertas')
       }
       return response.json()
@@ -166,7 +166,7 @@ export function useInventoryCategories(clinic: string, options?: { enabled?: boo
     queryFn: async (): Promise<{ id: string; name: string; slug: string }[]> => {
       const response = await fetch(`/api/${clinic}/store/categories`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al cargar categorías')
       }
       return response.json()
@@ -189,7 +189,7 @@ export function useInventoryProduct(
     queryFn: async (): Promise<InventoryProduct> => {
       const response = await fetch(`/api/inventory/${productId}`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al cargar producto')
       }
       return response.json()
@@ -228,7 +228,7 @@ export function useCreateProduct(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al crear producto')
       }
       return response.json()
@@ -258,7 +258,7 @@ export function useUpdateProduct(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al actualizar producto')
       }
       return response.json()
@@ -283,7 +283,7 @@ export function useDeleteProduct(clinic: string) {
         method: 'DELETE',
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al eliminar producto')
       }
     },
@@ -317,7 +317,7 @@ export function useStockAdjustment(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'inventory')
         throw new Error(error.error || 'Error al ajustar stock')
       }
     },

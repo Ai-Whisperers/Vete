@@ -75,7 +75,7 @@ if (RESEND_API_KEY) {
   try {
     resendClient = new Resend(RESEND_API_KEY)
     logger.info('Email client initialized', { provider: 'resend' })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Failed to initialize email client', { error })
   }
 } else {
@@ -172,7 +172,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         success: true,
         messageId: result.data?.id,
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Email send exception', {
         ...logContext,
         error: error instanceof Error ? error.message : 'Unknown error',

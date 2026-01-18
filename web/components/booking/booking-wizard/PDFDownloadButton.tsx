@@ -70,7 +70,7 @@ export function PDFDownloadButton({
       import('./AppointmentTicketPDF'),
     ]).then(([pdfModule, ticketModule]) => {
       setPDFComponents({
-        PDFDownloadLink: pdfModule.PDFDownloadLink,
+        PDFDownloadLink: pdfModule.PDFDownloadLink as React.ComponentType<PDFDownloadLinkProps>,
         AppointmentTicketPDF: ticketModule.AppointmentTicketPDF,
       })
     }).catch(() => {

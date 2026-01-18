@@ -89,3 +89,12 @@ export {
   type UseRovingFocusOptions,
   type Direction as RovingDirection,
 } from './use-roving-focus'
+
+// Modal form submission (reduces boilerplate in modal components)
+export {
+  useModalForm,
+  useApiModalForm,
+  type UseModalFormOptions,
+  type UseModalFormReturn,
+  type UseApiModalFormOptions,
+} from './use-modal-form'

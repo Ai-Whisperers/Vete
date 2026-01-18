@@ -121,7 +121,7 @@ export default async function PortalPetsPage({
       {/* Pets List */}
       {pets.length > 0 && (
         <div className="space-y-4">
-          {(pets as OwnerPet[]).map((pet) => (
+          {pets.map((pet) => (
             <PetCardEnhanced key={pet.id} pet={pet} clinic={clinic} />
           ))}
         </div>

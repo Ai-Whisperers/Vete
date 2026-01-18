@@ -295,7 +295,9 @@ export function ClientInviteForm({
                 </label>
                 <select
                   id="petSpecies"
-                  {...form.getFieldProps('petSpecies')}
+                  value={form.getFieldProps('petSpecies').value as string}
+                  onChange={(e) => form.setValue('petSpecies', e.target.value)}
+                  onBlur={() => form.setTouched('petSpecies')}
                   aria-invalid="false"
                   className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
                 >

@@ -250,7 +250,8 @@ export class PetService extends BaseService {
 
 ### Use Custom Hooks
 ```typescript
-import { useAsyncData, useFormState, useModal } from "@/lib/hooks";
+import { useAsyncData, useModal } from "@/lib/hooks";
+import { useForm } from "react-hook-form";
 
 // Data fetching
 const { data, isLoading, error } = useAsyncData(
@@ -258,12 +259,8 @@ const { data, isLoading, error } = useAsyncData(
   [tenantId]
 );
 
-// Form with validation
-const form = useFormState({
-  initialValues: { name: "" },
-  schema: petSchema,
-  onSubmit: createPet,
-});
+// Form with validation (use react-hook-form)
+const form = useForm({ defaultValues: { name: "" } });
 
 // Modal state
 const modal = useModal();

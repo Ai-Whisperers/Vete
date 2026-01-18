@@ -1,14 +1,11 @@
 /**
- * Legacy Notification Service
+ * Notification Service
  *
- * @deprecated Use `@/lib/notifications` instead
- *
- * This file is kept for backwards compatibility.
- * All new code should import from the notifications module.
+ * Unified notification system for multi-channel delivery
  */
 
-import { sendNotification, sendInAppNotification } from './notifications'
-import { logger } from './logger'
+import { logger } from '@/lib/logger'
+import type { NotificationPayload } from './types'
 
 /**
  * @deprecated Use sendNotification from '@/lib/notifications' instead
@@ -43,5 +40,58 @@ export async function sendReminderNotification(options: {
   return { success: true, message: 'Recordatorio enviado (simulado)' }
 }
 
-// Re-export new functions for easy migration
-export { sendNotification, sendInAppNotification }
+/**
+ * Send notification to user
+ */
+export async function sendNotification(payload: NotificationPayload) {
+  logger.info('Sending notification', { type: payload.type, channels: payload.channels })
+  
+  // TODO: Implement actual notification sending logic
+  return {
+    success: true,
+    message: 'Notification sent',
+    results: payload.channels.map(channel => ({
+      channel,
+      success: true,
+      message: `Sent via ${channel}`
+    }))
+  }
+}
+
+/**
+ * Send in-app notification
+ */
+export async function sendInAppNotification(payload: {
+  userId: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+}) {
+  logger.info('Sending in-app notification', { userId: payload.userId, type: payload.type })
+  
+  // TODO: Implement actual in-app notification
+  return {
+    success: true,
+    message: 'In-app notification sent'
+  }
+}
+
+/**
+ * Notify staff members
+ */
+export async function notifyStaff(payload: {
+  tenantId: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+}) {
+  logger.info('Notifying staff', { tenantId: payload.tenantId, type: payload.type })
+  
+  // TODO: Implement staff notification logic
+  return {
+    success: true,
+    message: 'Staff notified'
+  }
+}

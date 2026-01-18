@@ -14,7 +14,6 @@ The hooks library provides type-safe, tested hooks that replace common patterns 
 | Hook | Purpose | Replaces |
 |------|---------|----------|
 | `useAsyncData` | Data fetching with loading/error states | Manual `useEffect` + `useState` |
-| `useFormState` | Form management with Zod validation | Manual form state tracking |
 | `useModal` | Modal open/close state | Boolean state + handlers |
 | `useSyncedState` | localStorage + API synchronization | Manual sync logic |
 | `useConfirmation` | Promise-based confirmation dialogs | Callback-based confirms |
@@ -29,13 +28,15 @@ All hooks are exported from the barrel file:
 ```typescript
 import {
   useAsyncData,
-  useFormState,
   useModal,
   useModalWithData,
   useConfirmation,
   useSyncedState,
   useLocalStorage,
 } from '@/lib/hooks'
+
+// For forms, use react-hook-form directly
+import { useForm } from 'react-hook-form'
 ```
 
 ---
@@ -112,109 +113,6 @@ const [pets, isLoading, error] = useSimpleAsyncData(
   () => fetchPets(),
   [tenantId]
 )
-```
-
----
-
-## useFormState
-
-Hook for managing form state with validation, submission, and error handling.
-
-### API
-
-```typescript
-function useFormState<T extends Record<string, unknown>>(
-  options: UseFormStateOptions<T>
-): FormStateResult<T>
-```
-
-### Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `initialValues` | `T` | Required | Initial form values |
-| `schema` | `ZodSchema<T>` | - | Zod schema for validation |
-| `onSubmit` | `(values: T) => Promise<void>` | Required | Submit handler |
-| `onError` | `(errors) => void` | - | Called on validation/submission error |
-| `onSuccess` | `() => void` | - | Called on successful submission |
-| `validateOnBlur` | `boolean` | `true` | Validate field on blur |
-| `validateOnChange` | `boolean` | `false` | Validate field on change |
-| `resetOnSuccess` | `boolean` | `false` | Reset form after success |
-
-### Return Value
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `values` | `T` | Current form values |
-| `errors` | `FieldErrors<T>` | Field-level errors |
-| `formError` | `string \| undefined` | General form error |
-| `status` | `FormStatus` | `'idle' \| 'submitting' \| 'success' \| 'error'` |
-| `isSubmitting` | `boolean` | Whether form is submitting |
-| `isDirty` | `boolean` | Whether form has changes |
-| `isValid` | `boolean` | Whether form passed validation |
-| `setValue` | `(field, value) => void` | Update a single field |
-| `setValues` | `(values) => void` | Update multiple fields |
-| `reset` | `() => void` | Reset to initial values |
-| `validate` | `() => boolean` | Validate without submitting |
-| `handleSubmit` | `(e: FormEvent) => void` | Form submit handler |
-| `getFieldProps` | `(field) => props` | Get props for input element |
-| `getCheckboxProps` | `(field) => props` | Get props for checkbox |
-
-### Example
-
-```typescript
-import { z } from 'zod'
-
-const petSchema = z.object({
-  name: z.string().min(1, 'Nombre requerido'),
-  species: z.enum(['dog', 'cat']),
-  weight: z.number().positive('Peso debe ser positivo'),
-})
-
-function PetForm() {
-  const form = useFormState({
-    initialValues: { name: '', species: 'dog' as const, weight: 0 },
-    schema: petSchema,
-    onSubmit: async (values) => {
-      await fetch('/api/pets', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      })
-    },
-    onSuccess: () => toast.success('Mascota creada'),
-    resetOnSuccess: true,
-  })
-
-  return (
-    <form onSubmit={form.handleSubmit}>
-      <div>
-        <label>Nombre</label>
-        <input {...form.getFieldProps('name')} />
-        {form.errors.name && <span className="error">{form.errors.name}</span>}
-      </div>
-
-      <div>
-        <label>Especie</label>
-        <select {...form.getFieldProps('species')}>
-          <option value="dog">Perro</option>
-          <option value="cat">Gato</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Peso (kg)</label>
-        <input type="number" {...form.getFieldProps('weight')} />
-        {form.errors.weight && <span className="error">{form.errors.weight}</span>}
-      </div>
-
-      {form.formError && <div className="form-error">{form.formError}</div>}
-
-      <button type="submit" disabled={form.isSubmitting}>
-        {form.isSubmitting ? 'Guardando...' : 'Guardar'}
-      </button>
-    </form>
-  )
-}
 ```
 
 ---
@@ -497,12 +395,6 @@ import type {
   AsyncDataStatus,
   UseAsyncDataOptions,
 
-  // useFormState
-  FormStateResult,
-  FieldErrors,
-  FormStatus,
-  UseFormStateOptions,
-
   // useModal
   ModalState,
   ModalWithDataState,
@@ -564,6 +456,8 @@ const { data } = useAsyncData(
 ### 4. Combine hooks for complex flows
 
 ```typescript
+import { useForm } from 'react-hook-form'
+
 function EditPetModal({ petId }: { petId: string }) {
   const modal = useModal()
   const { data: pet, isLoading } = useAsyncData(
@@ -572,10 +466,9 @@ function EditPetModal({ petId }: { petId: string }) {
     { enabled: modal.isOpen }
   )
 
-  const form = useFormState({
-    initialValues: pet || { name: '' },
-    onSubmit: updatePet,
-    onSuccess: modal.close,
+  // For forms, use react-hook-form
+  const form = useForm({
+    defaultValues: pet || { name: '' },
   })
 
   // ...
@@ -636,13 +529,16 @@ const handleSubmit = async (e) => {
 }
 ```
 
-After:
+After (using react-hook-form):
 ```typescript
-const form = useFormState({
-  initialValues: { name: '' },
-  schema: z.object({ name: z.string().min(1, 'Required') }),
-  onSubmit: save,
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const form = useForm({
+  defaultValues: { name: '' },
+  resolver: zodResolver(z.object({ name: z.string().min(1, 'Required') })),
 })
 
-// Just use form.handleSubmit, form.getFieldProps('name'), etc.
+// Use form.handleSubmit, form.register('name'), etc.
 ```

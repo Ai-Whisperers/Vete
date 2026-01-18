@@ -11,3 +11,9 @@ export * from './appointments'
 
 // Pets domain
 export * from './pets'
+
+// Invoices domain
+export * from './invoices'
+
+// Payments domain
+export * from './payments'

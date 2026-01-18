@@ -6,6 +6,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AppointmentService } from './appointments'
 import { PetService } from './pets'
+import { InvoiceService } from './invoices'
+import { PaymentService } from './payments'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
@@ -22,6 +24,20 @@ export class DomainFactory {
    */
   createPetService(): PetService {
     return new PetService(this.supabase)
+  }
+
+  /**
+   * Create invoice service
+   */
+  createInvoiceService(): InvoiceService {
+    return new InvoiceService(this.supabase)
+  }
+
+  /**
+   * Create payment service
+   */
+  createPaymentService(): PaymentService {
+    return new PaymentService(this.supabase)
   }
 }
 

@@ -207,7 +207,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               requested: subscription.quantity,
               available,
             },
-          }).catch((err) => {
+          }).catch((err: unknown) => {
             logger.warn('Failed to send subscription stock notification', {
               subscriptionId: subscription.id,
               error: err instanceof Error ? err.message : 'Unknown',

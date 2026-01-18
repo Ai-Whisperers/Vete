@@ -428,7 +428,7 @@ export {
 } from './whatsapp'
 export type {
   MessageDirection,
-  MessageStatus as WhatsAppMessageStatus,
+  WhatsAppMessageStatus,
   ConversationType,
   TemplateCategory,
   WhatsAppMessage,

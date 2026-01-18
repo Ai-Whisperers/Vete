@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, ApiErrorResponse } from './errors'
+import { logger } from '@/lib/logger'
 import { rateLimit, RateLimitType } from '@/lib/rate-limit'
 import { scopedQueries, ScopedQueries } from '@/lib/supabase/scoped'
 import type { User } from '@supabase/supabase-js'
@@ -223,7 +224,9 @@ export function withAuth<P extends Record<string, string> = Record<string, strin
       }
       return await (handler as AuthHandler)(authContext)
     } catch (error: unknown) {
-      console.error('API route error:', error)
+      logger.error('[API] Route handler error', {
+        error: error instanceof Error ? error.message : String(error),
+      })
       return apiError('SERVER_ERROR', 500)
     }
   }

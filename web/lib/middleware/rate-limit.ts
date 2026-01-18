@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
+import { logger } from '@/lib/logger'
 
 // Rate limiters for different endpoints
 const authLimiter = new Ratelimit({
@@ -64,7 +65,10 @@ export function withRateLimit(options: RateLimitOptions = {}) {
 
       return response
     } catch (error: unknown) {
-      console.error('Rate limit error:', error)
+      logger.error('[RateLimit] Service error', {
+        error: error instanceof Error ? error.message : String(error),
+        ip,
+      })
       // On rate limit service error, allow the request
       return NextResponse.next()
     }

@@ -26,6 +26,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 /**
  * Handler function type with guaranteed tenant_id
@@ -63,7 +64,9 @@ export function withTenantGuard(handler: TenantGuardHandler) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      console.error('[TenantGuard] Authentication failed:', authError?.message);
+      logger.error('[TenantGuard] Authentication failed', {
+        error: authError?.message,
+      });
       return NextResponse.json(
         { error: 'No autorizado. Por favor inicie sesión.' },
         { status: 401 }
@@ -78,7 +81,10 @@ export function withTenantGuard(handler: TenantGuardHandler) {
       .single();
 
     if (profileError) {
-      console.error('[TenantGuard] Profile lookup failed:', profileError.message);
+      logger.error('[TenantGuard] Profile lookup failed', {
+        error: profileError.message,
+        userId: user.id,
+      });
       return NextResponse.json(
         { error: 'Error al obtener perfil de usuario' },
         { status: 500 }
@@ -86,7 +92,7 @@ export function withTenantGuard(handler: TenantGuardHandler) {
     }
 
     if (!profile || !profile.tenant_id) {
-      console.warn('[TenantGuard] User has no tenant access:', user.id);
+      logger.warn('[TenantGuard] User has no tenant access', { userId: user.id });
       return NextResponse.json(
         { error: 'Usuario sin acceso a ninguna clínica. Contacte al administrador.' },
         { status: 403 }
@@ -96,8 +102,12 @@ export function withTenantGuard(handler: TenantGuardHandler) {
     // Step 3: Call handler with guaranteed tenant_id
     try {
       return await handler(request, profile.tenant_id, user.id);
-    } catch (error) {
-      console.error('[TenantGuard] Handler error:', error);
+    } catch (error: unknown) {
+      logger.error('[TenantGuard] Handler error', {
+        error: error instanceof Error ? error.message : String(error),
+        tenantId: profile.tenant_id,
+        userId: user.id,
+      });
       return NextResponse.json(
         { error: 'Error interno del servidor' },
         { status: 500 }
@@ -176,7 +186,7 @@ export function withAdminTenantGuard(handler: TenantGuardHandler) {
 
     // Step 3: Role check
     if (profile.role !== 'admin') {
-      console.warn('[AdminGuard] Unauthorized access attempt:', user.id);
+      logger.warn('[AdminGuard] Unauthorized access attempt', { userId: user.id, role: profile.role });
       return NextResponse.json(
         { error: 'Solo administradores pueden acceder a este recurso' },
         { status: 403 }

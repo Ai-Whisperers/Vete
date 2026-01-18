@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export type AuditAction =
   | 'CREATE'
@@ -48,7 +49,7 @@ export async function logAudit(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      console.warn('[Audit] No user context for audit log')
+      logger.warn('[Audit] No user context for audit log')
       return
     }
 

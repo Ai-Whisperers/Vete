@@ -16,6 +16,7 @@ import { drizzleProfileToUserProfile, type DrizzleProfileRow } from './mappers'
 import { db } from '@/db'
 import { profiles } from '@/db/schema'
 import { eq } from 'drizzle-orm'
+import { logger } from '@/lib/logger'
 
 export class AuthService {
   /**
@@ -45,7 +46,7 @@ export class AuthService {
       const row = result[0]
 
       if (!row) {
-        console.warn('Profile not found for authenticated user:', user.id)
+        logger.warn('[Auth] Profile not found for authenticated user', { userId: user.id })
         return {
           user: null,
           profile: null,
@@ -58,7 +59,7 @@ export class AuthService {
       const profile = drizzleProfileToUserProfile(row as DrizzleProfileRow)
 
       if (!profile) {
-        console.warn('User profile missing tenant_id:', user.id)
+        logger.warn('[Auth] User profile missing tenant_id', { userId: user.id })
         return {
           user: null,
           profile: null,
@@ -74,7 +75,9 @@ export class AuthService {
         isAuthenticated: true,
       }
     } catch (error: unknown) {
-      console.error('Auth context error:', error)
+      logger.error('[Auth] Context retrieval error', {
+        error: error instanceof Error ? error.message : String(error),
+      })
       return {
         user: null,
         profile: null,

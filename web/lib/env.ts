@@ -342,5 +342,7 @@ export type Env = typeof env
 
 // Log successful validation in development
 if (env.isDev && typeof window === 'undefined') {
-  console.log('[ENV] ✅ Environment variables validated successfully')
+  // Note: Logger not imported to avoid circular dependency
+  // This runs once at module load, console.log is acceptable here
+  console.info('[ENV] ✅ Environment variables validated successfully')
 }

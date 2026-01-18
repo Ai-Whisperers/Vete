@@ -5,6 +5,7 @@
 
 import { randomUUID } from 'crypto'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 import type {
   AppError,
   ErrorCode,
@@ -144,12 +145,12 @@ export class ErrorService {
 
     // Log critical errors
     if (appError.severity === 'critical' || appError.severity === 'high') {
-      console.error('Critical API error:', {
+      logger.error('[API] Critical error', {
         ...appError,
         stack: appError.stack,
       })
     } else {
-      console.warn('API error:', {
+      logger.warn('[API] Error', {
         code: appError.code,
         message: appError.message,
         requestId: appError.requestId,
@@ -167,12 +168,12 @@ export class ErrorService {
 
     // Log critical errors
     if (appError.severity === 'critical' || appError.severity === 'high') {
-      console.error('Critical action error:', {
+      logger.error('[Action] Critical error', {
         ...appError,
         stack: appError.stack,
       })
     } else {
-      console.warn('Action error:', {
+      logger.warn('[Action] Error', {
         code: appError.code,
         message: appError.message,
         requestId: appError.requestId,

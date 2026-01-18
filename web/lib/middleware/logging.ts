@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export interface LoggingOptions {
   logLevel?: 'debug' | 'info' | 'warn' | 'error'
@@ -97,10 +98,10 @@ export function withLogging(options: LoggingOptions = {}) {
     // Log based on level
     switch (logLevel) {
       case 'debug':
-        console.debug('Request:', logData)
+        logger.debug('[Request] Debug', logData)
         break
       case 'info':
-        console.info('Request:', {
+        logger.info('[Request]', {
           method: logData.method,
           path: logData.path,
           ip: logData.ip,
@@ -109,7 +110,7 @@ export function withLogging(options: LoggingOptions = {}) {
         break
       case 'warn':
         if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
-          console.warn('Write request:', logData)
+          logger.warn('[Request] Write operation', logData)
         }
         break
       case 'error':

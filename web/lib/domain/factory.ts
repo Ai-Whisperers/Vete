@@ -8,36 +8,104 @@ import { AppointmentService } from './appointments'
 import { PetService } from './pets'
 import { InvoiceService } from './invoices'
 import { PaymentService } from './payments'
+import { MedicalRecordService } from './medical-records'
+import { HospitalizationService } from './hospitalizations'
+import { LabService } from './lab'
+import { InventoryService } from './inventory'
+import { StoreService } from './store'
+import { ConsentService } from './consent'
+import { UserService } from './users'
+import { ClinicalToolsService } from './clinical-tools'
+import { MessagingService } from './messaging'
+import { ReminderService } from './reminders'
+import { SafetyService } from './safety'
+import { VaccineService } from './vaccines'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
 
-  /**
-   * Create appointment service
-   */
+  // ===========================================================================
+  // CORE DOMAINS
+  // ===========================================================================
+
   createAppointmentService(): AppointmentService {
     return new AppointmentService(this.supabase)
   }
 
-  /**
-   * Create pet service
-   */
   createPetService(): PetService {
     return new PetService(this.supabase)
   }
 
-  /**
-   * Create invoice service
-   */
   createInvoiceService(): InvoiceService {
     return new InvoiceService(this.supabase)
   }
 
-  /**
-   * Create payment service
-   */
   createPaymentService(): PaymentService {
     return new PaymentService(this.supabase)
+  }
+
+  createUserService(): UserService {
+    return new UserService(this.supabase)
+  }
+
+  // ===========================================================================
+  // CLINICAL DOMAINS
+  // ===========================================================================
+
+  createMedicalRecordService(): MedicalRecordService {
+    return new MedicalRecordService(this.supabase)
+  }
+
+  createHospitalizationService(): HospitalizationService {
+    return new HospitalizationService(this.supabase)
+  }
+
+  createLabService(): LabService {
+    return new LabService(this.supabase)
+  }
+
+  createVaccineService(): VaccineService {
+    return new VaccineService(this.supabase)
+  }
+
+  createClinicalToolsService(): ClinicalToolsService {
+    return new ClinicalToolsService(this.supabase)
+  }
+
+  // ===========================================================================
+  // OPERATIONAL DOMAINS
+  // ===========================================================================
+
+  createInventoryService(): InventoryService {
+    return new InventoryService(this.supabase)
+  }
+
+  createStoreService(): StoreService {
+    return new StoreService(this.supabase)
+  }
+
+  createConsentService(): ConsentService {
+    return new ConsentService(this.supabase)
+  }
+
+  // ===========================================================================
+  // COMMUNICATION DOMAINS
+  // ===========================================================================
+
+  createMessagingService(): MessagingService {
+    return new MessagingService(this.supabase)
+  }
+
+  createReminderService(): ReminderService {
+    return new ReminderService(this.supabase)
+  }
+
+  // ===========================================================================
+  // PUBLIC HEALTH DOMAINS
+  // ===========================================================================
+
+  createSafetyService(): SafetyService {
+    return new SafetyService(this.supabase)
   }
 }
 

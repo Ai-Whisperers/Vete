@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthService } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export interface AuthMiddlewareOptions {
   requireAuth?: boolean
@@ -63,7 +64,10 @@ export function withAuthMiddleware(options: AuthMiddlewareOptions = {}) {
 
       return response
     } catch (error: unknown) {
-      console.error('Auth middleware error:', error)
+      logger.error('[AuthMiddleware] Error processing request', {
+        error: error instanceof Error ? error.message : String(error),
+        path: pathname,
+      })
       // On auth error, redirect to login
       const loginUrl = new URL(redirectTo, request.url)
       return NextResponse.redirect(loginUrl)

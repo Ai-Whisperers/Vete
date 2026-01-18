@@ -44,6 +44,9 @@ export interface Invoice {
   status: InvoiceStatus
   due_date: string | null
   paid_at: string | null
+  sent_at: string | null
+  voided_at: string | null
+  voided_by: string | null
   notes: string | null
   internal_notes: string | null
   created_by: string | null

@@ -75,7 +75,7 @@ export class InvoiceService {
     if (!invoice) return null
 
     // Check access - staff or owner
-    if (!isStaff && userId && invoice.owner_id !== userId) {
+    if (!isStaff && userId && invoice.client_id !== userId) {
       throw new Error('No tiene permisos para ver esta factura')
     }
 
@@ -251,8 +251,8 @@ export class InvoiceService {
       updated = await this.repository.update(id, tenantId, {
         subtotal,
         tax_amount: taxAmount,
-        total,
-        amount_due: amountDue,
+        total_amount: total,
+        balance_due: amountDue,
       })
     }
 
@@ -343,8 +343,8 @@ export class InvoiceService {
 
     const updated = await this.repository.update(id, tenantId, {
       status: 'paid',
-      amount_paid: invoice.total,
-      amount_due: 0,
+      amount_paid: invoice.total_amount,
+      balance_due: 0,
       paid_at: new Date().toISOString(),
     })
 

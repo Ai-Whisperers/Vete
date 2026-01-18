@@ -27,6 +27,7 @@ export interface Conversation {
   assigned_to: string | null
   assigned_at: string | null
   last_message_at: string | null
+  last_message_preview: string | null
   last_client_message_at: string | null
   last_staff_message_at: string | null
   client_last_read_at: string | null

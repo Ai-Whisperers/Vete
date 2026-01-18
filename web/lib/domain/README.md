@@ -57,6 +57,18 @@ domain/{entity}/
 - **Repository**: CRUD for pets
 - **Service**: Business logic (registration, transfers)
 
+### 3. Invoices (`domain/invoices/`)
+
+- **Repository**: CRUD for invoices and invoice items
+- **Service**: Business logic (create, send, void, mark paid, access control)
+- **Types**: InvoiceListFilters, CreateInvoiceInput, RevenueSummary
+
+### 4. Payments (`domain/payments/`)
+
+- **Repository**: CRUD for payments and refunds
+- **Service**: Business logic (record payment, process refund, summaries)
+- **Types**: PaymentListFilters, ProcessRefundInput, PaymentSummary
+
 ## Using the Domain Layer
 
 ### Import Pattern

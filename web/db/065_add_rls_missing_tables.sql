@@ -140,10 +140,18 @@ CREATE POLICY "Staff manage consent requests" ON consent_requests
   FOR ALL USING (is_staff_of(tenant_id));
 
 CREATE POLICY "Owners view own consent requests" ON consent_requests
-  FOR SELECT USING (patient_id = auth.uid());
+  FOR SELECT USING (
+    pet_id IN (
+      SELECT id FROM pets WHERE owner_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Owners respond to consent requests" ON consent_requests
-  FOR UPDATE USING (patient_id = auth.uid());
+  FOR UPDATE USING (
+    pet_id IN (
+      SELECT id FROM pets WHERE owner_id = auth.uid()
+    )
+  );
 
 COMMENT ON POLICY "Staff manage consent requests" ON consent_requests IS 
   'Staff can manage consent requests for their clinic';
@@ -313,7 +321,9 @@ ALTER TABLE staff_availability_overrides ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Staff manage own availability" ON staff_availability_overrides
   FOR ALL USING (
-    staff_id = auth.uid() OR is_staff_of(tenant_id)
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    ) OR is_staff_of(tenant_id)
   );
 
 COMMENT ON POLICY "Staff manage own availability" ON staff_availability_overrides IS 
@@ -324,7 +334,9 @@ ALTER TABLE staff_reviews ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Staff view own reviews" ON staff_reviews
   FOR SELECT USING (
-    staff_id = auth.uid() OR reviewer_id = auth.uid() OR is_staff_of(tenant_id)
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    ) OR reviewed_by = auth.uid() OR is_staff_of(tenant_id)
   );
 
 CREATE POLICY "Managers create reviews" ON staff_reviews
@@ -338,7 +350,9 @@ ALTER TABLE staff_shifts ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Staff view shifts" ON staff_shifts
   FOR SELECT USING (
-    staff_id = auth.uid() OR is_staff_of(tenant_id)
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    ) OR is_staff_of(tenant_id)
   );
 
 CREATE POLICY "Managers manage shifts" ON staff_shifts
@@ -366,7 +380,9 @@ ALTER TABLE time_off_balances ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Staff view own balance" ON time_off_balances
   FOR SELECT USING (
-    staff_id = auth.uid() OR is_staff_of(tenant_id)
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    ) OR is_staff_of(tenant_id)
   );
 
 CREATE POLICY "Managers manage balances" ON time_off_balances
@@ -380,11 +396,17 @@ ALTER TABLE time_off_requests ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Staff view own requests" ON time_off_requests
   FOR SELECT USING (
-    staff_id = auth.uid() OR is_staff_of(tenant_id)
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    ) OR is_staff_of(tenant_id)
   );
 
 CREATE POLICY "Staff create own requests" ON time_off_requests
-  FOR INSERT WITH CHECK (staff_id = auth.uid());
+  FOR INSERT WITH CHECK (
+    staff_profile_id IN (
+      SELECT id FROM staff_profiles WHERE profile_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Managers approve requests" ON time_off_requests
   FOR UPDATE USING (is_staff_of(tenant_id));

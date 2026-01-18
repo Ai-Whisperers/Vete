@@ -147,9 +147,9 @@ export interface Notification {
 }
 
 /**
- * Input for creating a reminder rule
+ * Input for creating a rule
  */
-export interface CreateRuleInput {
+export interface CreateRuleInput extends Record<string, unknown> {
   name: string;
   description?: string;
   type: RuleType;
@@ -165,7 +165,7 @@ export interface CreateRuleInput {
 /**
  * Input for creating a reminder
  */
-export interface CreateReminderInput {
+export interface CreateReminderInput extends Record<string, unknown> {
   client_id: string;
   pet_id?: string;
   type: ReminderType;

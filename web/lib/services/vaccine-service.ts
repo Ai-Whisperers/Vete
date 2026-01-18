@@ -120,7 +120,7 @@ export interface VaccineReaction {
 /**
  * Input for recording a vaccine
  */
-export interface RecordVaccineInput {
+export interface RecordVaccineInput extends Record<string, unknown> {
   pet_id: string;
   name: string;
   administered_date: string;
@@ -139,7 +139,7 @@ export interface RecordVaccineInput {
 /**
  * Input for scheduling a vaccine
  */
-export interface ScheduleVaccineInput {
+export interface ScheduleVaccineInput extends Record<string, unknown> {
   pet_id: string;
   name: string;
   scheduled_date: string;
@@ -150,7 +150,7 @@ export interface ScheduleVaccineInput {
 /**
  * Input for recording a reaction
  */
-export interface RecordReactionInput {
+export interface RecordReactionInput extends Record<string, unknown> {
   pet_id: string;
   vaccine_id?: string;
   vaccine_name: string;

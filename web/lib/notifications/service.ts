@@ -85,9 +85,10 @@ export async function notifyStaff(payload: {
   type: string
   title: string
   message: string
+  channels?: string[]
   data?: Record<string, unknown>
 }) {
-  logger.info('Notifying staff', { tenantId: payload.tenantId, type: payload.type })
+  logger.info('Notifying staff', { tenantId: payload.tenantId, type: payload.type, channels: payload.channels })
   
   // TODO: Implement staff notification logic
   return {

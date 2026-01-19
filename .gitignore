@@ -88,3 +88,12 @@ archive/
 
 # AntiGravity
 .antigravity/
+
+# Temporary patch files
+*.patch
+
+# Incomplete domain layer implementations (WIP)
+web/lib/domain/inventory/index.ts
+web/lib/domain/inventory/queries.ts
+web/lib/domain/inventory/repository.ts
+web/lib/domain/inventory/service.ts

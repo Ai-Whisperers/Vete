@@ -128,20 +128,23 @@ export abstract class BaseService {
       const data = await operation();
       return { success: true, data };
     } catch (error: unknown) {
+      // Extract specific error message
+      const specificError = error instanceof Error ? error.message : String(error);
+      
       // Log error with context
       logger.error(errorMessage, {
-        error: error instanceof Error ? error.message : String(error),
+        error: specificError,
         stack: error instanceof Error ? error.stack : undefined,
         ...options.context,
       });
 
-      // Return standardized error
+      // Return standardized error with specific message in error field
       return {
         success: false,
-        error: errorMessage,
+        error: specificError,
         code: options.code,
         details: {
-          message: error instanceof Error ? error.message : String(error),
+          message: specificError,
           ...options.details,
         },
       };

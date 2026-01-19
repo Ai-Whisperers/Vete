@@ -273,27 +273,25 @@ describe('Invoice Server Actions', () => {
         error: null,
       })
 
-      let callCount = 0
       const mockFrom = vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockImplementation(() => {
-          callCount++
-          if (callCount === 1) {
-            // Profile query
-            return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
-              error: null,
-            })
-          }
-          // Invoice query - not found
-          return Promise.resolve({
-            data: null,
-            error: { message: 'Not found' },
-          })
+        single: vi.fn().mockResolvedValue({
+          data: { tenant_id: 'adris', role: 'vet' },
+          error: null,
         }),
       }))
       mockSupabaseClient.from = mockFrom as any
+      
+      // Mock RPC call to return invoice not found error
+      mockSupabaseClient.rpc = vi.fn().mockResolvedValue({
+        data: {
+          success: false,
+          error: 'INVOICE_NOT_FOUND',
+          message: 'Factura no encontrada'
+        },
+        error: null,
+      })
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -313,32 +311,25 @@ describe('Invoice Server Actions', () => {
         error: null,
       })
 
-      let callCount = 0
       const mockFrom = vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockImplementation(() => {
-          callCount++
-          if (callCount === 1) {
-            return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
-              error: null,
-            })
-          }
-          return Promise.resolve({
-            data: {
-              id: 'invoice-123',
-              status: 'void',
-              total: 100000,
-              amount_paid: 0,
-              amount_due: 100000,
-              tenant_id: 'adris',
-            },
-            error: null,
-          })
+        single: vi.fn().mockResolvedValue({
+          data: { tenant_id: 'adris', role: 'vet' },
+          error: null,
         }),
       }))
       mockSupabaseClient.from = mockFrom as any
+      
+      // Mock RPC call to return void invoice error
+      mockSupabaseClient.rpc = vi.fn().mockResolvedValue({
+        data: {
+          success: false,
+          error: 'VOIDED',
+          message: 'Esta factura ha sido anulada'
+        },
+        error: null,
+      })
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -348,7 +339,7 @@ describe('Invoice Server Actions', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error).toBe('No se puede registrar pago en una factura anulada o cancelada')
+        expect(result.error).toBe('Esta factura ha sido anulada')
       }
     })
 
@@ -358,32 +349,27 @@ describe('Invoice Server Actions', () => {
         error: null,
       })
 
-      let callCount = 0
       const mockFrom = vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockImplementation(() => {
-          callCount++
-          if (callCount === 1) {
-            return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
-              error: null,
-            })
-          }
-          return Promise.resolve({
-            data: {
-              id: 'invoice-123',
-              status: 'paid',
-              total: 100000,
-              amount_paid: 100000,
-              amount_due: 0,
-              tenant_id: 'adris',
-            },
-            error: null,
-          })
+        single: vi.fn().mockResolvedValue({
+          data: { tenant_id: 'adris', role: 'vet' },
+          error: null,
         }),
       }))
       mockSupabaseClient.from = mockFrom as any
+      
+      // Mock RPC call to return already paid error
+      mockSupabaseClient.rpc = vi.fn().mockResolvedValue({
+        data: {
+          success: false,
+          error: 'ALREADY_PAID',
+          message: 'Esta factura ya está completamente pagada',
+          current_paid: 100000,
+          total: 100000
+        },
+        error: null,
+      })
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -448,32 +434,27 @@ describe('Invoice Server Actions', () => {
         error: null,
       })
 
-      let callCount = 0
       const mockFrom = vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockImplementation(() => {
-          callCount++
-          if (callCount === 1) {
-            return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
-              error: null,
-            })
-          }
-          return Promise.resolve({
-            data: {
-              id: 'invoice-123',
-              status: 'sent',
-              total: 100000,
-              amount_paid: 50000,
-              amount_due: 50000,
-              tenant_id: 'adris',
-            },
-            error: null,
-          })
+        single: vi.fn().mockResolvedValue({
+          data: { tenant_id: 'adris', role: 'vet' },
+          error: null,
         }),
       }))
       mockSupabaseClient.from = mockFrom as any
+      
+      // Mock RPC call to return overpayment error
+      mockSupabaseClient.rpc = vi.fn().mockResolvedValue({
+        data: {
+          success: false,
+          error: 'OVERPAYMENT',
+          message: 'El monto excede el total de la factura',
+          amount_due: 50000,
+          attempted_payment: 60000
+        },
+        error: null,
+      })
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -483,7 +464,7 @@ describe('Invoice Server Actions', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error).toContain('excede el saldo pendiente')
+        expect(result.error).toContain('excede el total de la factura')
       }
     })
   })

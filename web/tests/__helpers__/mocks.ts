@@ -78,7 +78,7 @@ export const createMockSupabase = () => {
 
   // Chain methods properly - all query modifiers return the query builder
   Object.keys(queryBuilderMock).forEach(key => {
-    // @ts-ignore
+    // @ts-expect-error - Mock chaining requires dynamic access
     queryBuilderMock[key].mockReturnValue(queryBuilderMock);
   });
 
@@ -88,9 +88,18 @@ export const createMockSupabase = () => {
   mockUpdate.mockReturnValue(queryBuilderMock);
   mockDelete.mockReturnValue(queryBuilderMock);
   
-  mockOrder.mockResolvedValue({ data: [], error: null });
-  mockSingle.mockResolvedValue({ data: {}, error: null });
-  mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+  // Terminal methods need to support BOTH chaining AND promise resolution
+  // Make the queryBuilder thenable so it can be awaited while still allowing chaining
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (queryBuilderMock as any).then = function(resolve: (value: any) => any) {
+    // When awaited, resolve with mock data (can be overridden in tests)
+    return Promise.resolve({ data: [], error: null }).then(resolve);
+  };
+  
+  // Override terminal methods to return the thenable queryBuilder for chaining
+  mockOrder.mockReturnValue(queryBuilderMock);
+  mockSingle.mockReturnValue(queryBuilderMock);
+  mockMaybeSingle.mockReturnValue(queryBuilderMock);
 
   mockFrom.mockReturnValue(queryBuilderMock);
 
@@ -119,5 +128,6 @@ export const createMockSupabase = () => {
       upload: mockUpload,
       getPublicUrl: mockGetPublicUrl,
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as unknown as SupabaseClient & { _mocks: any };
 };

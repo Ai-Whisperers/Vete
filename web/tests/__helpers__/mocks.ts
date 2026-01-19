@@ -39,6 +39,9 @@ export const createMockSupabase = () => {
     onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
   };
 
+  // Storage for mock data that tests can set
+  let mockData = { data: [], error: null };
+  
   const queryBuilderMock = {
     select: mockSelect,
     insert: mockInsert,
@@ -74,6 +77,8 @@ export const createMockSupabase = () => {
     single: mockSingle,
     maybeSingle: mockMaybeSingle,
     csv: vi.fn(),
+    // Method to set mock data for awaited queries
+    _setMockData: (data: any) => { mockData = data; },
   };
 
   // Chain methods properly - all query modifiers return the query builder
@@ -92,8 +97,8 @@ export const createMockSupabase = () => {
   // Make the queryBuilder thenable so it can be awaited while still allowing chaining
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (queryBuilderMock as any).then = function(resolve: (value: any) => any) {
-    // When awaited, resolve with mock data (can be overridden in tests)
-    return Promise.resolve({ data: [], error: null }).then(resolve);
+    // When awaited, resolve with mock data (set via _setMockData or defaults to empty)
+    return Promise.resolve(mockData).then(resolve);
   };
   
   // Override terminal methods to return the thenable queryBuilder for chaining
@@ -127,6 +132,8 @@ export const createMockSupabase = () => {
       auth: mockAuth,
       upload: mockUpload,
       getPublicUrl: mockGetPublicUrl,
+      queryBuilder: queryBuilderMock,
+      setMockData: (data: any) => { mockData = data; },
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as unknown as SupabaseClient & { _mocks: any };

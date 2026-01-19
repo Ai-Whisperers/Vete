@@ -90,7 +90,7 @@ describe('PetService', () => {
   describe('list', () => {
     it('should list all active pets for an owner', async () => {
       const pets = [mockPet];
-      mockSupabase._mocks.order.mockResolvedValue({ data: pets, error: null });
+      mockSupabase._mocks.setMockData({ data: pets, error: null });
 
       const result = await petService.list('owner-1', 'adris', {}, false);
 
@@ -103,7 +103,7 @@ describe('PetService', () => {
 
     it('should filter pets by species', async () => {
       const dogPets = [{ ...mockPet, species: 'dog' }];
-      mockSupabase._mocks.order.mockResolvedValue({ data: dogPets, error: null });
+      mockSupabase._mocks.setMockData({ data: dogPets, error: null });
 
       const result = await petService.list('owner-1', 'adris', { species: 'dog' }, false);
 
@@ -113,7 +113,7 @@ describe('PetService', () => {
 
     it('should search pets by name', async () => {
       const searchResults = [mockPet];
-      mockSupabase._mocks.order.mockResolvedValue({ data: searchResults, error: null });
+      mockSupabase._mocks.setMockData({ data: searchResults, error: null });
 
       const result = await petService.list('owner-1', 'adris', { query: 'Max' }, false);
 
@@ -123,7 +123,7 @@ describe('PetService', () => {
 
     it('should include deleted pets when requested by staff', async () => {
       const allPets = [mockPet, { ...mockPet, id: 'pet-2', deleted_at: '2024-02-01T10:00:00Z' }];
-      mockSupabase._mocks.order.mockResolvedValue({ data: allPets, error: null });
+      mockSupabase._mocks.setMockData({ data: allPets, error: null });
 
       const result = await petService.list('owner-1', 'adris', { includeDeleted: true }, true);
 
@@ -133,7 +133,7 @@ describe('PetService', () => {
 
     it('should NOT include deleted pets for non-staff users', async () => {
       const activePets = [mockPet];
-      mockSupabase._mocks.order.mockResolvedValue({ data: activePets, error: null });
+      mockSupabase._mocks.setMockData({ data: activePets, error: null });
 
       const result = await petService.list('owner-1', 'adris', { includeDeleted: true }, false);
 
@@ -142,7 +142,7 @@ describe('PetService', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      mockSupabase._mocks.order.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: { message: 'Database connection failed' },
       });
@@ -154,7 +154,7 @@ describe('PetService', () => {
     });
 
     it('should return empty array when no pets found', async () => {
-      mockSupabase._mocks.order.mockResolvedValue({ data: [], error: null });
+      mockSupabase._mocks.setMockData({ data: [], error: null });
 
       const result = await petService.list('owner-1', 'adris', {}, false);
 
@@ -489,12 +489,10 @@ describe('PetService', () => {
 
   describe('delete', () => {
     it('should soft delete pet when user is owner', async () => {
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
         error: null,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       const result = await petService.delete('pet-1', 'owner-1', 'adris', false);
 
@@ -508,12 +506,10 @@ describe('PetService', () => {
     });
 
     it('should soft delete pet when user is staff', async () => {
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
         error: null,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       const result = await petService.delete('pet-1', 'staff-1', 'adris', true);
 
@@ -521,7 +517,7 @@ describe('PetService', () => {
     });
 
     it('should deny deletion when user is not owner and not staff', async () => {
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-2', tenant_id: 'adris', name: 'Max' },
         error: null,
       });
@@ -533,7 +529,7 @@ describe('PetService', () => {
     });
 
     it('should return error when pet not found', async () => {
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: { message: 'Not found' },
       });
@@ -547,12 +543,10 @@ describe('PetService', () => {
     it('should log audit event on deletion', async () => {
       const { logAudit } = await import('@/lib/audit');
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
         error: null,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       await petService.delete('pet-1', 'owner-1', 'adris', false);
 

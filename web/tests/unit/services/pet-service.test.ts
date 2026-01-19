@@ -557,17 +557,16 @@ describe('PetService', () => {
     });
 
     it('should NOT permanently delete pet', async () => {
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
         error: null,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       await petService.delete('pet-1', 'owner-1', 'adris', false);
 
       // Should call update, not delete
       expect(mockSupabase._mocks.update).toHaveBeenCalled();
+      expect(mockSupabase._mocks.delete).not.toHaveBeenCalled();
     });
   });
 

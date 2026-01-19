@@ -36,7 +36,7 @@ export default defineConfig(() => ({
     // Environment variables already loaded above via dotenv
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
-      provider: 'v8',
+      provider: 'v8' as const,
       reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
       exclude: [

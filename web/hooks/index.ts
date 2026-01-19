@@ -1,4 +1,3 @@
-export { useAsyncData } from './use-async-data'
 export { useAuthRedirect } from './useAuthRedirect'
 export { useCartVariantStatus, useServiceCartStatus } from './use-cart-variant-status'
 export { useDebounce } from './use-debounce'

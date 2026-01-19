@@ -83,6 +83,8 @@ export const createMockSupabase = () => {
 
   // Chain methods properly - all query modifiers return the query builder
   Object.keys(queryBuilderMock).forEach(key => {
+    // Skip helper methods that aren't mocks
+    if (key === '_setMockData') return;
     // @ts-expect-error - Mock chaining requires dynamic access
     queryBuilderMock[key].mockReturnValue(queryBuilderMock);
   });

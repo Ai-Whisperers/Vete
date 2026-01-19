@@ -18,28 +18,14 @@ import type {
 export interface Conversation {
   id: string
   tenant_id: string
-  client_id: string
-  pet_id: string | null
-  subject: string | null
-  channel: NotificationChannel
-  status: ConversationStatus
-  priority: ConversationPriority
-  assigned_to: string | null
-  assigned_at: string | null
+  participant_ids: string[]
+  last_message_id: string | null
   last_message_at: string | null
   last_message_preview: string | null
-  last_client_message_at: string | null
-  last_staff_message_at: string | null
-  client_last_read_at: string | null
-  staff_last_read_at: string | null
-  unread_client_count: number
-  unread_staff_count: number
-  appointment_id: string | null
-  medical_record_id: string | null
-  tags: string[] | null
+  unread_count: number
+  is_active: boolean
   created_at: string
   updated_at: string
-  deleted_at?: string | null
 }
 
 export interface Message {

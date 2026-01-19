@@ -61,7 +61,7 @@ export async function logAudit(
       .single()
 
     if (!profile) {
-      console.warn('[Audit] No profile found for user')
+      logger.warn('[Audit] No profile found for user')
       return
     }
 
@@ -76,11 +76,13 @@ export async function logAudit(
     })
 
     if (error) {
-      console.error('[Audit] Failed to insert audit log:', error)
+      logger.error('[Audit] Failed to insert audit log', { error: error.message })
     }
   } catch (error: unknown) {
     // Don't throw - audit logging should never break the main flow
-    console.error('[Audit] Error logging audit event:', error)
+    logger.error('[Audit] Error logging audit event', {
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }
 
@@ -114,9 +116,11 @@ export async function logAuditWithContext(
     })
 
     if (error) {
-      console.error('[Audit] Failed to insert audit log:', error)
+      logger.error('[Audit] Failed to insert audit log', { error: error.message })
     }
   } catch (error: unknown) {
-    console.error('[Audit] Error logging audit event:', error)
+    logger.error('[Audit] Error logging audit event', {
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }

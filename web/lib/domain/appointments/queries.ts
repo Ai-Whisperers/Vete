@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 // Raw response shape from Supabase (nested relations come as arrays)
 interface RawAppointmentFromDB {
@@ -98,7 +99,10 @@ export async function getTodayAppointmentsForClinic(clinicId: string): Promise<T
     .order('start_time', { ascending: true })
 
   if (error) {
-    console.error("Error fetching today's appointments:", error)
+    logger.error('[Appointments] Error fetching today\'s appointments', {
+      error: error.message,
+      clinicId,
+    })
     // In a real app, you might want to throw the error
     // or handle it more gracefully.
     return []

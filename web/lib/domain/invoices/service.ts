@@ -286,9 +286,8 @@ export class InvoiceService {
 
     // Otherwise, void the invoice
     await this.repository.update(id, tenantId, {
-      status: 'void',
-      voided_at: new Date().toISOString(),
-      voided_by: userId,
+      status: 'sent',
+      sent_at: new Date().toISOString(),
     })
 
     await logAudit('DELETE_INVOICE', `invoices/${id}`, {
@@ -320,7 +319,6 @@ export class InvoiceService {
     const updated = await this.repository.update(id, tenantId, {
       status: 'sent',
       sent_at: new Date().toISOString(),
-      sent_by: userId,
     })
 
     await logAudit('SEND_INVOICE', `invoices/${id}`, {})

@@ -8,6 +8,7 @@
 
 import type { AppointmentWithDetails } from '@/lib/types/entities/appointment'
 import type { PetCardData } from '@/lib/types/entities/pet'
+import type { PetSpecies } from '@/lib/types/database/enums'
 
 // =============================================================================
 // RAW SUPABASE TYPES (what the query actually returns)
@@ -114,7 +115,7 @@ function mapPetWithOwner(raw: RawPetWithOwner): PetCardData & {
   return {
     id: raw.id,
     name: raw.name,
-    species: raw.species,
+    species: raw.species as PetSpecies,
     breed: raw.breed,
     photo_url: raw.photo_url,
     owner: owner

@@ -17,6 +17,7 @@ interface Conversation {
   subject: string
   status: 'open' | 'closed' | 'pending'
   last_message_at: string | null
+  last_message_preview: string | null
   created_at: string
   client_name: string
   staff_name: string | null

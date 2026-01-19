@@ -1,9 +1,25 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { loadEnv } from 'vite'
+import { config as loadDotenv } from 'dotenv'
+import { existsSync } from 'fs'
 
-export default defineConfig(({ mode }) => ({
+// Load environment variables from .env.local (priority) or .env (fallback)
+// Must load BEFORE Vitest runs to ensure process.env has values
+const envLocalPath = resolve(__dirname, '.env.local')
+const envPath = resolve(__dirname, '.env')
+
+if (existsSync(envLocalPath)) {
+  loadDotenv({ path: envLocalPath })
+  console.log('[Vitest Config] Loaded environment from .env.local')
+} else if (existsSync(envPath)) {
+  loadDotenv({ path: envPath })
+  console.log('[Vitest Config] Loaded environment from .env')
+} else {
+  console.warn('[Vitest Config] No .env.local or .env found - tests may fail')
+}
+
+export default defineConfig(() => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -17,8 +33,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Load .env.local for environment variables
-    env: loadEnv(mode, process.cwd(), ''),
+    // Environment variables already loaded above via dotenv
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
       provider: 'v8',

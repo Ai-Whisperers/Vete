@@ -21,9 +21,43 @@ import { logger } from '@/lib/logger'
 export class AuthService {
   /**
    * Get the current authentication context
+   * 
+   * @param authHeader - Optional Authorization header (for API routes with Bearer token auth)
    */
-  static async getContext(): Promise<AppAuthContext> {
-    const supabase = await createClient()
+  static async getContext(authHeader?: string | null): Promise<AppAuthContext> {
+    // TESTING FIX: Support Bearer token auth for integration tests
+    // In production: cookies-based auth (standard Next.js pattern)
+    // In tests: Bearer token from Authorization header
+    let supabase
+    
+    if (authHeader?.startsWith('Bearer ')) {
+      // Extract token from Bearer header
+      const token = authHeader.replace('Bearer ', '')
+      
+      // Create Supabase client with Bearer token
+      const { createClient: originalCreateClient } = await import('@supabase/supabase-js')
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!url || !anonKey) {
+        throw new Error('[Auth] Supabase environment variables not configured')
+      }
+      
+      supabase = originalCreateClient(url, anonKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      })
+    } else {
+      // Standard cookies-based auth for production
+      supabase = await createClient()
+    }
 
     try {
       const {
@@ -89,6 +123,8 @@ export class AuthService {
 
   /**
    * Validate authentication and authorization for API routes
+   * 
+   * @param authHeader - Optional Authorization header for Bearer token auth (used in tests)
    */
   static async validateAuth(
     options: {
@@ -96,9 +132,10 @@ export class AuthService {
       requireTenant?: boolean
       tenantId?: string
       requireActive?: boolean
-    } = {}
+    } = {},
+    authHeader?: string | null
   ): Promise<AuthResult> {
-    const context = await this.getContext()
+    const context = await this.getContext(authHeader)
 
     if (!context.isAuthenticated) {
       return {

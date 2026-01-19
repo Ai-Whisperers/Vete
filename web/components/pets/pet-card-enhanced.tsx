@@ -27,7 +27,7 @@ interface Appointment {
   id: string
   start_time: string
   status: string
-  services?: { name: string } | null
+  services: Array<{ name: string }> | null
 }
 
 interface PetCardProps {
@@ -231,10 +231,10 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
                   <Clock className="h-3.5 w-3.5" />
                   <span className="font-medium">
                     {t('nextAppointment')} {formatDate(pet.next_appointment.start_time)}
-                    {pet.next_appointment.services?.name && (
+                    {pet.next_appointment.services && pet.next_appointment.services.length > 0 && pet.next_appointment.services[0].name && (
                       <span className="font-normal text-gray-400">
                         {' '}
-                        - {pet.next_appointment.services.name}
+                        - {pet.next_appointment.services[0].name}
                       </span>
                     )}
                   </span>

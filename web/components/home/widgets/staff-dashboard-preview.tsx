@@ -12,7 +12,7 @@ import {
   Cat,
   PawPrint,
 } from 'lucide-react'
-import { useAsyncData } from '@/lib/hooks'
+import { useQuery } from '@tanstack/react-query'
 
 interface Pet {
   id: string
@@ -152,11 +152,12 @@ function SkeletonLoader(): React.ReactElement {
 }
 
 export function StaffDashboardPreview({ clinic }: StaffDashboardPreviewProps): React.ReactElement | null {
-  const { data, isLoading, error } = useAsyncData<StaffPreviewData>(
-    () => fetch(`/api/homepage/staff-preview?clinic=${clinic}`).then((r) => r.json()),
-    [clinic],
-    { refetchInterval: 30000, keepPreviousData: true }
-  )
+  const { data, isLoading, error } = useQuery<StaffPreviewData>({
+    queryKey: ['staff-preview', clinic],
+    queryFn: () => fetch(`/api/homepage/staff-preview?clinic=${clinic}`).then((r) => r.json()),
+    refetchInterval: 30000,
+    placeholderData: (previousData) => previousData,
+  })
 
   if (isLoading && !data) return <SkeletonLoader />
   if (error || !data) return null

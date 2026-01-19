@@ -12,7 +12,7 @@ import {
   Clock,
   CalendarPlus,
 } from 'lucide-react'
-import { useAsyncData } from '@/lib/hooks'
+import { useQuery } from '@tanstack/react-query'
 
 interface Pet {
   id: string
@@ -134,15 +134,16 @@ function SkeletonLoader(): React.ReactElement {
 }
 
 export function OwnerDashboardPreview({ clinic }: OwnerDashboardPreviewProps): React.ReactElement | null {
-  const { data, isLoading, error } = useAsyncData<OwnerPreviewData>(
-    async () => {
+  const { data, isLoading, error } = useQuery<OwnerPreviewData>({
+    queryKey: ['owner-preview', clinic],
+    queryFn: async () => {
       const r = await fetch(`/api/homepage/owner-preview?clinic=${clinic}`)
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     },
-    [clinic],
-    { refetchInterval: 60000, keepPreviousData: true }
-  )
+    refetchInterval: 60000,
+    placeholderData: (previousData) => previousData,
+  })
 
   if (isLoading && !data) return <SkeletonLoader />
   if (error || !data) return null

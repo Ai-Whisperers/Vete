@@ -2,14 +2,15 @@
 
 Comprehensive list of all implemented features in the Vete platform.
 
-> **Last Updated**: January 2026
-> **Total API Endpoints**: 167
-> **Total Server Actions**: 35
-> **Total Pages**: 130
-> **Database Tables**: 120+
-> **Database Views**: 1 (unified_clinic_inventory)
-> **React Components**: 316
-> **Custom Hooks**: 12
+> **Last Updated**: January 2026  
+> **Total API Routes**: 313 files (~480+ HTTP methods)  
+> **Total Server Actions**: 37  
+> **Total Pages**: 130  
+> **Database Tables**: 100+  
+> **Database Migrations**: 94 sequential migrations  
+> **Database Views**: 1 (unified_clinic_inventory)  
+> **React Components**: 674  
+> **Custom Hooks**: 10
 
 ---
 
@@ -167,7 +168,7 @@ Comprehensive list of all implemented features in the Vete platform.
 | Checkout | ✅ Live | API: `/api/store/checkout` |
 | Order Management | ✅ Live | API: `/api/store/orders` |
 | Coupon Validation | ✅ Live | API: `/api/store/coupons/validate` |
-| Product Reviews | ✅ Live | API: `/api/store/reviews` |
+| Product Reviews | ⚠️ UI Only | API exists but UI has no onClick handler |
 | Wishlist Page | ✅ Live | `/[clinic]/portal/wishlist` |
 | Wishlist API | ✅ Live | API: `/api/store/wishlist` |
 | Stock Alerts | ✅ Live | API: `/api/store/stock-alerts` |
@@ -191,7 +192,7 @@ Comprehensive list of all implemented features in the Vete platform.
 |---------|--------|--------|
 | Financial Dashboard | ✅ Live | `/[clinic]/portal/finance` |
 | Expense Tracking | ✅ Live | API: `/api/finance/expenses` |
-| P&L Report | ✅ Live | API: `/api/finance/pl` |
+| P&L Report | ⚠️ API Only | API exists, no frontend dashboard |
 | Inventory Management | ✅ Live | `/[clinic]/portal/inventory` |
 | Inventory Alerts | ✅ Live | API: `/api/inventory/alerts` |
 | Inventory Stats | ✅ Live | API: `/api/inventory/stats` |
@@ -213,6 +214,23 @@ Comprehensive list of all implemented features in the Vete platform.
 | Stock History Modal | ✅ Live | Component: `StockHistoryModal` |
 | Barcode Lookup | ✅ Live | API: `/api/inventory/barcode-lookup` |
 | Product Mappings | ✅ Live | API: `/api/inventory/mappings` |
+
+### Lost & Found (Pet Safety)
+
+| Feature | Status | Routes | Documentation |
+|---------|--------|--------|---------------|
+| Lost Pet Reporting | ✅ Live | API: `/api/lost-found` | [Full Docs](./lost-pets-system.md) |
+| Lost Pet Dashboard | ✅ Live | `/[clinic]/dashboard/lost-pets` | Staff management interface |
+| Lost Pet Details | ✅ Live | API: `/api/lost-found/[id]` | View full report |
+| Update Lost Pet | ✅ Live | API: `PUT /api/lost-found/[id]` | Update status, details |
+| Mark Pet Found | ✅ Live | Service: `markPetFound()` | Status transitions |
+| Sighting Reporting | ✅ Live | API: `/api/lost-found/[id]/sightings` | Public can report sightings |
+| List Sightings | ✅ Live | API: `GET /api/lost-found/[id]/sightings` | View all sightings |
+| Verify Sighting | ✅ Live | Service: `verifySighting()` | Staff verification |
+| Match Suggestions | ✅ Live | DB: `pet_match_suggestions` | Automatic matching |
+| Review Matches | ✅ Live | Service: `reviewMatch()` | Staff review matches |
+| Public Registry | ✅ Live | Service: `listPublicLostPets()` | Public access to lost pets |
+| Location-Based Search | ✅ Live | Service filters | GPS radius search |
 
 ### Background Jobs (Cron)
 
@@ -246,7 +264,7 @@ Comprehensive list of all implemented features in the Vete platform.
 | Product Management | ✅ Live | `/[clinic]/portal/products` |
 | Audit Logs | ✅ Live | `/[clinic]/portal/admin/audit` |
 | Epidemiology Dashboard | ✅ Live | `/[clinic]/portal/epidemiology` |
-| Campaign Management | ✅ Live | `/[clinic]/portal/campaigns` |
+| Campaign Management | ⚠️ Partial | UI exists, email sending not implemented |
 
 ### Other
 

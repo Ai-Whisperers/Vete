@@ -566,6 +566,53 @@ Points ledger.
 | `description` | TEXT | Transaction reason |
 | `created_at` | TIMESTAMPTZ | Creation timestamp |
 
+### `loyalty_rewards`
+
+Loyalty rewards catalog.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `name` | TEXT | Reward name |
+| `description` | TEXT | Reward description |
+| `category` | TEXT | discount, service, product, experience, general |
+| `points_cost` | INT | Points required to redeem |
+| `reward_type` | TEXT | discount_percentage, discount_fixed, free_service, free_product, custom |
+| `reward_value` | NUMERIC | Percentage or fixed amount |
+| `applicable_to` | TEXT | all, services, products |
+| `applicable_item_ids` | UUID[] | Specific service/product IDs |
+| `stock` | INT | Available quantity (NULL = unlimited) |
+| `max_per_user` | INT | Max redemptions per user (NULL = unlimited) |
+| `valid_from` | TIMESTAMPTZ | Start of validity period |
+| `valid_to` | TIMESTAMPTZ | End of validity period |
+| `is_active` | BOOLEAN | Active status |
+| `is_featured` | BOOLEAN | Featured on rewards page |
+| `image_url` | TEXT | Reward image |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | Last update |
+
+### `loyalty_redemptions`
+
+Loyalty reward redemptions.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `reward_id` | UUID | FK to loyalty_rewards |
+| `user_id` | UUID | FK to profiles |
+| `pet_id` | UUID | FK to pets (nullable) |
+| `points_spent` | INT | Points deducted |
+| `redemption_code` | TEXT | Unique redemption code |
+| `status` | TEXT | pending, approved, used, expired, cancelled |
+| `used_at` | TIMESTAMPTZ | When redemption was used |
+| `used_on_invoice_id` | UUID | FK to invoices (nullable) |
+| `used_on_order_id` | UUID | FK to store_orders (nullable) |
+| `discount_applied` | NUMERIC | Discount amount applied |
+| `expires_at` | TIMESTAMPTZ | Expiration date |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+
 ---
 
 ## Hospitalization
@@ -720,6 +767,81 @@ Security audit trail.
 | `details` | JSONB | Additional details |
 | `ip_address` | TEXT | Client IP |
 | `created_at` | TIMESTAMPTZ | Action timestamp |
+
+### `claim_audit_log`
+
+Insurance claim verification audit log.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `claim_id` | UUID | FK to insurance_claims |
+| `action` | TEXT | Verification action taken |
+| `verified_by` | UUID | FK to profiles |
+| `verification_code` | TEXT | Unique verification code |
+| `notes` | TEXT | Verification notes |
+| `created_at` | TIMESTAMPTZ | Audit timestamp |
+
+### `consent_template_versions`
+
+Version history for consent templates.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `template_id` | UUID | FK to consent_templates |
+| `version_number` | INT | Version number |
+| `content` | TEXT | Template content at this version |
+| `created_by` | UUID | FK to profiles |
+| `created_at` | TIMESTAMPTZ | Version creation time |
+
+### `financial_audit_logs`
+
+Financial transaction audit trail.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `transaction_type` | TEXT | payment, refund, adjustment, etc. |
+| `related_table` | TEXT | invoices, payments, etc. |
+| `related_id` | UUID | ID of related record |
+| `amount` | NUMERIC | Transaction amount |
+| `performed_by` | UUID | FK to profiles |
+| `details` | JSONB | Additional transaction details |
+| `created_at` | TIMESTAMPTZ | Audit timestamp |
+
+### `cron_job_runs`
+
+Cron job execution tracking.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `job_name` | TEXT | Name of cron job |
+| `started_at` | TIMESTAMPTZ | Job start time |
+| `completed_at` | TIMESTAMPTZ | Job completion time (nullable) |
+| `status` | TEXT | running, completed, failed |
+| `records_processed` | INT | Number of records processed |
+| `error_message` | TEXT | Error details if failed |
+| `execution_time_ms` | INT | Execution time in milliseconds |
+| `metadata` | JSONB | Additional execution context |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+
+### `performance_metrics_history`
+
+Performance metrics tracking.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `metric_name` | TEXT | Name of metric |
+| `metric_value` | NUMERIC | Metric value |
+| `metric_unit` | TEXT | Unit of measurement |
+| `dimensions` | JSONB | Metric dimensions/tags |
+| `measured_at` | TIMESTAMPTZ | Measurement timestamp |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
 
 ---
 
@@ -1266,17 +1388,17 @@ tenants
 | Appointments | 2 |
 | Invoicing | 5 |
 | Inventory | 4 |
-| Finance | 3 |
+| Finance | 5 (+2 loyalty tables) |
 | Hospitalization | 4 |
 | Laboratory | 7 |
-| Consent | 3 |
+| Consent | 4 (+1 versioning table) |
 | Insurance | 4 |
 | Communication | 5 |
 | Staff | 4 |
 | E-Commerce | 5 |
 | WhatsApp | 2 |
-| Safety & Audit | 4 |
-| **Total** | **~70+** |
+| Safety & Audit | 10 (+6 audit/tracking tables) |
+| **Total** | **~80+** |
 
 ---
 

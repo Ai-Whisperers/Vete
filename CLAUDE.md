@@ -365,6 +365,7 @@ Reference implementations in `.claude/exemplars/`:
 | Custom hooks | `web/lib/hooks/index.ts` |
 | Type definitions | `web/lib/types/` |
 | Constants | `web/lib/constants/` |
+| Environment variables | `docs/ENV_COMPLETE_REFERENCE.md` (77 variables) |
 
 ### Documentation
 
@@ -388,7 +389,7 @@ SUPABASE_SERVICE_ROLE_KEY=xxx
 DATABASE_URL=postgresql://...
 ```
 
-See `web/.env.example` for all 82 variables.
+See `docs/ENV_COMPLETE_REFERENCE.md` for all 77 variables (4 required, 73 optional).
 
 ---
 
@@ -401,6 +402,12 @@ See `web/.env.example` for all 82 variables.
 - `appointments` - Scheduling
 - `medical_records` - Health records
 - `vaccines` - Vaccination tracking
+- **100+ total tables** (see schema reference)
+
+### Migrations
+- **94 sequential migrations** (001-094)
+- Location: `web/db/migrations/`
+- Run order enforced by numeric prefix
 
 ### Security Functions
 - `is_staff_of(tenant_id)` - Check vet/admin role

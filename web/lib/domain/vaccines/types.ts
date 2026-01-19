@@ -133,14 +133,15 @@ export interface ScheduleVaccineInput {
   notes?: string
 }
 
-export interface CompleteVaccineInput {
-  administered_by?: string
-  batch_number?: string
-  manufacturer?: string
-  route?: VaccineRoute
-  dosage?: string
-  next_due_date?: string
-  notes?: string
+export interface CompleteVaccineInput extends Record<string, unknown> {
+  vaccine_id: string
+  administered_at: string
+  administered_by: string
+  lot_number?: string | null
+  manufacturer?: string | null
+  expiry_date?: string | null
+  notes?: string | null
+  next_due_date?: string | null
 }
 
 export interface RecordReactionInput {

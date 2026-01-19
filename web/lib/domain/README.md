@@ -44,30 +44,63 @@ domain/{entity}/
 └─────────────────────────────────────────────────────┘
 ```
 
-## Implemented Domains
+## Migration Status
 
-### 1. Appointments (`domain/appointments/`)
+### ✅ Fully Migrated (9 domains)
 
-- **Repository**: CRUD for appointments
-- **Service**: Business logic (booking, cancellation, status updates)
-- **Queries**: Dashboard queries (today's appointments)
+Complete implementations with Repository + Service layers:
 
-### 2. Pets (`domain/pets/`)
+| Domain | Repository | Service | Status |
+|--------|-----------|---------|--------|
+| **Appointments** | ✅ | ✅ | Complete - booking, cancellation, status updates |
+| **Pets** | ✅ | ✅ | Complete - registration, transfers, CRUD |
+| **Invoices** | ✅ | ✅ | Complete - create, send, void, payments |
+| **Payments** | ✅ | ✅ | Complete - record, refund, summaries |
+| **Messaging** | ✅ | ✅ | Complete - conversations, quick replies |
+| **Vaccines** | ✅ | ✅ | Complete - schedules, reminders, tracking |
+| **Clinical Tools** | ✅ | ✅ | Complete - dosage calc, growth charts |
+| **Reminders** | ✅ | ✅ | Complete - appointment, vaccine, medication |
+| **Safety** | ✅ | ✅ | Complete - lost pets, sightings, disease surveillance |
 
-- **Repository**: CRUD for pets
-- **Service**: Business logic (registration, transfers)
+### ⚠️ Partial Migration (3 domains)
 
-### 3. Invoices (`domain/invoices/`)
+Repository implemented, Service layer needed:
 
-- **Repository**: CRUD for invoices and invoice items
-- **Service**: Business logic (create, send, void, mark paid, access control)
-- **Types**: InvoiceListFilters, CreateInvoiceInput, RevenueSummary
+| Domain | Repository | Service | Next Step |
+|--------|-----------|---------|-----------|
+| **Medical Records** | ✅ | ❌ | Create `service.ts` for business logic |
+| **Hospitalizations** | ✅ | ❌ | Create `service.ts` for admission/discharge |
+| **Lab** | ✅ | ❌ | Create `service.ts` for order processing |
 
-### 4. Payments (`domain/payments/`)
+These domains currently use repositories directly from Server Actions. They need service layers to:
+- Centralize business logic
+- Add validation workflows
+- Implement complex operations (e.g., atomic lab order creation)
+- Improve testability
 
-- **Repository**: CRUD for payments and refunds
-- **Service**: Business logic (record payment, process refund, summaries)
-- **Types**: PaymentListFilters, ProcessRefundInput, PaymentSummary
+**Effort**: ~4-6 hours per domain to complete service layer
+
+### 🔄 Legacy Services (4 remaining)
+
+Still using old `lib/services/` pattern:
+
+| Service | Location | Migration Priority |
+|---------|----------|-------------------|
+| **Inventory** | `lib/services/inventory-service.ts` | P2 - Medium (complex, heavy usage) |
+| **Store** | `lib/services/store-service.ts` | P2 - Medium (e-commerce critical) |
+| **User** | `lib/services/user-service.ts` | P3 - Low (simple CRUD) |
+| **Consent** | `lib/services/consent-service.ts` | P3 - Low (specialized) |
+
+**Effort**: ~8-12 hours per service (complex domains)
+
+### 📊 Summary
+
+- **Total Domains**: 16
+- **Fully Migrated**: 9 (56%)
+- **Partial Migration**: 3 (19%)
+- **Legacy**: 4 (25%)
+
+**Target**: Complete all migrations by Q2 2026
 
 ## Using the Domain Layer
 

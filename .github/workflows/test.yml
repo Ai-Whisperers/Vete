@@ -80,10 +80,10 @@ jobs:
         run: cd web && npm ci
       - name: Seed test database
         run: cd web && npm run test:db:seed
-        continue-on-error: true
+
       - name: Run integration tests
         run: cd web && npm run test:integration
-        continue-on-error: true
+
 
   # System tests
   system:
@@ -100,7 +100,7 @@ jobs:
         run: cd web && npm ci
       - name: Run system tests
         run: cd web && npm run test:system
-        continue-on-error: true
+
 
   # Functionality tests
   functionality:
@@ -117,7 +117,7 @@ jobs:
         run: cd web && npm ci
       - name: Run functionality tests
         run: cd web && npm run test:functionality
-        continue-on-error: true
+
 
   # Security tests - run in parallel with functionality
   security:
@@ -134,7 +134,7 @@ jobs:
         run: cd web && npm ci
       - name: Run security tests
         run: cd web && npm run test:security
-        continue-on-error: true
+
 
   # E2E tests - slowest, run last
   e2e:
@@ -153,10 +153,10 @@ jobs:
         run: cd web && npx playwright install --with-deps chromium
       - name: Build application
         run: cd web && npm run build
-        continue-on-error: true
+
       - name: Run E2E tests
         run: cd web && npm run test:e2e
-        continue-on-error: true
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: failure()

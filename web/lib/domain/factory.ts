@@ -8,13 +8,14 @@ import { AppointmentService } from './appointments'
 import { PetService } from './pets'
 import { InvoiceService } from './invoices'
 import { PaymentService } from './payments'
-import { MedicalRecordService } from './medical-records'
-import { HospitalizationService } from './hospitalizations'
-import { LabService } from './lab'
-import { InventoryService } from './inventory'
-import { StoreService } from './store'
-import { ConsentService } from './consent'
-import { UserService } from './users'
+import { MedicalRecordRepository } from './medical-records'
+import { HospitalizationRepository } from './hospitalizations'
+import { LabRepository } from './lab'
+// TODO: Migrate these services to domain pattern
+// import { InventoryService } from './inventory'
+// import { StoreService } from './store'
+// import { ConsentService } from './consent'
+// import { UserService } from './users'
 import { ClinicalToolsService } from './clinical-tools'
 import { MessagingService } from './messaging'
 import { ReminderService } from './reminders'
@@ -44,24 +45,25 @@ export class DomainFactory {
     return new PaymentService(this.supabase)
   }
 
-  createUserService(): UserService {
-    return new UserService(this.supabase)
-  }
+  // TODO: Migrate UserService to domain pattern
+  // createUserService(): UserService {
+  //   return new UserService(this.supabase)
+  // }
 
   // ===========================================================================
   // CLINICAL DOMAINS
   // ===========================================================================
 
-  createMedicalRecordService(): MedicalRecordService {
-    return new MedicalRecordService(this.supabase)
+  createMedicalRecordRepository(): MedicalRecordRepository {
+    return new MedicalRecordRepository(this.supabase)
   }
 
-  createHospitalizationService(): HospitalizationService {
-    return new HospitalizationService(this.supabase)
+  createHospitalizationRepository(): HospitalizationRepository {
+    return new HospitalizationRepository(this.supabase)
   }
 
-  createLabService(): LabService {
-    return new LabService(this.supabase)
+  createLabRepository(): LabRepository {
+    return new LabRepository(this.supabase)
   }
 
   createVaccineService(): VaccineService {
@@ -76,17 +78,18 @@ export class DomainFactory {
   // OPERATIONAL DOMAINS
   // ===========================================================================
 
-  createInventoryService(): InventoryService {
-    return new InventoryService(this.supabase)
-  }
+  // TODO: Migrate these services to domain pattern
+  // createInventoryService(): InventoryService {
+  //   return new InventoryService(this.supabase)
+  // }
 
-  createStoreService(): StoreService {
-    return new StoreService(this.supabase)
-  }
+  // createStoreService(): StoreService {
+  //   return new StoreService(this.supabase)
+  // }
 
-  createConsentService(): ConsentService {
-    return new ConsentService(this.supabase)
-  }
+  // createConsentService(): ConsentService {
+  //   return new ConsentService(this.supabase)
+  // }
 
   // ===========================================================================
   // COMMUNICATION DOMAINS

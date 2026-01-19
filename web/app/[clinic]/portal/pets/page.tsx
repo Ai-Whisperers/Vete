@@ -31,7 +31,7 @@ interface OwnerPet {
     pet_id: string
     start_time: string
     status: string
-    services: { name: string } | null
+    services: Array<{ name: string }> | null
   } | null
   last_visit_date: string | null
 }

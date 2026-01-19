@@ -17,7 +17,8 @@ export * from './appointments'
 export * from './pets'
 export * from './invoices'
 export * from './payments'
-export * from './users'
+// TODO: Migrate UserService to domain pattern
+// export * from './users'
 
 // ===========================================================================
 // CLINICAL DOMAINS
@@ -33,9 +34,10 @@ export * from './clinical-tools'
 // OPERATIONAL DOMAINS
 // ===========================================================================
 
-export * from './inventory'
-export * from './store'
-export * from './consent'
+// TODO: Migrate these services to domain pattern
+// export * from './inventory'
+// export * from './store'
+// export * from './consent'
 
 // ===========================================================================
 // COMMUNICATION DOMAINS

@@ -39,6 +39,9 @@ export interface Invoice {
   status: InvoiceStatus
   due_date: string | null
   paid_at: string | null
+  sent_at: string | null
+  voided_at: string | null
+  voided_by: string | null
   notes: string | null
   internal_notes: string | null
   created_by: string | null
@@ -185,7 +188,16 @@ export type InvoiceSummary = Pick<
  * Invoice with all related data for detail view
  */
 export interface InvoiceWithDetails extends Invoice {
-  pets?: {
+  items: InvoiceItemWithDetails[]
+  payments?: PaymentWithDetails[]
+  refunds?: RefundSummary[]
+  client?: {
+    id: string
+    full_name: string | null
+    email: string
+    phone: string | null
+  } | null
+  pet?: {
     id: string
     name: string
     species: string
@@ -195,15 +207,21 @@ export interface InvoiceWithDetails extends Invoice {
       id: string
       full_name: string
       email: string | null
-      phone?: string | null
+      phone: string | null
     } | null
   } | null
-  invoice_items?: InvoiceItemWithDetails[]
-  payments?: PaymentWithDetails[]
-  refunds?: RefundSummary[]
-  created_by_user?: {
+  vet?: {
+    id: string
     full_name: string
   } | null
+  created_by_user?: {
+    id: string
+    full_name: string
+  } | null
+  // Include all timestamp fields from Invoice base type
+  sent_at: string | null
+  voided_at: string | null
+  voided_by: string | null
 }
 
 /**

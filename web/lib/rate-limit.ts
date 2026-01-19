@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiErrorResponse } from './api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * Rate limit configuration for different endpoint types
@@ -221,7 +222,9 @@ class RedisStore {
       this.isConnected = true
       // Redis rate limiting enabled
     } catch (error: unknown) {
-      console.error('Redis connection failed, falling back to in-memory store:', error)
+      logger.warn('[RateLimit] Redis connection failed, falling back to in-memory store', {
+        error: error instanceof Error ? error.message : String(error),
+      })
       this.isConnected = false
     }
   }
@@ -235,7 +238,10 @@ class RedisStore {
       const data = await this.client.get(key)
       return data ? JSON.parse(data) : []
     } catch (error: unknown) {
-      console.error('Redis get error:', error)
+      logger.error('[RateLimit] Redis get error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       return inMemoryStore.get(key)
     }
   }
@@ -251,7 +257,10 @@ class RedisStore {
       timestamps.push(timestamp)
       await this.client.setEx(key, ttlSeconds, JSON.stringify(timestamps))
     } catch (error: unknown) {
-      console.error('Redis add error:', error)
+      logger.error('[RateLimit] Redis add error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       inMemoryStore.add(key, timestamp)
     }
   }
@@ -272,7 +281,10 @@ class RedisStore {
         await this.client.setEx(key, ttlSeconds, JSON.stringify(filtered))
       }
     } catch (error: unknown) {
-      console.error('Redis prune error:', error)
+      logger.error('[RateLimit] Redis prune error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       inMemoryStore.prune(key, windowStart)
     }
   }

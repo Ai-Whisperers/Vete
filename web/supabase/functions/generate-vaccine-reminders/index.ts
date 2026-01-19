@@ -51,6 +51,22 @@ serve(async (req) => {
   }
 })
 
+interface VaccineData {
+  id: string
+  name: string
+  next_due_date: string
+  pet: {
+    id: string
+    name: string
+    owner: {
+      id: string
+      email: string | null
+      phone: string | null
+      full_name: string | null
+    } | null
+  } | null
+}
+
 async function generateRemindersForTenant(tenant: {
   id: string
   name: string
@@ -86,80 +102,115 @@ async function generateRemindersForTenant(tenant: {
       continue
     }
 
-    for (const vaccine of vaccines || []) {
-      const pet = vaccine.pet as any
-      const owner = pet?.owner
+    type VaccineResult = {
+      id: string
+      name: string
+      next_due_date: string
+      pet: {
+        id: string
+        name: string
+        owner: {
+          id: string
+          email: string | null
+          phone: string | null
+          full_name: string | null
+        } | null
+      } | null
+    }
 
-      if (!owner) continue
-
-      // Check if we already sent this reminder
-      const reminderKey = `vaccine-${vaccine.id}-${daysAhead}d`
-      const { data: existing } = await supabaseAdmin
-        .from('reminders')
-        .select('id')
-        .eq('tenant_id', tenant.id)
-        .eq('entity_type', 'vaccine')
-        .eq('entity_id', vaccine.id)
-        .eq('reminder_key', reminderKey)
-        .single()
-
-      if (existing) continue // Already created
-
-      // Create reminder record
-      await supabaseAdmin.from('reminders').insert({
-        tenant_id: tenant.id,
-        entity_type: 'vaccine',
-        entity_id: vaccine.id,
-        reminder_key: reminderKey,
-        due_date: vaccine.next_dose_date,
-        status: 'pending',
-      })
-
-      // Queue email notification
-      if (owner.email) {
-        const daysText =
-          daysAhead === 0 ? 'hoy' : daysAhead === 1 ? 'mañana' : `en ${daysAhead} días`
-
-        await supabaseAdmin.from('notification_queue').insert({
-          tenant_id: tenant.id,
-          channel: 'email',
-          recipient_id: owner.id,
-          recipient_address: owner.email,
-          subject: `Recordatorio: Vacuna de ${pet.name} vence ${daysText}`,
-          body: formatVaccineReminderEmail(pet.name, vaccine.name, daysAhead, tenant.name),
-          priority: daysAhead === 0 ? 'high' : daysAhead === 1 ? 'normal' : 'low',
-          metadata: {
-            vaccine_id: vaccine.id,
-            pet_id: pet.id,
-            pet_name: pet.name,
-            vaccine_name: vaccine.name,
-            days_until: daysAhead,
-            clinic_name: tenant.name,
-          },
-        })
-        remindersCreated++
-      }
-
-      // Queue SMS notification (only for same-day and next-day)
-      if (owner.phone && daysAhead <= 1) {
-        await supabaseAdmin.from('notification_queue').insert({
-          tenant_id: tenant.id,
-          channel: 'sms',
-          recipient_id: owner.id,
-          recipient_address: owner.phone,
-          body: formatVaccineReminderSms(pet.name, vaccine.name, daysAhead, tenant.name),
-          priority: 'high',
-          metadata: {
-            vaccine_id: vaccine.id,
-            pet_id: pet.id,
-          },
-        })
-        remindersCreated++
-      }
+    for (const vaccine of (vaccines || []) as unknown as VaccineResult[]) {
+      const remindersGenerated = await createVaccineReminder(vaccine, daysAhead, tenant)
+      remindersCreated += remindersGenerated
     }
   }
 
   return remindersCreated
+}
+
+async function createVaccineReminder(
+  vaccine: VaccineData,
+  daysAhead: number,
+  tenant: { id: string; name: string }
+): Promise<number> {
+  const pet = vaccine.pet
+  if (!pet) {
+    console.warn(`Vaccine ${vaccine.id} has no linked pet. Skipping.`)
+    return 0
+  }
+
+  const owner = pet.owner
+  if (!owner) {
+     console.warn(`Pet ${pet.id} has no linked owner. Skipping vaccine reminder.`)
+     return 0
+  }
+
+  // Check if we already sent this reminder
+  const reminderKey = `vaccine-${vaccine.id}-${daysAhead}d`
+  const { data: existing } = await supabaseAdmin
+    .from('reminders')
+    .select('id')
+    .eq('tenant_id', tenant.id)
+    .eq('entity_type', 'vaccine')
+    .eq('entity_id', vaccine.id)
+    .eq('reminder_key', reminderKey)
+    .single()
+
+  if (existing) return 0 // Already created
+
+  // Create reminder record
+  await supabaseAdmin.from('reminders').insert({
+    tenant_id: tenant.id,
+    entity_type: 'vaccine',
+    entity_id: vaccine.id,
+    reminder_key: reminderKey,
+    due_date: vaccine.next_due_date,
+    status: 'pending',
+  })
+
+  let remindersSent = 0
+
+  // Queue email notification
+  if (owner.email) {
+    const daysText =
+      daysAhead === 0 ? 'hoy' : daysAhead === 1 ? 'mañana' : `en ${daysAhead} días`
+
+    await supabaseAdmin.from('notification_queue').insert({
+      tenant_id: tenant.id,
+      channel: 'email',
+      recipient_id: owner.id,
+      recipient_address: owner.email,
+      subject: `Recordatorio: Vacuna de ${pet.name} vence ${daysText}`,
+      body: formatVaccineReminderEmail(pet.name, vaccine.name, daysAhead, tenant.name),
+      priority: daysAhead === 0 ? 'high' : daysAhead === 1 ? 'normal' : 'low',
+      metadata: {
+        vaccine_id: vaccine.id,
+        pet_id: pet.id,
+        pet_name: pet.name,
+        vaccine_name: vaccine.name,
+        days_until: daysAhead,
+        clinic_name: tenant.name,
+      },
+    })
+    remindersSent++
+  }
+
+  // Queue SMS notification (only for same-day and next-day)
+  if (owner.phone && daysAhead <= 1) {
+    await supabaseAdmin.from('notification_queue').insert({
+      tenant_id: tenant.id,
+      channel: 'sms',
+      recipient_id: owner.id,
+      recipient_address: owner.phone,
+      body: formatVaccineReminderSms(pet.name, vaccine.name, daysAhead, tenant.name),
+      priority: 'high',
+      metadata: {
+        vaccine_id: vaccine.id,
+        pet_id: pet.id,
+      },
+    })
+    remindersSent++
+  }
+  return remindersSent
 }
 
 function formatVaccineReminderEmail(

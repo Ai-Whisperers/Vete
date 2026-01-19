@@ -75,7 +75,8 @@ export type {
   VaccineFilters,
 } from './medical-record-service';
 
-export { UserService } from './user-service';
+// User service migrated to domain layer - re-export for backward compatibility
+export { UserService, createUserService } from '../domain/users';
 export type {
   UserRole,
   ContactMethod,
@@ -84,8 +85,11 @@ export type {
   CreateUserData,
   UpdateUserData,
   UserListFilters,
+  OwnerListFilters,
+  UserStats,
+  UserWithMetadata,
   ClinicInvite,
-} from './user-service';
+} from '../domain/users';
 
 export { InventoryService } from './inventory-service';
 export type {

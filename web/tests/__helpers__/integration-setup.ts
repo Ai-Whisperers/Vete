@@ -31,18 +31,18 @@
  * ```
  */
 
-// Load environment variables from .env.local for integration tests
-import { config } from 'dotenv'
-import { resolve } from 'path'
-
-// Try to load .env.local, then .env as fallback
-config({ path: resolve(process.cwd(), '.env.local') })
-config({ path: resolve(process.cwd(), '.env') })
+/**
+ * Environment variables are now loaded in vitest.config.ts
+ * This ensures they're available before any test code runs
+ */
 
 import { createClient as createSupabaseClient, SupabaseClient } from '@supabase/supabase-js'
 import { factoryMode } from '@/lib/test-utils/factories/core/mode'
 import { idGenerator } from '@/lib/test-utils/factories/core/id-generator'
 import { cleanupManager } from './cleanup-manager'
+
+// Re-export cleanupManager for test files
+export { cleanupManager }
 
 // =============================================================================
 // Constants
@@ -254,25 +254,28 @@ export async function createTestAuthUser(
 
   const userId = authData.user.id
 
-  // Create profile with auth user ID
-  const profileData = {
-    id: userId,
-    tenant_id: tenantId,
-    role,
-    email,
-    full_name: `Test ${role.charAt(0).toUpperCase() + role.slice(1)}`,
-  }
-
+  // NOTE: The handle_new_user() trigger automatically creates a profile
+  // when an auth user is created. We just need to update it with test-specific data.
+  
+  // Wait a moment for trigger to execute
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  // Update the auto-created profile with test-specific data
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .insert(profileData)
+    .update({
+      tenant_id: tenantId,
+      role,
+      full_name: `Test ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+    })
+    .eq('id', userId)
     .select()
     .single()
 
   if (profileError) {
     // Cleanup auth user on profile failure
     await supabase.auth.admin.deleteUser(userId)
-    throw new Error(`[Integration Test] Failed to create profile: ${profileError.message}`)
+    throw new Error(`[Integration Test] Failed to update profile: ${profileError.message}`)
   }
 
   // Track for cleanup (auth user deletion will cascade)

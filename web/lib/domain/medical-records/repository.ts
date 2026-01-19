@@ -8,15 +8,15 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   MedicalRecord,
   MedicalRecordWithDetails,
-  CreateMedicalRecordInput,
-  MedicalRecordFilters,
-  Vaccine,
-  VaccineWithDetails,
-  CreateVaccineInput,
-  VaccineFilters,
   Prescription,
   PrescriptionWithDetails,
+  MedicalRecordFilters,
+  CreateMedicalRecordInput,
   CreatePrescriptionInput,
+  Vaccine,
+  VaccineWithDetails,
+  VaccineFilters,
+  CreateVaccineInput,
 } from './types'
 
 const MEDICAL_RECORD_SELECT = `

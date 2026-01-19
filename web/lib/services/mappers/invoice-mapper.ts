@@ -72,6 +72,7 @@ interface RawRefund {
 }
 
 interface RawCreatedBy {
+  id: string
   full_name: string
 }
 
@@ -100,6 +101,9 @@ export interface RawInvoiceWithDetails {
   status: string
   due_date: string | null
   paid_at: string | null
+  sent_at: string | null
+  voided_at: string | null
+  voided_by: string | null
   notes: string | null
   internal_notes: string | null
   created_by: string | null
@@ -223,13 +227,16 @@ export function mapInvoiceWithDetails(
     status: raw.status as InvoiceWithDetails['status'],
     due_date: raw.due_date,
     paid_at: raw.paid_at,
+    sent_at: raw.sent_at,
+    voided_at: raw.voided_at,
+    voided_by: raw.voided_by,
     notes: raw.notes,
     internal_notes: raw.internal_notes,
     created_by: raw.created_by,
     created_at: raw.created_at,
     updated_at: raw.updated_at,
     deleted_at: raw.deleted_at,
-    pets: pet
+    pet: pet
       ? {
           id: pet.id,
           name: pet.name,
@@ -246,10 +253,10 @@ export function mapInvoiceWithDetails(
             : null,
         }
       : null,
-    invoice_items: normalizeArray(raw.invoice_items).map(mapInvoiceItem),
+    items: normalizeArray(raw.invoice_items).map(mapInvoiceItem),
     payments: normalizeArray(raw.payments).map(mapPayment),
     refunds: normalizeArray(raw.refunds).map(mapRefund),
-    created_by_user: createdBy ? { full_name: createdBy.full_name } : null,
+    created_by_user: createdBy ? { id: createdBy.id, full_name: createdBy.full_name } : null,
   }
 }
 

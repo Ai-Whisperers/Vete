@@ -6,18 +6,9 @@
  *
  * @example
  * ```typescript
- * import { useAsyncData, useModal, useSyncedState } from '@/lib/hooks'
+ * import { useModal, useSyncedState } from '@/lib/hooks'
  * ```
  */
-
-// Data fetching
-export {
-  useAsyncData,
-  useSimpleAsyncData,
-  type AsyncDataResult,
-  type AsyncDataStatus,
-  type UseAsyncDataOptions,
-} from './use-async-data'
 
 // Modal management
 export {

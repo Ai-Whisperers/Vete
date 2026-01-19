@@ -8,6 +8,7 @@
 
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BaseService, ServiceResult } from './base-service';
+import { logger } from '@/lib/logger';
 
 // =============================================================================
 // TYPES
@@ -919,7 +920,7 @@ export class ConsentService extends BaseService {
       });
     } catch (_error: unknown) {
       // Don't fail the main operation if audit logging fails
-      console.error('Failed to log consent action:', action);
+      logger.error('[Consent] Failed to log consent action', { action });
     }
   }
 

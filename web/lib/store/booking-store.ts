@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { logger } from '@/lib/logger'
 import {
   Syringe,
   Stethoscope,
@@ -272,7 +273,9 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         return false
       }
     } catch (e: unknown) {
-      console.error(e)
+      logger.error('[Booking] Submit error', {
+        error: e instanceof Error ? e.message : String(e),
+      })
       set({ submitError: 'Error de conexión con el servidor. Por favor intenta de nuevo.' })
       return false
     } finally {

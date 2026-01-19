@@ -107,8 +107,17 @@ export interface MedicalRecordFilters {
 }
 
 // =============================================================================
-// VACCINE TYPES
+// VACCINE TYPES (part of medical records)
 // =============================================================================
+// NOTE: Vaccine types have been moved to lib/domain/vaccines/types.ts
+// Import from there instead to avoid duplicate exports:
+// import type { Vaccine, VaccineFilters, VaccineWithDetails } from '../vaccines/types'
+
+// =============================================================================
+// VACCINE TYPES (legacy - kept for medical-records repository compatibility)
+// =============================================================================
+// Note: The vaccines domain has its own types in lib/domain/vaccines/types.ts
+// These are kept here for backward compatibility with medical-records repository
 
 export type VaccineStatus = 'pending' | 'verified' | 'expired'
 
@@ -232,9 +241,4 @@ export interface MedicalRecordListResult {
   limit: number
 }
 
-export interface VaccineListResult {
-  vaccines: VaccineWithDetails[]
-  count: number
-  page: number
-  limit: number
-}
+// VaccineListResult moved to lib/domain/vaccines/types.ts

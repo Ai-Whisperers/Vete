@@ -2,10 +2,11 @@
 
 Vete provides both REST API endpoints and Server Actions for data operations.
 
-> **Last Updated**: January 2026
-> **Total REST Endpoints**: 167
-> **Total Server Actions**: 35
-> **Total Cron Jobs**: 5
+> **Last Updated**: January 2026  
+> **Total API Route Files**: 313 files  
+> **Total HTTP Methods**: ~480+ endpoints  
+> **Total Server Actions**: 37  
+> **Total Cron Jobs**: 18
 
 ---
 
@@ -37,7 +38,9 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 
 ---
 
-## REST API Endpoints (82 Total)
+## REST API Endpoints (313 Route Files, ~480+ HTTP Methods)
+
+**Note**: This section documents the major endpoint categories. For complete API reference, see the route files in `web/app/api/`.
 
 ### Appointments & Booking (5 endpoints)
 
@@ -195,7 +198,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET/POST | `/api/inventory/mappings` | Catalog product mappings |
 | PUT/DELETE | `/api/inventory/mappings/[id]` | Update/delete mapping |
 
-### Cron / Background Jobs (5 endpoints)
+### Cron / Background Jobs (18 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -204,6 +207,12 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET | `/api/cron/expiry-alerts` | Send product expiry notifications |
 | GET | `/api/cron/stock-alerts` | Send low stock email alerts |
 | GET | `/api/cron/reminders` | Process scheduled reminders |
+| GET | `/api/cron/billing/auto-charge` | Auto-charge subscriptions |
+| GET | `/api/cron/check-health` | Health check for cron jobs |
+| GET | `/api/cron/billing/*` | Additional billing cron jobs |
+| GET | `/api/cron/*` | +10 more background jobs |
+
+**Note**: See `web/app/api/cron/` for complete list of 18 cron endpoints.
 
 ### Finance (3 endpoints)
 
@@ -236,7 +245,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 
 ---
 
-## Server Actions (35 Total)
+## Server Actions (37 Total)
 
 Server Actions are used for mutations from Server Components.
 

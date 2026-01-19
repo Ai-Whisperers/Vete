@@ -31,8 +31,8 @@ export interface FormField<T = FormValue> {
 /**
  * Internal form state map
  */
-export interface FormState<T extends FormValues = FormValues> {
-  [K: string]: FormField<T[keyof T]>
+export type FormState<T extends FormValues = FormValues> = {
+  [K in keyof T]: FormField<T[K]>
 }
 
 /**
@@ -81,23 +81,23 @@ export function useForm<T extends FormValues = FormValues>(
     validateOnChange = true,
     validateOnBlur = true,
     initialValues = {} as T,
-    validationRules = {},
+    validationRules = {} as { [K in keyof T]?: ValidationRule<T[K], T> },
   } = options
 
-  const [formState, setFormState] = useState<FormState<T>>(() =>
-    Object.keys(initialValues).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: {
+  const [formState, setFormState] = useState<FormState<T>>(() => {
+    const state = {} as FormState<T>
+    for (const key in initialValues) {
+      if (Object.prototype.hasOwnProperty.call(initialValues, key)) {
+        state[key] = {
           value: initialValues[key],
           error: null,
           touched: false,
           dirty: false,
-        },
-      }),
-      {}
-    )
-  )
+        }
+      }
+    }
+    return state
+  })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const initialValuesRef = useRef<T>(initialValues)
@@ -198,21 +198,18 @@ export function useForm<T extends FormValues = FormValues>(
 
   const reset = useCallback((values: T = initialValuesRef.current) => {
     initialValuesRef.current = values
-    setFormState(
-      Object.keys(values).reduce(
-        (acc, key) => ({
-          ...acc,
-          [key]: {
-            value: values[key],
-            error: null,
-            touched: false,
-            dirty: false,
-          },
-        }),
-        {}
-      )
-    )
-    setIsSubmitting(false)
+    const state = {} as FormState<T>
+    for (const key in values) {
+      if (Object.prototype.hasOwnProperty.call(values, key)) {
+        state[key] = {
+          value: values[key],
+          error: null,
+          touched: false,
+          dirty: false,
+        }
+      }
+    }
+    setFormState(state)
   }, [])
 
   const handleSubmit = useCallback(

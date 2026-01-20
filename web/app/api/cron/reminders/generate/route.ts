@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
     return cronAuth.errorResponse ?? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient('service_role')
   const today = new Date()
   const todayStr = today.toISOString().split('T')[0]
 

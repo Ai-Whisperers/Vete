@@ -25,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return errorResponse!
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient('service_role')
 
   const results = {
     generated: 0,

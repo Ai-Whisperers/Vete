@@ -19,7 +19,7 @@ export const userProfileSchema: ValidationSchema = {
     maxLength: 255,
   },
   phone: {
-    pattern: /^[\+]?[1-9][\d]{0,15}$/,
+    pattern: /^[+]?[1-9][\d]{0,15}$/,
     message: 'Formato de teléfono inválido',
   },
 }
@@ -116,7 +116,7 @@ export const contactFormSchema: ValidationSchema = {
     email: true,
   },
   phone: {
-    pattern: /^[\+]?[1-9][\d]{0,15}$/,
+    pattern: /^[+]?[1-9][\d]{0,15}$/,
     message: 'Formato de teléfono inválido',
   },
   subject: {

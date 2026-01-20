@@ -164,7 +164,7 @@ export function validateFileExtension(file: File): FileValidationResult {
 export function sanitizeFilename(filename: string): string {
   // Remove path separators and special characters
   const sanitized = filename
-    .replace(/[\/\\:*?"<>|]/g, '') // Remove dangerous characters
+    .replace(/[/\\:*?"<>|]/g, '') // Remove dangerous characters
     .replace(/\.\./g, '') // Remove path traversal attempts
     .replace(/^\.+/, '') // Remove leading dots
     .trim()

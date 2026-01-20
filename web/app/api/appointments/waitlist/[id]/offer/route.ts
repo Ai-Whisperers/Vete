@@ -117,7 +117,7 @@ export const POST = withApiAuthParams(
           email: {
             subject: `¡Turno disponible para ${pet.name}!`,
           },
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           // Don't fail the request if notification fails
           logger.warn('Failed to send waitlist notification', {
             entryId,

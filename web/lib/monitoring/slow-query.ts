@@ -446,7 +446,7 @@ async function maybeAlert(
       },
       severity,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     // Don't let alert failures break query tracking
     logger.error('Failed to send slow query alert', {
       error: error instanceof Error ? error.message : String(error),
@@ -485,7 +485,7 @@ export async function withQueryTracking<T>(
     trackQuery(table, operation, duration, rowCount)
 
     return result
-  } catch (error) {
+  } catch (error: unknown) {
     const duration = performance.now() - start
     trackQuery(table, operation, duration)
     throw error

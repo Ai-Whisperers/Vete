@@ -47,7 +47,30 @@ serve(async (req) => {
         continue
       }
 
-      for (const appointment of appointments || []) {
+      // Explicitly type the result structure to match the query
+      type AppointmentResult = {
+        id: string
+        start_time: string
+        reason: string
+        status: string
+        tenant_id: string
+        pet: {
+          id: string
+          name: string
+          owner: {
+            id: string
+            email: string | null
+            phone: string | null
+            full_name: string | null
+          } | null
+        } | null
+        tenant: {
+          name: string
+          config: unknown
+        } | null
+      }
+
+      for (const appointment of (appointments || []) as unknown as AppointmentResult[]) {
         const remindersCreated = await createAppointmentReminders(appointment, hoursAhead)
         totalReminders += remindersCreated
       }
@@ -62,23 +85,60 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('Error generating appointment reminders:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 })
 
-async function createAppointmentReminders(appointment: any, hoursAhead: number): Promise<number> {
+// Define the interface for the helper function
+interface AppointmentData {
+  id: string
+  start_time: string
+  reason: string
+  status: string
+  tenant_id: string
+  pet: {
+    id: string
+    name: string
+    owner: {
+      id: string
+      email: string | null
+      phone: string | null
+      full_name: string | null
+    } | null
+  } | null
+  tenant: {
+    name: string
+    config: unknown
+  } | null
+}
+
+async function createAppointmentReminders(appointment: AppointmentData, hoursAhead: number): Promise<number> {
   let remindersCreated = 0
 
-  const pet = appointment.pet as any
-  const owner = pet?.owner
-  const tenant = appointment.tenant as any
+  const pet = appointment.pet
+  if (!pet) {
+     console.warn(`Appointment ${appointment.id} has no linked pet. Skipping.`)
+     return 0
+  }
 
-  if (!owner || !tenant) return 0
+  const owner = pet.owner
+  const tenant = appointment.tenant
+
+  if (!owner) {
+     console.warn(`Pet ${pet.id} has no linked owner. Skipping reminder.`)
+     return 0
+  }
+  
+  if (!tenant) {
+      console.warn(`Appointment ${appointment.id} has no linked tenant. Skipping.`)
+      return 0
+  }
 
   // Check if reminder already sent
   const reminderKey = `apt-${appointment.id}-${hoursAhead}h`

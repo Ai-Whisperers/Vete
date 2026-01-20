@@ -1397,7 +1397,7 @@ async function clearTenantData(tenantId: string): Promise<void> {
       if (!error && data) {
         totalDeleted += data.length
       }
-    } catch {
+    } catch (_error: unknown) {
       // Table might not exist or have tenant_id
     }
   }

@@ -59,9 +59,9 @@ export function validateForApi(
 // Common validation patterns
 export const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  phone: /^[\+]?[1-9][\d]{0,15}$/,
+  phone: /^[+]?[1-9][\d]{0,15}$/,
   uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
   slug: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
   alpha: /^[a-zA-ZÀ-ÿ\s'-]+$/,
   alphanumeric: /^[a-zA-ZÀ-ÿ0-9\s'-]+$/,

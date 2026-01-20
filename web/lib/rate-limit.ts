@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiErrorResponse } from './api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * Rate limit configuration for different endpoint types
@@ -55,6 +56,12 @@ export const RATE_LIMITS = {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 5, // 5 bookings per hour is generous
     message: 'Demasiadas solicitudes de reserva. Intente de nuevo en',
+  },
+  // SEC-028: GDPR verification rate limit (Epic 4.1)
+  gdpr: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 5, // 5 attempts per token per hour (prevents brute-force)
+    message: 'Demasiados intentos de verificación. Intente de nuevo en',
   },
   default: {
     windowMs: 60 * 1000, // 1 minute
@@ -172,6 +179,7 @@ type RedisClientType = {
   connect(): Promise<void>
   get(key: string): Promise<string | null>
   setEx(key: string, ttl: number, value: string): Promise<void>
+  del(key: string): Promise<number>
 }
 
 /**
@@ -213,8 +221,10 @@ class RedisStore {
       await this.client.connect()
       this.isConnected = true
       // Redis rate limiting enabled
-    } catch (error) {
-      console.error('Redis connection failed, falling back to in-memory store:', error)
+    } catch (error: unknown) {
+      logger.warn('[RateLimit] Redis connection failed, falling back to in-memory store', {
+        error: error instanceof Error ? error.message : String(error),
+      })
       this.isConnected = false
     }
   }
@@ -227,8 +237,11 @@ class RedisStore {
     try {
       const data = await this.client.get(key)
       return data ? JSON.parse(data) : []
-    } catch (error) {
-      console.error('Redis get error:', error)
+    } catch (error: unknown) {
+      logger.error('[RateLimit] Redis get error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       return inMemoryStore.get(key)
     }
   }
@@ -243,8 +256,11 @@ class RedisStore {
       const timestamps = await this.get(key)
       timestamps.push(timestamp)
       await this.client.setEx(key, ttlSeconds, JSON.stringify(timestamps))
-    } catch (error) {
-      console.error('Redis add error:', error)
+    } catch (error: unknown) {
+      logger.error('[RateLimit] Redis add error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       inMemoryStore.add(key, timestamp)
     }
   }
@@ -264,8 +280,11 @@ class RedisStore {
       } else {
         await this.client.setEx(key, ttlSeconds, JSON.stringify(filtered))
       }
-    } catch (error) {
-      console.error('Redis prune error:', error)
+    } catch (error: unknown) {
+      logger.error('[RateLimit] Redis prune error', {
+        error: error instanceof Error ? error.message : String(error),
+        key,
+      })
       inMemoryStore.prune(key, windowStart)
     }
   }

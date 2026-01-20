@@ -44,7 +44,7 @@ test.describe('Services Page', () => {
     const content = await page.content()
 
     // Should have price indicators (Gs., $, or numbers)
-    expect(content).toMatch(/\d+[\.,]?\d*|gs\.|precio/i)
+    expect(content).toMatch(/\d+[.,]?\d*|gs\.|precio/i)
   })
 
   test('has contact/booking call to action', async ({ page }) => {

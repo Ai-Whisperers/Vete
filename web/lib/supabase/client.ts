@@ -34,7 +34,7 @@ export function hasStoredSession(): boolean {
     const key = `sb-${projectRef}-auth-token`
     const stored = localStorage.getItem(key)
     return stored !== null && stored !== ''
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

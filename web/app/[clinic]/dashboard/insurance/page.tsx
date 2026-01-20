@@ -6,21 +6,18 @@
  * RES-001: Migrated to React Query for data fetching
  */
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   FileText,
-  DollarSign,
   Clock,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   Plus,
   Search,
-  Filter,
 } from 'lucide-react'
 import ClaimStatusBadge from '@/components/insurance/claim-status-badge'
 

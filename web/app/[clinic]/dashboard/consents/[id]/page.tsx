@@ -30,7 +30,7 @@ interface AuditLogEntry {
   id: string
   action: string
   created_at: string
-  details: any
+  details: Record<string, unknown> | null
   performed_by: {
     full_name: string
   }
@@ -40,7 +40,7 @@ interface ConsentDocument {
   id: string
   status: string
   custom_content: string | null
-  field_values: Record<string, any>
+  field_values: Record<string, string | number | boolean | null>
   signature_data: string
   signed_at: string
   signed_by_id: string
@@ -84,7 +84,7 @@ interface ConsentDocument {
 export default function ConsentDetailPage(): JSX.Element {
   const [showRevokeModal, setShowRevokeModal] = useState(false)
   const [revocationReason, setRevocationReason] = useState('')
-  const router = useRouter()
+  const _router = useRouter() // Reserved for future use
   const params = useParams()
   const { showToast } = useToast()
   const queryClient = useQueryClient()
@@ -263,7 +263,7 @@ export default function ConsentDetailPage(): JSX.Element {
     if (consent.field_values) {
       Object.keys(consent.field_values).forEach((key) => {
         const value = consent.field_values[key]
-        content = content.replace(new RegExp(`{{${key}}}`, 'g'), value || '')
+        content = content.replace(new RegExp(`{{${key}}}`, 'g'), String(value || ''))
       })
     }
 

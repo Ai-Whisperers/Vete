@@ -1,185 +1,163 @@
-'use client'
-
-import { useState, useEffect, useCallback, useRef } from 'react'
-
-/**
- * Status of an async data operation
- */
-export type AsyncDataStatus = 'idle' | 'loading' | 'success' | 'error'
-
-/**
- * Result of the useAsyncData hook
- */
-export interface AsyncDataResult<T> {
-  /** The fetched data, undefined until successfully loaded */
-  data: T | undefined
-  /** Current loading status */
-  status: AsyncDataStatus
-  /** Whether data is currently being fetched */
-  isLoading: boolean
-  /** Whether data was successfully fetched */
-  isSuccess: boolean
-  /** Whether an error occurred */
-  isError: boolean
-  /** Error object if fetch failed */
-  error: Error | undefined
-  /** Re-fetch the data manually */
-  refetch: () => Promise<void>
-  /** Reset to initial state */
-  reset: () => void
-}
+import { useState, useEffect, useCallback, useRef, DependencyList } from 'react';
 
 /**
  * Options for useAsyncData hook
  */
 export interface UseAsyncDataOptions {
-  /** Whether to fetch immediately on mount (default: true) */
-  enabled?: boolean
-  /** Called when fetch succeeds */
-  onSuccess?: (data: unknown) => void
-  /** Called when fetch fails */
-  onError?: (error: Error) => void
-  /** Refetch interval in milliseconds (disabled by default) */
-  refetchInterval?: number
-  /** Keep previous data while refetching (default: false) */
-  keepPreviousData?: boolean
+  /**
+   * Whether to fetch data immediately on mount (default: true)
+   */
+  enabled?: boolean;
+
+  /**
+   * Interval in milliseconds to automatically refetch data
+   */
+  refetchInterval?: number;
+
+  /**
+   * Callback when data fetch succeeds
+   */
+  onSuccess?: (data: any) => void;
+
+  /**
+   * Callback when data fetch fails
+   */
+  onError?: (error: Error) => void;
 }
 
 /**
- * Hook for managing async data fetching with loading, error, and refetch states.
- * Replaces the common useEffect + useState pattern for data fetching.
- *
+ * Return type for useAsyncData hook
+ */
+export interface UseAsyncDataReturn<T> {
+  /**
+   * The fetched data (undefined while loading or if error occurred)
+   */
+  data: T | undefined;
+
+  /**
+   * Whether data is currently being fetched
+   */
+  isLoading: boolean;
+
+  /**
+   * Error object if fetch failed
+   */
+  error: Error | null;
+
+  /**
+   * Function to manually trigger a refetch
+   */
+  refetch: () => Promise<void>;
+}
+
+/**
+ * Custom hook for async data fetching with loading/error states
+ * 
+ * @param fetcher - Async function that fetches the data
+ * @param deps - Dependency array (like useEffect)
+ * @param options - Configuration options
+ * @returns Object with data, isLoading, error, and refetch function
+ * 
  * @example
  * ```typescript
- * // Basic usage
  * const { data, isLoading, error, refetch } = useAsyncData(
  *   () => fetch('/api/pets').then(r => r.json()),
- *   [tenantId] // re-fetch when tenantId changes
+ *   [tenantId],
+ *   { refetchInterval: 30000, enabled: !!tenantId }
  * )
- *
- * // With options
- * const { data, isLoading } = useAsyncData(
- *   () => fetchPetDetails(petId),
- *   [petId],
- *   {
- *     enabled: !!petId,
- *     onSuccess: (pet) => console.log('Loaded:', pet),
- *     refetchInterval: 30000, // refresh every 30 seconds
- *   }
- * )
- *
- * // Conditional loading
- * if (isLoading) return <Spinner />
- * if (error) return <ErrorMessage error={error} />
- * if (!data) return null
- * return <PetList pets={data} />
  * ```
  */
 export function useAsyncData<T>(
   fetcher: () => Promise<T>,
-  deps: React.DependencyList = [],
+  deps: DependencyList = [],
   options: UseAsyncDataOptions = {}
-): AsyncDataResult<T> {
+): UseAsyncDataReturn<T> {
   const {
     enabled = true,
+    refetchInterval,
     onSuccess,
     onError,
-    refetchInterval,
-    keepPreviousData = false,
-  } = options
+  } = options;
 
-  const [data, setData] = useState<T | undefined>(undefined)
-  const [status, setStatus] = useState<AsyncDataStatus>('idle')
-  const [error, setError] = useState<Error | undefined>(undefined)
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  // Track if component is mounted to avoid state updates after unmount
-  const isMountedRef = useRef(true)
-  // Track current fetch to handle race conditions
-  const fetchIdRef = useRef(0)
+  const isMountedRef = useRef(true);
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Fetch function that updates state
   const fetchData = useCallback(async () => {
-    if (!isMountedRef.current) return
+    if (!enabled) return;
 
-    const currentFetchId = ++fetchIdRef.current
-
-    if (!keepPreviousData) {
-      setStatus('loading')
-    }
-    setError(undefined)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const result = await fetcher()
+      const result = await fetcher();
 
-      // Only update if this is still the latest fetch and component is mounted
-      if (isMountedRef.current && currentFetchId === fetchIdRef.current) {
-        setData(result)
-        setStatus('success')
-        onSuccess?.(result)
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setData(result);
+        setIsLoading(false);
+
+        if (onSuccess) {
+          onSuccess(result);
+        }
       }
     } catch (err) {
-      // Only update if this is still the latest fetch and component is mounted
-      if (isMountedRef.current && currentFetchId === fetchIdRef.current) {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setError(error)
-        setStatus('error')
-        onError?.(error)
-      }
-    }
-  }, [fetcher, keepPreviousData, onSuccess, onError])
-
-  const reset = useCallback(() => {
-    setData(undefined)
-    setStatus('idle')
-    setError(undefined)
-  }, [])
-
-  // Initial fetch and re-fetch on dependency changes
-  useEffect(() => {
-    isMountedRef.current = true
-
-    if (enabled) {
-      fetchData()
-    }
-
-    return () => {
-      isMountedRef.current = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, ...deps])
-
-  // Refetch interval
-  useEffect(() => {
-    if (!refetchInterval || !enabled) return
-
-    const intervalId = setInterval(() => {
+      // Only update state if component is still mounted
       if (isMountedRef.current) {
-        fetchData()
-      }
-    }, refetchInterval)
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        setIsLoading(false);
 
-    return () => clearInterval(intervalId)
-  }, [refetchInterval, enabled, fetchData])
+        if (onError) {
+          onError(error);
+        }
+      }
+    }
+  }, [fetcher, enabled, onSuccess, onError]);
+
+  // Manual refetch function
+  const refetch = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
+
+  // Initial fetch and dependency-based refetch
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, ...deps]);
+
+  // Auto-refetch interval
+  useEffect(() => {
+    if (refetchInterval && enabled) {
+      intervalIdRef.current = setInterval(() => {
+        fetchData();
+      }, refetchInterval);
+
+      return () => {
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+        }
+      };
+    }
+  }, [refetchInterval, enabled, fetchData]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+      }
+    };
+  }, []);
 
   return {
     data,
-    status,
-    isLoading: status === 'loading',
-    isSuccess: status === 'success',
-    isError: status === 'error',
+    isLoading,
     error,
-    refetch: fetchData,
-    reset,
-  }
-}
-
-/**
- * Simpler version for when you just need data and loading state.
- * Returns [data, isLoading, error] tuple.
- */
-export function useSimpleAsyncData<T>(
-  fetcher: () => Promise<T>,
-  deps: React.DependencyList = []
-): [T | undefined, boolean, Error | undefined] {
-  const { data, isLoading, error } = useAsyncData(fetcher, deps)
-  return [data, isLoading, error]
+    refetch,
+  };
 }

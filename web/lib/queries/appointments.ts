@@ -8,7 +8,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface Appointment {
@@ -87,7 +87,7 @@ export function useAppointmentsList(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/list')
         throw new Error(error.error || 'Error al cargar citas')
       }
       return response.json()
@@ -110,7 +110,7 @@ export function useAppointment(
     queryFn: async (): Promise<Appointment> => {
       const response = await fetch(`/api/appointments/${appointmentId}`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/detail')
         throw new Error(error.error || 'Error al cargar cita')
       }
       return response.json()
@@ -136,7 +136,7 @@ export function useCalendarAppointments(
       const url = buildUrl(`/api/${clinic}/calendar/events`, { start, end })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/calendar')
         throw new Error(error.error || 'Error al cargar calendario')
       }
       const data = await response.json()
@@ -160,7 +160,7 @@ export function usePendingAppointments(clinic: string, options?: { enabled?: boo
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/pending')
         throw new Error(error.error || 'Error al cargar solicitudes pendientes')
       }
       const data = await response.json()
@@ -182,7 +182,7 @@ export function useWaitlist(clinic: string, options?: { enabled?: boolean }) {
     queryFn: async (): Promise<WaitlistEntry[]> => {
       const response = await fetch(`/api/${clinic}/appointments/waitlist`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/waitlist')
         throw new Error(error.error || 'Error al cargar lista de espera')
       }
       return response.json()
@@ -211,7 +211,7 @@ export function useAvailableSlots(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/availability')
         throw new Error(error.error || 'Error al cargar disponibilidad')
       }
       return response.json()
@@ -247,7 +247,7 @@ export function useCreateAppointment(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/create')
         throw new Error(error.error || 'Error al crear cita')
       }
       return response.json()
@@ -282,7 +282,7 @@ export function useUpdateAppointment(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/update')
         throw new Error(error.error || 'Error al actualizar cita')
       }
       return response.json()
@@ -309,7 +309,7 @@ export function useCancelAppointment(clinic: string) {
         body: JSON.stringify({ reason }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/cancel')
         throw new Error(error.error || 'Error al cancelar cita')
       }
     },
@@ -346,7 +346,7 @@ export function useScheduleAppointment(clinic: string) {
         body: JSON.stringify({ start_time, end_time, vet_id }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'appointments/schedule')
         throw new Error(error.error || 'Error al programar cita')
       }
       return response.json()

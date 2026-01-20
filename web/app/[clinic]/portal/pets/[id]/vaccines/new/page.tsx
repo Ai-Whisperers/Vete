@@ -18,7 +18,7 @@ import {
   Syringe,
 } from 'lucide-react'
 import { createVaccine } from '@/app/actions/create-vaccine'
-import { validateImageQuality } from '@/lib/image-validation'
+import { validateImageQuality } from '@/lib/validation/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'

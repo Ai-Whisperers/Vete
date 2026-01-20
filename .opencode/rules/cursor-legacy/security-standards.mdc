@@ -1,0 +1,52 @@
+---
+description: Security standards, RLS policies, and Authentication rules
+globs: **/*.{ts,tsx,sql}
+---
+# Security Standards
+
+## Critical Warnings
+1. **RLS Required**: NEVER create tables without RLS policies.
+2. **Tenant Isolation**: EVERY database query must filter by `tenant_id`.
+3. **Auth Checks**: EVERY API route must verify user with `supabase.auth.getUser()`.
+
+## Database Security (RLS)
+When creating tables:
+```sql
+ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Staff Access
+CREATE POLICY "Staff manage" ON table_name FOR ALL
+  USING (is_staff_of(tenant_id));
+
+-- Policy: Owner Access (if applicable)
+CREATE POLICY "Owner view own" ON table_name FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE profiles.id = auth.uid()
+    AND profiles.tenant_id = table_name.tenant_id
+  ));
+```
+
+## API Security Pattern
+```typescript
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  
+  // 1. Auth Check
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // 2. Tenant Context
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .single();
+
+  // 3. Filtered Query
+  const { data } = await supabase
+    .from('table')
+    .eq('tenant_id', profile.tenant_id); // CRITICAL
+    
+  return NextResponse.json(data);
+}
+```

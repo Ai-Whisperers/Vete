@@ -22,7 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createCronHandler, CronContext } from '@/lib/cron/handler'
 import { logger } from '@/lib/logger'
-import { sendEmail } from '@/lib/email/client'
+import { sendEmailWithRetry } from '@/lib/api/cron-external-calls'
 
 interface ReminderResult {
   tenant_id: string
@@ -344,7 +344,7 @@ async function sendReminder(
     scheduled_for: now,
   }).select('id').single()
 
-  // Send email if we have a recipient
+  // Send email if we have a recipient (with timeout/retry protection)
   let emailSuccess = false
   let emailError: string | undefined
 
@@ -356,17 +356,30 @@ async function sendReminder(
       invoice.invoice_number
     )
 
-    const result = await sendEmail({
-      to: recipientEmail,
-      subject: reminder.subject,
-      html: emailHtml,
-      text: `${clinicName},\n\n${reminder.content}\n\nFactura: ${invoice.invoice_number}\n\nSi tienes preguntas, contáctanos en soporte@vetic.app`,
-      from: process.env.EMAIL_FROM_BILLING || 'facturacion@vetic.app',
-      replyTo: 'soporte@vetic.app',
-    })
-
-    emailSuccess = result.success
-    emailError = result.error
+    try {
+      await sendEmailWithRetry({
+        to: recipientEmail,
+        subject: reminder.subject,
+        html: emailHtml,
+        text: `${clinicName},\n\n${reminder.content}\n\nFactura: ${invoice.invoice_number}\n\nSi tienes preguntas, contáctanos en soporte@vetic.app`,
+        from: process.env.EMAIL_FROM_BILLING || 'facturacion@vetic.app',
+        replyTo: 'soporte@vetic.app',
+      })
+      emailSuccess = true
+      logger.info('Billing reminder email sent successfully', {
+        invoiceId: invoice.id,
+        reminderType: reminder.type,
+        recipientEmail,
+      })
+    } catch (error) {
+      emailError = error instanceof Error ? error.message : 'Email send failed'
+      logger.error('Failed to send billing reminder email after retries', {
+        invoiceId: invoice.id,
+        reminderType: reminder.type,
+        recipientEmail,
+        error: emailError,
+      })
+    }
   }
 
   // Update reminder record with send status

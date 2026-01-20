@@ -202,11 +202,17 @@ export async function sendVerificationEmail(
     `,
   }
 
-  // Log the email for now (actual sending depends on email infrastructure)
-  console.log('GDPR Verification Email:', emailContent)
-
+  // TODO: Implement actual email sending
   // In production, this would call your email service:
   // await sendEmail(emailContent)
+  
+  // Development only: log email content
+  if (process.env.NODE_ENV === 'development') {
+    console.info('[GDPR] Verification email would be sent:', {
+      to: emailContent.to,
+      subject: emailContent.subject,
+    })
+  }
 }
 
 /**

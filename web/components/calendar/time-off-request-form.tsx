@@ -120,7 +120,7 @@ export function TimeOffRequestForm({
         end_half_day: endHalfDay,
         reason: reason || undefined,
       })
-    } catch {
+    } catch (_error: unknown) {
       setError(t('errors.submitError'))
     } finally {
       setIsSaving(false)

@@ -75,6 +75,8 @@ export interface ClinicSettings {
   tax_name?: string
   /** Whether prices already include tax */
   is_tax_inclusive?: boolean
+  /** Tax identification number (RUC in Paraguay) */
+  ruc?: string
 }
 
 // ============================================================================

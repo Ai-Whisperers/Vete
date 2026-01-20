@@ -16,7 +16,7 @@ describe('RLS Policies - Data Access Control', () => {
 
   beforeAll(async () => {
     await waitForDatabase()
-    serviceClient = getTestClient()
+    serviceClient = getTestClient({ serviceRole: true })
   })
 
   afterAll(async () => {
@@ -390,7 +390,7 @@ describe('RLS Policies - Role-Based Access', () => {
 
   beforeAll(async () => {
     await waitForDatabase()
-    serviceClient = getTestClient()
+    serviceClient = getTestClient({ serviceRole: true })
   })
 
   afterAll(async () => {

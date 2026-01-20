@@ -70,3 +70,30 @@ supabase/supabase/
 .worktrees/
 .security-key
 logs/security/
+
+# Temp Claude files
+tmpclaude*
+
+# Backup files
+*.backup
+
+# Archive (old planning docs)
+archive/
+
+# OpenCode
+.opencode/
+
+# Ralphy
+.ralphy/
+
+# AntiGravity
+.antigravity/
+
+# Temporary patch files
+*.patch
+
+# Incomplete domain layer implementations (WIP)
+web/lib/domain/inventory/index.ts
+web/lib/domain/inventory/queries.ts
+web/lib/domain/inventory/repository.ts
+web/lib/domain/inventory/service.ts

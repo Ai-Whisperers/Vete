@@ -46,7 +46,7 @@ function verifyClaimCode(providedCode: string, storedHash: string): boolean {
   const providedHash = hashClaimCode(providedCode)
   try {
     return crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(storedHash))
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

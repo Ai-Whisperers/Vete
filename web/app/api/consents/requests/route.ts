@@ -48,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let body
   try {
     body = await request.json()
-  } catch {
+  } catch (_error: unknown) {
     return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         })
         // Don't fail the whole operation if email fails
       }
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       logger.warn('Exception sending consent request email', {
         error: emailError instanceof Error ? emailError.message : 'Unknown',
         tenantId: profile.clinic_id,
@@ -284,7 +284,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           tenantId: profile.clinic_id,
         })
       }
-    } catch (smsError) {
+    } catch (smsError: unknown) {
       logger.warn('Exception sending consent request SMS', {
         error: smsError instanceof Error ? smsError.message : 'Unknown',
         tenantId: profile.clinic_id,

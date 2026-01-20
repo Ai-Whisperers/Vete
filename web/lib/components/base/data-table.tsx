@@ -13,7 +13,8 @@ export interface Column<T> {
   key: keyof T | string
   label: string
   sortable?: boolean
-  render?: (value: any, item: T) => React.ReactNode
+  /** Custom render function. Value type depends on column key. */
+  render?: (value: unknown, item: T) => React.ReactNode
   className?: string
 }
 

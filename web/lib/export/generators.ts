@@ -4,7 +4,7 @@
  * DATA-002: Functions to generate CSV, JSON, and XLSX export files.
  */
 
-import * as XLSX from 'xlsx'
+import * as ExcelJS from 'exceljs'
 import type { ExportFormat, ExportableTable, TableColumnConfig } from './types'
 import { TABLE_CONFIGS } from './config'
 
@@ -77,18 +77,8 @@ export async function generateCSVExport(
   }
 
   // Multiple tables - create a ZIP with multiple CSVs
-  // For simplicity, we'll concatenate into a single file with separators
+  // For simplicity, we'll return the first table CSV
   // In production, you might want to use archiver or similar for proper ZIP
-  const workbook = XLSX.utils.book_new()
-
-  for (const tableData of data) {
-    const worksheet = XLSX.utils.json_to_sheet(tableData.rows, {
-      header: tableData.columns,
-    })
-    XLSX.utils.book_append_sheet(workbook, worksheet, tableData.table.slice(0, 31)) // Sheet name max 31 chars
-  }
-
-  // Generate CSV for the first table for now (can extend to ZIP later)
   const csv = generateCSV(data[0])
   return {
     content: Buffer.from(csv, 'utf-8'),
@@ -144,37 +134,42 @@ export async function generateXLSXExport(
   tenantId: string
 ): Promise<GeneratedFile> {
   const timestamp = new Date().toISOString().slice(0, 10)
-  const workbook = XLSX.utils.book_new()
+  const workbook = new ExcelJS.Workbook()
 
   for (const tableData of data) {
-    // Create worksheet with headers
-    const worksheet = XLSX.utils.json_to_sheet(tableData.rows, {
-      header: tableData.columns,
-    })
-
-    // Auto-size columns (approximate)
-    const colWidths = tableData.columns.map((col) => {
-      const maxLength = Math.max(
-        col.length,
-        ...tableData.rows.map((row) => {
-          const val = row[col]
-          return val ? String(val).length : 0
-        })
-      )
-      return { wch: Math.min(maxLength + 2, 50) }
-    })
-    worksheet['!cols'] = colWidths
-
     // Sheet name must be <= 31 characters
     const sheetName = tableData.table.length > 31 ? tableData.table.slice(0, 31) : tableData.table
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+    const worksheet = workbook.addWorksheet(sheetName)
+
+    // Set columns with headers
+    worksheet.columns = tableData.columns.map((col) => ({
+      header: col,
+      key: col,
+      width: Math.min(col.length + 2, 50), // Auto-size columns
+    }))
+
+    // Add rows
+    tableData.rows.forEach((row) => {
+      worksheet.addRow(row)
+    })
+
+    // Auto-size columns based on content (better approximation)
+    worksheet.columns.forEach((column) => {
+      if (!column.key) return
+      const lengths = tableData.rows.map((row) => {
+        const val = row[column.key as string]
+        return val ? String(val).length : 0
+      })
+      const maxLength = Math.max(column.header?.length || 0, ...lengths)
+      column.width = Math.min(maxLength + 2, 50)
+    })
   }
 
   // Write to buffer
-  const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+  const buffer = await workbook.xlsx.writeBuffer()
 
   return {
-    content: buffer,
+    content: Buffer.from(buffer),
     filename: `export_${tenantId}_${timestamp}.xlsx`,
     contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   }

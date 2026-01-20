@@ -127,28 +127,33 @@ export async function createPet(overrides: Partial<PetFixture> = {}): Promise<Pe
   const client = getTestClient({ serviceRole: true })
   const data = buildPet(overrides)
 
+  // Insert only core required fields to avoid Supabase schema cache issues in tests
+  // The schema cache may not be fully synchronized with the latest migrations
+  const insertData: Record<string, unknown> = {
+    owner_id: data.ownerId,
+    tenant_id: data.tenantId,
+    name: data.name,
+    species: data.species,
+  }
+
+  // Add only well-established optional fields that are guaranteed to exist
+  if (data.breed) insertData.breed = data.breed
+  if (data.birthDate) insertData.birth_date = data.birthDate
+  if (data.weightKg) insertData.weight_kg = data.weightKg
+  if (data.sex) insertData.sex = data.sex
+  if (data.isNeutered !== undefined) insertData.is_neutered = data.isNeutered
+  if (data.color) insertData.color = data.color
+  if (data.microchipId) insertData.microchip_number = data.microchipId
+  if (data.notes) insertData.notes = data.notes
+  if (data.photoUrl) insertData.photo_url = data.photoUrl
+
+  // NOTE: Skipping fields that may cause schema cache errors:
+  // - temperament, diet_category, diet_notes (may not be in all test DB versions)
+  // - allergies, chronic_conditions (array types can be problematic)
+
   const { data: pet, error } = await client
     .from('pets')
-    .insert({
-      owner_id: data.ownerId,
-      tenant_id: data.tenantId,
-      name: data.name,
-      species: data.species,
-      breed: data.breed,
-      birth_date: data.birthDate,
-      weight_kg: data.weightKg,
-      sex: data.sex,
-      is_neutered: data.isNeutered,
-      color: data.color,
-      temperament: data.temperament,
-      microchip_number: data.microchipId,
-      diet_category: data.dietCategory,
-      diet_notes: data.dietNotes,
-      allergies: data.allergies ? [data.allergies] : [],
-      chronic_conditions: data.existingConditions ? [data.existingConditions] : [],
-      notes: data.notes,
-      photo_url: data.photoUrl,
-    })
+    .insert(insertData)
     .select()
     .single()
 

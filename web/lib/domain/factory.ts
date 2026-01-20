@@ -6,22 +6,109 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AppointmentService } from './appointments'
 import { PetService } from './pets'
+import { InvoiceService } from './invoices'
+import { PaymentService } from './payments'
+import { MedicalRecordRepository } from './medical-records'
+import { HospitalizationRepository } from './hospitalizations'
+import { LabRepository } from './lab'
+// TODO: Migrate these services to domain pattern
+// import { InventoryService } from './inventory'
+// import { StoreService } from './store'
+// import { ConsentService } from './consent'
+// import { UserService } from './users'
+import { ClinicalToolsService } from './clinical-tools'
+import { MessagingService } from './messaging'
+import { ReminderService } from './reminders'
+import { SafetyService } from './safety'
+import { VaccineService } from './vaccines'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
 
-  /**
-   * Create appointment service
-   */
+  // ===========================================================================
+  // CORE DOMAINS
+  // ===========================================================================
+
   createAppointmentService(): AppointmentService {
     return new AppointmentService(this.supabase)
   }
 
-  /**
-   * Create pet service
-   */
   createPetService(): PetService {
     return new PetService(this.supabase)
+  }
+
+  createInvoiceService(): InvoiceService {
+    return new InvoiceService(this.supabase)
+  }
+
+  createPaymentService(): PaymentService {
+    return new PaymentService(this.supabase)
+  }
+
+  // TODO: Migrate UserService to domain pattern
+  // createUserService(): UserService {
+  //   return new UserService(this.supabase)
+  // }
+
+  // ===========================================================================
+  // CLINICAL DOMAINS
+  // ===========================================================================
+
+  createMedicalRecordRepository(): MedicalRecordRepository {
+    return new MedicalRecordRepository(this.supabase)
+  }
+
+  createHospitalizationRepository(): HospitalizationRepository {
+    return new HospitalizationRepository(this.supabase)
+  }
+
+  createLabRepository(): LabRepository {
+    return new LabRepository(this.supabase)
+  }
+
+  createVaccineService(): VaccineService {
+    return new VaccineService(this.supabase)
+  }
+
+  createClinicalToolsService(): ClinicalToolsService {
+    return new ClinicalToolsService(this.supabase)
+  }
+
+  // ===========================================================================
+  // OPERATIONAL DOMAINS
+  // ===========================================================================
+
+  // TODO: Migrate these services to domain pattern
+  // createInventoryService(): InventoryService {
+  //   return new InventoryService(this.supabase)
+  // }
+
+  // createStoreService(): StoreService {
+  //   return new StoreService(this.supabase)
+  // }
+
+  // createConsentService(): ConsentService {
+  //   return new ConsentService(this.supabase)
+  // }
+
+  // ===========================================================================
+  // COMMUNICATION DOMAINS
+  // ===========================================================================
+
+  createMessagingService(): MessagingService {
+    return new MessagingService(this.supabase)
+  }
+
+  createReminderService(): ReminderService {
+    return new ReminderService(this.supabase)
+  }
+
+  // ===========================================================================
+  // PUBLIC HEALTH DOMAINS
+  // ===========================================================================
+
+  createSafetyService(): SafetyService {
+    return new SafetyService(this.supabase)
   }
 }
 

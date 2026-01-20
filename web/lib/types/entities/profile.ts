@@ -24,19 +24,26 @@ export type UserRole = 'owner' | 'vet' | 'admin'
  */
 export interface Profile {
   id: string
-  tenant_id: string
-  role: UserRole
-  full_name: string
-  email: string | null
+  email: string
+  full_name: string | null
   phone: string | null
+  secondary_phone: string | null
+  role: UserRole
+  tenant_id: string | null
   avatar_url: string | null
+  // Owner-specific fields
   address: string | null
   city: string | null
-  document_id: string | null
-  birth_date: string | null
-  emergency_contact: string | null
-  emergency_phone: string | null
-  notification_preferences: Record<string, boolean> | null
+  client_code: string | null
+  document_type: string | null
+  document_number: string | null
+  preferred_contact: string | null
+  notes: string | null
+  // Staff-specific fields
+  signature_url: string | null
+  license_number: string | null
+  specializations: string[] | null
+  bio: string | null
   created_at: string
   updated_at: string
   deleted_at?: string | null
@@ -71,10 +78,9 @@ export interface ClientProfile extends Profile {
 
 /**
  * Staff profile - vet/admin information
+ * Note: license_number and specializations already in base Profile
  */
 export interface StaffProfile extends Profile {
-  specialization?: string | null
-  license_number?: string | null
   schedule?: Array<{
     day_of_week: number
     start_time: string

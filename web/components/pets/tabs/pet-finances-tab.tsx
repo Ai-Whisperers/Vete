@@ -18,8 +18,8 @@ interface Invoice {
   id: string
   invoice_number: string
   total: number
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
-  due_date?: string
+  status: 'draft' | 'sent' | 'viewed' | 'paid' | 'partial' | 'overdue' | 'cancelled' | 'void' | 'refunded'
+  due_date?: string | null
   created_at: string
   items?: Array<{
     description: string

@@ -5,6 +5,7 @@
 
 import { AuthService } from './core'
 import { actionError } from '@/lib/actions/result'
+import { logger } from '@/lib/logger'
 import type { ActionResult } from '@/lib/types/action-result'
 import type { AuthContext, UserRole } from './types'
 
@@ -49,8 +50,11 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
 
       // Execute handler
       return await handler(authResult.context, ...args)
-    } catch (error) {
-      console.error('Action error:', error)
+    } catch (error: unknown) {
+      logger.error('[Action] Execution error', {
+        error: error instanceof Error ? error.message : String(error),
+        action: 'server_action.error',
+      })
       return actionError('Error interno del servidor')
     }
   }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { LIMITS, formatFileSize } from '@/lib/constants'
-import * as XLSX from 'xlsx'
+import * as ExcelJS from 'exceljs'
 
 // Force dynamic to prevent caching
 export const dynamic = 'force-dynamic'
@@ -143,10 +143,29 @@ export async function POST(req: NextRequest) {
       }
 
       const bytes = await file.arrayBuffer()
-      const workbook = XLSX.read(bytes, { type: 'array' })
-      const sheetName = workbook.SheetNames[0]
-      const sheet = workbook.Sheets[sheetName]
-      const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[]
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(bytes)
+      const worksheet = workbook.worksheets[0]
+
+      // Parse worksheet to array of objects (like XLSX.utils.sheet_to_json)
+      const headers: string[] = []
+      const firstRow = worksheet.getRow(1)
+      firstRow.eachCell({ includeEmpty: true }, (cell) => {
+        headers.push(cell.value?.toString() || '')
+      })
+
+      const rows: Record<string, unknown>[] = []
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return // Skip header row
+        const rowData: Record<string, unknown> = {}
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          const header = headers[colNumber - 1]
+          if (header) {
+            rowData[header] = cell.value
+          }
+        })
+        rows.push(rowData)
+      })
 
       // TICKET-SEC-009: Validate row count
       if (rows.length > LIMITS.MAX_IMPORT_ROWS) {

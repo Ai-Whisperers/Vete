@@ -117,7 +117,7 @@ export function OnboardingWizard({
       })
 
       setCurrentStep('complete')
-    } catch {
+    } catch (_error: unknown) {
       // Onboarding error - silently fail
     } finally {
       setIsSubmitting(false)

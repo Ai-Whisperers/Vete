@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface DashboardStats {
@@ -71,7 +71,7 @@ export function useDashboardStats(clinic: string, options?: { enabled?: boolean 
     queryFn: async (): Promise<DashboardStats> => {
       const response = await fetch(`/api/${clinic}/dashboard/stats`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'dashboard/stats')
         throw new Error(error.error || 'Error al cargar estadísticas')
       }
       return response.json()
@@ -96,7 +96,7 @@ export function useDashboardActivity(
       const url = buildUrl(`/api/${clinic}/dashboard/activity`, { limit })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'dashboard/activity')
         throw new Error(error.error || 'Error al cargar actividad')
       }
       return response.json()
@@ -121,7 +121,7 @@ export function useDashboardRevenue(
       const url = buildUrl(`/api/${clinic}/dashboard/revenue`, { period })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'dashboard/revenue')
         throw new Error(error.error || 'Error al cargar ingresos')
       }
       return response.json()
@@ -141,7 +141,7 @@ export function useTodayAppointments(clinic: string, options?: { enabled?: boole
     queryFn: async (): Promise<TodayAppointment[]> => {
       const response = await fetch(`/api/${clinic}/appointments/today`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'dashboard/appointments')
         throw new Error(error.error || 'Error al cargar citas')
       }
       return response.json()
@@ -166,7 +166,7 @@ export function usePendingOrders(clinic: string, options?: { enabled?: boolean }
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'dashboard/orders')
         throw new Error(error.error || 'Error al cargar pedidos')
       }
       const data = await response.json()

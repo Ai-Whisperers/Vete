@@ -473,7 +473,7 @@ export async function generateAllContent(input: GenerateContentInput): Promise<v
     try {
       const template = await readTemplate(file)
       await writeClinicFile(input.slug, file, template)
-    } catch {
+    } catch (_error: unknown) {
       // If template doesn't exist, create empty array/object
       const emptyContent = file.includes('services') ? { categories: [] } : []
       await writeClinicFile(input.slug, file, emptyContent)
@@ -489,7 +489,7 @@ export async function deleteClinicContent(slug: string): Promise<void> {
 
   try {
     await fs.rm(clinicPath, { recursive: true, force: true })
-  } catch {
+  } catch (_error: unknown) {
     // Ignore errors during cleanup
   }
 }
@@ -503,7 +503,7 @@ export async function clinicContentExists(slug: string): Promise<boolean> {
   try {
     await fs.access(clinicPath)
     return true
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

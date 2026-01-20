@@ -46,7 +46,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     event = constructWebhookEvent(body, signature, webhookSecret)
-  } catch (err) {
+  } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     logger.error('Webhook signature verification failed', { error: message })
     return NextResponse.json(
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ received: true })
 
-  } catch (e) {
+  } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Unknown error'
     logger.error('Error processing webhook', {
       eventType: event.type,
@@ -437,12 +437,20 @@ async function handleSubscriptionCreated(
       return
     }
 
-    const result = await response.json()
+    // Epic 3.4: Parse JSON with error handling (prevents silent failures)
+    const result = await response.json().catch((parseError) => {
+      logger.error('Failed to parse ambassador conversion response', {
+        tenantId: tenant.id,
+        error: parseError instanceof Error ? parseError.message : 'JSON parse error',
+      })
+      return {} // Return empty object on parse failure
+    })
+    
     logger.info('Ambassador conversion triggered', {
       tenantId: tenant.id,
       result,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Error triggering ambassador conversion', {
       tenantId: tenant.id,
       error: error instanceof Error ? error.message : 'Unknown',

@@ -115,7 +115,7 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
           message: data.error || 'Error al enviar recordatorios',
         })
       }
-    } catch {
+    } catch (_error: unknown) {
       setReminderResult({
         success: false,
         message: 'Error de conexión al enviar recordatorios',

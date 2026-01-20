@@ -19,15 +19,13 @@
 
 import { test, expect, Page } from '@playwright/test'
 import { DEFAULT_TENANT } from '../fixtures/tenants'
+import { TEST_USERS, TEST_URLS } from '../fixtures/test-users'
 
 const BOOKING_URL = `/${DEFAULT_TENANT.slug}/book`
 const LOGIN_URL = `/${DEFAULT_TENANT.slug}/portal/login`
 
-// Test user credentials (should exist in test database)
-const TEST_OWNER = {
-  email: 'owner@test.com',
-  password: 'TestPassword123!',
-}
+// Use centralized test credentials
+const TEST_OWNER = TEST_USERS.owner
 
 /**
  * Helper: Login via UI and wait for redirect

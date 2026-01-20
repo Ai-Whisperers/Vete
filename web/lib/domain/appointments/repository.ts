@@ -255,41 +255,45 @@ export class AppointmentRepository {
    * Transform raw database result to domain object
    */
   private transformAppointment(data: Record<string, unknown>): Appointment {
+    const pets = data.pets as Record<string, unknown> | null
+    const profiles = data.profiles as Record<string, unknown> | null
+    const petProfiles = pets?.profiles as Record<string, unknown> | null
+
     return {
-      id: data.id,
-      tenant_id: data.tenant_id,
-      pet_id: data.pet_id,
-      vet_id: data.vet_id,
-      start_time: new Date(data.start_time),
-      end_time: new Date(data.end_time),
-      status: data.status,
-      reason: data.reason,
-      notes: data.notes,
-      created_by: data.created_by,
-      updated_by: data.updated_by,
-      created_at: new Date(data.created_at),
-      updated_at: new Date(data.updated_at),
-      pet: data.pets
+      id: data.id as string,
+      tenant_id: data.tenant_id as string,
+      pet_id: data.pet_id as string,
+      vet_id: (data.vet_id as string | null) ?? undefined,
+      start_time: new Date(data.start_time as string),
+      end_time: new Date(data.end_time as string),
+      status: data.status as Appointment['status'],
+      reason: (data.reason as string | null) ?? undefined,
+      notes: (data.notes as string | null) ?? undefined,
+      created_by: data.created_by as string,
+      updated_by: (data.updated_by as string | null) ?? undefined,
+      created_at: new Date(data.created_at as string),
+      updated_at: new Date(data.updated_at as string),
+      pet: pets
         ? {
-            id: data.pets.id,
-            name: data.pets.name,
-            species: data.pets.species,
-            breed: data.pets.breed,
-            owner_id: data.pets.owner_id,
-            owner: data.pets.profiles
+            id: pets.id as string,
+            name: pets.name as string,
+            species: pets.species as string,
+            breed: (pets.breed as string | null) ?? undefined,
+            owner_id: pets.owner_id as string,
+            owner: petProfiles
               ? {
-                  id: data.pets.profiles.id,
-                  full_name: data.pets.profiles.full_name,
-                  phone: data.pets.profiles.phone,
-                  email: data.pets.profiles.email,
+                  id: petProfiles.id as string,
+                  full_name: petProfiles.full_name as string,
+                  phone: (petProfiles.phone as string | null) ?? undefined,
+                  email: (petProfiles.email as string | null) ?? undefined,
                 }
               : undefined,
           }
         : undefined,
-      vet: data.profiles
+      vet: profiles
         ? {
-            id: data.profiles.id,
-            full_name: data.profiles.full_name,
+            id: profiles.id as string,
+            full_name: profiles.full_name as string,
           }
         : undefined,
     }

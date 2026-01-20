@@ -321,7 +321,7 @@ export function createCronHandler<T = unknown>(
       })
 
       return NextResponse.json(result)
-    } catch (error) {
+    } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error))
       result.stats.durationMs = Date.now() - startTime
       result.success = false
@@ -414,7 +414,7 @@ export function createSimpleCronHandler(options: {
         durationMs,
         timestamp: new Date().toISOString(),
       })
-    } catch (error) {
+    } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error))
       logger.error(`[${name}] Exception`, { error: err.message })
 

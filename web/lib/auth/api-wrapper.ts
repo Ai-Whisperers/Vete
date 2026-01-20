@@ -150,7 +150,12 @@ export function withApiAuth(
     try {
       // Validate authentication
       perf.checkpoint('auth_start')
-      const authResult = await AuthService.validateAuth(options)
+      
+      // TESTING FIX: Extract Bearer token for test environment
+      // In tests, auth comes from Authorization header, not cookies
+      const authHeader = request.headers.get('authorization')
+      const authResult = await AuthService.validateAuth(options, authHeader)
+      
       perf.checkpoint('auth_complete')
 
       if (!authResult.success || !authResult.context) {
@@ -252,7 +257,7 @@ export function withApiAuth(
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error with full context
       log.error('API route error', {
         error: error instanceof Error ? error : new Error(String(error)),
@@ -350,10 +355,15 @@ export function withApiAuthParams<P extends Record<string, string>>(
 
       // Validate authentication
       perf.checkpoint('auth_start')
+      
+      // TESTING FIX: Extract Bearer token for test environment
+      // In tests, auth comes from Authorization header, not cookies
+      const authHeader = request.headers.get('authorization')
       const authResult = await AuthService.validateAuth({
         ...options,
         tenantId,
-      })
+      }, authHeader)
+      
       perf.checkpoint('auth_complete')
 
       if (!authResult.success || !authResult.context) {
@@ -456,7 +466,7 @@ export function withApiAuthParams<P extends Record<string, string>>(
       }
 
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       // Log error with full context
       log.error('API route error', {
         error: error instanceof Error ? error : new Error(String(error)),

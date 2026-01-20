@@ -145,7 +145,7 @@ export function withCronMonitoring(
         timestamp: new Date().toISOString(),
         ...(result.data ?? {}),
       })
-    } catch (error) {
+    } catch (error: unknown) {
       const duration = Date.now() - startTime
       const errorObj = error instanceof Error ? error : new Error(String(error))
 

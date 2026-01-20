@@ -30,6 +30,8 @@ export const GET = withApiAuth(
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
+
+    return NextResponse.json(expenses)
   },
   { roles: ['vet', 'admin'], rateLimit: 'financial' }
 )
@@ -43,7 +45,7 @@ export const POST = withApiAuth(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 

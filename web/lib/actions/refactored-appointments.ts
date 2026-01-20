@@ -35,7 +35,7 @@ export const cancelAppointment = withActionAuth(
       revalidatePath(`/[clinic]/portal/schedule`)
 
       return actionSuccess(null, 'Cita cancelada correctamente')
-    } catch (error) {
+    } catch (error: unknown) {
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
@@ -64,7 +64,7 @@ export const checkInAppointment = withActionAuth(
       revalidatePath(`/[clinic]/portal/appointments`)
 
       return actionSuccess({ appointment }, 'Paciente registrado correctamente')
-    } catch (error) {
+    } catch (error: unknown) {
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
@@ -93,7 +93,7 @@ export const startAppointment = withActionAuth(
       revalidatePath(`/[clinic]/dashboard/appointments`)
 
       return actionSuccess({ appointment }, 'Consulta iniciada correctamente')
-    } catch (error) {
+    } catch (error: unknown) {
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
@@ -124,7 +124,7 @@ export const completeAppointment = withActionAuth(
       revalidatePath(`/[clinic]/portal/appointments`)
 
       return actionSuccess({ appointment }, 'Consulta completada correctamente')
-    } catch (error) {
+    } catch (error: unknown) {
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
@@ -166,7 +166,7 @@ export const getOwnerAppointments = withActionAuth(
         .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
       return actionSuccess({ upcoming, past })
-    } catch (error) {
+    } catch (error: unknown) {
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,

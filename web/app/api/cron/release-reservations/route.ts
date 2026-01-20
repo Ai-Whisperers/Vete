@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     return errorResponse!
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient('service_role')
   const startTime = Date.now()
 
   try {

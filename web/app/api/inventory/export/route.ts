@@ -68,7 +68,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     filename = `inventario_${profile.tenant_id}_${new Date().toISOString().split('T')[0]}.xlsx`
   }
 
-  const buffer = workbookToBuffer(workbook)
+  const buffer = await workbookToBuffer(workbook)
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

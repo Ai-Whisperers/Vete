@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Check, X, Pencil, Loader2, Copy, CheckCheck } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useForm } from '@/hooks/use-form'
-import { useAsyncData } from '@/hooks/use-async-data'
+import { useAsyncData } from '@/lib/hooks'
 import { required } from '@/lib/utils/validation'
 
 interface InlineEditFieldProps {
@@ -181,7 +181,7 @@ export function InlineEditField({
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {hasError && <p className="text-xs text-[var(--status-error)]">{saveError || fieldProps.error}</p>}
+            {hasError && <p className="text-xs text-[var(--status-error)]">{saveError?.message || fieldProps.error}</p>}
           </div>
         ) : (
           <div className="group flex items-center gap-2">

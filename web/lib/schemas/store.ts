@@ -95,8 +95,36 @@ export type CartItem = z.infer<typeof cartItemSchema>
 
 /**
  * Cart item ID - can be UUID (products) or composite string (services: serviceId-petId-variant)
+ * For products: must be valid UUID
+ * For services: format is "uuid-uuid-string" (serviceId-petId-variant)
  */
-const cartItemIdSchema = z.string().min(1, 'ID requerido').max(150, 'ID muy largo')
+const cartItemIdSchema = z
+  .string()
+  .min(1, 'ID requerido')
+  .max(150, 'ID muy largo')
+  .refine(
+    (val) => {
+      // Must be either a valid UUID or a composite ID with UUIDs
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      // Check if it's a pure UUID
+      if (uuidPattern.test(val)) return true
+      // Check if it's a composite ID (uuid-uuid-string pattern)
+      const parts = val.split('-')
+      if (parts.length >= 5) {
+        // First UUID (serviceId): parts[0-4]
+        const firstUuid = parts.slice(0, 5).join('-')
+        if (!uuidPattern.test(firstUuid)) return false
+        // Second UUID (petId): parts[5-9] if exists
+        if (parts.length >= 10) {
+          const secondUuid = parts.slice(5, 10).join('-')
+          if (!uuidPattern.test(secondUuid)) return false
+        }
+        return true
+      }
+      return false
+    },
+    { message: 'ID debe ser UUID válido o ID compuesto válido' }
+  )
 
 /**
  * SEC-028: Schema for full cart item structure (used in cart sync/merge)
@@ -401,8 +429,14 @@ export const checkoutRequestSchema = z.object({
     .min(1, 'El carrito está vacío'),
   clinic: z.string().min(1, 'Clínica requerida'),
   notes: z.string().max(1000, 'Notas muy largas').optional().nullable(),
-  // Pet ID for prescription products
-  pet_id: z.string().optional().nullable(),
+  // Pet ID for prescription products - must be valid UUID if provided
+  pet_id: z
+    .string()
+    .uuid('Pet ID debe ser UUID válido')
+    .optional()
+    .nullable()
+    .or(z.literal(''))
+    .transform((v) => (v && v.length > 0 ? v : null)),
   // Flag indicating prescription review needed
   requires_prescription_review: z.boolean().optional(),
 })

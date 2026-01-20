@@ -6,6 +6,7 @@
 
 import type { UserProfile, UserRole } from './types'
 import { isUserRole } from '@/lib/utils/type-guards'
+import { logger } from '@/lib/logger'
 
 /**
  * Drizzle profile row type (camelCase from schema)
@@ -48,7 +49,7 @@ function validateRole(role: string): UserRole {
     return role
   }
   // Default to owner if invalid role (shouldn't happen with DB constraints)
-  console.warn(`Invalid role encountered: ${role}, defaulting to 'owner'`)
+  logger.warn('[Auth] Invalid role encountered, defaulting to owner', { invalidRole: role })
   return 'owner'
 }
 

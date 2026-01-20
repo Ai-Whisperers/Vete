@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Home, ArrowLeft, PawPrint, Search } from 'lucide-react'
+import { Home, PawPrint, Search } from 'lucide-react'
 
 /**
  * Clinic-scoped 404 page - shown when no route matches within a clinic

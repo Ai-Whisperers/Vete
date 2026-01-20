@@ -390,7 +390,7 @@ export async function waitForToast(page: Page, timeout = 5000): Promise<string |
   try {
     await toast.first().waitFor({ state: 'visible', timeout })
     return await toast.first().textContent()
-  } catch {
+  } catch (_error: unknown) {
     return null
   }
 }

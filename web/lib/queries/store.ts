@@ -8,7 +8,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface StoreProduct {
@@ -113,7 +113,7 @@ export function useStoreProducts(
       })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/products')
         throw new Error(error.error || 'Error al cargar productos')
       }
       return response.json()
@@ -136,7 +136,7 @@ export function useStoreProduct(
     queryFn: async (): Promise<StoreProduct> => {
       const response = await fetch(`/api/store/products/${productId}`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/product')
         throw new Error(error.error || 'Error al cargar producto')
       }
       return response.json()
@@ -156,7 +156,7 @@ export function useStoreCategories(clinic: string, options?: { enabled?: boolean
     queryFn: async (): Promise<StoreCategory[]> => {
       const response = await fetch(`/api/${clinic}/store/categories`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/categories')
         throw new Error(error.error || 'Error al cargar categorías')
       }
       return response.json()
@@ -177,7 +177,7 @@ export function useCart(clinic: string, userId?: string, options?: { enabled?: b
       const response = await fetch(`/api/${clinic}/store/cart`)
       if (!response.ok) {
         if (response.status === 404) return null
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/cart')
         throw new Error(error.error || 'Error al cargar carrito')
       }
       return response.json()
@@ -202,7 +202,7 @@ export function useStoreOrders(
       const url = buildUrl(`/api/${clinic}/store/orders`, filters)
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/orders')
         throw new Error(error.error || 'Error al cargar pedidos')
       }
       return response.json()
@@ -222,7 +222,7 @@ export function useStoreOrder(orderId: string, options?: { enabled?: boolean }) 
     queryFn: async (): Promise<StoreOrder & { items: CartItem[] }> => {
       const response = await fetch(`/api/store/orders/${orderId}`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/order')
         throw new Error(error.error || 'Error al cargar pedido')
       }
       return response.json()
@@ -246,7 +246,7 @@ export function useWishlist(
     queryFn: async (): Promise<WishlistItem[]> => {
       const response = await fetch(`/api/${clinic}/store/wishlist`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/wishlist')
         throw new Error(error.error || 'Error al cargar lista de deseos')
       }
       return response.json()
@@ -279,7 +279,7 @@ export function useAddToCart(clinic: string) {
         body: JSON.stringify({ product_id, quantity }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/add-to-cart')
         throw new Error(error.error || 'Error al agregar al carrito')
       }
       return response.json()
@@ -310,7 +310,7 @@ export function useUpdateCartItem(clinic: string) {
         body: JSON.stringify({ product_id, quantity }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/update-cart')
         throw new Error(error.error || 'Error al actualizar carrito')
       }
       return response.json()
@@ -335,7 +335,7 @@ export function useRemoveFromCart(clinic: string) {
         body: JSON.stringify({ product_id }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/remove-from-cart')
         throw new Error(error.error || 'Error al remover del carrito')
       }
       return response.json()
@@ -360,7 +360,7 @@ export function useAddToWishlist(clinic: string) {
         body: JSON.stringify({ product_id }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/add-to-wishlist')
         throw new Error(error.error || 'Error al agregar a lista de deseos')
       }
     },
@@ -382,7 +382,7 @@ export function useRemoveFromWishlist(clinic: string) {
         method: 'DELETE',
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'store/remove-from-wishlist')
         throw new Error(error.error || 'Error al remover de lista de deseos')
       }
     },

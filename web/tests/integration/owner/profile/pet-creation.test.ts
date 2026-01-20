@@ -72,7 +72,7 @@ function createRequest(url: string, options?: { body?: Record<string, unknown>, 
 
 async function getResponseBody(response: Response): Promise<Record<string, unknown>> {
   const text = await response.text()
-  try { return JSON.parse(text) } catch { return { raw: text } }
+  try { return JSON.parse(text) } catch (_error: unknown) { return { raw: text } }
 }
 
 describe('TST-003: Pet Creation Tests', () => {

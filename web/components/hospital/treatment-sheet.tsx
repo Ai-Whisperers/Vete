@@ -98,7 +98,7 @@ export default function TreatmentSheet({
 
       onTreatmentUpdate()
       setSelectedTreatment(null)
-    } catch {
+    } catch (_error: unknown) {
       showToast({
         title: 'Error al actualizar el tratamiento',
         variant: 'error',

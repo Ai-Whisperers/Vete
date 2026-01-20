@@ -92,7 +92,7 @@ export function PurchaseOrderForm({ onClose, onSuccess }: PurchaseOrderFormProps
             .slice(0, 5) || []
           setSearchResults(products)
         }
-      } catch {
+      } catch (_error: unknown) {
         // Ignore search errors
       } finally {
         setSearching(false)

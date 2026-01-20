@@ -1,0 +1,41 @@
+---
+description: Project overview, technology stack, and architectural patterns for Vete
+globs: **/*
+---
+# Vete - Multi-Tenant Veterinary Platform
+
+## Context
+SaaS veterinary clinic management platform built with Next.js 15, Supabase, and TypeScript. It hosts multiple clinics from a single codebase using dynamic routing (`/[clinic]/*`).
+
+## Technology Stack
+| Component | Technology | Version | Notes |
+|-----------|------------|---------|-------|
+| Framework | Next.js (App Router) | 15.5.9 | Server Components by default |
+| Language | TypeScript | 5.x | Strict mode enabled |
+| Styling | Tailwind CSS | **3.4.19** | **DO NOT upgrade to v4** |
+| Database | Supabase (PostgreSQL) | 2.88.0 | RLS for multi-tenancy |
+| ORM | Drizzle ORM | 0.45.1 | Type-safe queries |
+| State | Zustand | 5.0.9 | Client state management |
+| Data | TanStack React Query | 5.90.12 | Server state caching |
+
+## Architecture Overview
+- **Multi-tenant**: Routes like `/adris` and `/petlife` serve different clinics.
+- **JSON-CMS**: Content lives in `web/.content_data/[clinic]/*.json`.
+- **RLS Security**: Every database table uses Row-Level Security for tenant isolation.
+
+## User Roles
+- **owner**: Pet owners (book appointments, view records).
+- **vet**: Veterinarians (prescriptions, clinical tools).
+- **admin**: Clinic admins (settings, finances).
+
+## Core Patterns
+- **Pages**: Server Components by default.
+- **Mutations**: Server Actions (in `app/[clinic]/actions/`).
+- **Styling**: Use CSS variables for theming (e.g., `bg-[var(--primary)]`).
+- **API**: REST APIs in `app/api/` must always check auth and tenant.
+
+## AI Assistants
+This project supports multiple AI agents. Refer to `CLAUDE.md` for full context.
+- **Antigravity**: `.antigravity/rules.md`
+- **Claude**: `.claude/`
+

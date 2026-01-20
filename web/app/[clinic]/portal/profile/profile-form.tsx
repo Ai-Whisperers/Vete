@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import * as Icons from 'lucide-react'
 import { updateProfile } from '@/app/actions/update-profile'
+import type { Profile } from '@/lib/types/entities/profile'
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
@@ -23,7 +24,7 @@ function SubmitButton({ isPending }: { isPending: boolean }) {
 
 interface ProfileFormProps {
   clinic: string
-  profile: any // Using any for simplicity as I don't have the Profile type definition handy, but ideally should be imported
+  profile: Profile
   success?: boolean
 }
 

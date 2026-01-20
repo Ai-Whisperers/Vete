@@ -7,7 +7,7 @@
  */
 
 import { X, Percent, DollarSign, Truck } from 'lucide-react'
-import type { Coupon, CouponFormData, DiscountType } from '../types'
+import type { Coupon, CouponFormData } from '../types'
 import { DISCOUNT_TYPE_OPTIONS } from '../constants'
 import { generateRandomCode } from '../utils'
 

@@ -174,7 +174,7 @@ export class SeedOrchestrator {
             if (error) {
               this.logger.debug(`Cleanup ${table}: ${error.message}`)
             }
-          } catch {
+          } catch (_error: unknown) {
             // Table might not exist
           }
         }
@@ -196,7 +196,7 @@ export class SeedOrchestrator {
               this.logger.debug(`Cleanup ${table}: ${error.message}`)
             }
           }
-        } catch {
+        } catch (_error: unknown) {
           // Table might not exist or have different structure
         }
       }

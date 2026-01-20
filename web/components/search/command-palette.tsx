@@ -133,7 +133,7 @@ export function CommandPalette({
           const data = await res.json()
           setResults(data.results || [])
         }
-      } catch {
+      } catch (_error: unknown) {
         // Search error - silently fail
       } finally {
         setLoading(false)

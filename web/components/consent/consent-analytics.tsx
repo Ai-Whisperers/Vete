@@ -45,7 +45,7 @@ export function ConsentAnalyticsDashboard({ onExportReport }: ConsentAnalyticsPr
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('/api/consent/analytics')
+      const response = await fetch('/api/consents/preferences/analytics')
       if (!response.ok) {
         throw new Error('Error al cargar analíticas')
       }

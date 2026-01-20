@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { PetService } from '@/lib/services/pet-service'
+import { logger } from '@/lib/logger'
 
 type Params = { id: string }
 
@@ -9,27 +11,32 @@ export const GET = withApiAuthParams<Params>(
   async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
-    const { data: pet, error } = await supabase
-      .from('pets')
-      .select('*')
-      .eq('id', id)
-      .is('deleted_at', null)
-      .single()
+    const petService = new PetService(supabase)
+    const isStaff = ['vet', 'admin'].includes(profile.role)
 
-    if (error || !pet) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    const result = await petService.getById(id, user.id, profile.tenant_id, isStaff)
+
+    if (!result.success) {
+      logger.warn('Failed to fetch pet by ID', {
+        petId: id,
+        userId: user.id,
+        error: result.error,
+      })
+
+      // Map service errors to API errors
+      if (result.error?.includes('no encontrada')) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      }
+      if (result.error?.includes('permisos')) {
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      }
+
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: result.error },
+      })
     }
 
-    // Verify ownership or staff access
-    const isOwner = pet.owner_id === user.id
-    const isStaff =
-      (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
-
-    if (!isOwner && !isStaff) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-    }
-
-    return NextResponse.json(pet)
+    return NextResponse.json(result.data)
   }
 )
 
@@ -38,37 +45,18 @@ export const PATCH = withApiAuthParams<Params>(
   async ({ params, request, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
-    // Fetch pet to verify ownership
-    const { data: pet, error: fetchError } = await supabase
-      .from('pets')
-      .select('owner_id, tenant_id')
-      .eq('id', id)
-      .is('deleted_at', null)
-      .single()
+    const isStaff = ['vet', 'admin'].includes(profile.role)
 
-    if (fetchError || !pet) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-    }
-
-    // Verify ownership or staff access
-    const isOwner = pet.owner_id === user.id
-    const isStaff =
-      (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
-
-    if (!isOwner && !isStaff) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-    }
-
-    // Parse body and update
+    // Parse body
     const body = await request.json()
 
-    // Allowlist of updatable fields (form names -> database column names)
+    // Map form field names to database column names
     const fieldMapping: Record<string, string> = {
       name: 'name',
       species: 'species',
       breed: 'breed',
       weight_kg: 'weight_kg',
-      microchip_id: 'microchip_number', // Form uses microchip_id, DB uses microchip_number
+      microchip_id: 'microchip_id',
       diet_category: 'diet_category',
       diet_notes: 'diet_notes',
       sex: 'sex',
@@ -76,7 +64,7 @@ export const PATCH = withApiAuthParams<Params>(
       color: 'color',
       temperament: 'temperament',
       allergies: 'allergies',
-      existing_conditions: 'chronic_conditions', // Form uses existing_conditions, DB uses chronic_conditions
+      existing_conditions: 'chronic_conditions',
       photo_url: 'photo_url',
       birth_date: 'birth_date',
       notes: 'notes',
@@ -112,55 +100,63 @@ export const PATCH = withApiAuthParams<Params>(
       })
     }
 
-    const { data, error } = await supabase
-      .from('pets')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    // Use PetService to update
+    const petService = new PetService(supabase)
+    const result = await petService.update(id, user.id, profile.tenant_id, updates, isStaff)
 
-    if (error) {
+    if (!result.success) {
+      logger.error('Failed to update pet', {
+        petId: id,
+        userId: user.id,
+        error: result.error,
+      })
+
+      // Map service errors to API errors
+      if (result.error?.includes('no encontrada')) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      }
+      if (result.error?.includes('permisos')) {
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      }
+
       return apiError('DATABASE_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: error.message },
+        details: { message: result.error },
       })
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json(result.data)
   },
   { rateLimit: 'write' }
 )
 
 // DELETE soft-delete a pet
 export const DELETE = withApiAuthParams<Params>(
-  async ({ params, user, supabase }: ApiHandlerContextWithParams<Params>) => {
+  async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
-    // Fetch pet to verify ownership
-    const { data: pet, error: fetchError } = await supabase
-      .from('pets')
-      .select('owner_id')
-      .eq('id', id)
-      .is('deleted_at', null)
-      .single()
+    const isStaff = ['vet', 'admin'].includes(profile.role)
 
-    if (fetchError || !pet) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-    }
+    // Use PetService to delete
+    const petService = new PetService(supabase)
+    const result = await petService.delete(id, user.id, profile.tenant_id, isStaff)
 
-    // Only owner can delete their own pet
-    if (pet.owner_id !== user.id) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-    }
+    if (!result.success) {
+      logger.error('Failed to delete pet', {
+        petId: id,
+        userId: user.id,
+        error: result.error,
+      })
 
-    // Soft delete
-    const { error } = await supabase
-      .from('pets')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('id', id)
+      // Map service errors to API errors
+      if (result.error?.includes('no encontrada')) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      }
+      if (result.error?.includes('permisos')) {
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      }
 
-    if (error) {
       return apiError('DATABASE_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: error.message },
+        details: { message: result.error },
       })
     }
 

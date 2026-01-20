@@ -415,7 +415,7 @@ class DatabaseSetup {
         } else {
           console.log(`   ✅ ${table} (${count} rows)`)
         }
-      } catch {
+      } catch (_error: unknown) {
         console.log(`   ❌ ${table}: Error accessing table`)
       }
     }

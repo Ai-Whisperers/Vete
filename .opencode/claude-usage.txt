@@ -1,0 +1,41 @@
+# Claude Usage Tracker
+
+**Budget**: 20 calls total (prepaid)
+**Remaining**: 20/20
+
+---
+
+## Usage Log
+
+Format: Call #X | Date | Agent | Task | Outcome | Worth It?
+
+(No calls used yet - track each call below)
+
+---
+
+## Guidelines
+
+**Use Claude ONLY for:**
+1. Architecture decisions (after Gemini fails)
+2. Security vulnerabilities (critical)
+3. Complex debugging (after 3+ Gemini attempts)
+4. Race conditions
+5. Production incidents
+
+**NEVER use Claude for:**
+- Searches (use Gemini explore)
+- Code generation (use Gemini)
+- Documentation (use Gemini)
+- Standard reviews (use Gemini)
+
+---
+
+## Monthly Target
+
+- Week 1: Max 2 calls
+- Week 2: Max 2 calls  
+- Week 3: Max 2 calls
+- Week 4: Max 2 calls
+- Reserve: 12 calls for emergencies
+
+**Goal**: Use <10 calls per month, keep 10 in reserve

@@ -308,7 +308,7 @@ export function loadConfig(): AppConfig {
     })
 
     return config
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       const issues = error.issues
         .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
@@ -328,7 +328,7 @@ export function validateConfig(config: Partial<AppConfig>): boolean {
   try {
     configSchema.parse(config)
     return true
-  } catch {
+  } catch (_error: unknown) {
     return false
   }
 }

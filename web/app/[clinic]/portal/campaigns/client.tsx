@@ -5,6 +5,30 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 /**
+ * Campaign item with product details
+ */
+interface CampaignItem {
+  id: string
+  discount_type: 'percentage' | 'fixed'
+  discount_value: number
+  store_products: {
+    name: string
+    base_price: number
+  } | null
+}
+
+/**
+ * Campaign with nested items
+ */
+interface Campaign {
+  id: string
+  name: string
+  start_date: string
+  end_date: string
+  store_campaign_items: CampaignItem[] | null
+}
+
+/**
  * Pet Owner Campaigns View - READ ONLY
  * Shows active and upcoming promotions for pet owners.
  * Campaign management is done in the staff dashboard.
@@ -13,7 +37,7 @@ export default function CampaignsClient() {
   const { clinic } = useParams() as { clinic: string }
   const supabase = createClient()
 
-  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -29,7 +53,7 @@ export default function CampaignsClient() {
       .gte('end_date', new Date().toISOString()) // Only active or upcoming
       .order('start_date', { ascending: true })
 
-    setCampaigns(camps || [])
+    setCampaigns((camps as Campaign[]) || [])
     setLoading(false)
   }
 
@@ -107,7 +131,7 @@ export default function CampaignsClient() {
                     Productos incluidos
                   </p>
                   <div className="max-h-32 space-y-2 overflow-y-auto">
-                    {camp.store_campaign_items.slice(0, 5).map((item: any) => (
+                    {camp.store_campaign_items.slice(0, 5).map((item) => (
                       <div
                         key={item.id}
                         className="flex items-center justify-between rounded-lg bg-gray-50 p-2 text-sm"

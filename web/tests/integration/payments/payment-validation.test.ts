@@ -60,7 +60,7 @@ describe('Currency Utilities', () => {
     it('should use Paraguay locale formatting', () => {
       const formatted = formatCurrency(1500000)
       // Paraguay uses dot as thousands separator
-      expect(formatted).toMatch(/Gs\.\s*1[\.,]?500[\.,]?000/)
+      expect(formatted).toMatch(/Gs\.\s*1[.,]?500[.,]?000/)
     })
 
     it('should handle zero', () => {

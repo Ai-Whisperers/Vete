@@ -238,7 +238,18 @@ async function createVaccine(supabase: SupabaseClient, data: Record<string, unkn
   return NextResponse.json(vaccine)
 }
 
-async function bulkSeed(supabase: SupabaseClient, data: Record<string, unknown>) {
+interface BulkSeedData {
+  tenants?: Array<Record<string, unknown>>
+  profiles?: Array<Record<string, unknown>>
+  pets?: Array<Record<string, unknown>>
+  services?: Array<Record<string, unknown>>
+  appointments?: Array<Record<string, unknown>>
+  medical_records?: Array<Record<string, unknown>>
+  vaccines?: Array<Record<string, unknown>>
+  hospitalizations?: Array<Record<string, unknown>>
+}
+
+async function bulkSeed(supabase: SupabaseClient, data: BulkSeedData) {
   const results: {
     tenants: unknown[]
     profiles: unknown[]

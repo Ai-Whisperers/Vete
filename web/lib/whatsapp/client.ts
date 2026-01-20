@@ -1,5 +1,6 @@
 import twilio from 'twilio'
 import { formatParaguayPhone } from '@/lib/types/whatsapp'
+import { logger } from '@/lib/logger'
 
 // Twilio credentials
 const accountSid = process.env.TWILIO_ACCOUNT_SID
@@ -31,7 +32,10 @@ export async function sendWhatsAppMessage({
   mediaUrl,
 }: SendWhatsAppParams): Promise<SendWhatsAppResult> {
   if (!client) {
-    console.error('Twilio client not configured. Check TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.')
+    logger.error('[WhatsApp] Twilio client not configured', {
+      hasAccountSid: !!accountSid,
+      hasAuthToken: !!authToken,
+    })
     return {
       success: false,
       error: 'Twilio no está configurado',
@@ -55,9 +59,12 @@ export async function sendWhatsAppMessage({
       sid: message.sid,
       status: message.status,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // TICKET-TYPE-004: Proper error handling without any
-    console.error('WhatsApp send error:', error)
+    logger.error('[WhatsApp] Send error', {
+      error: error instanceof Error ? error.message : String(error),
+      to: toNumber,
+    })
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Error al enviar mensaje',
@@ -76,8 +83,11 @@ export async function getMessageStatus(messageSid: string): Promise<string | nul
   try {
     const message = await client.messages(messageSid).fetch()
     return message.status
-  } catch (error) {
-    console.error('Error fetching message status:', error)
+  } catch (error: unknown) {
+    logger.error('[WhatsApp] Error fetching message status', {
+      error: error instanceof Error ? error.message : String(error),
+      messageSid,
+    })
     return null
   }
 }

@@ -335,7 +335,7 @@ export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): Re
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    } catch {
+    } catch (_error: unknown) {
       showToast({ title: t('pdfError'), variant: 'error' })
     } finally {
       setLoading(false)

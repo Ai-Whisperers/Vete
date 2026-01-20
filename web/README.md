@@ -93,13 +93,13 @@ Vete/
 ├── web/                           # Next.js application
 │   ├── app/
 │   │   ├── [clinic]/              # Multi-tenant dynamic routes
-│   │   │   ├── dashboard/         # Staff dashboard (35+ modules)
-│   │   │   ├── portal/            # Pet owner portal (38+ modules)
+│   │   │   ├── dashboard/         # Staff dashboard (27 modules)
+│   │   │   ├── portal/            # Pet owner portal (29 modules)
 │   │   │   ├── book/              # Appointment booking
 │   │   │   ├── cart/              # Shopping cart + checkout
 │   │   │   └── tools/             # Interactive clinical tools
-│   │   ├── api/                   # REST API (256 route files)
-│   │   ├── actions/               # Server Actions (42 files)
+│   │   ├── api/                   # REST API (313 route files)
+│   │   ├── actions/               # Server Actions (37 files)
 │   │   └── auth/                  # Authentication routes
 │   │
 │   ├── components/                # React components (49 directories)
@@ -109,14 +109,14 @@ Vete/
 │   │   └── ...
 │   │
 │   ├── lib/
-│   │   ├── hooks/                 # Custom React hooks (8 hooks)
+│   │   ├── hooks/                 # Custom React hooks (10 hooks)
 │   │   ├── constants/             # Centralized constants
 │   │   ├── types/                 # TypeScript definitions
 │   │   ├── supabase/              # Database clients
 │   │   └── ...                    # 50+ utility modules
 │   │
 │   ├── db/
-│   │   ├── migrations/            # 50+ SQL migrations
+│   │   ├── migrations/            # 94 sequential SQL migrations
 │   │   ├── seeds/                 # Data seeding scripts
 │   │   └── schema/                # Schema definitions
 │   │
@@ -150,9 +150,9 @@ SUPABASE_SERVICE_ROLE_KEY=xxx
 DATABASE_URL=postgresql://...
 ```
 
-### Optional Variables (78)
+### Optional Variables (73)
 
-See `.env.example` for full reference including:
+See `../docs/ENV_COMPLETE_REFERENCE.md` for complete documentation of all 77 variables including:
 - Email configuration (Resend, SendGrid, SMTP)
 - WhatsApp/Twilio integration
 - Stripe payments
@@ -244,8 +244,8 @@ See `docs/SCRIPTS.md` for complete reference of all 83 scripts.
 | Inventory | 15+ | Stock, adjustments, receiving, barcode |
 | Billing | 15+ | Invoices, payments, bank transfers |
 | Pets | 10+ | CRUD, vaccines, medical records |
-| Cron Jobs | 14 | Background processing |
-| **Total** | **256 route files** | **420+ HTTP methods** |
+| Cron Jobs | 18 | Background processing |
+| **Total** | **313 route files** | **~480+ HTTP methods** |
 
 ## Cron Jobs
 
@@ -265,13 +265,15 @@ Located in `lib/hooks/`:
 | Hook | Purpose |
 |------|---------|
 | `useAsyncData` | Data fetching with loading/error states |
-| `useFormState` | Form management with Zod validation |
 | `useModal` | Modal state management |
+| `useModalWithData` | Modal with data payload |
 | `useSyncedState` | localStorage + API sync |
+| `useFormState` | Form management with Zod validation |
+| `useConfirmation` | Promise-based confirmation dialogs |
+| `useLocalStorage` | Simple localStorage persistence |
 | `useDashboardLabels` | Dashboard label provider |
 | `useBarcodeScanner` | Barcode scanning |
 | `useImportWizard` | Data import wizard |
-| `useTenantFeatures` | Tier-based feature gating |
 
 ## Deployment
 

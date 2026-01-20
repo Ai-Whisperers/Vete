@@ -4,7 +4,7 @@
  * Wraps Zod validation with helpful error formatting and batch validation.
  */
 
-import { z, ZodError, ZodSchema } from 'zod'
+import { z, ZodError, ZodSchema, ZodType } from 'zod'
 
 /**
  * Validation error with context
@@ -34,7 +34,7 @@ export interface ValidationResult<T> {
  * Validate a single record against a Zod schema
  */
 export function validateRecord<T>(
-  schema: ZodSchema<T>,
+  schema: ZodType<T, any, any>,
   record: unknown,
   index: number = 0
 ): { success: true; data: T } | { success: false; errors: ValidationError[] } {
@@ -73,7 +73,10 @@ export function validateRecord<T>(
  * Validate a batch of records against a Zod schema
  * Returns valid records and collects all validation errors
  */
-export function validateBatch<T>(schema: ZodSchema<T>, records: unknown[]): ValidationResult<T> {
+export function validateBatch<T>(
+  schema: ZodType<T, any, any>,
+  records: unknown[]
+): ValidationResult<T> {
   const result: ValidationResult<T> = {
     valid: [],
     invalid: [],
@@ -136,7 +139,7 @@ export function formatValidationSummary<T>(result: ValidationResult<T>): string 
  * Validate and transform a batch, throwing on any errors (strict mode)
  */
 export function validateBatchStrict<T>(
-  schema: ZodSchema<T>,
+  schema: ZodType<T, any, any>,
   records: unknown[],
   context?: string
 ): T[] {
@@ -162,7 +165,11 @@ export function validateBatchStrict<T>(
 /**
  * Safe parse with default on error
  */
-export function safeParseWithDefault<T>(schema: ZodSchema<T>, value: unknown, defaultValue: T): T {
+export function safeParseWithDefault<T>(
+  schema: ZodType<T, any, any>,
+  value: unknown,
+  defaultValue: T
+): T {
   const result = schema.safeParse(value)
   return result.success ? result.data : defaultValue
 }

@@ -66,7 +66,7 @@ export function LogoUploader({ value, slug, onChange, disabled }: LogoUploaderPr
         } else {
           setError(data.error || 'Error al subir el logo')
         }
-      } catch {
+      } catch (_error: unknown) {
         setError('Error de conexion. Por favor intenta nuevamente.')
       } finally {
         setIsUploading(false)

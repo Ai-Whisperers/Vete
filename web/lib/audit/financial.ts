@@ -143,7 +143,7 @@ export async function logFinancialAudit(
         entityId: entry.entityId,
       })
     }
-  } catch (err) {
+  } catch (err: unknown) {
     // Catch-all to ensure audit never breaks operations
     logger.error('Error in financial audit logging', {
       error: err instanceof Error ? err.message : String(err),

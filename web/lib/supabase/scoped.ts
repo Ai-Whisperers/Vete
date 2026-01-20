@@ -19,19 +19,14 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
-import type { PostgrestFilterBuilder, PostgrestQueryBuilder } from '@supabase/postgrest-js'
 import { trackQuery } from '@/lib/monitoring/slow-query'
 
 /**
- * Type for Supabase query builder chain
- * Represents any query builder that supports common filter methods
- */
-type QueryBuilder<T = unknown> = PostgrestFilterBuilder<any, T, T[], unknown>
-
-/**
  * Filter function type for modifying queries
+ * Uses 'any' for compatibility with Supabase's internal query builder types
  */
-type QueryFilter<T = unknown> = (query: QueryBuilder<T>) => QueryBuilder<T>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type QueryFilter = (query: any) => any
 
 /**
  * Creates tenant-scoped query functions that automatically include tenant_id filter
@@ -62,7 +57,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       table: string,
       columns: string = '*',
       options?: {
-        filter?: QueryFilter<T>
+        filter?: QueryFilter
         single?: boolean
         count?: 'exact' | 'planned' | 'estimated'
       }
@@ -120,13 +115,12 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         tenant_id: tenantId,
       }))
 
-      let query = supabase.from(table).insert(scopedRecords)
+      const baseQuery = supabase.from(table).insert(scopedRecords)
 
-      if (options?.returning !== false) {
-        query = query.select()
-      }
-
-      const result = await query
+      const result =
+        options?.returning !== false
+          ? await baseQuery.select()
+          : await baseQuery
       const duration = performance.now() - startTime
       trackQuery(table, 'insert', duration, scopedRecords.length)
       return { data: result.data as T[] | null, error: result.error }
@@ -140,26 +134,22 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
     update: async <T = unknown>(
       table: string,
       data: Record<string, unknown>,
-      filter: QueryFilter<T>,
+      filter: QueryFilter,
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
       const startTime = performance.now()
       // Remove tenant_id from update data to prevent cross-tenant moves
       const { tenant_id: _, ...safeData } = data
 
-      let query = supabase.from(table).update(safeData)
+      // Build the base query with filters
+      const baseQuery = filter(
+        supabase.from(table).update(safeData).eq('tenant_id', tenantId)
+      )
 
-      // Always filter by tenant_id first
-      query = query.eq('tenant_id', tenantId)
-
-      // Apply user's filter
-      query = filter(query)
-
-      if (options?.returning !== false) {
-        query = query.select()
-      }
-
-      const result = await query
+      const result =
+        options?.returning !== false
+          ? await baseQuery.select()
+          : await baseQuery
       const duration = performance.now() - startTime
       const rowCount = Array.isArray(result.data) ? result.data.length : undefined
       trackQuery(table, 'update', duration, rowCount)
@@ -185,15 +175,14 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         tenant_id: tenantId,
       }))
 
-      let query = supabase.from(table).upsert(scopedRecords, {
+      const baseQuery = supabase.from(table).upsert(scopedRecords, {
         onConflict: options?.onConflict,
       })
 
-      if (options?.returning !== false) {
-        query = query.select()
-      }
-
-      const result = await query
+      const result =
+        options?.returning !== false
+          ? await baseQuery.select()
+          : await baseQuery
       const duration = performance.now() - startTime
       trackQuery(table, 'upsert', duration, scopedRecords.length)
       return { data: result.data as T[] | null, error: result.error }

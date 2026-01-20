@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import {
-  TrendingUp,
-  TrendingDown,
   Calendar,
   DollarSign,
   Users,
@@ -33,10 +31,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
-import { useFeatureFlags, FeatureGate, UpgradePrompt } from '@/lib/features'
+import { useFeatureFlags, UpgradePrompt } from '@/lib/features'
 import { AnalyticsExportModal } from '@/components/analytics/analytics-pdf'
 
 interface Stats {

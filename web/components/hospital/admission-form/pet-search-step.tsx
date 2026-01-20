@@ -65,7 +65,7 @@ export default function PetSearchStep({
 
       if (error) throw error
       setPets((data || []) as unknown as Pet[])
-    } catch {
+    } catch (_error: unknown) {
       // Error searching pets - silently fail
     } finally {
       setSearchLoading(false)

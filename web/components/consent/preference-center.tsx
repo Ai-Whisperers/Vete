@@ -54,7 +54,7 @@ export function ConsentPreferenceCenter({
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('/api/consent/preferences?format=status')
+      const response = await fetch('/api/consents/preferences?format=status')
       if (!response.ok) {
         throw new Error('Error al cargar preferencias')
       }
@@ -80,7 +80,7 @@ export function ConsentPreferenceCenter({
     setSuccessMessage(null)
 
     try {
-      const response = await fetch('/api/consent/preferences', {
+      const response = await fetch('/api/consents/preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ consentType, granted, source: 'settings' }),
@@ -120,7 +120,7 @@ export function ConsentPreferenceCenter({
   // Export consent data
   const handleExport = async () => {
     try {
-      const response = await fetch('/api/consent/export')
+      const response = await fetch('/api/consents/preferences/export')
       if (!response.ok) {
         throw new Error('Error al exportar datos')
       }

@@ -468,7 +468,7 @@ export default function OrderHistoryClient({ config }: Props) {
               <h2 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Error</h2>
               <p className="mb-6 text-[var(--text-secondary)]">{error}</p>
               <button
-                onClick={fetchOrders}
+                onClick={() => fetchOrders()}
                 className="rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
               >
                 Reintentar

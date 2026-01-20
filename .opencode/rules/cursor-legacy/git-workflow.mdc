@@ -1,0 +1,27 @@
+---
+description: Standards for Git workflow, branching, and commit messages
+globs: .git/**/*
+---
+# Git Workflow Standards
+
+## Branching
+- **`main`**: Production.
+- **`develop`**: Staging.
+- **`feat/`**: New features (merge to `develop`).
+- **`fix/`**: Bug fixes (merge to `develop`).
+- **`hotfix/`**: Production hotfixes.
+
+## Commit Messages
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat: ...`
+- `fix: ...`
+- `docs: ...`
+- `style: ...`
+- `refactor: ...`
+- `test: ...`
+- `chore: ...`
+
+## PR Process
+1. Push branch: `git push origin feat/name`
+2. Open PR to `develop`.
+3. Ensure CI passes.

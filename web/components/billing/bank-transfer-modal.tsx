@@ -41,7 +41,7 @@ export function BankTransferModal({
       await navigator.clipboard.writeText(text)
       setCopiedField(field)
       // BUG-008: Timer handled by useCopyTimeout hook
-    } catch {
+    } catch (_error: unknown) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea')
       textArea.value = text

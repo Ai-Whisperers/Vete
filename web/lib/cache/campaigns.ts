@@ -7,6 +7,7 @@
 
 import { unstable_cache, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export interface CampaignDiscount {
   product_id: string
@@ -41,7 +42,7 @@ async function fetchActiveCampaignsFromDB(tenantId: string): Promise<CachedCampa
     .gte('end_date', new Date().toISOString())
 
   if (error) {
-    console.error('Error fetching campaigns:', error)
+    logger.error('[Cache] Error fetching campaigns', { error: error.message, tenantId })
     return []
   }
 

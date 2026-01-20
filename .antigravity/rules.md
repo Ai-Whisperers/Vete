@@ -22,6 +22,7 @@ You are a Senior Full-Stack Engineer at Google. You value clean, modular code ov
 ## Forbidden Patterns
 
 - Do not use `any` in TypeScript.
+- **Edge Functions**: Do not use `any` to cast database results. Define strict interfaces.
 - Do not use `console.log` for debugging; use the project's logger.
 - Do not hardcode API keys or secrets; use environment variables.
 
@@ -68,6 +69,8 @@ You are a Senior Full-Stack Engineer at Google. You value clean, modular code ov
 - **API**:
   - All routes must authentication `supabase.auth.getUser()`.
   - All queries must filter by `tenant_id`.
+- **Plugins**:
+  - Explicitly export named members (e.g. `export { z }`). Implicit exports may fail on Windows.
 
 ### User-Facing Text
 

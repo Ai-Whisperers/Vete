@@ -3,7 +3,7 @@
 import * as Icons from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { messageStatusConfig, type Conversation } from '@/lib/types/whatsapp'
+import { whatsAppStatusConfig, type Conversation } from '@/lib/types/whatsapp'
 
 interface ConversationListProps {
   conversations: Conversation[]
@@ -30,7 +30,7 @@ export function ConversationList({
       {conversations.map((conversation) => {
         const isSelected = selectedPhone === conversation.phone_number
         const statusConfig = conversation.last_message_status
-          ? messageStatusConfig[conversation.last_message_status]
+          ? whatsAppStatusConfig[conversation.last_message_status]
           : undefined
 
         return (

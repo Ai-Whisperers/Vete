@@ -441,18 +441,6 @@ const { data, isLoading, error, refetch } = useAsyncData(
 )
 ```
 
-### useFormState
-
-Form management with Zod validation:
-
-```typescript
-const form = useFormState({
-  initialValues: { name: '', species: 'dog' },
-  schema: petSchema,
-  onSubmit: async (values) => await createPet(values),
-})
-```
-
 ### useModal / useModalWithData
 
 Modal state management:

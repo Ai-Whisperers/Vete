@@ -27,7 +27,7 @@ function getStoredItems(clinic: string): RecentItem[] {
     // Filter out items older than 7 days
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
     return items.filter((item) => item.timestamp > sevenDaysAgo)
-  } catch {
+  } catch (_error: unknown) {
     return []
   }
 }
@@ -37,7 +37,7 @@ function saveItems(clinic: string, items: RecentItem[]): void {
 
   try {
     localStorage.setItem(`${STORAGE_KEY}_${clinic}`, JSON.stringify(items))
-  } catch {
+  } catch (_error: unknown) {
     // Storage quota exceeded or other error
   }
 }

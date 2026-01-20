@@ -147,7 +147,7 @@ export async function sendReminderToChannels(
     try {
       const result = await sendToChannel(supabase, channel, reminder, client, content, prefs)
       results.push(result)
-    } catch (channelError) {
+    } catch (channelError: unknown) {
       results.push({
         channel,
         success: false,

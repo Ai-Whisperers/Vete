@@ -1,8 +1,29 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { config as loadDotenv } from 'dotenv'
+import { existsSync } from 'fs'
 
-export default defineConfig({
+// Load environment variables (priority order: .env.test > .env.local > .env)
+// Must load BEFORE Vitest runs to ensure process.env has values
+const envTestPath = resolve(__dirname, '.env.test')
+const envLocalPath = resolve(__dirname, '.env.local')
+const envPath = resolve(__dirname, '.env')
+
+if (existsSync(envTestPath)) {
+  loadDotenv({ path: envTestPath })
+  console.log('[Vitest Config] Loaded environment from .env.test')
+} else if (existsSync(envLocalPath)) {
+  loadDotenv({ path: envLocalPath })
+  console.log('[Vitest Config] Loaded environment from .env.local')
+} else if (existsSync(envPath)) {
+  loadDotenv({ path: envPath })
+  console.log('[Vitest Config] Loaded environment from .env')
+} else {
+  console.warn('[Vitest Config] No .env.test, .env.local or .env found - tests may fail')
+}
+
+export default defineConfig(() => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -16,9 +37,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Environment variables already loaded above via dotenv
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
-      provider: 'v8',
+      provider: 'v8' as const,
       reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
       exclude: [
@@ -66,4 +88,4 @@ export default defineConfig({
     // Watch mode configuration
     watch: false, // Disabled by default, enable with --watch flag
   },
-})
+}))

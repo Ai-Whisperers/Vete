@@ -65,13 +65,15 @@ Vete is a **SaaS veterinary management platform** that provides:
 | Metric | Count |
 |--------|-------|
 | **Database Tables** | 100+ |
-| **API Endpoints** | 269 |
-| **Server Actions** | 42 |
-| **React Components** | 474 |
+| **API Route Files** | 313 files (~480+ HTTP methods) |
+| **Server Actions** | 37 |
+| **React Components** | 674 |
 | **Pages (Routes)** | 256+ |
-| **Cron Jobs** | 14 |
-| **Custom Hooks** | 9 |
-| **Database Migrations** | 66 |
+| **Cron Jobs** | 18 |
+| **Custom Hooks** | 10 |
+| **Database Migrations** | 94 sequential migrations |
+| **Environment Variables** | 77 (4 required, 73 optional) |
+| **Test Files** | 205 unit/integration + 40 E2E |
 
 See [Codebase Statistics](reference/codebase-statistics.md) for detailed breakdown.
 

@@ -43,7 +43,7 @@ export default function BlanketConsents({
 
       const data = await response.json()
       setConsents(data)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching blanket consents - silently fail
     } finally {
       setLoading(false)
@@ -108,7 +108,7 @@ export default function BlanketConsents({
       if (onUpdate) {
         onUpdate()
       }
-    } catch {
+    } catch (_error: unknown) {
       // BUG-009: Replace alert with toast notification
       showToast({
         title: 'Error al revocar el consentimiento',

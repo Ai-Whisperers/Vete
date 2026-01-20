@@ -4,8 +4,8 @@ import { withActionAuth, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'
-import { sendConfirmationEmail } from '@/lib/notification-service'
-import { generateBookingRequestEmail } from '@/lib/email-templates'
+import { sendConfirmationEmail } from '@/lib/notifications/service'
+import { generateBookingRequestEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 import { rateLimitByUser } from '@/lib/rate-limit'
@@ -278,7 +278,7 @@ export const createBookingRequest = withActionAuth(
           clinicName: clinicDisplayName,
         }),
       })
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       logger.error('Failed to send booking request email', {
         error: emailError instanceof Error ? emailError : undefined,
         userId: user.id,

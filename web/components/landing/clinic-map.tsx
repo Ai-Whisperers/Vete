@@ -39,14 +39,49 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
   return R * c
 }
 
+// Prop types for dynamically imported Leaflet components
+interface MapContainerProps {
+  center: [number, number]
+  zoom: number
+  scrollWheelZoom?: boolean
+  style?: React.CSSProperties
+  children?: React.ReactNode
+}
+
+interface TileLayerProps {
+  attribution: string
+  url: string
+}
+
+interface MarkerProps {
+  position: [number, number]
+  icon?: L.DivIcon
+  children?: React.ReactNode
+}
+
+interface PopupProps {
+  children?: React.ReactNode
+}
+
+interface CircleProps {
+  center: [number, number]
+  radius: number
+  pathOptions?: {
+    color?: string
+    fillColor?: string
+    fillOpacity?: number
+    weight?: number
+  }
+}
+
 // Leaflet component types (dynamically imported)
 type LeafletComponents = {
-  MapContainer: React.ComponentType<any>
-  TileLayer: React.ComponentType<any>
-  Marker: React.ComponentType<any>
-  Popup: React.ComponentType<any>
-  Circle: React.ComponentType<any>
-  useMap: () => any
+  MapContainer: React.ComponentType<MapContainerProps>
+  TileLayer: React.ComponentType<TileLayerProps>
+  Marker: React.ComponentType<MarkerProps>
+  Popup: React.ComponentType<PopupProps>
+  Circle: React.ComponentType<CircleProps>
+  useMap: () => L.Map
   L: typeof import('leaflet')
 }
 

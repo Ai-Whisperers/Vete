@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { Camera, Upload, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { validateImageFile, ValidationResult } from '@/lib/image-validation'
+import { validateImageFile, ValidationResult } from '@/lib/validation/image'
 
 interface PhotoUploadProps {
   /** Name attribute for the file input (used in form submission) */
@@ -92,7 +92,7 @@ export function PhotoUpload({
 
         // Notify parent
         onFileSelect?.(file)
-      } catch {
+      } catch (_error: unknown) {
         setError(t('errorProcessing'))
       } finally {
         setIsValidating(false)

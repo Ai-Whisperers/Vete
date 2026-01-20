@@ -3,6 +3,38 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, PawPrint, Search, Calendar } from 'lucide-react'
 import { PetCardEnhanced } from '@/components/pets/pet-card-enhanced'
+import type { PetSpecies } from '@/lib/types/database/enums'
+
+/**
+ * Pet data returned from getOwnerPets action
+ */
+interface OwnerPet {
+  id: string
+  name: string
+  species: PetSpecies
+  breed: string | null
+  birth_date: string | null
+  photo_url: string | null
+  weight_kg: number | null
+  allergies: string[] | null
+  chronic_conditions: string[] | null
+  tenant_id: string
+  owner_id: string
+  vaccines: Array<{
+    id: string
+    name: string
+    next_due_date: string | null
+    status: string
+  }> | null
+  next_appointment: {
+    id: string
+    pet_id: string
+    start_time: string
+    status: string
+    services: Array<{ name: string }> | null
+  } | null
+  last_visit_date: string | null
+}
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -89,7 +121,7 @@ export default async function PortalPetsPage({
       {/* Pets List */}
       {pets.length > 0 && (
         <div className="space-y-4">
-          {pets.map((pet: any) => (
+          {pets.map((pet) => (
             <PetCardEnhanced key={pet.id} pet={pet} clinic={clinic} />
           ))}
         </div>

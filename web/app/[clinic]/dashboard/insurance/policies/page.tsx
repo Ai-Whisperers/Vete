@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
-import { Plus, Shield, CheckCircle2, XCircle, Calendar, DollarSign } from 'lucide-react'
+import { Plus, Shield, CheckCircle2, XCircle, Calendar, DollarSign, type LucideIcon } from 'lucide-react'
 
 interface Policy {
   id: string
@@ -57,7 +57,7 @@ export default function InsurancePoliciesPage() {
   const policies = policiesData?.data || []
 
   const getStatusBadge = (status: string) => {
-    const configs: { [key: string]: { label: string; color: string; icon: any } } = {
+    const configs: { [key: string]: { label: string; color: string; icon: LucideIcon } } = {
       active: { label: 'Activa', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
       expired: { label: 'Expirada', color: 'bg-gray-100 text-gray-700', icon: XCircle },
       cancelled: { label: 'Cancelada', color: 'bg-red-100 text-red-700', icon: XCircle },

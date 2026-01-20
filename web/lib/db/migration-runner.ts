@@ -130,7 +130,7 @@ export async function runMigrations(
       if (verbose) {
         console.log(`✅ Applied in ${Date.now() - startTime}ms`)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       results.push({
         migration,
         status: 'failed',
@@ -216,7 +216,7 @@ export async function rollbackMigrations(
       if (verbose) {
         console.log(`✅ Rolled back in ${Date.now() - startTime}ms`)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       results.push({
         migration,
         status: 'failed',

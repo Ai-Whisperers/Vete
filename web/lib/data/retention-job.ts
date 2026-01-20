@@ -249,7 +249,7 @@ async function processRetentionPolicy(
       success: true,
       durationMs: performance.now() - startTime,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
 
     logger.error(`Retention failed for ${policy.table}`, {
@@ -341,7 +341,7 @@ async function archiveRecords(
     }
 
     return ids.length
-  } catch {
+  } catch (_error: unknown) {
     // Column doesn't exist - records are retained
     logger.warn(`Archive not supported for ${table} - records retained`, { runId })
     return 0
@@ -422,7 +422,7 @@ export async function getRetentionStats(): Promise<
           oldestRecord: ((data as unknown as Array<Record<string, unknown>> | null)?.[0]?.[policy.dateColumn] as string) || null,
         })
       }
-    } catch {
+    } catch (_error: unknown) {
       // Skip tables that can't be queried
     }
   }

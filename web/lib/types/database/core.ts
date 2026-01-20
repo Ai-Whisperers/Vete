@@ -20,6 +20,7 @@ export interface Profile {
   email: string
   full_name: string | null
   phone: string | null
+  secondary_phone: string | null
   role: UserRole
   tenant_id: string | null
   avatar_url: string | null

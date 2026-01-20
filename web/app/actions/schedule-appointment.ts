@@ -4,8 +4,8 @@ import { withActionAuth, actionError, actionSuccess } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'
-import { sendConfirmationEmail } from '@/lib/notification-service'
-import { generateSchedulingConfirmationEmail } from '@/lib/email-templates'
+import { sendConfirmationEmail } from '@/lib/notifications/service'
+import { generateSchedulingConfirmationEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 
@@ -254,7 +254,7 @@ export const scheduleAppointment = withActionAuth(
           }),
         })
       }
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       logger.error('Failed to send scheduling confirmation email', {
         error: emailError instanceof Error ? emailError : undefined,
         userId: user.id,

@@ -42,7 +42,7 @@ try {
   }).catch(() => {
     // Sentry not configured - that's ok
   })
-} catch {
+} catch (_error: unknown) {
   // Sentry not available
 }
 
@@ -233,7 +233,7 @@ function sendToSentry(
         Sentry?.captureMessage(message, 'error')
       }
     })
-  } catch {
+  } catch (_error: unknown) {
     // Sentry send failed - don't let it break the app
   }
 }

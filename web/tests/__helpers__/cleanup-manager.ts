@@ -464,7 +464,7 @@ export class CleanupManager {
           if (data) {
             orphans.push({ table, id })
           }
-        } catch {
+        } catch (_error: unknown) {
           // Table might not exist
         }
       }
@@ -498,7 +498,7 @@ export class CleanupManager {
         } else if (count) {
           result.deletedCount += count
         }
-      } catch {
+      } catch (_error: unknown) {
         // Table might not exist or not have tenant_id
       }
     }

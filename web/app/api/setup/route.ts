@@ -94,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<SetupResp
     })
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { success: false, message: 'Setup failed', details: message },
+      { success: false, message: 'Setup failed', details: { error: message } },
       { status: 500 }
     )
   }
@@ -126,7 +126,7 @@ export async function GET(): Promise<NextResponse> {
           .select('count', { count: 'exact', head: true })
           .limit(1)
         status[table] = !error
-      } catch {
+      } catch (_error: unknown) {
         status[table] = false
       }
     }
@@ -191,7 +191,7 @@ async function runSchemaSetup(): Promise<SetupResponse> {
           resolve({
             success: false,
             message: 'Schema setup failed',
-            details: stderr || 'Unknown error',
+            details: { error: stderr || 'Unknown error' },
           })
         }
       })
@@ -200,7 +200,7 @@ async function runSchemaSetup(): Promise<SetupResponse> {
         resolve({
           success: false,
           message: 'Schema setup process failed',
-          details: error.message,
+          details: { error: error.message },
         })
       })
     })
@@ -209,7 +209,7 @@ async function runSchemaSetup(): Promise<SetupResponse> {
     return {
       success: false,
       message: 'Schema setup failed',
-      details: message,
+      details: { error: message },
     }
   }
 }
@@ -231,7 +231,7 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
       return {
         success: false,
         message: `Clinic '${clinicSlug}' not found. Please run full setup first.`,
-        details: clinicError?.message,
+        details: { error: clinicError?.message || 'Clinic not found' },
       }
     }
 
@@ -310,7 +310,7 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
       return {
         success: false,
         message: `Clinic setup file not found: ${clinicSlug}.json`,
-        details: message,
+        details: { error: message },
       }
     }
   } catch (error: unknown) {
@@ -318,7 +318,7 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
     return {
       success: false,
       message: 'Clinic setup failed',
-      details: message,
+      details: { error: message },
     }
   }
 }

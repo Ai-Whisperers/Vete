@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ZodSchema } from 'zod'
+import type { ZodSchema, ZodType } from 'zod'
 import { UniqueKeyConfig, upsertWithIdempotency, UNIQUE_KEYS } from '../utils/idempotency'
 import { validateBatch, ValidationResult } from '../utils/validation'
 import { SeederResult, createSeederResult } from '../utils/reporting'
@@ -50,7 +50,7 @@ export abstract class BaseSeeder<T extends Record<string, unknown>> {
   /**
    * Get the Zod validation schema
    */
-  abstract getSchema(): ZodSchema<T>
+  abstract getSchema(): ZodType<T, any, any>
 
   /**
    * Load data to seed (from JSON, factory, or generated)

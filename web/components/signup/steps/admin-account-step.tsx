@@ -65,7 +65,7 @@ export function AdminAccountStep({ data, errors, onChange, disabled }: AdminAcco
           message: result.error || 'Codigo no valido',
         })
       }
-    } catch {
+    } catch (_error: unknown) {
       setReferralValidation({
         status: 'invalid',
         message: 'Error al validar el codigo',

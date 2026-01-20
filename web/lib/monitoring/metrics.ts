@@ -88,7 +88,7 @@ export class MetricsCollector {
       logger.performance(name, duration, { metadata: tags })
 
       return result
-    } catch (error) {
+    } catch (error: unknown) {
       const duration = Date.now() - start
       this.histogram(`${name}.error_duration`, duration, tags)
       throw error
@@ -109,7 +109,7 @@ export class MetricsCollector {
       logger.performance(name, duration, { metadata: tags })
 
       return result
-    } catch (error) {
+    } catch (error: unknown) {
       const duration = Date.now() - start
       this.histogram(`${name}.error_duration`, duration, tags)
       throw error

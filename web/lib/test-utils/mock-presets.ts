@@ -26,6 +26,7 @@
 
 import { vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
+import type { User } from '@supabase/supabase-js'
 import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
 
 // =============================================================================
@@ -687,14 +688,15 @@ export function getAuthMock() {
         const requestId = crypto.randomUUID()
 
         return handler({
-          user: mockState.user,
-          profile: mockState.profile,
-          supabase,
+          user: mockState.user as unknown as User,
+          profile: mockState.profile as unknown as ApiHandlerContext['profile'],
+          supabase: supabase as unknown as ApiHandlerContext['supabase'],
           request: request as NextRequest,
-          log: createMockLogger(),
-          perf: createMockPerfTracker(),
+          log: createMockLogger() as unknown as ApiHandlerContext['log'],
+          perf: createMockPerfTracker() as unknown as ApiHandlerContext['perf'],
           requestId,
-          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id),
+          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id) as unknown as ApiHandlerContext['scoped'],
+          isAuthenticated: true,
         })
       }
     },
@@ -739,15 +741,16 @@ export function getAuthMock() {
         const requestId = crypto.randomUUID()
 
         return handler({
-          user: mockState.user,
-          profile: mockState.profile,
-          supabase,
+          user: mockState.user as unknown as User,
+          profile: mockState.profile as unknown as ApiHandlerContext['profile'],
+          supabase: supabase as unknown as ApiHandlerContext['supabase'],
           request: request as NextRequest,
           params,
-          log: createMockLogger(),
-          perf: createMockPerfTracker(),
+          log: createMockLogger() as unknown as ApiHandlerContext['log'],
+          perf: createMockPerfTracker() as unknown as ApiHandlerContext['perf'],
           requestId,
-          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id),
+          scoped: createMockScopedQueries(supabase, mockState.profile.tenant_id) as unknown as ApiHandlerContext['scoped'],
+          isAuthenticated: true,
         })
       }
     },

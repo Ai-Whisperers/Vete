@@ -302,7 +302,7 @@ export async function processExportJob(jobId: string): Promise<ExportResult> {
       format: config.format,
       duration_ms: duration,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
 
     logger.error('Export job failed', {

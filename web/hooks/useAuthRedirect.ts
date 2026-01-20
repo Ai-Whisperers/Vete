@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
 
 /**
  * Hook that checks Supabase auth status and redirects to login if not authenticated.
@@ -11,7 +12,7 @@ export function useAuthRedirect() {
   const { clinic } = useParams<{ clinic: string }>()
   const supabase = createClient()
 
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

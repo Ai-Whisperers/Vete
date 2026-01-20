@@ -57,7 +57,7 @@ export function SlugInput({ value, clinicName, onChange, error, disabled }: Slug
         const response = await fetch(`/api/signup/check-slug?slug=${encodeURIComponent(debouncedValue)}`)
         const data: CheckSlugResponse = await response.json()
         setAvailability(data)
-      } catch {
+      } catch (_error: unknown) {
         setAvailability(null)
       } finally {
         setIsChecking(false)

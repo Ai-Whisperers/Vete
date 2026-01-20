@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import {
   Clock,
-  Users,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -22,11 +21,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
   Line,
   Legend,
   ComposedChart,
-  Area,
 } from 'recharts'
 import { useTranslations, useLocale } from 'next-intl'
 import { useFeatureFlags, UpgradePrompt } from '@/lib/features'

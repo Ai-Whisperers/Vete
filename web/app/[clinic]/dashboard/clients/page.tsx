@@ -6,7 +6,6 @@ import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import {
   Users,
-  Search,
   Phone,
   Mail,
   PawPrint,

@@ -43,7 +43,7 @@ interface SupabaseInvoice {
   id: string
   invoice_number: string
   total: number
-  status: string
+  status: 'draft' | 'sent' | 'viewed' | 'partial' | 'paid' | 'overdue' | 'void' | 'refunded' | 'cancelled'
   due_date: string | null
   created_at: string
 }

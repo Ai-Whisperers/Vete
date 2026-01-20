@@ -46,7 +46,7 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
       if (!response.ok) throw new Error('Error al cargar jaulas')
       const data = await response.json()
       setKennels(data)
-    } catch {
+    } catch (_error: unknown) {
       // Error fetching kennels - silently fail
     }
   }

@@ -1,4 +1,4 @@
-import { defineConfig } from 'drizzle-kit'
+import type { Config } from 'drizzle-kit'
 import * as dotenv from 'dotenv'
 
 dotenv.config({ path: '.env.local' })
@@ -11,12 +11,9 @@ if (!DATABASE_URL) {
 
 export { DATABASE_URL }
 
-export default defineConfig({
+export default {
   schema: './db/schema/index.ts',
   out: './db/migrations',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: DATABASE_URL,
-  },
+  connectionString: DATABASE_URL,
   tablesFilter: ['tenants', 'profiles', 'vete_*'],
-})
+} satisfies Config

@@ -120,7 +120,7 @@ export async function generateHospitalizationInvoice(
         items,
       },
     }
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
       invoice: null,

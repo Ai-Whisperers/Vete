@@ -14,6 +14,8 @@ import {
   SwitchCamera,
 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+// Import browser API types for BarcodeDetector and torch
+import '@/lib/types/browser-apis'
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void
@@ -123,9 +125,8 @@ export function BarcodeScanner({
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
       // In production, use BarcodeDetector API or a library
-      if ('BarcodeDetector' in window) {
+      if ('BarcodeDetector' in window && window.BarcodeDetector) {
         try {
-          // @ts-ignore - BarcodeDetector is not in TypeScript types yet
           const barcodeDetector = new window.BarcodeDetector({
             formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code'],
           })
@@ -196,13 +197,15 @@ export function BarcodeScanner({
     if (!streamRef.current) return
 
     const track = streamRef.current.getVideoTracks()[0]
-    const capabilities = track.getCapabilities()
+    // Cast to extended type that includes torch capability
+    const capabilities = track.getCapabilities() as MediaTrackCapabilities & { torch?: boolean }
 
-    // @ts-ignore - torch is not in TypeScript types
     if (capabilities.torch) {
       try {
-        // @ts-ignore
-        await track.applyConstraints({ advanced: [{ torch: !torchEnabled }] })
+        // Apply torch constraint using advanced constraints
+        await track.applyConstraints({
+          advanced: [{ torch: !torchEnabled } as MediaTrackConstraintSet],
+        })
         setTorchEnabled(!torchEnabled)
       } catch (err) {
         // Client-side error logging - only in development

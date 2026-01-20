@@ -8,7 +8,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from './keys'
-import { buildUrl, staleTimes, gcTimes } from './utils'
+import { buildUrl, staleTimes, gcTimes, parseErrorResponse } from './utils'
 
 // Types
 export interface Pet {
@@ -92,7 +92,7 @@ export function usePetsList(
       const url = buildUrl(`/api/${clinic}/pets`, { owner_id: ownerId })
       const response = await fetch(url)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/list')
         throw new Error(error.error || 'Error al cargar mascotas')
       }
       return response.json()
@@ -112,7 +112,7 @@ export function usePet(petId: string, options?: { enabled?: boolean }) {
     queryFn: async (): Promise<Pet> => {
       const response = await fetch(`/api/pets/${petId}`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/detail')
         throw new Error(error.error || 'Error al cargar mascota')
       }
       return response.json()
@@ -132,7 +132,7 @@ export function usePetMedicalRecords(petId: string, options?: { enabled?: boolea
     queryFn: async (): Promise<MedicalRecord[]> => {
       const response = await fetch(`/api/pets/${petId}/medical-records`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/medical-records')
         throw new Error(error.error || 'Error al cargar historial médico')
       }
       return response.json()
@@ -152,7 +152,7 @@ export function usePetVaccines(petId: string, options?: { enabled?: boolean }) {
     queryFn: async (): Promise<Vaccine[]> => {
       const response = await fetch(`/api/pets/${petId}/vaccines`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/vaccines')
         throw new Error(error.error || 'Error al cargar vacunas')
       }
       return response.json()
@@ -176,7 +176,7 @@ export function usePetGrowthChart(petId: string, options?: { enabled?: boolean }
     }> => {
       const response = await fetch(`/api/pets/${petId}/growth-chart`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/growth-chart')
         throw new Error(error.error || 'Error al cargar gráfico de crecimiento')
       }
       return response.json()
@@ -196,7 +196,7 @@ export function usePetWeightHistory(petId: string, options?: { enabled?: boolean
     queryFn: async (): Promise<WeightEntry[]> => {
       const response = await fetch(`/api/pets/${petId}/weight-history`)
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/weight-history')
         throw new Error(error.error || 'Error al cargar historial de peso')
       }
       return response.json()
@@ -235,7 +235,7 @@ export function useCreatePet(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/create')
         throw new Error(error.error || 'Error al crear mascota')
       }
       return response.json()
@@ -264,7 +264,7 @@ export function useUpdatePet(clinic: string) {
         body: JSON.stringify(input),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/update')
         throw new Error(error.error || 'Error al actualizar mascota')
       }
       return response.json()
@@ -298,7 +298,7 @@ export function useRecordWeight(clinic: string) {
         body: JSON.stringify({ weight_kg, notes }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/record-weight')
         throw new Error(error.error || 'Error al registrar peso')
       }
       return response.json()
@@ -345,7 +345,7 @@ export function useAddVaccine(clinic: string) {
         }),
       })
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+        const error = await parseErrorResponse(response, 'pets/add-vaccine')
         throw new Error(error.error || 'Error al registrar vacuna')
       }
       return response.json()

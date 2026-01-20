@@ -95,7 +95,7 @@ async function getResponseBody(response: Response): Promise<Record<string, unkno
   const text = await response.text()
   try {
     return JSON.parse(text)
-  } catch {
+  } catch (_error: unknown) {
     return { raw: text }
   }
 }

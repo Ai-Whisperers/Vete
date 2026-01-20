@@ -180,7 +180,7 @@ export function BulkMessaging({ clinic, isOpen, onClose }: BulkMessagingProps): 
         // Simulate sending
         await new Promise((resolve) => setTimeout(resolve, 300))
         success++
-      } catch {
+      } catch (_error: unknown) {
         failed++
       }
       setSendProgress(Math.round(((i + 1) / clientIds.length) * 100))

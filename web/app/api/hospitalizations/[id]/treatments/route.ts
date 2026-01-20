@@ -33,7 +33,7 @@ export const POST = withApiAuthParams(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
@@ -71,6 +71,8 @@ export const POST = withApiAuthParams(
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
+
+    return NextResponse.json(data, { status: HTTP_STATUS.CREATED })
   },
   { roles: ['vet', 'admin'], rateLimit: 'write' }
 )
@@ -84,7 +86,7 @@ export const PATCH = withApiAuthParams(
     let body
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 

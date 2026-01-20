@@ -74,7 +74,7 @@ async function getClinics(): Promise<ClinicLocation[]> {
     }
 
     return clinicsWithCoords
-  } catch {
+  } catch (_error: unknown) {
     return demoClinics
   }
 }

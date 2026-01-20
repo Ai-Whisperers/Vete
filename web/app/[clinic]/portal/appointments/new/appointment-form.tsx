@@ -4,7 +4,22 @@ import { useActionState } from 'react'
 import { createAppointment } from '@/app/actions/create-appointment'
 import * as Icons from 'lucide-react'
 
-export default function AppointmentForm({ pets, clinic }: { pets: any[]; clinic: string }) {
+/**
+ * Minimal pet data needed for appointment selection
+ */
+interface AppointmentPet {
+  id: string
+  name: string
+  photo_url: string | null
+}
+
+export default function AppointmentForm({
+  pets,
+  clinic,
+}: {
+  pets: AppointmentPet[]
+  clinic: string
+}) {
   const [state, formAction, isPending] = useActionState(createAppointment, null)
 
   return (

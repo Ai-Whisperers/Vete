@@ -23,7 +23,7 @@ const updateProfileSchema = z.object({
       (val) => {
         if (!val) return true
         // Allow various phone formats
-        const cleaned = val.replace(/[\s\-\(\)\.]/g, '')
+        const cleaned = val.replace(/[\s\-().]/g, '')
         return /^\+?[0-9]{6,15}$/.test(cleaned)
       },
       { message: 'Ingresa un número de teléfono válido (ej: +595 981 123456)' }
@@ -36,7 +36,7 @@ const updateProfileSchema = z.object({
     .refine(
       (val) => {
         if (!val) return true
-        const cleaned = val.replace(/[\s\-\(\)\.]/g, '')
+        const cleaned = val.replace(/[\s\-().]/g, '')
         return /^\+?[0-9]{6,15}$/.test(cleaned)
       },
       { message: 'Ingresa un número de teléfono válido' }

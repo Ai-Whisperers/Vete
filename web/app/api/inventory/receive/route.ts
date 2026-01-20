@@ -25,7 +25,7 @@ export const POST = withApiAuth(
     let body: ReceiveRequest
     try {
       body = await request.json()
-    } catch {
+    } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: 'JSON inválido' },
       })

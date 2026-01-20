@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     })
 
     return response
-  } catch {
+  } catch (_error: unknown) {
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }

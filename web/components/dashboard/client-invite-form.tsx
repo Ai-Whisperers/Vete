@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useForm } from '@/hooks/use-form'
-import { useAsyncData } from '@/hooks/use-async-data'
+import { useMutation } from '@tanstack/react-query'
 import { required, email, createValidator } from '@/lib/utils/validation'
 import { ErrorBoundary } from '@/components/shared'
 
@@ -55,11 +55,11 @@ export function ClientInviteForm({
 
   // API call for creating client
   const {
-    isLoading: isSubmitting,
+    isPending: isSubmitting,
     error: submitError,
-    refetch: submitForm,
-  } = useAsyncData(
-    async () => {
+    mutateAsync: submitForm,
+  } = useMutation({
+    mutationFn: async () => {
       const supabase = createClient()
 
       // Get current user
@@ -124,9 +124,7 @@ export function ClientInviteForm({
 
       return newProfile
     },
-    [], // No dependencies - manual trigger only
-    { enabled: false } // Don't run automatically
-  )
+  })
 
   const handleSubmit = form.handleSubmit(async () => {
     try {
@@ -139,7 +137,7 @@ export function ClientInviteForm({
         onSuccess?.()
       }, 1500)
     } catch (err) {
-      // Error is handled by useAsyncData
+      // Error is handled by useMutation
     }
   })
 
@@ -167,7 +165,7 @@ export function ClientInviteForm({
             className="flex items-start gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 text-sm text-[var(--status-error-text)]"
           >
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-            <span>{submitError}</span>
+            <span>{submitError?.message || 'Error al registrar el cliente'}</span>
           </div>
         )}
 
@@ -295,7 +293,9 @@ export function ClientInviteForm({
                 </label>
                 <select
                   id="petSpecies"
-                  {...form.getFieldProps('petSpecies')}
+                  value={form.getFieldProps('petSpecies').value as string}
+                  onChange={(e) => form.setValue('petSpecies', e.target.value)}
+                  onBlur={() => form.setTouched('petSpecies')}
                   aria-invalid="false"
                   className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
                 >

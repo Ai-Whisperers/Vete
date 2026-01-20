@@ -181,7 +181,7 @@ export const GET = withApiAuth(
           p_tenant_id: profile.tenant_id,
         })
         petAggregates = data
-      } catch {
+      } catch (_error: unknown) {
         // RPC function may not exist, fall back to batch query
       }
 
@@ -193,7 +193,7 @@ export const GET = withApiAuth(
           p_tenant_id: profile.tenant_id,
         })
         apptAggregates = data
-      } catch {
+      } catch (_error: unknown) {
         // RPC function may not exist, fall back to batch query
       }
 
@@ -238,8 +238,10 @@ export const GET = withApiAuth(
 
         if (lastAppts) {
           const processedOwners = new Set<string>()
-          lastAppts.forEach((appt: { start_time: string; pets?: { owner_id: string } | null }) => {
-            const ownerId = appt.pets?.owner_id
+          lastAppts.forEach((appt) => {
+            // pets is an array when using !inner join
+            const pets = appt.pets as { owner_id: string }[] | null
+            const ownerId = pets?.[0]?.owner_id
             if (ownerId && !processedOwners.has(ownerId)) {
               lastAppointmentMap.set(ownerId, appt.start_time)
               processedOwners.add(ownerId)
@@ -280,7 +282,7 @@ export const GET = withApiAuth(
         clients: enrichedClients,
         ...paginatedResponse(enrichedClients, totalCount || 0, { page, limit, offset }),
       })
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Unexpected error in clients API', {
         tenantId: profile.tenant_id,
         userId: user.id,

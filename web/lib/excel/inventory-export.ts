@@ -5,7 +5,7 @@
  * Extracted from the API route for better separation of concerns.
  */
 
-import * as XLSX from 'xlsx'
+import * as ExcelJS from 'exceljs'
 
 // =============================================================================
 // TYPES
@@ -33,17 +33,59 @@ export interface ProductForExport {
 // HELPERS
 // =============================================================================
 
-function createStyledSheet(data: unknown[][], colWidths: number[]): XLSX.WorkSheet {
-  const ws = XLSX.utils.aoa_to_sheet(data)
-  ws['!cols'] = colWidths.map((w) => ({ wch: w }))
-  return ws
+interface DataValidation {
+  cells: string  // e.g., 'B8:B100'
+  values: string[]  // e.g., ['Purchase', 'Sale', ...]
+}
+
+function addStyledSheet(
+  workbook: ExcelJS.Workbook,
+  sheetName: string,
+  data: unknown[][],
+  colWidths: number[],
+  validation?: DataValidation
+): ExcelJS.Worksheet {
+  const worksheet = workbook.addWorksheet(sheetName)
+
+  // Add data row by row
+  data.forEach((row) => {
+    worksheet.addRow(row)
+  })
+
+  // Set column widths
+  colWidths.forEach((width, index) => {
+    const column = worksheet.getColumn(index + 1)
+    column.width = width
+  })
+
+  // Add data validation if provided
+  if (validation) {
+    // Parse cell range (e.g., 'B8:B100' -> column B, rows 8-100)
+    const match = validation.cells.match(/([A-Z]+)(\d+):([A-Z]+)(\d+)/)
+    if (match) {
+      const [, col, startRow, , endRow] = match
+      const formula = `"${validation.values.join(',')}"`
+      
+      // Apply validation to each cell in the range
+      for (let row = parseInt(startRow); row <= parseInt(endRow); row++) {
+        const cell = worksheet.getCell(`${col}${row}`)
+        cell.dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: [formula]
+        }
+      }
+    }
+  }
+
+  return worksheet
 }
 
 // =============================================================================
 // TEMPLATE SHEETS
 // =============================================================================
 
-function createInstructionsSheet(): XLSX.WorkSheet {
+function createInstructionsSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const data = [
     ['', '', '', ''],
     ['', '📦 PLANTILLA DE INVENTARIO', '', ''],
@@ -94,10 +136,10 @@ function createInstructionsSheet(): XLSX.WorkSheet {
     ['', '', '', ''],
     ['', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '', ''],
   ]
-  return createStyledSheet(data, [5, 25, 45, 20])
+  return { data, widths: [5, 25, 45, 20] }
 }
 
-function createNewProductsSheet(): XLSX.WorkSheet {
+function createNewProductsSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const header = [
     ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
     ['', '🆕 NUEVOS PRODUCTOS', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -122,10 +164,10 @@ function createNewProductsSheet(): XLSX.WorkSheet {
 
   const data = [...header, columns, example, ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''], ...emptyRows]
 
-  return createStyledSheet(data, [3, 14, 15, 16, 30, 18, 35, 15, 14, 15, 14, 14, 12, 18, 10])
+  return { data, widths: [3, 14, 15, 16, 30, 18, 35, 15, 14, 15, 14, 14, 12, 18, 10] }
 }
 
-function createMovementsSheet(): XLSX.WorkSheet {
+function createMovementsSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const header = [
     ['', '', '', '', '', '', '', '', '', ''],
     ['', '📦 MOVIMIENTOS DE STOCK', '', '', '', '', '', '', '', ''],
@@ -147,20 +189,17 @@ function createMovementsSheet(): XLSX.WorkSheet {
 
   const data = [...header, columns, guide, ['', '', '', '', '', '', '', '', '', ''], ...emptyRows]
 
-  const ws = createStyledSheet(data, [3, 16, 18, 14, 14, 14, 14, 14, 18, 35])
-
-  ws['!dataValidation'] = [
-    {
-      sqref: 'B8:B100',
-      type: 'list',
-      formula1: '"Purchase,Sale,Adjustment,Damage,Theft,Price Update,Expired,Return"',
-    },
-  ]
-
-  return ws
+  return {
+    data,
+    widths: [3, 16, 18, 14, 14, 14, 14, 14, 18, 35],
+    validation: {
+      cells: 'B8:B100',
+      values: ['Purchase', 'Sale', 'Adjustment', 'Damage', 'Theft', 'Price Update', 'Expired', 'Return']
+    }
+  }
 }
 
-function createExamplesSheet(): XLSX.WorkSheet {
+function createExamplesSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const data = [
     ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
     ['', '📚 EJEMPLOS COMPLETOS', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -200,10 +239,10 @@ function createExamplesSheet(): XLSX.WorkSheet {
     ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
   ]
 
-  return createStyledSheet(data, [3, 14, 16, 16, 25, 18, 35, 12, 10, 12, 8, 14, 14, 20, 8])
+  return { data, widths: [3, 14, 16, 16, 25, 18, 35, 12, 10, 12, 8, 14, 14, 20, 8] }
 }
 
-function createCategoriesSheet(): XLSX.WorkSheet {
+function createCategoriesSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const data = [
     ['', '', '', ''],
     ['', '🏷️ CATEGORÍAS DISPONIBLES', '', ''],
@@ -237,10 +276,10 @@ function createCategoriesSheet(): XLSX.WorkSheet {
     ['', '', '', ''],
   ]
 
-  return createStyledSheet(data, [3, 25, 22, 45])
+  return { data, widths: [3, 25, 22, 45] }
 }
 
-function createQuickImportSheet(): XLSX.WorkSheet {
+function createQuickImportSheet(): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const data = [
     ['', '', '', '', '', '', '', '', '', '', '', '', '', ''],
     ['', '⚡ IMPORTACIÓN RÁPIDA', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -256,17 +295,14 @@ function createQuickImportSheet(): XLSX.WorkSheet {
     data.push(['', '', '', '', '', '', '', '', '', '', '', '', '', ''])
   }
 
-  const ws = createStyledSheet(data, [3, 15, 16, 28, 20, 35, 14, 12, 14, 12, 14, 14, 20, 16])
-
-  ws['!dataValidation'] = [
-    {
-      sqref: 'B8:B100',
-      type: 'list',
-      formula1: '"New Product,Purchase,Sale,Adjustment,Damage,Theft,Price Update,Expired,Return"',
-    },
-  ]
-
-  return ws
+  return {
+    data,
+    widths: [3, 15, 16, 28, 20, 35, 14, 12, 14, 12, 14, 14, 20, 16],
+    validation: {
+      cells: 'B8:B100',
+      values: ['New Product', 'Purchase', 'Sale', 'Adjustment', 'Damage', 'Theft', 'Price Update', 'Expired', 'Return']
+    }
+  }
 }
 
 // =============================================================================
@@ -278,7 +314,7 @@ function createSummarySheet(
   activeCount: number,
   lowStockCount: number,
   totalValue: number
-): XLSX.WorkSheet {
+): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const data = [
     ['', '', ''],
     ['', '📊 RESUMEN DE INVENTARIO', ''],
@@ -304,10 +340,10 @@ function createSummarySheet(
     ['', '', ''],
   ]
 
-  return createStyledSheet(data, [3, 30, 25])
+  return { data, widths: [3, 30, 25] }
 }
 
-function createCatalogSheet(products: ProductForExport[]): XLSX.WorkSheet {
+function createCatalogSheet(products: ProductForExport[]): { data: unknown[][], widths: number[], validation?: DataValidation } {
   const totalProducts = products.length
 
   const header = [
@@ -351,17 +387,14 @@ function createCatalogSheet(products: ProductForExport[]): XLSX.WorkSheet {
 
   const data = [...header, columns, guideRow, ...productRows]
 
-  const ws = createStyledSheet(data, [3, 14, 16, 16, 30, 18, 35, 14, 14, 12, 12, 14, 14, 18, 8, 3, 14, 14, 16])
-
-  ws['!dataValidation'] = [
-    {
-      sqref: 'B7:B1000',
-      type: 'list',
-      formula1: '"Purchase,Sale,Adjustment,Damage,Theft,Price Update,Expired,Return"',
-    },
-  ]
-
-  return ws
+  return {
+    data,
+    widths: [3, 14, 16, 16, 30, 18, 35, 14, 14, 12, 12, 14, 14, 18, 8, 3, 14, 14, 16],
+    validation: {
+      cells: 'B7:B1000',
+      values: ['Purchase', 'Sale', 'Adjustment', 'Damage', 'Theft', 'Price Update', 'Expired', 'Return']
+    }
+  }
 }
 
 // =============================================================================
@@ -371,15 +404,26 @@ function createCatalogSheet(products: ProductForExport[]): XLSX.WorkSheet {
 /**
  * Generate the inventory template workbook (for new imports)
  */
-export function generateInventoryTemplate(): XLSX.WorkBook {
-  const workbook = XLSX.utils.book_new()
+export function generateInventoryTemplate(): ExcelJS.Workbook {
+  const workbook = new ExcelJS.Workbook()
 
-  XLSX.utils.book_append_sheet(workbook, createInstructionsSheet(), '📖 Instrucciones')
-  XLSX.utils.book_append_sheet(workbook, createNewProductsSheet(), '🆕 Nuevos Productos')
-  XLSX.utils.book_append_sheet(workbook, createMovementsSheet(), '📦 Movimientos')
-  XLSX.utils.book_append_sheet(workbook, createExamplesSheet(), '📚 Ejemplos')
-  XLSX.utils.book_append_sheet(workbook, createCategoriesSheet(), '🏷️ Categorías')
-  XLSX.utils.book_append_sheet(workbook, createQuickImportSheet(), '⚡ Importación Rápida')
+  const instructions = createInstructionsSheet()
+  addStyledSheet(workbook, '📖 Instrucciones', instructions.data, instructions.widths, instructions.validation)
+
+  const newProducts = createNewProductsSheet()
+  addStyledSheet(workbook, '🆕 Nuevos Productos', newProducts.data, newProducts.widths, newProducts.validation)
+
+  const movements = createMovementsSheet()
+  addStyledSheet(workbook, '📦 Movimientos', movements.data, movements.widths, movements.validation)
+
+  const examples = createExamplesSheet()
+  addStyledSheet(workbook, '📚 Ejemplos', examples.data, examples.widths, examples.validation)
+
+  const categories = createCategoriesSheet()
+  addStyledSheet(workbook, '🏷️ Categorías', categories.data, categories.widths, categories.validation)
+
+  const quickImport = createQuickImportSheet()
+  addStyledSheet(workbook, '⚡ Importación Rápida', quickImport.data, quickImport.widths, quickImport.validation)
 
   return workbook
 }
@@ -387,7 +431,7 @@ export function generateInventoryTemplate(): XLSX.WorkBook {
 /**
  * Generate the catalog export workbook (current inventory)
  */
-export function generateCatalogExport(products: ProductForExport[]): XLSX.WorkBook {
+export function generateCatalogExport(products: ProductForExport[]): ExcelJS.Workbook {
   // Calculate statistics
   const totalProducts = products.length
   const totalValue = products.reduce((sum, p) => {
@@ -402,10 +446,13 @@ export function generateCatalogExport(products: ProductForExport[]): XLSX.WorkBo
   ).length
   const activeCount = products.filter((p) => p.is_active).length
 
-  const workbook = XLSX.utils.book_new()
+  const workbook = new ExcelJS.Workbook()
 
-  XLSX.utils.book_append_sheet(workbook, createSummarySheet(totalProducts, activeCount, lowStockCount, totalValue), '📊 Resumen')
-  XLSX.utils.book_append_sheet(workbook, createCatalogSheet(products), '📋 Catálogo')
+  const summary = createSummarySheet(totalProducts, activeCount, lowStockCount, totalValue)
+  addStyledSheet(workbook, '📊 Resumen', summary.data, summary.widths, summary.validation)
+
+  const catalog = createCatalogSheet(products)
+  addStyledSheet(workbook, '📋 Catálogo', catalog.data, catalog.widths, catalog.validation)
 
   return workbook
 }
@@ -413,6 +460,7 @@ export function generateCatalogExport(products: ProductForExport[]): XLSX.WorkBo
 /**
  * Write workbook to buffer
  */
-export function workbookToBuffer(workbook: XLSX.WorkBook): Buffer {
-  return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+export async function workbookToBuffer(workbook: ExcelJS.Workbook): Promise<Buffer> {
+  const buffer = await workbook.xlsx.writeBuffer()
+  return Buffer.from(buffer)
 }

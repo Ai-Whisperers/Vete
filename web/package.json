@@ -190,7 +190,7 @@
     "madge": "^8.0.0",
     "msw": "^2.12.4",
     "nyc": "^17.1.0",
-    "prettier": "^3.4.2",
+    "prettier": "^3.8.0",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "source-map-explorer": "^2.5.3",
     "supertest": "^7.1.4",

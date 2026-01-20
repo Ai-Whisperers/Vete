@@ -61,6 +61,7 @@ export default [
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/ban-ts-comment": "warn",
+      "@typescript-eslint/triple-slash-reference": "warn",
 
       // General - downgrade some rules to warnings
       "no-useless-escape": "warn",

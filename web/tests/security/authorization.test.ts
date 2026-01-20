@@ -110,6 +110,7 @@ const MANUAL_AUTH_WHITELIST = [
   // === WEBHOOKS (verified by signature) ===
   'app/api/webhooks/stripe/route.ts', // Stripe signature verification
   'app/api/sms/webhook/route.ts', // SMS provider webhook
+  'app/api/inngest/route.ts', // Inngest webhook (signature verification by Inngest SDK)
 
   // === HEALTH CHECKS (public monitoring) ===
   'app/api/health/route.ts', // Load balancer health check
@@ -138,6 +139,7 @@ const MANUAL_AUTH_WHITELIST = [
   'app/api/cron/billing/generate-platform-invoices/route.ts',
   'app/api/cron/billing/evaluate-grace/route.ts',
   'app/api/cron/billing/auto-charge/route.ts',
+  'app/api/cron/check-health/route.ts', // Cron health check with CRON_SECRET auth
 
   // === USER-SCOPED DATA (filtered by user.id or tenant_id) ===
   'app/api/appointments/slots/route.ts', // Manual tenant check

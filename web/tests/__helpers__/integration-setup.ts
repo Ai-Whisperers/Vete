@@ -284,6 +284,8 @@ export async function createTestAuthUser(
   return {
     userId,
     profile: profile as TestProfileData,
+    email, // Return email so tests can sign in
+    password, // Return password so tests can sign in
   }
 }
 
@@ -699,6 +701,54 @@ export async function createTestPurchaseOrderItem(
 // =============================================================================
 
 /**
+ * Gets an authentication token for a test user.
+ * 
+ * Creates a new anon client, signs in with the user's credentials,
+ * and returns the access token.
+ *
+ * @param email - User email
+ * @param password - User password (default: 'test-password-123')
+ * @returns Access token for Authorization header
+ */
+export async function getAuthToken(
+  email: string,
+  password: string = 'test-password-123'
+): Promise<string> {
+  // Create anon client for sign-in (service_role can't sign in)
+  const anonClient = createTestSupabaseClient('anon')
+
+  const { data, error } = await anonClient.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error || !data.session) {
+    throw new Error(`[Integration Test] Failed to get auth token for ${email}: ${error?.message || 'No session'}`)
+  }
+
+  return data.session.access_token
+}
+
+/**
+ * Convenience helper: Get auth token from createTestAuthUser result.
+ * 
+ * Usage:
+ * ```typescript
+ * const adminUser = await createTestAuthUser(supabase, 'admin')
+ * const token = await getAuthTokenFromUser(adminUser)
+ * ```
+ * 
+ * @param user - Result from createTestAuthUser
+ * @returns Access token for Authorization header
+ */
+export async function getAuthTokenFromUser(user: {
+  email: string
+  password: string
+}): Promise<string> {
+  return getAuthToken(user.email, user.password)
+}
+
+/**
  * Creates a NextRequest for testing API routes.
  *
  * @param url - Request URL
@@ -710,16 +760,24 @@ export function createTestRequest(
     method?: string
     body?: unknown
     headers?: Record<string, string>
+    authToken?: string
   } = {}
 ): Request {
-  const { method = 'GET', body, headers = {} } = options
+  const { method = 'GET', body, headers = {}, authToken } = options
+
+  const requestHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...headers,
+  }
+
+  // Add Authorization header if authToken provided
+  if (authToken) {
+    requestHeaders['Authorization'] = `Bearer ${authToken}`
+  }
 
   const requestInit: RequestInit = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers: requestHeaders,
   }
 
   if (body) {

@@ -106,7 +106,7 @@ jobs:
         continue-on-error: true  # Allow known test failures (18/920 failing = 98% pass rate)
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: unit-coverage
           path: web/coverage
@@ -139,7 +139,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-key
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nextjs-build
           path: |
@@ -243,7 +243,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: playwright-report

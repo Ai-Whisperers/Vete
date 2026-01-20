@@ -257,8 +257,8 @@ export async function createTestAuthUser(
   // NOTE: The handle_new_user() trigger automatically creates a profile
   // when an auth user is created. We just need to update it with test-specific data.
   
-  // Wait a moment for trigger to execute
-  await new Promise(resolve => setTimeout(resolve, 100))
+  // Wait for trigger to execute (increased from 100ms to 500ms for reliability)
+  await new Promise(resolve => setTimeout(resolve, 500))
   
   // Update the auto-created profile with test-specific data
   const { data: profile, error: profileError } = await supabase
@@ -273,9 +273,26 @@ export async function createTestAuthUser(
     .single()
 
   if (profileError) {
+    // If update failed, check if profile exists at all
+    const { data: checkProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single()
+    
+    const errorDetails = checkProfile 
+      ? `Profile exists but update failed: ${profileError.message}`
+      : `Profile not created by trigger: ${profileError.message}`
+    
     // Cleanup auth user on profile failure
     await supabase.auth.admin.deleteUser(userId)
-    throw new Error(`[Integration Test] Failed to update profile: ${profileError.message}`)
+    throw new Error(`[Integration Test] Failed to update profile: ${errorDetails}`)
+  }
+  
+  // Verify profile is actually in database (extra safety check)
+  if (!profile || !profile.id) {
+    await supabase.auth.admin.deleteUser(userId)
+    throw new Error(`[Integration Test] Profile update returned no data for user ${userId}`)
   }
 
   // Track for cleanup (auth user deletion will cascade)
@@ -585,19 +602,15 @@ export async function createTestStaffProfile(
   supabase: SupabaseClient,
   profileId: string,
   tenantId: string = TEST_TENANT_ID,
-  overrides: Partial<{
-    specialization: string
-    license_number: string
-  }> = {}
+  overrides: Record<string, unknown> = {}
 ): Promise<{ id: string; profile_id: string }> {
   const staffId = idGenerator.generate('staff')
 
+  // Only use core required fields to avoid schema cache issues
   const staffData = {
     id: staffId,
     profile_id: profileId,
     tenant_id: tenantId,
-    specialization: 'General Practice',
-    license_number: `LIC-${staffId.slice(-6).toUpperCase()}`,
     ...overrides,
   }
 

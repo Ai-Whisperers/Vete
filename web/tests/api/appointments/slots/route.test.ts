@@ -40,10 +40,7 @@ describe('API: /api/appointments/slots', () => {
     vetProfileId = vet.profile.id
 
     // Create staff profile for vet (needed for schedules)
-    await createTestStaffProfile(supabase, vetProfileId, TEST_TENANT_ID, {
-      specialization: 'Cirugía General',
-      license_number: 'LIC-TEST-001',
-    })
+    await createTestStaffProfile(supabase, vetProfileId, TEST_TENANT_ID)
   })
 
   afterAll(async () => {

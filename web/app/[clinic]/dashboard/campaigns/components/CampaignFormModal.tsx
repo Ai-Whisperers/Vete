@@ -7,7 +7,7 @@
  */
 
 import { X, Percent, DollarSign, Tag, Gift, Package, Zap, Sun } from 'lucide-react'
-import type { Campaign, CampaignFormData, CampaignType, DiscountType } from '../types'
+import type { Campaign, CampaignFormData } from '../types'
 import { CAMPAIGN_TYPE_OPTIONS, DISCOUNT_TYPE_OPTIONS } from '../constants'
 
 interface CampaignFormModalProps {

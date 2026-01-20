@@ -15,7 +15,6 @@ import {
   ArrowLeft,
   Users,
   TrendingUp,
-  TrendingDown,
   RefreshCw,
   Download,
   Loader2,
@@ -23,7 +22,7 @@ import {
 } from 'lucide-react'
 import { SegmentOverview } from '@/components/dashboard/clients/segment-overview'
 import { SegmentCustomerList } from '@/components/dashboard/clients/segment-customer-list'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { useToast } from '@/components/ui/Toast'
 import {
   BulkEmailModal,

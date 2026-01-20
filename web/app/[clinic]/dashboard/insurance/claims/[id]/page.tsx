@@ -19,11 +19,9 @@ import {
   Upload,
   MessageSquare,
   DollarSign,
-  Calendar,
   Send,
   CheckCircle,
   XCircle,
-  AlertCircle,
 } from 'lucide-react'
 
 interface ClaimDetailPageProps {

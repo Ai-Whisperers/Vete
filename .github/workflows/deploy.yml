@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: actions/setup-node@v4
         with:
@@ -95,7 +95,7 @@ jobs:
       name: staging
       url: ${{ steps.deploy.outputs.url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -142,7 +142,7 @@ jobs:
       name: production
       url: https://vetepy.vercel.app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -182,7 +182,7 @@ jobs:
     needs: [setup, deploy-staging, deploy-production]
     if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: actions/setup-node@v4
         with:

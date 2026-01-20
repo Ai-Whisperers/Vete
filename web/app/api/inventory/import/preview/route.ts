@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { LIMITS, formatFileSize } from '@/lib/constants'
-import * as XLSX from 'xlsx'
+import * as ExcelJS from 'exceljs'
 
 interface PreviewRow {
   rowNumber: number
@@ -115,13 +115,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const bytes = await file.arrayBuffer()
-    const workbook = XLSX.read(bytes, { type: 'array' })
-    const sheetName = workbook.SheetNames[0]
-    const sheet = workbook.Sheets[sheetName]
+    const workbook = new ExcelJS.Workbook()
+    await workbook.xlsx.load(bytes)
+    const worksheet = workbook.worksheets[0]
 
     // For parseOnly mode, return raw headers and rows for column mapping
     if (parseOnly) {
-      const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][]
+      // Get all rows including headers (row 1 = headers, row 2+ = data)
+      const rawData: string[][] = []
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        const rowData: string[] = []
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          rowData.push(cell.value?.toString() || '')
+        })
+        rawData.push(rowData)
+      })
 
       if (rawData.length < 2) {
         return NextResponse.json(
@@ -152,7 +160,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // Full preview mode - parse as objects and analyze
-    const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[]
+    const headers: string[] = []
+    const firstRow = worksheet.getRow(1)
+    firstRow.eachCell({ includeEmpty: true }, (cell) => {
+      headers.push(cell.value?.toString() || '')
+    })
+
+    const rows: Record<string, unknown>[] = []
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      if (rowNumber === 1) return // Skip header row
+      const rowData: Record<string, unknown> = {}
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const header = headers[colNumber - 1]
+        if (header) {
+          rowData[header] = cell.value
+        }
+      })
+      rows.push(rowData)
+    })
 
     if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
       return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })

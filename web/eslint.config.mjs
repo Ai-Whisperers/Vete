@@ -118,6 +118,7 @@ export default [
       ".next/**",
       "out/**",
       "coverage/**",
+      "playwright-report/**",  // Generated Playwright test reports
       "*.config.js",
       "*.config.mjs",
       "*.config.ts",

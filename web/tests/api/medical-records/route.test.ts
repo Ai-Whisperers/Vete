@@ -10,32 +10,22 @@ import {
   expectError,
   cleanupManager,
   TEST_TENANT_ID,
+  getAuthTokenFromUser,
 } from '@/tests/__helpers__/integration-setup'
 import { GET, POST } from '@/app/api/medical-records/route'
 
 describe('API: /api/medical-records', () => {
   let supabase: SupabaseClient
-  let vetUserId: string
-  let vetProfileId: string
-  let adminUserId: string
-  let adminProfileId: string
-  let ownerUserId: string
-  let ownerProfileId: string
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let adminUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
-    const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vetUser.userId
-    vetProfileId = vetUser.profile.id
-
-    const adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = adminUser.userId
-    adminProfileId = adminUser.profile.id
-
-    const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = ownerUser.userId
-    ownerProfileId = ownerUser.profile.id
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+    adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -54,13 +44,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('returns paginated medical records', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', { authToken })
       const response = await GET(request)
@@ -72,7 +56,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('filters by pet_id', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: record } = await supabase
@@ -80,7 +64,7 @@ describe('API: /api/medical-records', () => {
         .insert({
           tenant_id: TEST_TENANT_ID,
           pet_id: pet.id,
-          performed_by: vetUserId,
+          performed_by: vetUser.userId,
           type: 'consultation',
           title: 'Test Consultation',
         })
@@ -89,13 +73,7 @@ describe('API: /api/medical-records', () => {
 
       if (record) cleanupManager.track('medical_records', record.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/medical-records?pet_id=${pet.id}`,
@@ -108,7 +86,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('filters by type', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: record } = await supabase
@@ -116,7 +94,7 @@ describe('API: /api/medical-records', () => {
         .insert({
           tenant_id: TEST_TENANT_ID,
           pet_id: pet.id,
-          performed_by: vetUserId,
+          performed_by: vetUser.userId,
           type: 'surgery',
           title: 'Test Surgery',
         })
@@ -125,13 +103,7 @@ describe('API: /api/medical-records', () => {
 
       if (record) cleanupManager.track('medical_records', record.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         'http://localhost:3000/api/medical-records?type=surgery',
@@ -146,7 +118,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('enforces tenant isolation', async () => {
-      const otherPet = await createTestPet(supabase, vetProfileId, 'petlife')
+      const otherPet = await createTestPet(supabase, vetUser.profile.id, 'petlife')
       cleanupManager.track('pets', otherPet.id)
 
       const { data: otherRecord } = await supabase
@@ -154,7 +126,7 @@ describe('API: /api/medical-records', () => {
         .insert({
           tenant_id: 'petlife',
           pet_id: otherPet.id,
-          performed_by: vetUserId,
+          performed_by: vetUser.userId,
           type: 'consultation',
           title: 'Other Tenant Record',
         })
@@ -163,13 +135,7 @@ describe('API: /api/medical-records', () => {
 
       if (otherRecord) cleanupManager.track('medical_records', otherRecord.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', { authToken })
       const response = await GET(request)
@@ -190,15 +156,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('requires staff role (vet or admin)', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -212,13 +172,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('validates required fields', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
         method: 'POST',
@@ -231,13 +185,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('validates pet_id UUID format', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
         method: 'POST',
@@ -250,15 +198,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('validates record type enum', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -272,15 +214,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('validates title length', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -294,13 +230,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('returns 404 for non-existent pet', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
         method: 'POST',
@@ -317,16 +247,10 @@ describe('API: /api/medical-records', () => {
     })
 
     it('enforces tenant isolation on pet', async () => {
-      const otherPet = await createTestPet(supabase, vetProfileId, 'petlife')
+      const otherPet = await createTestPet(supabase, vetUser.profile.id, 'petlife')
       cleanupManager.track('pets', otherPet.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
         method: 'POST',
@@ -339,15 +263,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('vet can create medical record successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const recordData = {
@@ -371,21 +289,15 @@ describe('API: /api/medical-records', () => {
       expect(data.type).toBe('consultation')
       expect(data.title).toBe('Consulta General')
       expect(data.tenant_id).toBe(TEST_TENANT_ID)
-      expect(data.performed_by).toBe(vetUserId)
+      expect(data.performed_by).toBe(vetUser.userId)
 
       if (data.id) cleanupManager.track('medical_records', data.id)
     })
 
     it('admin can create medical record successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -402,15 +314,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('creates record with vitals', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const recordData = {
@@ -442,15 +348,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('validates vitals ranges', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -469,15 +369,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('creates audit log entry', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/medical-records', {
@@ -509,13 +403,7 @@ describe('API: /api/medical-records', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious pet_id in query parameter safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "'; DROP TABLE medical_records; --"
       const request = createTestRequest(
@@ -528,13 +416,7 @@ describe('API: /api/medical-records', () => {
     })
 
     it('handles malicious type parameter safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "' OR '1'='1"
       const request = createTestRequest(
@@ -547,15 +429,9 @@ describe('API: /api/medical-records', () => {
     })
 
     it('handles malicious content in POST body safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const malicious = "'; DROP TABLE medical_records; --"
@@ -582,15 +458,9 @@ describe('API: /api/medical-records', () => {
 
   describe('Security: XSS Prevention', () => {
     it('sanitizes XSS in title and notes', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const xss = '<script>alert("xss")</script>'

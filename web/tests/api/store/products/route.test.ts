@@ -268,13 +268,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('requires staff role (vet or admin)', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -287,13 +281,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('validates required field: name', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -306,13 +294,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('validates required field: base_price', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -325,13 +307,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('validates base_price must be positive', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -344,13 +320,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('validates UUID format for category_id', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -367,13 +337,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('vet can create product successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const productData = {
         name: `Test Product ${Date.now()}`,
@@ -406,13 +370,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('admin can create product successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const productData = {
         name: `Admin Product ${Date.now()}`,
@@ -437,13 +395,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('creates product with optional fields', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const productData = {
         name: `Full Product ${Date.now()}`,
@@ -495,13 +447,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('assigns product to creating users tenant', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const productData = {
         name: `Tenant Product ${Date.now()}`,
@@ -526,13 +472,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('defaults is_active to true if not provided', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/products', {
         method: 'POST',
@@ -593,13 +533,7 @@ describe('API: /api/store/products', () => {
     })
 
     it('handles malicious product name in POST safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "'; DROP TABLE store_products; --"
       const request = createTestRequest('http://localhost:3000/api/store/products', {
@@ -620,13 +554,7 @@ describe('API: /api/store/products', () => {
 
   describe('Security: XSS Prevention', () => {
     it('sanitizes XSS attempts in product name', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const xssAttempt = '<script>alert("xss")</script>'
       const request = createTestRequest('http://localhost:3000/api/store/products', {

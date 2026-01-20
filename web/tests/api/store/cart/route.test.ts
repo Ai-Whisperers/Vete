@@ -22,17 +22,15 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/store/cart', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let testProductId: string
+      let testProductId: string
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test user
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
+    ownerUser.userId = owner.userId
+    ownerUser.profile.id = owner.profile.id
 
     // Create test product
     const product = await createTestProduct(supabase, TEST_TENANT_ID, {
@@ -65,10 +63,7 @@ describe('API: /api/store/cart', () => {
 
     it('returns empty cart when no cart exists for authenticated user', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       // Note: GET() doesn't use request parameter, uses fast auth internally
       const response = await GET()
@@ -91,16 +86,16 @@ describe('API: /api/store/cart', () => {
       ]
 
       await supabase.from('store_carts').insert({
-        customer_id: ownerUserId,
+        customer_id: ownerUser.userId,
         tenant_id: TEST_TENANT_ID,
         items: cartItems,
       })
 
-      cleanupManager.track('store_carts', `${ownerUserId}-${TEST_TENANT_ID}`)
+      cleanupManager.track('store_carts', `${ownerUser.userId}-${TEST_TENANT_ID}`)
 
       // Sign in as owner
       await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
+        email: ownerUser.profile.id + '@test.local',
         password: 'test-password-123',
       })
 
@@ -140,16 +135,11 @@ describe('API: /api/store/cart', () => {
 
     it('validates cart items schema', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -168,16 +158,11 @@ describe('API: /api/store/cart', () => {
 
     it('validates quantity is positive', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -198,16 +183,11 @@ describe('API: /api/store/cart', () => {
 
     it('validates quantity does not exceed maximum', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -228,10 +208,7 @@ describe('API: /api/store/cart', () => {
 
     it('saves cart to database for authenticated user', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const cartItems = [
         {
@@ -245,9 +222,7 @@ describe('API: /api/store/cart', () => {
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: cartItems,
         },
@@ -262,20 +237,20 @@ describe('API: /api/store/cart', () => {
       const { data: savedCart } = await supabase
         .from('store_carts')
         .select('items')
-        .eq('customer_id', ownerUserId)
+        .eq('customer_id', ownerUser.userId)
         .eq('tenant_id', TEST_TENANT_ID)
         .single()
 
       expect(savedCart?.items).toHaveLength(1)
       expect(savedCart?.items[0].quantity).toBe(3)
 
-      cleanupManager.track('store_carts', `${ownerUserId}-${TEST_TENANT_ID}`)
+      cleanupManager.track('store_carts', `${ownerUser.userId}-${TEST_TENANT_ID}`)
     })
 
     it('updates existing cart (upsert)', async () => {
       // Create initial cart
       await supabase.from('store_carts').insert({
-        customer_id: ownerUserId,
+        customer_id: ownerUser.userId,
         tenant_id: TEST_TENANT_ID,
         items: [
           {
@@ -288,20 +263,15 @@ describe('API: /api/store/cart', () => {
         ],
       })
 
-      cleanupManager.track('store_carts', `${ownerUserId}-${TEST_TENANT_ID}`)
+      cleanupManager.track('store_carts', `${ownerUser.userId}-${TEST_TENANT_ID}`)
 
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       // Update cart with new quantity
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -322,7 +292,7 @@ describe('API: /api/store/cart', () => {
       const { data: updatedCart } = await supabase
         .from('store_carts')
         .select('items')
-        .eq('customer_id', ownerUserId)
+        .eq('customer_id', ownerUser.userId)
         .eq('tenant_id', TEST_TENANT_ID)
         .single()
 
@@ -342,7 +312,7 @@ describe('API: /api/store/cart', () => {
     it('clears cart from database', async () => {
       // Create cart
       await supabase.from('store_carts').insert({
-        customer_id: ownerUserId,
+        customer_id: ownerUser.userId,
         tenant_id: TEST_TENANT_ID,
         items: [
           {
@@ -355,11 +325,11 @@ describe('API: /api/store/cart', () => {
         ],
       })
 
-      cleanupManager.track('store_carts', `${ownerUserId}-${TEST_TENANT_ID}`)
+      cleanupManager.track('store_carts', `${ownerUser.userId}-${TEST_TENANT_ID}`)
 
       // Sign in as owner
       await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
+        email: ownerUser.profile.id + '@test.local',
         password: 'test-password-123',
       })
 
@@ -372,7 +342,7 @@ describe('API: /api/store/cart', () => {
       const { data: deletedCart } = await supabase
         .from('store_carts')
         .select('items')
-        .eq('customer_id', ownerUserId)
+        .eq('customer_id', ownerUser.userId)
         .eq('tenant_id', TEST_TENANT_ID)
         .single()
 
@@ -383,16 +353,11 @@ describe('API: /api/store/cart', () => {
   describe('POST /api/store/cart (merge)', () => {
     it('validates merge items schema', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -437,10 +402,7 @@ describe('API: /api/store/cart', () => {
 
     it('merges local cart with empty database cart', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const localItems = [
         {
@@ -454,9 +416,7 @@ describe('API: /api/store/cart', () => {
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: localItems,
         },
@@ -473,7 +433,7 @@ describe('API: /api/store/cart', () => {
       await supabase
         .from('store_carts')
         .delete()
-        .eq('customer_id', ownerUserId)
+        .eq('customer_id', ownerUser.userId)
         .eq('tenant_id', TEST_TENANT_ID)
     })
   })
@@ -481,18 +441,13 @@ describe('API: /api/store/cart', () => {
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious item IDs safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousId = "'; DROP TABLE store_carts; --"
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -514,18 +469,13 @@ describe('API: /api/store/cart', () => {
 
     it('handles XSS attempts in item names safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const xssName = '<script>alert("xss")</script>'
 
       const request = createTestRequest('http://localhost:3000/api/store/cart', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -550,7 +500,7 @@ describe('API: /api/store/cart', () => {
         await supabase
           .from('store_carts')
           .delete()
-          .eq('customer_id', ownerUserId)
+          .eq('customer_id', ownerUser.userId)
           .eq('tenant_id', TEST_TENANT_ID)
       } else {
         // Or reject safely
@@ -563,7 +513,7 @@ describe('API: /api/store/cart', () => {
     it('only accesses cart for user tenant', async () => {
       // Create cart in TEST_TENANT_ID
       await supabase.from('store_carts').insert({
-        customer_id: ownerUserId,
+        customer_id: ownerUser.userId,
         tenant_id: TEST_TENANT_ID,
         items: [
           {
@@ -576,11 +526,11 @@ describe('API: /api/store/cart', () => {
         ],
       })
 
-      cleanupManager.track('store_carts', `${ownerUserId}-${TEST_TENANT_ID}`)
+      cleanupManager.track('store_carts', `${ownerUser.userId}-${TEST_TENANT_ID}`)
 
       // Sign in as owner (belongs to TEST_TENANT_ID)
       await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
+        email: ownerUser.profile.id + '@test.local',
         password: 'test-password-123',
       })
 

@@ -22,25 +22,20 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/appointments/slots', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
-
-  beforeAll(async () => {
+          beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
+    ownerUser.userId = owner.userId
+    ownerUser.profile.id = owner.profile.id
 
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vet.userId
-    vetProfileId = vet.profile.id
+    vetUser.userId = vet.userId
+    vetUser.profile.id = vet.profile.id
 
     // Create staff profile for vet (needed for schedules)
-    await createTestStaffProfile(supabase, vetProfileId, TEST_TENANT_ID)
+    await createTestStaffProfile(supabase, vetUser.profile.id, TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -64,17 +59,12 @@ describe('API: /api/appointments/slots', () => {
 
     it('requires clinic parameter', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest(
         'http://localhost:3000/api/appointments/slots?date=2024-12-20',
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -85,17 +75,12 @@ describe('API: /api/appointments/slots', () => {
 
     it('requires date parameter', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -106,10 +91,7 @@ describe('API: /api/appointments/slots', () => {
 
     it('validates date format (YYYY-MM-DD)', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const invalidDates = ['12/20/2024', '2024-12-20T10:00:00', '20-12-2024', 'invalid']
 
@@ -117,9 +99,7 @@ describe('API: /api/appointments/slots', () => {
         const request = createTestRequest(
           `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${invalidDate}`,
           {
-            headers: {
-              Authorization: `Bearer ${session?.session?.access_token}`,
-            },
+            authToken,
           }
         )
 
@@ -143,9 +123,7 @@ describe('API: /api/appointments/slots', () => {
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=2024-12-20`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -156,17 +134,12 @@ describe('API: /api/appointments/slots', () => {
 
     it('allows staff to access any clinic within their tenant', async () => {
       // Sign in as vet (staff role)
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=2024-12-20`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -179,10 +152,7 @@ describe('API: /api/appointments/slots', () => {
 
     it('returns available slots for valid request', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       // Request slots for a future date
       const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -192,9 +162,7 @@ describe('API: /api/appointments/slots', () => {
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${futureDate}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -209,10 +177,7 @@ describe('API: /api/appointments/slots', () => {
 
     it('supports optional service_id filter', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
@@ -222,9 +187,7 @@ describe('API: /api/appointments/slots', () => {
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${futureDate}&service_id=${serviceId}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -237,21 +200,16 @@ describe('API: /api/appointments/slots', () => {
 
     it('supports optional vet_id filter', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0]
 
       const request = createTestRequest(
-        `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${futureDate}&vet_id=${vetProfileId}`,
+        `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${futureDate}&vet_id=${vetUser.profile.id}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -266,10 +224,7 @@ describe('API: /api/appointments/slots', () => {
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious clinic parameter safely', async () => {
       // Sign in as vet (staff - can access any clinic)
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousInputs = [
         "'; DROP TABLE appointments; --",
@@ -281,9 +236,7 @@ describe('API: /api/appointments/slots', () => {
         const request = createTestRequest(
           `http://localhost:3000/api/appointments/slots?clinic=${encodeURIComponent(malicious)}&date=2024-12-20`,
           {
-            headers: {
-              Authorization: `Bearer ${session?.session?.access_token}`,
-            },
+            authToken,
           }
         )
 
@@ -297,10 +250,7 @@ describe('API: /api/appointments/slots', () => {
 
     it('handles malicious date parameter safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousInputs = [
         "2024-12-20'; DROP TABLE slots; --",
@@ -312,9 +262,7 @@ describe('API: /api/appointments/slots', () => {
         const request = createTestRequest(
           `http://localhost:3000/api/appointments/slots?clinic=${TEST_TENANT_ID}&date=${encodeURIComponent(malicious)}`,
           {
-            headers: {
-              Authorization: `Bearer ${session?.session?.access_token}`,
-            },
+            authToken,
           }
         )
 

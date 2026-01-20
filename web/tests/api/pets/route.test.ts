@@ -18,27 +18,21 @@ import {
   expectResponse,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/pets', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
-    const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
-
-    const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vet.userId
-    vetProfileId = vet.profile.id
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -60,7 +54,7 @@ describe('API: /api/pets', () => {
 
     it('enforces tenant isolation - owner sees only own pets', async () => {
       // Create pet for owner in TEST_TENANT_ID
-      const pet1 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+      const pet1 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
         name: 'Owner Pet 1',
       })
 
@@ -70,16 +64,11 @@ describe('API: /api/pets', () => {
         name: 'Other Clinic Pet',
       })
 
-      // Sign in as first owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      // Get auth token for first owner
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -92,7 +81,7 @@ describe('API: /api/pets', () => {
 
     it('allows staff to see all clinic pets', async () => {
       // Create pets from different owners in same tenant
-      const pet1 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+      const pet1 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
         name: 'Pet 1',
       })
 
@@ -101,16 +90,11 @@ describe('API: /api/pets', () => {
         name: 'Pet 2',
       })
 
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      // Get auth token for vet
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -123,22 +107,17 @@ describe('API: /api/pets', () => {
     })
 
     it('supports search filtering', async () => {
-      await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+      await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
         name: 'Fluffy',
       })
-      await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+      await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
         name: 'Max',
       })
 
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets?search=fluffy', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -165,16 +144,11 @@ describe('API: /api/pets', () => {
     })
 
     it('validates required fields', async () => {
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           // Missing name
           species: 'dog',
@@ -187,16 +161,11 @@ describe('API: /api/pets', () => {
     })
 
     it('validates species enum', async () => {
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           name: 'Test Pet',
           species: 'invalid_species', // Invalid enum value
@@ -209,16 +178,11 @@ describe('API: /api/pets', () => {
     })
 
     it('creates pet with valid data', async () => {
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           name: 'New Pet',
           species: 'dog',
@@ -233,7 +197,7 @@ describe('API: /api/pets', () => {
       expect(body.data.name).toBe('New Pet')
       expect(body.data.species).toBe('dog')
       expect(body.data.breed).toBe('Labrador')
-      expect(body.data.owner_id).toBe(ownerProfileId)
+      expect(body.data.owner_id).toBe(ownerUser.profile.id)
       expect(body.data.tenant_id).toBe(TEST_TENANT_ID)
 
       // Track for cleanup
@@ -241,16 +205,11 @@ describe('API: /api/pets', () => {
     })
 
     it('prevents tenant_id override', async () => {
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/pets', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           name: 'Pet with Wrong Tenant',
           species: 'cat',
@@ -273,14 +232,11 @@ describe('API: /api/pets', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious search input safely', async () => {
-      await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+      await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
         name: 'Normal Pet',
       })
 
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousInputs = [
         "'; DROP TABLE pets; --",
@@ -293,9 +249,7 @@ describe('API: /api/pets', () => {
         const request = createTestRequest(
           `http://localhost:3000/api/pets?search=${encodeURIComponent(malicious)}`,
           {
-            headers: {
-              Authorization: `Bearer ${session?.session?.access_token}`,
-            },
+            authToken,
           }
         )
 

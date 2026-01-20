@@ -22,29 +22,23 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/inventory/adjust', () => {
   let supabase: SupabaseClient
-  let vetUserId: string
-  let vetProfileId: string
-  let adminUserId: string
-  let adminProfileId: string
-  let ownerUserId: string
-  let ownerProfileId: string
-  let testProductId: string
+              let testProductId: string
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vet.userId
-    vetProfileId = vet.profile.id
+    vetUser.userId = vet.userId
+    vetUser.profile.id = vet.profile.id
 
     const admin = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = admin.userId
-    adminProfileId = admin.profile.id
+    adminUser.userId = admin.userId
+    adminUser.profile.id = admin.profile.id
 
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
+    ownerUser.userId = owner.userId
+    ownerUser.profile.id = owner.profile.id
 
     // Create test product with inventory
     const product = await createTestProduct(supabase, TEST_TENANT_ID, {
@@ -83,16 +77,11 @@ describe('API: /api/inventory/adjust', () => {
 
     it('requires vet or admin role', async () => {
       // Sign in as owner (not allowed)
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 80,
@@ -107,16 +96,11 @@ describe('API: /api/inventory/adjust', () => {
 
     it('validates required field: product_id', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           // Missing product_id
           new_quantity: 80,
@@ -131,16 +115,11 @@ describe('API: /api/inventory/adjust', () => {
 
     it('validates required field: new_quantity', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           // Missing new_quantity
@@ -155,16 +134,11 @@ describe('API: /api/inventory/adjust', () => {
 
     it('validates new_quantity is non-negative', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: -10, // Invalid negative
@@ -179,16 +153,11 @@ describe('API: /api/inventory/adjust', () => {
 
     it('validates required field: reason', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 80,
@@ -203,10 +172,7 @@ describe('API: /api/inventory/adjust', () => {
 
     it('rejects invalid JSON body', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Create request with invalid JSON
       const request = new Request('http://localhost:3000/api/inventory/adjust', {
@@ -225,10 +191,7 @@ describe('API: /api/inventory/adjust', () => {
 
     it('adjusts inventory correctly (physical count decrease)', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Get current stock
       const { data: currentInventory } = await supabase
@@ -241,9 +204,7 @@ describe('API: /api/inventory/adjust', () => {
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 80,
@@ -274,10 +235,7 @@ describe('API: /api/inventory/adjust', () => {
 
     it('adjusts inventory correctly (increase for return)', async () => {
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       // Get current stock
       const { data: currentInventory } = await supabase
@@ -290,9 +248,7 @@ describe('API: /api/inventory/adjust', () => {
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: oldStock + 30, // Increase by 30
@@ -314,18 +270,13 @@ describe('API: /api/inventory/adjust', () => {
 
     it('returns error for non-existent product', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const fakeProductId = 'product-does-not-exist'
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: fakeProductId,
           new_quantity: 50,
@@ -340,10 +291,7 @@ describe('API: /api/inventory/adjust', () => {
 
     it('creates adjustment transaction record', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const beforeTransactionCount = await supabase
         .from('inventory_adjustments')
@@ -352,9 +300,7 @@ describe('API: /api/inventory/adjust', () => {
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 90,
@@ -379,10 +325,7 @@ describe('API: /api/inventory/adjust', () => {
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious product_id safely', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousInputs = [
         "'; DROP TABLE store_inventory; --",
@@ -394,9 +337,7 @@ describe('API: /api/inventory/adjust', () => {
       for (const malicious of maliciousInputs) {
         const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
           body: {
             product_id: malicious,
             new_quantity: 50,
@@ -413,10 +354,7 @@ describe('API: /api/inventory/adjust', () => {
 
     it('handles malicious reason safely', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousInputs = [
         "'; DROP TABLE inventory_adjustments; --",
@@ -426,9 +364,7 @@ describe('API: /api/inventory/adjust', () => {
       for (const malicious of maliciousInputs) {
         const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
           body: {
             product_id: testProductId,
             new_quantity: 50,
@@ -445,18 +381,13 @@ describe('API: /api/inventory/adjust', () => {
 
     it('handles malicious notes safely', async () => {
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousNotes = "'; DELETE FROM inventory_adjustments WHERE '1'='1"
 
       const request = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 50,
@@ -484,18 +415,13 @@ describe('API: /api/inventory/adjust', () => {
       // The RPC function uses row-level locking (FOR UPDATE) to prevent race conditions
 
       // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Simulate multiple concurrent adjustments
       // In real scenario, these would race, but atomic function prevents issues
       const request1 = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 60,
@@ -505,9 +431,7 @@ describe('API: /api/inventory/adjust', () => {
 
       const request2 = createTestRequest('http://localhost:3000/api/inventory/adjust', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           product_id: testProductId,
           new_quantity: 70,

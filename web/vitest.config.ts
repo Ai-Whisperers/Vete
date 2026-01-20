@@ -4,19 +4,23 @@ import { resolve } from 'path'
 import { config as loadDotenv } from 'dotenv'
 import { existsSync } from 'fs'
 
-// Load environment variables from .env.local (priority) or .env (fallback)
+// Load environment variables (priority order: .env.test > .env.local > .env)
 // Must load BEFORE Vitest runs to ensure process.env has values
+const envTestPath = resolve(__dirname, '.env.test')
 const envLocalPath = resolve(__dirname, '.env.local')
 const envPath = resolve(__dirname, '.env')
 
-if (existsSync(envLocalPath)) {
+if (existsSync(envTestPath)) {
+  loadDotenv({ path: envTestPath })
+  console.log('[Vitest Config] Loaded environment from .env.test')
+} else if (existsSync(envLocalPath)) {
   loadDotenv({ path: envLocalPath })
   console.log('[Vitest Config] Loaded environment from .env.local')
 } else if (existsSync(envPath)) {
   loadDotenv({ path: envPath })
   console.log('[Vitest Config] Loaded environment from .env')
 } else {
-  console.warn('[Vitest Config] No .env.local or .env found - tests may fail')
+  console.warn('[Vitest Config] No .env.test, .env.local or .env found - tests may fail')
 }
 
 export default defineConfig(() => ({

@@ -1,6 +1,26 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { config as loadDotenv } from 'dotenv'
+import { existsSync } from 'fs'
+
+// Load environment variables for integration tests
+const envTestPath = resolve(__dirname, '.env.test')
+const envLocalPath = resolve(__dirname, '.env.local')
+const envPath = resolve(__dirname, '.env')
+
+if (existsSync(envTestPath)) {
+  loadDotenv({ path: envTestPath })
+  console.log('[Integration Test Config] Loaded environment from .env.test')
+} else if (existsSync(envLocalPath)) {
+  loadDotenv({ path: envLocalPath })
+  console.log('[Integration Test Config] Loaded environment from .env.local')
+} else if (existsSync(envPath)) {
+  loadDotenv({ path: envPath })
+  console.log('[Integration Test Config] Loaded environment from .env')
+} else {
+  console.warn('[Integration Test Config] No .env file found')
+}
 
 export default defineConfig({
   plugins: [react()],

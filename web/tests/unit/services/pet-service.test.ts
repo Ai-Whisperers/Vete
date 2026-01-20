@@ -17,7 +17,6 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { PetService } from '@/lib/services/pet-service';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Pet } from '@/lib/types/entities/pet';
 
 // =============================================================================
@@ -273,10 +272,11 @@ describe('PetService', () => {
     it('should require species field', async () => {
       const invalidData = {
         name: 'Buddy',
-        species: '' as any,
+        species: '',
       };
 
-      const result = await petService.create('owner-1', 'adris', invalidData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await petService.create('owner-1', 'adris', invalidData as any);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -579,7 +579,7 @@ describe('PetService', () => {
       const mockFile = new File(['photo content'], 'max-photo.jpg', { type: 'image/jpeg' });
       const publicUrl = 'https://storage.supabase.co/pets/owner-1/pet-1/123456.jpg';
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1' },
         error: null,
       });
@@ -592,8 +592,6 @@ describe('PetService', () => {
         getPublicUrl: mockGetPublicUrl,
       });
 
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
-
       const result = await petService.uploadPhoto('pet-1', 'owner-1', mockFile);
 
       expect(result.success).toBe(true);
@@ -605,7 +603,7 @@ describe('PetService', () => {
     it('should deny upload when user is not owner', async () => {
       const mockFile = new File(['photo'], 'photo.jpg', { type: 'image/jpeg' });
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -619,7 +617,7 @@ describe('PetService', () => {
     it('should handle storage upload errors', async () => {
       const mockFile = new File(['photo'], 'photo.jpg', { type: 'image/jpeg' });
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1' },
         error: null,
       });
@@ -642,7 +640,7 @@ describe('PetService', () => {
       const mockFile = new File(['photo'], 'my-pet.png', { type: 'image/png' });
       const publicUrl = 'https://storage.supabase.co/pets/owner-1/pet-1/123456.png';
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1' },
         error: null,
       });
@@ -654,8 +652,6 @@ describe('PetService', () => {
         upload: mockUpload,
         getPublicUrl: mockGetPublicUrl,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       await petService.uploadPhoto('pet-1', 'owner-1', mockFile);
 
@@ -669,7 +665,7 @@ describe('PetService', () => {
       const mockFile = new File(['photo'], 'photo.jpg', { type: 'image/jpeg' });
       const publicUrl = 'https://storage.supabase.co/pets/owner-1/pet-1/123456.jpg';
 
-      mockSupabase._mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', owner_id: 'owner-1' },
         error: null,
       });
@@ -681,8 +677,6 @@ describe('PetService', () => {
         upload: mockUpload,
         getPublicUrl: mockGetPublicUrl,
       });
-
-      mockSupabase._mocks.eq.mockResolvedValueOnce({ data: null, error: null });
 
       await petService.uploadPhoto('pet-1', 'owner-1', mockFile);
 
@@ -702,7 +696,7 @@ describe('PetService', () => {
   describe('listWithOwners', () => {
     it('should list pets with owner information', async () => {
       const petsWithOwners = [mockPetWithOwner];
-      mockSupabase._mocks.order.mockResolvedValue({ data: petsWithOwners, error: null });
+      mockSupabase._mocks.setMockData({ data: petsWithOwners, error: null });
 
       const result = await petService.listWithOwners('adris', {});
 
@@ -714,7 +708,7 @@ describe('PetService', () => {
 
     it('should filter by species in listWithOwners', async () => {
       const dogPets = [{ ...mockPetWithOwner, species: 'dog' }];
-      mockSupabase._mocks.order.mockResolvedValue({ data: dogPets, error: null });
+      mockSupabase._mocks.setMockData({ data: dogPets, error: null });
 
       const result = await petService.listWithOwners('adris', { species: 'dog' });
 
@@ -724,7 +718,7 @@ describe('PetService', () => {
 
     it('should search by name in listWithOwners', async () => {
       const searchResults = [mockPetWithOwner];
-      mockSupabase._mocks.order.mockResolvedValue({ data: searchResults, error: null });
+      mockSupabase._mocks.setMockData({ data: searchResults, error: null });
 
       const result = await petService.listWithOwners('adris', { query: 'Max' });
 
@@ -734,7 +728,7 @@ describe('PetService', () => {
 
     it('should only return active pets in listWithOwners', async () => {
       const activePets = [mockPetWithOwner];
-      mockSupabase._mocks.order.mockResolvedValue({ data: activePets, error: null });
+      mockSupabase._mocks.setMockData({ data: activePets, error: null });
 
       await petService.listWithOwners('adris', {});
 
@@ -742,7 +736,7 @@ describe('PetService', () => {
     });
 
     it('should handle database errors in listWithOwners', async () => {
-      mockSupabase._mocks.order.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: { message: 'Query timeout' },
       });

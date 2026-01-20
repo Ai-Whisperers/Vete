@@ -15,8 +15,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { InvoiceService } from '@/lib/services';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Invoice, Payment, Refund } from '@/lib/types/entities/invoice';
+import { createMockSupabase } from '../../__helpers__/mocks';
 
 // =============================================================================
 // MOCK SETUP
@@ -119,79 +119,7 @@ const mockRefund: Refund = {
   created_at: '2026-01-17T14:00:00Z',
 };
 
-// Create mock Supabase client
-const createMockSupabase = () => {
-  const mockFrom = vi.fn();
-  const mockRpc = vi.fn();
-  const mockSelect = vi.fn();
-  const mockInsert = vi.fn();
-  const mockUpdate = vi.fn();
-  const mockDelete = vi.fn();
-  const mockEq = vi.fn();
-  const mockIs = vi.fn();
-  const mockIn = vi.fn();
-  const mockLt = vi.fn();
-  const mockGte = vi.fn();
-  const mockLte = vi.fn();
-  const mockOrder = vi.fn();
-  const mockRange = vi.fn();
-  const mockSingle = vi.fn();
-
-  // Chain methods properly
-  mockFrom.mockReturnValue({
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdate,
-    delete: mockDelete,
-  });
-
-  const chainMethods = {
-    eq: mockEq,
-    is: mockIs,
-    in: mockIn,
-    lt: mockLt,
-    gte: mockGte,
-    lte: mockLte,
-    order: mockOrder,
-    range: mockRange,
-    single: mockSingle,
-  };
-
-  mockSelect.mockReturnValue(chainMethods);
-  mockInsert.mockReturnValue({ ...chainMethods, select: mockSelect });
-  mockUpdate.mockReturnValue({ ...chainMethods, select: mockSelect });
-  mockDelete.mockReturnValue(chainMethods);
-  mockEq.mockReturnValue(chainMethods);
-  mockIs.mockReturnValue(chainMethods);
-  mockIn.mockReturnValue(chainMethods);
-  mockLt.mockReturnValue(chainMethods);
-  mockGte.mockReturnValue(chainMethods);
-  mockLte.mockReturnValue(chainMethods);
-  mockOrder.mockReturnValue(chainMethods);
-  mockRange.mockReturnValue(chainMethods);
-
-  return {
-    from: mockFrom,
-    rpc: mockRpc,
-    mocks: {
-      from: mockFrom,
-      rpc: mockRpc,
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDelete,
-      eq: mockEq,
-      is: mockIs,
-      in: mockIn,
-      lt: mockLt,
-      gte: mockGte,
-      lte: mockLte,
-      order: mockOrder,
-      range: mockRange,
-      single: mockSingle,
-    },
-  } as unknown as SupabaseClient & { mocks: any };
-};
+// Using centralized mock from tests/__helpers__/mocks.ts
 
 // =============================================================================
 // TESTS
@@ -199,7 +127,7 @@ const createMockSupabase = () => {
 
 describe('InvoiceService', () => {
   let service: InvoiceService;
-  let mockSupabase: SupabaseClient & { mocks: any };
+  let mockSupabase: ReturnType<typeof createMockSupabase>;
 
   beforeEach(() => {
     mockSupabase = createMockSupabase();
@@ -213,7 +141,7 @@ describe('InvoiceService', () => {
 
   describe('list', () => {
     it('should return invoices for a tenant (staff view)', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: [mockInvoiceWithDetails],
         error: null,
         count: 1,
@@ -232,13 +160,13 @@ describe('InvoiceService', () => {
 
     it('should filter invoices for pet owner (non-staff)', async () => {
       // First query for owner pets
-      mockSupabase.mocks.select.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: [{ id: 'pet-1' }],
         error: null,
       });
 
       // Second query for invoices
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: [mockInvoiceWithDetails],
         error: null,
         count: 1,
@@ -248,12 +176,12 @@ describe('InvoiceService', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(mockSupabase.mocks.in).toHaveBeenCalledWith('pet_id', ['pet-1']);
+        expect(mockSupabase._mocks.in).toHaveBeenCalledWith('pet_id', ['pet-1']);
       }
     });
 
     it('should return empty list when owner has no pets', async () => {
-      mockSupabase.mocks.select.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: [],
         error: null,
       });
@@ -268,7 +196,7 @@ describe('InvoiceService', () => {
     });
 
     it('should filter by status', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: [mockInvoiceWithDetails],
         error: null,
         count: 1,
@@ -276,11 +204,11 @@ describe('InvoiceService', () => {
 
       await service.list('adris', { status: 'paid' }, 'user-1', true);
 
-      expect(mockSupabase.mocks.eq).toHaveBeenCalledWith('status', 'paid');
+      expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('status', 'paid');
     });
 
     it('should filter by pet_id', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: [mockInvoiceWithDetails],
         error: null,
         count: 1,
@@ -288,11 +216,11 @@ describe('InvoiceService', () => {
 
       await service.list('adris', { petId: 'pet-1' }, 'user-1', true);
 
-      expect(mockSupabase.mocks.eq).toHaveBeenCalledWith('pet_id', 'pet-1');
+      expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('pet_id', 'pet-1');
     });
 
     it('should apply pagination', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: [mockInvoiceWithDetails],
         error: null,
         count: 50,
@@ -300,7 +228,7 @@ describe('InvoiceService', () => {
 
       const result = await service.list('adris', { page: 2, limit: 10 }, 'user-1', true);
 
-      expect(mockSupabase.mocks.range).toHaveBeenCalledWith(10, 19);
+      expect(mockSupabase._mocks.range).toHaveBeenCalledWith(10, 19);
       if (result.success) {
         expect(result.data.page).toBe(2);
         expect(result.data.limit).toBe(10);
@@ -308,7 +236,7 @@ describe('InvoiceService', () => {
     });
 
     it('should handle database errors', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: { message: 'Database error', code: '42P01' },
       });
@@ -328,7 +256,7 @@ describe('InvoiceService', () => {
 
   describe('getById', () => {
     it('should return invoice with full details', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: mockInvoiceWithDetails,
         error: null,
       });
@@ -344,7 +272,7 @@ describe('InvoiceService', () => {
     });
 
     it('should enforce owner access control', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: { ...mockInvoiceWithDetails, owner_id: 'different-owner' },
         error: null,
       });
@@ -358,7 +286,7 @@ describe('InvoiceService', () => {
     });
 
     it('should allow staff to view any invoice', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: mockInvoiceWithDetails,
         error: null,
       });
@@ -369,7 +297,7 @@ describe('InvoiceService', () => {
     });
 
     it('should handle invoice not found', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -390,25 +318,25 @@ describe('InvoiceService', () => {
   describe('create', () => {
     it('should create invoice with items successfully', async () => {
       // Mock pet lookup
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' },
         error: null,
       });
 
       // Mock RPC for invoice number
-      mockSupabase.mocks.rpc.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: 'INV-2026-001',
         error: null,
       });
 
       // Mock invoice insert
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockInvoice,
         error: null,
       });
 
       // Mock items insert
-      mockSupabase.mocks.insert.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -434,7 +362,7 @@ describe('InvoiceService', () => {
 
     it('should handle idempotent requests', async () => {
       // Mock existing invoice with same idempotency key
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockInvoice,
         error: null,
       });
@@ -455,6 +383,7 @@ describe('InvoiceService', () => {
       const result = await service.create('adris', 'user-1', {
         pet_id: '',
         items: [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       expect(result.success).toBe(false);
@@ -476,7 +405,7 @@ describe('InvoiceService', () => {
     });
 
     it('should validate pet belongs to tenant', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: { message: 'Not found' },
       });
@@ -493,22 +422,24 @@ describe('InvoiceService', () => {
     });
 
     it('should calculate totals correctly with discounts', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' },
         error: null,
       });
 
-      mockSupabase.mocks.rpc.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: 'INV-2026-001',
         error: null,
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let capturedInvoice: any;
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockInvoice,
         error: null,
       });
-      mockSupabase.mocks.insert.mockImplementationOnce((data: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockSupabase._mocks.insert.mockImplementationOnce((data: any) => {
         capturedInvoice = data;
         return Promise.resolve({ data: null, error: null });
       });
@@ -539,22 +470,22 @@ describe('InvoiceService', () => {
 
   describe('update', () => {
     it('should allow full edit for draft invoices', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'draft', tenant_id: 'adris' },
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { ...mockInvoice, tax_rate: 10 },
         error: null,
       });
 
-      mockSupabase.mocks.delete.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
 
-      mockSupabase.mocks.insert.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -570,12 +501,12 @@ describe('InvoiceService', () => {
     });
 
     it('should restrict edits for sent invoices', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'sent', tenant_id: 'adris' },
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockInvoice,
         error: null,
       });
@@ -589,7 +520,7 @@ describe('InvoiceService', () => {
     });
 
     it('should reject invalid updates for sent invoices', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'sent', tenant_id: 'adris' },
         error: null,
       });
@@ -605,7 +536,7 @@ describe('InvoiceService', () => {
     });
 
     it('should validate tenant access', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'draft', tenant_id: 'different-tenant' },
         error: null,
       });
@@ -627,17 +558,17 @@ describe('InvoiceService', () => {
 
   describe('delete', () => {
     it('should hard delete draft invoices', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'draft', invoice_number: 'INV-001', tenant_id: 'adris' },
         error: null,
       });
 
-      mockSupabase.mocks.delete.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
 
-      mockSupabase.mocks.delete.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -652,12 +583,12 @@ describe('InvoiceService', () => {
     });
 
     it('should void sent invoices', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { id: 'inv-1', status: 'sent', invoice_number: 'INV-001', tenant_id: 'adris' },
         error: null,
       });
 
-      mockSupabase.mocks.update.mockResolvedValueOnce({
+      mockSupabase._mocks.update.mockResolvedValueOnce({
         data: null,
         error: null,
       });
@@ -678,7 +609,7 @@ describe('InvoiceService', () => {
 
   describe('recordPayment', () => {
     it('should record payment and update invoice', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: {
           id: 'inv-1',
           tenant_id: 'adris',
@@ -690,12 +621,12 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockPayment,
         error: null,
       });
 
-      mockSupabase.mocks.update.mockResolvedValueOnce({
+      mockSupabase._mocks.update.mockResolvedValueOnce({
         data: null,
         error: null,
       });
@@ -726,7 +657,7 @@ describe('InvoiceService', () => {
     });
 
     it('should prevent overpayment', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: {
           id: 'inv-1',
           tenant_id: 'adris',
@@ -753,7 +684,7 @@ describe('InvoiceService', () => {
 
   describe('getPayments', () => {
     it('should return all payments for invoice', async () => {
-      mockSupabase.mocks.order.mockResolvedValue({
+      mockSupabase._mocks.order.mockResolvedValue({
         data: [mockPayment],
         error: null,
       });
@@ -770,7 +701,7 @@ describe('InvoiceService', () => {
 
   describe('refundPayment', () => {
     it('should process refund and update invoice', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: {
           id: 'pay-1',
           tenant_id: 'adris',
@@ -781,17 +712,17 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: mockRefund,
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { total: 165000, amount_paid: 165000 },
         error: null,
       });
 
-      mockSupabase.mocks.update.mockResolvedValueOnce({
+      mockSupabase._mocks.update.mockResolvedValueOnce({
         data: null,
         error: null,
       });
@@ -820,7 +751,7 @@ describe('InvoiceService', () => {
     });
 
     it('should prevent refund exceeding payment amount', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: {
           id: 'pay-1',
           tenant_id: 'adris',
@@ -846,7 +777,7 @@ describe('InvoiceService', () => {
 
   describe('sendInvoice', () => {
     it('should mark invoice as sent', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: { ...mockInvoice, status: 'sent' },
         error: null,
       });
@@ -860,7 +791,7 @@ describe('InvoiceService', () => {
     });
 
     it('should handle already sent invoice', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: null,
         error: null,
       });
@@ -876,12 +807,12 @@ describe('InvoiceService', () => {
 
   describe('markAsPaid', () => {
     it('should mark invoice as paid', async () => {
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { total: 165000 },
         error: null,
       });
 
-      mockSupabase.mocks.single.mockResolvedValueOnce({
+      mockSupabase._mocks.setMockData({
         data: { ...mockInvoice, status: 'paid', amount_paid: 165000, amount_due: 0 },
         error: null,
       });
@@ -897,7 +828,7 @@ describe('InvoiceService', () => {
 
   describe('voidInvoice', () => {
     it('should void invoice', async () => {
-      mockSupabase.mocks.single.mockResolvedValue({
+      mockSupabase._mocks.setMockData({
         data: { ...mockInvoice, status: 'void' },
         error: null,
       });
@@ -917,7 +848,7 @@ describe('InvoiceService', () => {
 
   describe('getOverdueInvoices', () => {
     it('should return overdue invoices', async () => {
-      mockSupabase.mocks.order.mockResolvedValue({
+      mockSupabase._mocks.order.mockResolvedValue({
         data: [mockInvoiceWithDetails],
         error: null,
       });
@@ -928,7 +859,7 @@ describe('InvoiceService', () => {
       if (result.success) {
         expect(result.data).toHaveLength(1);
       }
-      expect(mockSupabase.mocks.eq).toHaveBeenCalledWith('status', 'sent');
+      expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('status', 'sent');
     });
   });
 
@@ -937,7 +868,7 @@ describe('InvoiceService', () => {
       const today = new Date().toISOString().split('T')[0];
       const pastDue = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      mockSupabase.mocks.is.mockResolvedValue({
+      mockSupabase._mocks.is.mockResolvedValue({
         data: [
           { total: 100000, status: 'paid', amount_due: 0, due_date: today, paid_at: today },
           { total: 200000, status: 'paid', amount_due: 0, due_date: today, paid_at: today },
@@ -960,7 +891,7 @@ describe('InvoiceService', () => {
     });
 
     it('should handle period with no invoices', async () => {
-      mockSupabase.mocks.is.mockResolvedValue({
+      mockSupabase._mocks.is.mockResolvedValue({
         data: [],
         error: null,
       });

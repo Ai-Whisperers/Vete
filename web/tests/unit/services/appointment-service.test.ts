@@ -14,8 +14,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AppointmentService } from '@/lib/services';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Appointment, CreateAppointmentInput } from '@/lib/types/entities/appointment';
+import { createMockSupabase } from '../../__helpers__/mocks';
 
 // =============================================================================
 // MOCK SETUP
@@ -37,7 +37,7 @@ const mockAppointment: Appointment = {
   updated_at: '2026-01-15T12:00:00Z',
 };
 
-const mockAppointmentWithDetails = {
+const _mockAppointmentWithDetails = {
   ...mockAppointment,
   pet: {
     id: 'pet-1',
@@ -64,117 +64,7 @@ const mockAppointmentWithDetails = {
   },
 };
 
-// Create mock Supabase client
-const createMockSupabase = () => {
-  const mockFrom = vi.fn();
-  const mockRpc = vi.fn();
-  const mockSelect = vi.fn();
-  const mockInsert = vi.fn();
-  const mockUpdate = vi.fn();
-  const mockEq = vi.fn();
-  const mockIs = vi.fn();
-  const mockGte = vi.fn();
-  const mockLte = vi.fn();
-  const mockNot = vi.fn();
-  const mockOr = vi.fn();
-  const mockOrder = vi.fn();
-  const mockLimit = vi.fn();
-  const mockSingle = vi.fn();
-
-  // Chain methods properly
-  mockFrom.mockReturnValue({
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdate,
-  });
-
-  mockSelect.mockReturnValue({
-    eq: mockEq,
-    is: mockIs,
-    gte: mockGte,
-    lte: mockLte,
-    not: mockNot,
-    or: mockOr,
-    order: mockOrder,
-    limit: mockLimit,
-    single: mockSingle,
-  });
-
-  mockEq.mockReturnValue({
-    eq: mockEq,
-    is: mockIs,
-    gte: mockGte,
-    lte: mockLte,
-    not: mockNot,
-    or: mockOr,
-    order: mockOrder,
-    limit: mockLimit,
-    single: mockSingle,
-    select: mockSelect,
-  });
-
-  mockIs.mockReturnValue({
-    eq: mockEq,
-    is: mockIs,
-    gte: mockGte,
-    lte: mockLte,
-    not: mockNot,
-    or: mockOr,
-    order: mockOrder,
-    limit: mockLimit,
-    single: mockSingle,
-  });
-
-  mockOrder.mockReturnValue({
-    eq: mockEq,
-    is: mockIs,
-    gte: mockGte,
-    lte: mockLte,
-    limit: mockLimit,
-  });
-
-  mockLimit.mockReturnValue({
-    then: vi.fn((cb) => cb({ data: [mockAppointmentWithDetails], error: null })),
-  });
-
-  mockSingle.mockReturnValue({
-    then: vi.fn((cb) => cb({ data: mockAppointmentWithDetails, error: null })),
-  });
-
-  mockInsert.mockReturnValue({
-    select: mockSelect,
-  });
-
-  mockUpdate.mockReturnValue({
-    eq: mockEq,
-  });
-
-  mockRpc.mockResolvedValue({
-    data: [
-      { slot_time: '10:00', is_available: true },
-      { slot_time: '10:30', is_available: false },
-      { slot_time: '11:00', is_available: true },
-    ],
-    error: null,
-  });
-
-  return {
-    from: mockFrom,
-    rpc: mockRpc,
-    _mocks: {
-      from: mockFrom,
-      rpc: mockRpc,
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      eq: mockEq,
-      is: mockIs,
-      order: mockOrder,
-      limit: mockLimit,
-      single: mockSingle,
-    },
-  } as unknown as SupabaseClient;
-};
+// Using centralized mock from tests/__helpers__/mocks.ts
 
 // =============================================================================
 // TESTS

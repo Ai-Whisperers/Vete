@@ -60,7 +60,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return cronAuth.errorResponse ?? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient('service_role')
 
   try {
     // 1. Get all tenants with products

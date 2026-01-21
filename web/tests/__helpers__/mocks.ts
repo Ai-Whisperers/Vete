@@ -122,6 +122,16 @@ export const createMockSupabase = () => {
   mockMaybeSingle.mockReturnValue(queryBuilderMock);
 
   mockFrom.mockReturnValue(queryBuilderMock);
+  
+  // Make mockRpc thenable and queue-aware (for RPC calls like generate_invoice_number)
+  mockRpc.mockImplementation(() => {
+    return {
+      then: function(resolve: (value: any) => any) {
+        const dataToUse = mockDataQueue.length > 0 ? mockDataQueue.shift() : mockData;
+        return Promise.resolve(dataToUse).then(resolve);
+      }
+    };
+  });
 
   return {
     from: mockFrom,

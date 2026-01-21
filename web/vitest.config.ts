@@ -74,15 +74,15 @@ export default defineConfig(() => ({
     reporters: ['verbose'],
 
     // Pool configuration for parallel execution
-    pool: 'threads',
+    // Run sequentially to avoid Supabase rate limits on auth operations
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        maxThreads: 4, // Limit parallel threads to prevent OOM
-        minThreads: 1,
+      forks: {
+        singleFork: true, // Force sequential execution
       },
     },
     isolate: true,
-    maxConcurrency: 4, // Limit concurrent tests
+    maxConcurrency: 1, // One test at a time
 
     // Sequence configuration
     sequence: {

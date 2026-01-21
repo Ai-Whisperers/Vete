@@ -155,6 +155,7 @@ export async function setupIntegrationTest(): Promise<SupabaseClient> {
  * - Runs cleanup with retry logic
  * - Resets factory configuration
  * - Resets ID generator
+ * - Clears token cache
  */
 export async function cleanupIntegrationTest(): Promise<void> {
   // Run cleanup with retry for FK constraints
@@ -170,6 +171,9 @@ export async function cleanupIntegrationTest(): Promise<void> {
 
   // Clear singleton
   serviceRoleClient = null
+  
+  // Clear token cache (defined near getAuthToken function)
+  tokenCache.clear()
 }
 
 // =============================================================================
@@ -352,6 +356,21 @@ export async function createTestPet(
     birth_date: string
   }> = {}
 ): Promise<{ id: string; name: string; species: string }> {
+  // Verify owner profile exists before creating pet
+  const { data: ownerProfile, error: ownerError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', ownerId)
+    .single()
+  
+  if (ownerError || !ownerProfile) {
+    throw new Error(
+      `[Integration Test] Cannot create pet: owner profile ${ownerId} does not exist. ` +
+      `Error: ${ownerError?.message || 'Profile not found'}. ` +
+      `This usually means the profile creation trigger hasn't completed yet.`
+    )
+  }
+  
   const petId = idGenerator.generate('pet')
 
   const petData = {
@@ -746,10 +765,22 @@ export async function createTestPurchaseOrderItem(
  * @param password - User password (default: 'test-password-123')
  * @returns Access token for Authorization header
  */
+// Token cache to avoid re-authenticating the same user multiple times
+const tokenCache = new Map<string, string>()
+
 export async function getAuthToken(
   email: string,
   password: string = 'test-password-123'
 ): Promise<string> {
+  // Check cache first
+  const cached = tokenCache.get(email)
+  if (cached) {
+    return cached
+  }
+  
+  // Add delay to throttle auth requests and avoid Supabase rate limits
+  await new Promise(resolve => setTimeout(resolve, 150))
+  
   // Create anon client for sign-in (service_role can't sign in)
   const anonClient = createTestSupabaseClient('anon')
 
@@ -762,7 +793,11 @@ export async function getAuthToken(
     throw new Error(`[Integration Test] Failed to get auth token for ${email}: ${error?.message || 'No session'}`)
   }
 
-  return data.session.access_token
+  // Cache the token
+  const token = data.session.access_token
+  tokenCache.set(email, token)
+  
+  return token
 }
 
 /**

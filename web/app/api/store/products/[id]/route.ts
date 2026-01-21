@@ -103,7 +103,7 @@ export async function GET(request: NextRequest, { params }: Props): Promise<Next
 
     const reviewCount = reviews?.length || 0
     const avgRating =
-      reviewCount > 0 ? reviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0
+      reviewCount > 0 && reviews ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : 0
 
     const reviewSummary = {
       avg_rating: avgRating,

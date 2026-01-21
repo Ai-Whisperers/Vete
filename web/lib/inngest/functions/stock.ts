@@ -329,7 +329,10 @@ export const staffStockAlerts = inngest.createFunction(
           if (!byTenant.has(tenantId)) {
             byTenant.set(tenantId, [])
           }
-          byTenant.get(tenantId)!.push(product)
+          const tenantProducts = byTenant.get(tenantId)
+          if (tenantProducts) {
+            tenantProducts.push(product)
+          }
         }
       }
 
@@ -416,7 +419,10 @@ export const expiryAlerts = inngest.createFunction(
           if (!byTenant.has(tenantId)) {
             byTenant.set(tenantId, [])
           }
-          byTenant.get(tenantId)!.push(product)
+          const tenantProducts = byTenant.get(tenantId)
+          if (tenantProducts) {
+            tenantProducts.push(product)
+          }
         }
       }
 

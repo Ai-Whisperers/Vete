@@ -19,7 +19,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // SEC-006: Use timing-safe cron authentication
   const { authorized, errorResponse } = checkCronAuth(request)
   if (!authorized) {
-    return errorResponse!
+    // checkCronAuth guarantees errorResponse when !authorized
+    return errorResponse || NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   const supabase = await createClient('service_role')

@@ -98,7 +98,10 @@ export const POST = withApiAuth(
       if (!vaccinesByPet.has(v.pet_id)) {
         vaccinesByPet.set(v.pet_id, [])
       }
-      vaccinesByPet.get(v.pet_id)!.push(v.name.toLowerCase())
+      const petVaccines = vaccinesByPet.get(v.pet_id)
+      if (petVaccines) {
+        petVaccines.push(v.name.toLowerCase())
+      }
     }
 
     // Check for recent reminders (last 24 hours) to avoid spam

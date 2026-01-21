@@ -103,7 +103,8 @@ export function withCronMonitoring(
       const { authorized, errorResponse } = checkCronAuth(request)
       if (!authorized) {
         log.warn('Unauthorized cron request')
-        return errorResponse!
+        // checkCronAuth guarantees errorResponse when !authorized
+        return errorResponse || NextResponse.json({ error: 'No autorizado' }, { status: 401 })
       }
     }
 

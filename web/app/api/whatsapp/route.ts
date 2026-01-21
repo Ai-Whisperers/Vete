@@ -101,9 +101,11 @@ export const GET = withApiAuth(
             unread_count: msg.direction === 'inbound' && msg.status !== 'read' ? 1 : 0,
           })
         } else {
-          const existing = conversationMap.get(msg.phone_number)!
-          if (msg.direction === 'inbound' && msg.status !== 'read') {
-            existing.unread_count++
+          const existing = conversationMap.get(msg.phone_number)
+          if (existing) {
+            if (msg.direction === 'inbound' && msg.status !== 'read') {
+              existing.unread_count++
+            }
           }
         }
       }

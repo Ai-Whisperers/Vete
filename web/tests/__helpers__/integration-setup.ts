@@ -255,13 +255,50 @@ export async function createTestAuthUser(
   const userId = authData.user.id
 
   // NOTE: The handle_new_user() trigger automatically creates a profile
-  // when an auth user is created. We just need to update it with test-specific data.
+  // when an auth user is created. We need to poll until it exists.
   
-  // Wait for trigger to execute (increased from 100ms to 500ms for reliability)
-  await new Promise(resolve => setTimeout(resolve, 500))
+  // Initial wait for trigger to start
+  await new Promise(resolve => setTimeout(resolve, 300))
   
-  // Update the auto-created profile with test-specific data
-  const { data: profile, error: profileError } = await supabase
+  // Poll for profile existence (max 10 attempts = 2 seconds total)
+  let profile = null
+  let attempts = 0
+  const maxAttempts = 10
+  
+  while (!profile && attempts < maxAttempts) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (data) {
+      profile = data
+      break
+    }
+    
+    attempts++
+    if (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    }
+  }
+  
+  if (!profile) {
+    // Enhanced error message for debugging
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+    await supabase.auth.admin.deleteUser(userId)
+    throw new Error(
+      `[Integration Test] Profile was not created by trigger after ${maxAttempts * 200}ms\n` +
+      `Auth user exists: ${!!authUser}\n` +
+      `User ID: ${userId}\n` +
+      `Tenant ID: ${tenantId}\n` +
+      `Role: ${role}\n` +
+      `This indicates the handle_new_user() trigger is not working properly.`
+    )
+  }
+  
+  // Update the profile with test-specific data
+  const { data: updatedProfile, error: updateError } = await supabase
     .from('profiles')
     .update({
       tenant_id: tenantId,
@@ -271,29 +308,15 @@ export async function createTestAuthUser(
     .eq('id', userId)
     .select()
     .single()
-
-  if (profileError) {
-    // If update failed, check if profile exists at all
-    const { data: checkProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .single()
-    
-    const errorDetails = checkProfile 
-      ? `Profile exists but update failed: ${profileError.message}`
-      : `Profile not created by trigger: ${profileError.message}`
-    
-    // Cleanup auth user on profile failure
+  
+  if (updateError || !updatedProfile) {
     await supabase.auth.admin.deleteUser(userId)
-    throw new Error(`[Integration Test] Failed to update profile: ${errorDetails}`)
+    throw new Error(
+      `[Integration Test] Failed to update profile: ${updateError?.message}`
+    )
   }
   
-  // Verify profile is actually in database (extra safety check)
-  if (!profile || !profile.id) {
-    await supabase.auth.admin.deleteUser(userId)
-    throw new Error(`[Integration Test] Profile update returned no data for user ${userId}`)
-  }
+  profile = updatedProfile
 
   // Track for cleanup (auth user deletion will cascade)
   cleanupManager.track('profiles', userId)

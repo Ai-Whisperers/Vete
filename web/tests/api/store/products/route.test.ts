@@ -4,6 +4,7 @@ import {
   setupIntegrationTest,
   cleanupIntegrationTest,
   createTestAuthUser,
+  getAuthTokenFromUser,
   createTestProduct,
   createTestRequest,
   expectSuccess,
@@ -15,27 +16,16 @@ import { GET, POST } from '@/app/api/store/products/route'
 
 describe('API: /api/store/products', () => {
   let supabase: SupabaseClient
-  let adminUserId: string
-  let adminProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
-  let ownerUserId: string
-  let ownerProfileId: string
+  let adminUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
-    const adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = adminUser.userId
-    adminProfileId = adminUser.profile.id
-
-    const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vetUser.userId
-    vetProfileId = vetUser.profile.id
-
-    const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = ownerUser.userId
-    ownerProfileId = ownerUser.profile.id
+    adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
   })
 
   afterAll(async () => {

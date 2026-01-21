@@ -4,6 +4,7 @@ import {
   setupIntegrationTest,
   cleanupIntegrationTest,
   createTestAuthUser,
+  getAuthTokenFromUser,
   createTestPet,
   createTestRequest,
   expectSuccess,
@@ -15,28 +16,17 @@ import { GET, POST } from '@/app/api/appointments/waitlist/route'
 
 describe('API: /api/appointments/waitlist', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
-  let adminUserId: string
-  let adminProfileId: string
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let adminUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create users with different roles
-    const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = ownerUser.userId
-    ownerProfileId = ownerUser.profile.id
-
-    const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vetUser.userId
-    vetProfileId = vetUser.profile.id
-
-    const adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = adminUser.userId
-    adminProfileId = adminUser.profile.id
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+    adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -71,7 +61,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('staff can see all waitlist entries', async () => {
       // Create pet and service for testing
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -98,7 +88,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -122,7 +112,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('owners only see their own pets waitlist entries', async () => {
       // Create pet for owner
-      const ownerPet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const ownerPet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', ownerPet.id)
 
       // Create pet for different owner
@@ -154,7 +144,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -196,7 +186,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by status parameter', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -223,7 +213,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -240,7 +230,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-02',
           status: 'fulfilled',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -265,7 +255,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by date parameter', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -293,7 +283,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: targetDate,
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -316,10 +306,10 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by pet_id parameter', async () => {
-      const pet1 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet1 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet1.id)
 
-      const pet2 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet2 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet2.id)
 
       const { data: service } = await supabase
@@ -347,7 +337,7 @@ describe('API: /api/appointments/waitlist', () => {
             service_id: service?.id,
             preferred_date: '2026-02-01',
             status: 'waiting',
-            created_by: ownerUserId,
+            created_by: ownerUser.userId,
           })
           .select()
           .single()
@@ -373,7 +363,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('enforces tenant isolation', async () => {
       // Create waitlist entry for different tenant
-      const otherPet = await createTestPet(supabase, vetProfileId, 'petlife')
+      const otherPet = await createTestPet(supabase, vetUser.profile.id, 'petlife')
       cleanupManager.track('pets', otherPet.id)
 
       const { data: service } = await supabase
@@ -399,7 +389,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: vetUserId,
+          created_by: vetUser.userId,
         })
         .select()
         .single()
@@ -470,7 +460,7 @@ describe('API: /api/appointments/waitlist', () => {
     it('validates date format (YYYY-MM-DD)', async () => {
       const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
@@ -490,7 +480,7 @@ describe('API: /api/appointments/waitlist', () => {
     it('validates time format (HH:MM)', async () => {
       const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
@@ -578,7 +568,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('staff can add any pet to waitlist', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -621,7 +611,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('prevents duplicate waitlist entries (same pet, service, date)', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -648,7 +638,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -678,7 +668,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('successfully adds pet to waitlist', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase

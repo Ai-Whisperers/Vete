@@ -75,7 +75,14 @@ export default defineConfig(() => ({
 
     // Pool configuration for parallel execution
     pool: 'threads',
+    poolOptions: {
+      threads: {
+        maxThreads: 4, // Limit parallel threads to prevent OOM
+        minThreads: 1,
+      },
+    },
     isolate: true,
+    maxConcurrency: 4, // Limit concurrent tests
 
     // Sequence configuration
     sequence: {

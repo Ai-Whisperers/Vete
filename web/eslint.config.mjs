@@ -108,6 +108,31 @@ export default [
     },
   },
 
+  // Relaxed rules for test files and scripts
+  {
+    files: [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/tests/**/*",
+      "**/e2e/**/*",
+      "**/*.mjs",
+      "**/*.js",
+      "**/test-*.ts",
+      "**/test-*.mjs",
+      "**/*setup.ts",
+      "**/*setup.mjs",
+    ],
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-debugger": "off",
+    },
+  },
+
   // Ignore patterns
   {
     ignores: [

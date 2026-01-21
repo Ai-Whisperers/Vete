@@ -4,6 +4,7 @@ import {
   setupIntegrationTest,
   cleanupIntegrationTest,
   createTestAuthUser,
+  getAuthTokenFromUser,
   createTestRequest,
   expectSuccess,
   expectError,
@@ -34,28 +35,17 @@ vi.mock('@/lib/logger', () => ({
 
 describe('API: /api/billing/pay-invoice', () => {
   let supabase: SupabaseClient
-  let adminUserId: string
-  let adminProfileId: string
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
+  let adminUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create users with different roles
-    const adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = adminUser.userId
-    adminProfileId = adminUser.profile.id
-
-    const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = ownerUser.userId
-    ownerProfileId = ownerUser.profile.id
-
-    const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vetUser.userId
-    vetProfileId = vetUser.profile.id
+    adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -83,7 +73,7 @@ describe('API: /api/billing/pay-invoice', () => {
       
       // Switch to owner user
       await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
+        email: `owner-${ownerUser.userId}@test.local`,
         password: 'testpass123',
       })
 
@@ -107,13 +97,7 @@ describe('API: /api/billing/pay-invoice', () => {
 
     it('validates required field: invoice_id', async () => {
       // Get admin auth token
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -129,13 +113,7 @@ describe('API: /api/billing/pay-invoice', () => {
     })
 
     it('returns 404 for non-existent invoice', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -169,13 +147,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', otherInvoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -213,13 +185,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', paidInvoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -256,13 +222,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', voidInvoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -305,13 +265,7 @@ describe('API: /api/billing/pay-invoice', () => {
         .update({ stripe_customer_id: null })
         .eq('id', TEST_TENANT_ID)
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -363,13 +317,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -412,13 +360,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -478,13 +420,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -544,13 +480,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -645,13 +575,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       // Don't specify payment_method_id
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
@@ -714,13 +638,7 @@ describe('API: /api/billing/pay-invoice', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/pay-invoice', {
         method: 'POST',
@@ -750,13 +668,7 @@ describe('API: /api/billing/pay-invoice', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious invoice_id safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const maliciousInputs = [
         "'; DROP TABLE platform_invoices; --",
@@ -781,13 +693,7 @@ describe('API: /api/billing/pay-invoice', () => {
     })
 
     it('handles malicious payment_method_id safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       // Create valid invoice
       const { data: invoice } = await supabase

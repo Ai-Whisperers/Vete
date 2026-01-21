@@ -17,35 +17,25 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/vaccines', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let ownerEmail: string
-  let vetUserId: string
-  let vetProfileId: string
-  let vetEmail: string
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
   let testPetId: string
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
-    const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
-    ownerEmail = owner.profile.email
-
-    const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vet.userId
-    vetProfileId = vet.profile.id
-    vetEmail = vet.profile.email
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
 
     // Create test pet
-    const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+    const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
       name: 'Test Dog',
       species: 'dog',
     })
@@ -70,16 +60,10 @@ describe('API: /api/vaccines', () => {
     })
 
     it('allows owner, vet, and admin roles', async () => {
-      // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -90,16 +74,10 @@ describe('API: /api/vaccines', () => {
     })
 
     it('returns empty list when no vaccines exist', async () => {
-      // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -125,18 +103,12 @@ describe('API: /api/vaccines', () => {
         .single()
       if (vaccine) cleanupManager.track('vaccines', vaccine.id)
 
-      // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/vaccines?pet_id=${testPetId}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -163,16 +135,10 @@ describe('API: /api/vaccines', () => {
         .single()
       if (vaccine) cleanupManager.track('vaccines', vaccine.id)
 
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines?status=verified', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -200,18 +166,12 @@ describe('API: /api/vaccines', () => {
         .single()
       if (vaccine) cleanupManager.track('vaccines', vaccine.id)
 
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         'http://localhost:3000/api/vaccines?from_date=2024-06-01&to_date=2024-06-30',
         {
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
         }
       )
 
@@ -223,16 +183,10 @@ describe('API: /api/vaccines', () => {
     })
 
     it('supports pagination', async () => {
-      // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines?page=1&limit=5', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -262,17 +216,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('validates required field: pet_id', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           // Missing pet_id
           name: 'Rabies',
@@ -286,17 +234,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('validates required field: name', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           // Missing name
@@ -310,17 +252,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('validates required field: administered_date', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Rabies',
@@ -334,20 +270,14 @@ describe('API: /api/vaccines', () => {
     })
 
     it('validates date format (YYYY-MM-DD)', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const invalidDates = ['15/01/2024', '2024-1-15', '01-15-2024', 'invalid']
 
       for (const invalidDate of invalidDates) {
         const request = createTestRequest('http://localhost:3000/api/vaccines', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
           body: {
             pet_id: testPetId,
             name: 'Rabies',
@@ -362,11 +292,7 @@ describe('API: /api/vaccines', () => {
     })
 
     it('prevents future administered_date', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
@@ -374,9 +300,7 @@ describe('API: /api/vaccines', () => {
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Rabies',
@@ -390,17 +314,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('validates next_due_date is after administered_date', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Rabies',
@@ -421,17 +339,12 @@ describe('API: /api/vaccines', () => {
         name: 'Other Pet',
       })
 
-      // Sign in as vet in TEST_TENANT_ID
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      // Get auth token for vet in TEST_TENANT_ID
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: otherPet.id, // Pet from different tenant
           name: 'Rabies',
@@ -463,18 +376,12 @@ describe('API: /api/vaccines', () => {
         .single()
       if (vaccine) cleanupManager.track('vaccines', vaccine.id)
 
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Try to create duplicate
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: vaccineData,
       })
 
@@ -484,17 +391,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('creates vaccine with verified status for staff', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Distemper',
@@ -506,24 +407,18 @@ describe('API: /api/vaccines', () => {
       const body = await expectSuccess(response)
 
       expect(body.status).toBe('verified')
-      expect(body.administered_by).toBe(vetUserId)
-      expect(body.verified_by).toBe(vetUserId)
+      expect(body.administered_by).toBe(vetUser.userId)
+      expect(body.verified_by).toBe(vetUser.userId)
 
       cleanupManager.track('vaccines', body.id)
     })
 
     it('creates vaccine with pending status for owners', async () => {
-      // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Parvovirus',
@@ -542,17 +437,11 @@ describe('API: /api/vaccines', () => {
     })
 
     it('creates audit log entry', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: testPetId,
           name: 'Bordetella',
@@ -580,19 +469,13 @@ describe('API: /api/vaccines', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious pet_id safely', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousId = "'; DROP TABLE vaccines; --"
 
       const request = createTestRequest('http://localhost:3000/api/vaccines', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           pet_id: maliciousId,
           name: 'Rabies',
@@ -607,11 +490,7 @@ describe('API: /api/vaccines', () => {
     })
 
     it('handles malicious name safely', async () => {
-      // Sign in as vet
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetEmail,
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousInputs = [
         "'; DELETE FROM vaccines; --",
@@ -622,9 +501,7 @@ describe('API: /api/vaccines', () => {
       for (const malicious of maliciousInputs) {
         const request = createTestRequest('http://localhost:3000/api/vaccines', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
           body: {
             pet_id: testPetId,
             name: malicious,

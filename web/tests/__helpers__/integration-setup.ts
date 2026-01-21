@@ -155,6 +155,7 @@ export async function setupIntegrationTest(): Promise<SupabaseClient> {
  * - Runs cleanup with retry logic
  * - Resets factory configuration
  * - Resets ID generator
+ * - Clears token cache
  */
 export async function cleanupIntegrationTest(): Promise<void> {
   // Run cleanup with retry for FK constraints
@@ -170,6 +171,9 @@ export async function cleanupIntegrationTest(): Promise<void> {
 
   // Clear singleton
   serviceRoleClient = null
+  
+  // Clear token cache (defined near getAuthToken function)
+  tokenCache.clear()
 }
 
 // =============================================================================
@@ -255,13 +259,50 @@ export async function createTestAuthUser(
   const userId = authData.user.id
 
   // NOTE: The handle_new_user() trigger automatically creates a profile
-  // when an auth user is created. We just need to update it with test-specific data.
+  // when an auth user is created. We need to poll until it exists.
   
-  // Wait a moment for trigger to execute
-  await new Promise(resolve => setTimeout(resolve, 100))
+  // Initial wait for trigger to start
+  await new Promise(resolve => setTimeout(resolve, 300))
   
-  // Update the auto-created profile with test-specific data
-  const { data: profile, error: profileError } = await supabase
+  // Poll for profile existence (max 10 attempts = 2 seconds total)
+  let profile = null
+  let attempts = 0
+  const maxAttempts = 10
+  
+  while (!profile && attempts < maxAttempts) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (data) {
+      profile = data
+      break
+    }
+    
+    attempts++
+    if (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    }
+  }
+  
+  if (!profile) {
+    // Enhanced error message for debugging
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+    await supabase.auth.admin.deleteUser(userId)
+    throw new Error(
+      `[Integration Test] Profile was not created by trigger after ${maxAttempts * 200}ms\n` +
+      `Auth user exists: ${!!authUser}\n` +
+      `User ID: ${userId}\n` +
+      `Tenant ID: ${tenantId}\n` +
+      `Role: ${role}\n` +
+      `This indicates the handle_new_user() trigger is not working properly.`
+    )
+  }
+  
+  // Update the profile with test-specific data
+  const { data: updatedProfile, error: updateError } = await supabase
     .from('profiles')
     .update({
       tenant_id: tenantId,
@@ -271,12 +312,15 @@ export async function createTestAuthUser(
     .eq('id', userId)
     .select()
     .single()
-
-  if (profileError) {
-    // Cleanup auth user on profile failure
+  
+  if (updateError || !updatedProfile) {
     await supabase.auth.admin.deleteUser(userId)
-    throw new Error(`[Integration Test] Failed to update profile: ${profileError.message}`)
+    throw new Error(
+      `[Integration Test] Failed to update profile: ${updateError?.message}`
+    )
   }
+  
+  profile = updatedProfile
 
   // Track for cleanup (auth user deletion will cascade)
   cleanupManager.track('profiles', userId)
@@ -312,6 +356,21 @@ export async function createTestPet(
     birth_date: string
   }> = {}
 ): Promise<{ id: string; name: string; species: string }> {
+  // Verify owner profile exists before creating pet
+  const { data: ownerProfile, error: ownerError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', ownerId)
+    .single()
+  
+  if (ownerError || !ownerProfile) {
+    throw new Error(
+      `[Integration Test] Cannot create pet: owner profile ${ownerId} does not exist. ` +
+      `Error: ${ownerError?.message || 'Profile not found'}. ` +
+      `This usually means the profile creation trigger hasn't completed yet.`
+    )
+  }
+  
   const petId = idGenerator.generate('pet')
 
   const petData = {
@@ -585,19 +644,15 @@ export async function createTestStaffProfile(
   supabase: SupabaseClient,
   profileId: string,
   tenantId: string = TEST_TENANT_ID,
-  overrides: Partial<{
-    specialization: string
-    license_number: string
-  }> = {}
+  overrides: Record<string, unknown> = {}
 ): Promise<{ id: string; profile_id: string }> {
   const staffId = idGenerator.generate('staff')
 
+  // Only use core required fields to avoid schema cache issues
   const staffData = {
     id: staffId,
     profile_id: profileId,
     tenant_id: tenantId,
-    specialization: 'General Practice',
-    license_number: `LIC-${staffId.slice(-6).toUpperCase()}`,
     ...overrides,
   }
 
@@ -710,10 +765,22 @@ export async function createTestPurchaseOrderItem(
  * @param password - User password (default: 'test-password-123')
  * @returns Access token for Authorization header
  */
+// Token cache to avoid re-authenticating the same user multiple times
+const tokenCache = new Map<string, string>()
+
 export async function getAuthToken(
   email: string,
   password: string = 'test-password-123'
 ): Promise<string> {
+  // Check cache first
+  const cached = tokenCache.get(email)
+  if (cached) {
+    return cached
+  }
+  
+  // Add delay to throttle auth requests and avoid Supabase rate limits
+  await new Promise(resolve => setTimeout(resolve, 150))
+  
   // Create anon client for sign-in (service_role can't sign in)
   const anonClient = createTestSupabaseClient('anon')
 
@@ -726,7 +793,11 @@ export async function getAuthToken(
     throw new Error(`[Integration Test] Failed to get auth token for ${email}: ${error?.message || 'No session'}`)
   }
 
-  return data.session.access_token
+  // Cache the token
+  const token = data.session.access_token
+  tokenCache.set(email, token)
+  
+  return token
 }
 
 /**

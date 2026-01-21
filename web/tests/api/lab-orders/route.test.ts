@@ -90,13 +90,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('requires vet or admin role', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', { authToken })
       const response = await GET(request)
@@ -104,13 +98,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('returns paginated lab orders', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', { authToken })
       const response = await GET(request)
@@ -126,13 +114,7 @@ describe('API: /api/lab-orders', () => {
       const order = await createTestLabOrder(supabase, testPetId, vetUserId, TEST_TENANT_ID)
       if (order) cleanupManager.track('lab_orders', order.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/lab-orders?pet_id=${testPetId}`,
@@ -151,13 +133,7 @@ describe('API: /api/lab-orders', () => {
       })
       if (order) cleanupManager.track('lab_orders', order.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         'http://localhost:3000/api/lab-orders?status=pending',
@@ -179,13 +155,7 @@ describe('API: /api/lab-orders', () => {
       const otherOrder = await createTestLabOrder(supabase, otherPet.id, vetUserId, 'petlife')
       if (otherOrder) cleanupManager.track('lab_orders', otherOrder.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', { authToken })
       const response = await GET(request)
@@ -210,13 +180,7 @@ describe('API: /api/lab-orders', () => {
 
       if (deletedOrder) cleanupManager.track('lab_orders', deletedOrder.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', { authToken })
       const response = await GET(request)
@@ -226,13 +190,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('orders by ordered_at descending', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', { authToken })
       const response = await GET(request)
@@ -262,13 +220,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('requires vet or admin role', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -284,13 +236,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates required field: pet_id', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -303,13 +249,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates required field: test_ids', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -322,13 +262,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates test_ids must be array', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -341,13 +275,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates test_ids must have at least 1 item', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -360,13 +288,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates test_ids cannot exceed 20 items', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const tooManyTests = Array(21).fill(labTest1Id)
 
@@ -381,13 +303,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates panel_ids cannot exceed 5 items', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const tooManyPanels = Array(6).fill('00000000-0000-0000-0000-000000000000')
 
@@ -406,13 +322,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates priority enum', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -429,13 +339,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates lab_type enum', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -452,13 +356,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates clinical_notes max length (2000 chars)', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const tooLongNotes = 'x'.repeat(2001)
 
@@ -477,13 +375,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('returns 404 for non-existent pet', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -502,13 +394,7 @@ describe('API: /api/lab-orders', () => {
       const otherPet = await createTestPet(supabase, vetProfileId, 'petlife')
       cleanupManager.track('pets', otherPet.id)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -524,13 +410,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('validates all test IDs exist', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -546,13 +426,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('vet can create lab order successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -578,13 +452,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('admin can create lab order successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -604,13 +472,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('creates order with multiple tests', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -629,13 +491,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('creates order with STAT priority', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -656,13 +512,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('creates order with fasting status', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
         method: 'POST',
@@ -682,13 +532,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('generates unique order number', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Create two orders
       const request1 = createTestRequest('http://localhost:3000/api/lab-orders', {
@@ -720,13 +564,7 @@ describe('API: /api/lab-orders', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious pet_id in query parameter safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "'; DROP TABLE lab_orders; --"
       const request = createTestRequest(
@@ -739,13 +577,7 @@ describe('API: /api/lab-orders', () => {
     })
 
     it('handles malicious clinical_notes safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "'; DELETE FROM lab_orders WHERE '1'='1"
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {
@@ -774,13 +606,7 @@ describe('API: /api/lab-orders', () => {
 
   describe('Security: XSS Prevention', () => {
     it('sanitizes XSS in clinical_notes', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const xss = '<script>alert("xss")</script>'
       const request = createTestRequest('http://localhost:3000/api/lab-orders', {

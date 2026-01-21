@@ -4,6 +4,7 @@ import {
   setupIntegrationTest,
   cleanupIntegrationTest,
   createTestAuthUser,
+  getAuthTokenFromUser,
   createTestPet,
   createTestRequest,
   expectSuccess,
@@ -15,28 +16,17 @@ import { GET, POST } from '@/app/api/appointments/waitlist/route'
 
 describe('API: /api/appointments/waitlist', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
-  let adminUserId: string
-  let adminProfileId: string
+  let ownerUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let vetUser: Awaited<ReturnType<typeof createTestAuthUser>>
+  let adminUser: Awaited<ReturnType<typeof createTestAuthUser>>
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create users with different roles
-    const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = ownerUser.userId
-    ownerProfileId = ownerUser.profile.id
-
-    const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vetUser.userId
-    vetProfileId = vetUser.profile.id
-
-    const adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = adminUser.userId
-    adminProfileId = adminUser.profile.id
+    ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+    adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
   })
 
   afterAll(async () => {
@@ -56,13 +46,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('returns empty waitlist when no entries exist', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         authToken,
@@ -77,7 +61,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('staff can see all waitlist entries', async () => {
       // Create pet and service for testing
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -104,7 +88,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -113,13 +97,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('appointment_waitlists', waitlistEntry.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         authToken,
@@ -134,7 +112,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('owners only see their own pets waitlist entries', async () => {
       // Create pet for owner
-      const ownerPet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const ownerPet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', ownerPet.id)
 
       // Create pet for different owner
@@ -166,7 +144,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -193,13 +171,7 @@ describe('API: /api/appointments/waitlist', () => {
       }
 
       // Owner should only see their own pet's entry
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         authToken,
@@ -214,7 +186,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by status parameter', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -241,7 +213,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -258,7 +230,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-02',
           status: 'fulfilled',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -267,13 +239,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('appointment_waitlists', fulfilledEntry.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Filter by waiting status
       const request = createTestRequest(
@@ -289,7 +255,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by date parameter', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -317,7 +283,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: targetDate,
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -326,13 +292,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('appointment_waitlists', entry.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/waitlist?date=${targetDate}`,
@@ -346,10 +306,10 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('filters by pet_id parameter', async () => {
-      const pet1 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet1 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet1.id)
 
-      const pet2 = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet2 = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet2.id)
 
       const { data: service } = await supabase
@@ -377,7 +337,7 @@ describe('API: /api/appointments/waitlist', () => {
             service_id: service?.id,
             preferred_date: '2026-02-01',
             status: 'waiting',
-            created_by: ownerUserId,
+            created_by: ownerUser.userId,
           })
           .select()
           .single()
@@ -387,13 +347,7 @@ describe('API: /api/appointments/waitlist', () => {
         }
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/appointments/waitlist?pet_id=${pet1.id}`,
@@ -409,7 +363,7 @@ describe('API: /api/appointments/waitlist', () => {
 
     it('enforces tenant isolation', async () => {
       // Create waitlist entry for different tenant
-      const otherPet = await createTestPet(supabase, vetProfileId, 'petlife')
+      const otherPet = await createTestPet(supabase, vetUser.profile.id, 'petlife')
       cleanupManager.track('pets', otherPet.id)
 
       const { data: service } = await supabase
@@ -435,7 +389,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: vetUserId,
+          created_by: vetUser.userId,
         })
         .select()
         .single()
@@ -445,13 +399,7 @@ describe('API: /api/appointments/waitlist', () => {
       }
 
       // Current tenant user shouldn't see other tenant's entries
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         authToken,
@@ -477,13 +425,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('validates required fields', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         method: 'POST',
@@ -499,13 +441,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('validates UUID format for pet_id', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         method: 'POST',
@@ -522,15 +458,9 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('validates date format (YYYY-MM-DD)', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
@@ -548,15 +478,9 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('validates time format (HH:MM)', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
-
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
@@ -575,13 +499,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('returns 404 for non-existent pet', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const { data: service } = await supabase
         .from('services')
@@ -633,13 +551,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('services', service.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         method: 'POST',
@@ -656,7 +568,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('staff can add any pet to waitlist', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -674,13 +586,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('services', service.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
         method: 'POST',
@@ -705,7 +611,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('prevents duplicate waitlist entries (same pet, service, date)', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -732,7 +638,7 @@ describe('API: /api/appointments/waitlist', () => {
           service_id: service?.id,
           preferred_date: '2026-02-01',
           status: 'waiting',
-          created_by: ownerUserId,
+          created_by: ownerUser.userId,
         })
         .select()
         .single()
@@ -741,13 +647,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('appointment_waitlists', entry.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       // Try to create duplicate
       const request = createTestRequest('http://localhost:3000/api/appointments/waitlist', {
@@ -768,7 +668,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('successfully adds pet to waitlist', async () => {
-      const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID)
+      const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID)
       cleanupManager.track('pets', pet.id)
 
       const { data: service } = await supabase
@@ -786,13 +686,7 @@ describe('API: /api/appointments/waitlist', () => {
         cleanupManager.track('services', service.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const requestBody = {
         pet_id: pet.id,
@@ -829,13 +723,7 @@ describe('API: /api/appointments/waitlist', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious status parameter safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const maliciousInputs = [
         "'; DROP TABLE appointment_waitlists; --",
@@ -857,13 +745,7 @@ describe('API: /api/appointments/waitlist', () => {
     })
 
     it('handles malicious pet_id in POST body safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousInputs = [
         "'; DROP TABLE pets; --",

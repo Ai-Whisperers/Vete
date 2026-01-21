@@ -61,13 +61,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('requires vet or admin role', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -84,13 +78,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('validates required field: product_id', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/receive', {
         method: 'POST',
@@ -103,13 +91,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('validates required field: quantity', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -126,13 +108,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('validates quantity must be positive', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -149,13 +125,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('validates quantity cannot be negative', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -172,13 +142,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('returns 404 for non-existent product', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/receive', {
         method: 'POST',
@@ -198,13 +162,7 @@ describe('API: /api/inventory/receive', () => {
       cleanupManager.track('store_products', otherProduct.id)
       cleanupManager.track('inventory', otherProduct.inventory_id!)
 
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/inventory/receive', {
         method: 'POST',
@@ -217,13 +175,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('vet can receive inventory successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID, {
         stock_quantity: 5,
@@ -251,13 +203,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('admin can receive inventory successfully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID, {
         stock_quantity: 10,
@@ -283,13 +229,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('receives inventory with batch number', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -314,13 +254,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('receives inventory with expiry date', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -347,13 +281,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('receives inventory with all optional fields', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -384,13 +312,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('updates stock quantity correctly', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID, {
         stock_quantity: 100,
@@ -415,13 +337,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('calculates weighted average cost correctly', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       // Create product with known stock and cost
       const product = await createTestProduct(supabase, TEST_TENANT_ID, {
@@ -451,13 +367,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('creates inventory transaction record', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -499,13 +409,7 @@ describe('API: /api/inventory/receive', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious product_id safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const malicious = "'; DROP TABLE inventory; --"
       const request = createTestRequest('http://localhost:3000/api/inventory/receive', {
@@ -522,13 +426,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('handles malicious notes safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -550,13 +448,7 @@ describe('API: /api/inventory/receive', () => {
     })
 
     it('handles malicious batch_number safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -584,13 +476,7 @@ describe('API: /api/inventory/receive', () => {
 
   describe('Security: XSS Prevention', () => {
     it('sanitizes XSS in notes and batch_number', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID)
       cleanupManager.track('store_products', product.id)
@@ -619,13 +505,7 @@ describe('API: /api/inventory/receive', () => {
 
   describe('Concurrency: Race Condition Prevention', () => {
     it('handles concurrent receives without stock corruption', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const product = await createTestProduct(supabase, TEST_TENANT_ID, {
         stock_quantity: 0,

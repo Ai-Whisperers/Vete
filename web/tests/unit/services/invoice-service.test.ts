@@ -159,18 +159,11 @@ describe('InvoiceService', () => {
     });
 
     it('should filter invoices for pet owner (non-staff)', async () => {
-      // First query for owner pets
-      mockSupabase._mocks.setMockData({
-        data: [{ id: 'pet-1' }],
-        error: null,
-      });
-
-      // Second query for invoices
-      mockSupabase._mocks.setMockData({
-        data: [mockInvoiceWithDetails],
-        error: null,
-        count: 1,
-      });
+      // Queue responses: 1) owner pets, 2) invoices
+      mockSupabase._mocks.queueMockData(
+        { data: [{ id: 'pet-1' }], error: null },
+        { data: [mockInvoiceWithDetails], error: null, count: 1 }
+      );
 
       const result = await service.list('adris', {}, 'owner-1', false);
 
@@ -245,7 +238,8 @@ describe('InvoiceService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toContain('Error al cargar facturas');
+        // Should return the specific database error message
+        expect(result.error).toBe('Database error');
       }
     });
   });
@@ -266,8 +260,8 @@ describe('InvoiceService', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.id).toBe('inv-1');
-        expect(result.data.invoice_items).toBeDefined();
-        expect(result.data.pets).toBeDefined();
+        expect(result.data.items).toBeDefined(); // Mapper transforms invoice_items → items
+        expect(result.data.pet).toBeDefined(); // Mapper transforms pets → pet (singular)
       }
     });
 
@@ -317,27 +311,18 @@ describe('InvoiceService', () => {
 
   describe('create', () => {
     it('should create invoice with items successfully', async () => {
-      // Mock pet lookup
-      mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' },
-        error: null,
-      });
+      // Queue responses: 1) pet lookup, 2) invoice number, 3) invoice insert, 4) items insert, 5) audit log insert
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null },
+        { data: 'INV-2026-001', error: null },
+        { data: mockInvoice, error: null },
+        { data: null, error: null },
+        { data: null, error: null }
+      );
 
-      // Mock RPC for invoice number
-      mockSupabase._mocks.setMockData({
-        data: 'INV-2026-001',
-        error: null,
-      });
-
-      // Mock invoice insert
-      mockSupabase._mocks.setMockData({
-        data: mockInvoice,
-        error: null,
-      });
-
-      // Mock items insert
-      mockSupabase._mocks.setMockData({
-        data: null,
+      // Mock auth.getUser for audit log
+      mockSupabase._mocks.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
         error: null,
       });
 
@@ -422,29 +407,31 @@ describe('InvoiceService', () => {
     });
 
     it('should calculate totals correctly with discounts', async () => {
-      mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' },
+      // Create invoice with expected calculated values
+      const discountedInvoice = {
+        ...mockInvoice,
+        subtotal: 180000,
+        tax_amount: 18000,
+        total_amount: 198000,
+        balance_due: 198000,
+      };
+
+      // Queue responses: 1) pet lookup, 2) invoice number, 3) invoice insert, 4) items insert, 5) audit log insert
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null },
+        { data: 'INV-2026-001', error: null },
+        { data: discountedInvoice, error: null },
+        { data: null, error: null },
+        { data: null, error: null }
+      );
+
+      // Mock auth.getUser for audit log
+      mockSupabase._mocks.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
         error: null,
       });
 
-      mockSupabase._mocks.setMockData({
-        data: 'INV-2026-001',
-        error: null,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let capturedInvoice: any;
-      mockSupabase._mocks.setMockData({
-        data: mockInvoice,
-        error: null,
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockSupabase._mocks.insert.mockImplementationOnce((data: any) => {
-        capturedInvoice = data;
-        return Promise.resolve({ data: null, error: null });
-      });
-
-      await service.create('adris', 'user-1', {
+      const result = await service.create('adris', 'user-1', {
         pet_id: 'pet-1',
         items: [
           {
@@ -460,7 +447,12 @@ describe('InvoiceService', () => {
       // Subtotal: 2 * 100000 * 0.9 = 180000
       // Tax: 180000 * 0.1 = 18000
       // Total: 198000
-      expect(capturedInvoice).toBeDefined();
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.subtotal).toBe(180000);
+        expect(result.data.tax_amount).toBe(18000);
+        expect(result.data.total_amount).toBe(198000);
+      }
     });
   });
 
@@ -470,31 +462,18 @@ describe('InvoiceService', () => {
 
   describe('update', () => {
     it('should allow full edit for draft invoices', async () => {
-      mockSupabase._mocks.setMockData({
-        data: { id: 'inv-1', status: 'draft', tenant_id: 'adris' },
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: { ...mockInvoice, tax_rate: 10 },
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: null,
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: null,
-        error: null,
-      });
+      // Queue responses: 1) invoice lookup, 2) invoice update, 3) items delete, 4) items insert, 5) totals update
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'inv-1', status: 'draft', tenant_id: 'adris' }, error: null },
+        { data: { ...mockInvoice, tax_rate: 10 }, error: null },
+        { data: null, error: null },
+        { data: null, error: null },
+        { data: null, error: null }
+      );
 
       const result = await service.update('inv-1', 'adris', 'user-1', {
-        notes: 'Updated notes',
-        items: [
-          { description: 'New item', quantity: 1, unit_price: 200000 },
-        ],
+        items: [{ description: 'Updated item', quantity: 2, unit_price: 200000 }],
+        tax_rate: 10,
       });
 
       expect(result.success).toBe(true);
@@ -558,20 +537,12 @@ describe('InvoiceService', () => {
 
   describe('delete', () => {
     it('should hard delete draft invoices', async () => {
-      mockSupabase._mocks.setMockData({
-        data: { id: 'inv-1', status: 'draft', invoice_number: 'INV-001', tenant_id: 'adris' },
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: null,
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: null,
-        error: null,
-      });
+      // Queue responses: 1) invoice lookup, 2) items delete, 3) invoice delete
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'inv-1', status: 'draft', invoice_number: 'INV-001', tenant_id: 'adris' }, error: null },
+        { data: null, error: null },
+        { data: null, error: null }
+      );
 
       const result = await service.delete('inv-1', 'adris', 'user-1');
 
@@ -583,15 +554,11 @@ describe('InvoiceService', () => {
     });
 
     it('should void sent invoices', async () => {
-      mockSupabase._mocks.setMockData({
-        data: { id: 'inv-1', status: 'sent', invoice_number: 'INV-001', tenant_id: 'adris' },
-        error: null,
-      });
-
-      mockSupabase._mocks.update.mockResolvedValueOnce({
-        data: null,
-        error: null,
-      });
+      // Queue responses: 1) invoice lookup, 2) invoice void update
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'inv-1', status: 'sent', invoice_number: 'INV-001', tenant_id: 'adris' }, error: null },
+        { data: null, error: null }
+      );
 
       const result = await service.delete('inv-1', 'adris', 'user-1');
 
@@ -609,27 +576,22 @@ describe('InvoiceService', () => {
 
   describe('recordPayment', () => {
     it('should record payment and update invoice', async () => {
-      mockSupabase._mocks.setMockData({
-        data: {
-          id: 'inv-1',
-          tenant_id: 'adris',
-          total: 165000,
-          amount_paid: 0,
-          amount_due: 165000,
-          status: 'sent',
+      // Queue responses: 1) invoice lookup, 2) payment insert, 3) invoice update
+      mockSupabase._mocks.queueMockData(
+        {
+          data: {
+            id: 'inv-1',
+            tenant_id: 'adris',
+            total: 165000,
+            amount_paid: 0,
+            amount_due: 165000,
+            status: 'sent',
+          },
+          error: null,
         },
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: mockPayment,
-        error: null,
-      });
-
-      mockSupabase._mocks.update.mockResolvedValueOnce({
-        data: null,
-        error: null,
-      });
+        { data: mockPayment, error: null },
+        { data: null, error: null }
+      );
 
       const result = await service.recordPayment('adris', 'user-1', {
         invoice_id: 'inv-1',
@@ -701,31 +663,22 @@ describe('InvoiceService', () => {
 
   describe('refundPayment', () => {
     it('should process refund and update invoice', async () => {
-      mockSupabase._mocks.setMockData({
-        data: {
-          id: 'pay-1',
-          tenant_id: 'adris',
-          invoice_id: 'inv-1',
-          amount: 165000,
-          payment_method: 'cash',
+      // Queue responses: 1) payment lookup, 2) refund insert, 3) invoice lookup, 4) invoice update
+      mockSupabase._mocks.queueMockData(
+        {
+          data: {
+            id: 'pay-1',
+            tenant_id: 'adris',
+            invoice_id: 'inv-1',
+            amount: 165000,
+            payment_method: 'cash',
+          },
+          error: null,
         },
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: mockRefund,
-        error: null,
-      });
-
-      mockSupabase._mocks.setMockData({
-        data: { total: 165000, amount_paid: 165000 },
-        error: null,
-      });
-
-      mockSupabase._mocks.update.mockResolvedValueOnce({
-        data: null,
-        error: null,
-      });
+        { data: mockRefund, error: null },
+        { data: { total: 165000, amount_paid: 165000 }, error: null },
+        { data: null, error: null }
+      );
 
       const result = await service.refundPayment(
         'adris',

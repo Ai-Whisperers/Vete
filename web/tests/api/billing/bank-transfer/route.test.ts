@@ -56,13 +56,7 @@ describe('API: /api/billing/bank-transfer', () => {
 
     it('requires admin role', async () => {
       // Test with owner user
-      await supabase.auth.signInWithPassword({
-        email: `owner-${ownerUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -73,13 +67,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('denies access to veterinarians', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `vet-${vetUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -90,13 +78,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('returns bank account information for admin', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -118,13 +100,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('includes primary bank account details', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -150,13 +126,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('includes transfer instructions in Spanish', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -178,13 +148,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('returns basic reference code without invoice_id', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -226,13 +190,7 @@ describe('API: /api/billing/bank-transfer', () => {
         cleanupManager.track('platform_invoices', invoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/billing/bank-transfer?invoice_id=${invoice?.id}`,
@@ -276,13 +234,7 @@ describe('API: /api/billing/bank-transfer', () => {
         cleanupManager.track('platform_invoices', otherInvoice.id)
       }
 
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest(
         `http://localhost:3000/api/billing/bank-transfer?invoice_id=${otherInvoice?.id}`,
@@ -297,13 +249,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('handles non-existent invoice_id gracefully', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest(
         'http://localhost:3000/api/billing/bank-transfer?invoice_id=00000000-0000-0000-0000-000000000000',
@@ -322,13 +268,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('includes support contact information', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -344,13 +284,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('returns tenant name for reference', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -364,13 +298,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('masks sensitive account number details', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -388,13 +316,7 @@ describe('API: /api/billing/bank-transfer', () => {
 
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious invoice_id safely', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const maliciousInputs = [
         "'; DROP TABLE platform_invoices; --",
@@ -419,13 +341,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('sanitizes query parameters in response', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const xssAttempt = '<script>alert("xss")</script>'
       const request = createTestRequest(
@@ -445,13 +361,7 @@ describe('API: /api/billing/bank-transfer', () => {
 
   describe('Response Format Validation', () => {
     it('returns consistent response structure', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,
@@ -490,13 +400,7 @@ describe('API: /api/billing/bank-transfer', () => {
     })
 
     it('returns multiple bank account options', async () => {
-      await supabase.auth.signInWithPassword({
-        email: `admin-${adminUserId}@test.local`,
-        password: 'testpass123',
-      })
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token || ''
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/bank-transfer', {
         authToken,

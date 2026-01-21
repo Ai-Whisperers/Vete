@@ -23,9 +23,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/store/checkout', () => {
   let supabase: SupabaseClient
-  let ownerUserId: string
-  let ownerProfileId: string
-  let testProductId: string
+      let testProductId: string
   let testPetId: string
 
   beforeAll(async () => {
@@ -33,8 +31,8 @@ describe('API: /api/store/checkout', () => {
 
     // Create test user
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
+    ownerUser.userId = owner.userId
+    ownerUser.profile.id = owner.profile.id
 
     // Create test product
     const product = await createTestProduct(supabase, TEST_TENANT_ID, {
@@ -46,7 +44,7 @@ describe('API: /api/store/checkout', () => {
     testProductId = product.id
 
     // Create test pet (for prescription items)
-    const pet = await createTestPet(supabase, ownerProfileId, TEST_TENANT_ID, {
+    const pet = await createTestPet(supabase, ownerUser.profile.id, TEST_TENANT_ID, {
       name: 'Test Pet',
       species: 'dog',
     })
@@ -78,10 +76,7 @@ describe('API: /api/store/checkout', () => {
 
     it('validates JSON body', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       // Create invalid JSON request
       const request = new Request('http://localhost:3000/api/store/checkout', {
@@ -100,16 +95,11 @@ describe('API: /api/store/checkout', () => {
 
     it('validates required field: items', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           // Missing items
           clinic: TEST_TENANT_ID,
@@ -123,16 +113,11 @@ describe('API: /api/store/checkout', () => {
 
     it('validates required field: clinic', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -154,16 +139,11 @@ describe('API: /api/store/checkout', () => {
 
     it('validates items array is not empty', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [], // Empty array
           clinic: TEST_TENANT_ID,
@@ -177,16 +157,11 @@ describe('API: /api/store/checkout', () => {
 
     it('validates item quantity is positive', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -208,16 +183,11 @@ describe('API: /api/store/checkout', () => {
 
     it('enforces tenant isolation - rejects wrong clinic', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -239,16 +209,11 @@ describe('API: /api/store/checkout', () => {
 
     it('requires pet_id for prescription items', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -278,16 +243,11 @@ describe('API: /api/store/checkout', () => {
       })
 
       // Sign in as first owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -314,10 +274,7 @@ describe('API: /api/store/checkout', () => {
 
     it('supports idempotency key to prevent duplicate orders', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const idempotencyKey = `test-checkout-${Date.now()}`
 
@@ -355,18 +312,13 @@ describe('API: /api/store/checkout', () => {
   describe('Security: SQL Injection Prevention', () => {
     it('handles malicious item IDs safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousId = "'; DROP TABLE invoices; --"
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -389,18 +341,13 @@ describe('API: /api/store/checkout', () => {
 
     it('handles malicious clinic parameter safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const maliciousClinic = "'; DELETE FROM tenants; --"
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -423,18 +370,13 @@ describe('API: /api/store/checkout', () => {
 
     it('handles XSS attempts in item names safely', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const xssName = '<script>alert("xss")</script>'
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -459,16 +401,11 @@ describe('API: /api/store/checkout', () => {
   describe('Business Logic Validation', () => {
     it('validates item type is product or service', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {
@@ -490,16 +427,11 @@ describe('API: /api/store/checkout', () => {
 
     it('validates price is non-negative', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/store/checkout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           items: [
             {

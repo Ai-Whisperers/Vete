@@ -29,28 +29,21 @@ vi.mock('@/lib/billing/stripe', () => ({
 
 describe('API: /api/billing/payment-methods', () => {
   let supabase: SupabaseClient
-  let adminUserId: string
-  let adminProfileId: string
-  let ownerUserId: string
-  let ownerProfileId: string
-  let vetUserId: string
-  let vetProfileId: string
-
-  beforeAll(async () => {
+              beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
     const admin = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
-    adminUserId = admin.userId
-    adminProfileId = admin.profile.id
+    adminUser.userId = admin.userId
+    adminUser.profile.id = admin.profile.id
 
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUserId = owner.userId
-    ownerProfileId = owner.profile.id
+    ownerUser.userId = owner.userId
+    ownerUser.profile.id = owner.profile.id
 
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUserId = vet.userId
-    vetProfileId = vet.profile.id
+    vetUser.userId = vet.userId
+    vetUser.profile.id = vet.profile.id
   })
 
   afterAll(async () => {
@@ -73,15 +66,10 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('requires admin role', async () => {
       // Sign in as owner (not admin)
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -91,15 +79,10 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('requires admin role - vet should be denied', async () => {
       // Sign in as vet (not admin)
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: vetProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(vetUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -109,15 +92,10 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('returns empty list when no payment methods exist', async () => {
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -170,15 +148,10 @@ describe('API: /api/billing/payment-methods', () => {
       if (pm2) cleanupManager.track('tenant_payment_methods', pm2.id)
 
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -212,15 +185,10 @@ describe('API: /api/billing/payment-methods', () => {
       if (pm) cleanupManager.track('tenant_payment_methods', pm.id)
 
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
       })
 
       const response = await GET(request)
@@ -248,16 +216,11 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('requires admin role', async () => {
       // Sign in as owner
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: ownerProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(ownerUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           stripe_payment_method_id: 'pm_test_123',
         },
@@ -270,16 +233,11 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('validates required field: stripe_payment_method_id', async () => {
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           // Missing stripe_payment_method_id
           set_as_default: false,
@@ -293,10 +251,7 @@ describe('API: /api/billing/payment-methods', () => {
 
     it('returns error when tenant has no Stripe customer', async () => {
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       // Ensure tenant has no stripe_customer_id
       await supabase
@@ -306,9 +261,7 @@ describe('API: /api/billing/payment-methods', () => {
 
       const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.session?.access_token}`,
-        },
+        authToken,
         body: {
           stripe_payment_method_id: 'pm_test_123',
         },
@@ -326,10 +279,7 @@ describe('API: /api/billing/payment-methods', () => {
       vi.mocked(getPaymentMethod).mockResolvedValue(null) // Simulate not found
 
       // Sign in as admin
-      const { data: session } = await supabase.auth.signInWithPassword({
-        email: adminProfileId + '@test.local',
-        password: 'test-password-123',
-      })
+      const authToken = await getAuthTokenFromUser(adminUser)
 
       // Set up tenant with Stripe customer
       await supabase
@@ -346,9 +296,7 @@ describe('API: /api/billing/payment-methods', () => {
       for (const malicious of maliciousInputs) {
         const request = createTestRequest('http://localhost:3000/api/billing/payment-methods', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.session?.access_token}`,
-          },
+          authToken,
           body: {
             stripe_payment_method_id: malicious,
           },

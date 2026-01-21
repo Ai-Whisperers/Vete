@@ -96,6 +96,7 @@ export const POST = withApiAuth(
       }
 
       const code = codes[0] as { id: string; code: string; tenant_id: string; is_active: boolean }
+      // Type-safe after null check above
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://Vetic.com'
       const shareUrl = `${baseUrl}/signup?ref=${code.code}`
 

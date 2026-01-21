@@ -422,29 +422,15 @@ describe('InvoiceService', () => {
     });
 
     it('should calculate totals correctly with discounts', async () => {
-      mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' },
-        error: null,
-      });
+      // Queue responses for multiple queries in sequence
+      mockSupabase._mocks.queueMockData(
+        { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null }, // Pet validation
+        { data: 'INV-2026-001', error: null }, // Next invoice number
+        { data: mockInvoice, error: null }, // Invoice insert
+        { data: null, error: null } // Items insert
+      );
 
-      mockSupabase._mocks.setMockData({
-        data: 'INV-2026-001',
-        error: null,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let capturedInvoice: any;
-      mockSupabase._mocks.setMockData({
-        data: mockInvoice,
-        error: null,
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockSupabase._mocks.insert.mockImplementationOnce((data: any) => {
-        capturedInvoice = data;
-        return Promise.resolve({ data: null, error: null });
-      });
-
-      await service.create('adris', 'user-1', {
+      const result = await service.create('adris', 'user-1', {
         pet_id: 'pet-1',
         items: [
           {
@@ -460,7 +446,12 @@ describe('InvoiceService', () => {
       // Subtotal: 2 * 100000 * 0.9 = 180000
       // Tax: 180000 * 0.1 = 18000
       // Total: 198000
-      expect(capturedInvoice).toBeDefined();
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.subtotal).toBe(180000);
+        expect(result.data.tax_amount).toBe(18000);
+        expect(result.data.total_amount).toBe(198000);
+      }
     });
   });
 

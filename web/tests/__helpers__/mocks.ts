@@ -9,8 +9,19 @@ export const createMockSupabase = () => {
   const mockUpdate = vi.fn();
   const mockDelete = vi.fn();
   const mockEq = vi.fn();
-  const mockIs = vi.fn();
+  const mockNeq = vi.fn();
+  const mockGt = vi.fn();
+  const mockLt = vi.fn();
+  const mockGte = vi.fn();
+  const mockLte = vi.fn();
+  const mockLike = vi.fn();
   const mockIlike = vi.fn();
+  const mockIs = vi.fn();
+  const mockIn = vi.fn();
+  const mockContains = vi.fn();
+  const mockNot = vi.fn();
+  const mockOr = vi.fn();
+  const mockFilter = vi.fn();
   const mockOrder = vi.fn();
   const mockSingle = vi.fn();
   const mockMaybeSingle = vi.fn();
@@ -41,6 +52,7 @@ export const createMockSupabase = () => {
 
   // Storage for mock data that tests can set
   let mockData = { data: [], error: null };
+  let mockDataQueue: any[] = [];
   
   const queryBuilderMock = {
     select: mockSelect,
@@ -49,16 +61,16 @@ export const createMockSupabase = () => {
     delete: mockDelete,
     bg: mockEq, // For simpler chaining if needed
     eq: mockEq,
-    neq: vi.fn(),
-    gt: vi.fn(),
-    lt: vi.fn(),
-    gte: vi.fn(),
-    lte: vi.fn(),
-    like: vi.fn(),
+    neq: mockNeq,
+    gt: mockGt,
+    lt: mockLt,
+    gte: mockGte,
+    lte: mockLte,
+    like: mockLike,
     ilike: mockIlike,
     is: mockIs,
-    in: vi.fn(),
-    contains: vi.fn(),
+    in: mockIn,
+    contains: mockContains,
     containedBy: vi.fn(),
     rangeGt: vi.fn(),
     rangeLt: vi.fn(),
@@ -68,9 +80,9 @@ export const createMockSupabase = () => {
     overlaps: vi.fn(),
     textSearch: vi.fn(),
     match: vi.fn(),
-    not: vi.fn(),
-    or: vi.fn(),
-    filter: vi.fn(),
+    not: mockNot,
+    or: mockOr,
+    filter: mockFilter,
     order: mockOrder,
     limit: mockLimit,
     range: mockRange,
@@ -99,8 +111,9 @@ export const createMockSupabase = () => {
   // Make the queryBuilder thenable so it can be awaited while still allowing chaining
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (queryBuilderMock as any).then = function(resolve: (value: any) => any) {
-    // When awaited, resolve with mock data (set via _setMockData or defaults to empty)
-    return Promise.resolve(mockData).then(resolve);
+    // When awaited, use queued data if available, otherwise use mockData
+    const dataToUse = mockDataQueue.length > 0 ? mockDataQueue.shift() : mockData;
+    return Promise.resolve(dataToUse).then(resolve);
   };
   
   // Override terminal methods to return the thenable queryBuilder for chaining
@@ -123,8 +136,19 @@ export const createMockSupabase = () => {
       update: mockUpdate,
       delete: mockDelete,
       eq: mockEq,
-      is: mockIs,
+      neq: mockNeq,
+      gt: mockGt,
+      lt: mockLt,
+      gte: mockGte,
+      lte: mockLte,
+      like: mockLike,
       ilike: mockIlike,
+      is: mockIs,
+      in: mockIn,
+      contains: mockContains,
+      not: mockNot,
+      or: mockOr,
+      filter: mockFilter,
       order: mockOrder,
       single: mockSingle,
       maybeSingle: mockMaybeSingle,
@@ -136,6 +160,8 @@ export const createMockSupabase = () => {
       getPublicUrl: mockGetPublicUrl,
       queryBuilder: queryBuilderMock,
       setMockData: (data: any) => { mockData = data; },
+      queueMockData: (...responses: any[]) => { mockDataQueue = responses; },
+      clearQueue: () => { mockDataQueue = []; },
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as unknown as SupabaseClient & { _mocks: any };

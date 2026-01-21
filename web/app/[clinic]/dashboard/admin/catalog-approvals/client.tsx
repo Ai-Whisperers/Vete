@@ -12,7 +12,6 @@ import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   Shield,
   Search,
-  Filter,
   CheckCircle,
   XCircle,
   AlertCircle,
@@ -129,7 +128,7 @@ function formatCurrency(amount: number): string {
 }
 
 export default function CatalogApprovalsClient({
-  clinic,
+  clinic: _clinic,
 }: CatalogApprovalsClientProps): React.ReactElement {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -416,11 +415,14 @@ export default function CatalogApprovalsClient({
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.name}
-                              className="h-12 w-12 rounded-lg object-cover"
-                            />
+                            <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
                           ) : (
                             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
                               <Package className="h-6 w-6 text-gray-400" />
@@ -552,11 +554,14 @@ export default function CatalogApprovalsClient({
               {/* Product Image & Info */}
               <div className="flex gap-6">
                 {selectedProduct.images?.[0] ? (
-                  <img
-                    src={selectedProduct.images[0]}
-                    alt={selectedProduct.name}
-                    className="h-32 w-32 rounded-xl object-cover"
-                  />
+                  <div className="relative h-32 w-32 overflow-hidden rounded-xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={selectedProduct.images[0]}
+                      alt={selectedProduct.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-32 w-32 items-center justify-center rounded-xl bg-gray-100">
                     <Package className="h-12 w-12 text-gray-400" />

@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "headline": "TerraPet - El mejor cuidado para tu peludo",
+    "subhead": "Tu veterinaria de confianza especializada en perros. Atención profesional con el mejor trato y precios accesibles.",
+    "cta_primary": "Agendar Cita",
+    "cta_secondary": "Conocer Servicios"
+  },
+  "features": [
+    {
+      "icon": "heart-pulse",
+      "title": "El Mejor Trato",
+      "text": "Buen trato y atención tanto para dueños como para pacientes. Tu mascota está en las mejores manos."
+    },
+    {
+      "icon": "dollar-sign",
+      "title": "Precios Accesibles",
+      "text": "Servicios veterinarios de calidad a precios que se ajustan a tu presupuesto."
+    },
+    {
+      "icon": "shield-check",
+      "title": "Servicios Completos",
+      "text": "Consultas, vacunación, desparasitación, peluquería, baño y más para tu perro."
+    }
+  ],
+  "promo_banner": {
+    "enabled": true,
+    "text": "¡Bienvenido a TerraPet! El mejor cuidado para tu peludo 🐕",
+    "link": "#services"
+  },
+  "interactive_tools_section": {
+    "title": "Herramientas Útiles",
+    "subtitle": "Recursos para el cuidado de tu mascota",
+    "toxic_food_cta": "Verificador de Alimentos Tóxicos",
+    "age_calc_cta": "Calculadora de Edad"
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Testimonios",
+    "subtitle": "Lo que dicen nuestros clientes."
+  },
+  "seo": {
+    "meta_title": "TerraPet - Veterinaria Canina | El mejor cuidado para tu peludo",
+    "meta_description": "Veterinaria TerraPet especializada en perros. Consultas, vacunación, peluquería canina. El mejor trato y atención con precios accesibles. ¡Agenda tu cita!"
+  }
+}

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { SigningForm } from '@/components/consents'
 import type { SigningFormData } from '@/components/consents'
@@ -55,18 +55,11 @@ export default function RemoteSigningPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const params = useParams()
-  const router = useRouter()
   const supabase = createClient()
 
   const token = params?.token as string
 
-  useEffect(() => {
-    if (token) {
-      validateToken()
-    }
-  }, [token])
-
-  const validateToken = async (): Promise<void> => {
+  const validateToken = useCallback(async (): Promise<void> => {
     try {
       // Fetch consent request by token (no auth required)
       const { data, error } = await supabase
@@ -122,7 +115,13 @@ export default function RemoteSigningPage(): JSX.Element {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token, supabase])
+
+  useEffect(() => {
+    if (token) {
+      validateToken()
+    }
+  }, [token, validateToken])
 
   const handleSubmit = async (formData: SigningFormData): Promise<void> => {
     if (!request) return
@@ -297,6 +296,7 @@ export default function RemoteSigningPage(): JSX.Element {
           owner={request.owner}
           onSubmit={handleSubmit}
           onCancel={() => {
+            // eslint-disable-next-line no-alert
             if (confirm('¿Está seguro que desea cancelar? Perderá todo el progreso.')) {
               window.close()
             }

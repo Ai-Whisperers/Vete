@@ -43,6 +43,7 @@ function middlewareLog(
 
   if (process.env.NODE_ENV === 'production') {
     // JSON output for log aggregation
+    // eslint-disable-next-line no-console
     console[level](JSON.stringify(entry))
   } else {
     // Pretty output for development
@@ -62,6 +63,7 @@ function middlewareLog(
       context.duration !== undefined ? `${context.duration}ms` : null,
     ].filter(Boolean)
 
+    // eslint-disable-next-line no-console
     console[level](
       `${dim}${new Date().toLocaleTimeString()}${reset} ${color}[MW]${reset} ${message} ${dim}[${context.method} ${context.path}]${reset}`,
       parts.length > 0 ? `${dim}(${parts.join(' | ')})${reset}` : ''

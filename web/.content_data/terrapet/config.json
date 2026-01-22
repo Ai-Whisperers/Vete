@@ -1,0 +1,71 @@
+{
+  "id": "terrapet",
+  "name": "TerraPet",
+  "slogan": "El mejor cuidado para tu peludo",
+  "contact": {
+    "whatsapp_number": "5950992152465",
+    "phone_display": "+595 992 152 465",
+    "email": "terrapetanimal@gmail.com",
+    "address": "",
+    "google_maps_url": "https://maps.app.goo.gl/mdMfXwBpAQdYjGP88",
+    "google_maps_embed": "",
+    "city": "",
+    "coordinates": {
+      "lat": null,
+      "lng": null
+    }
+  },
+  "hours": {
+    "monday": { "open": "09:00", "close": "18:00" },
+    "tuesday": { "open": "09:00", "close": "18:00" },
+    "wednesday": { "open": "09:00", "close": "18:00" },
+    "thursday": { "open": "09:00", "close": "18:00" },
+    "friday": { "open": "09:00", "close": "18:00" },
+    "saturday": { "open": "09:00", "close": "18:00" },
+    "sunday": { "open": "09:00", "close": "18:00" }
+  },
+  "settings": {
+    "currency": "PYG",
+    "emergency_24h": false,
+    "modules": {
+      "toxic_checker": true,
+      "age_calculator": true,
+      "online_store": true,
+      "qr_tags": true
+    },
+    "inventory_template_google_sheet_url": null
+  },
+  "branding": {
+    "logo_url": "https://drive.google.com/uc?id=1pLfZCCIYW6qPsrkTpfeFJuZ6AX8Q0IPG",
+    "logo_width": 150,
+    "logo_height": 40,
+    "favicon_url": "/favicon.ico",
+    "hero_image_url": "",
+    "og_image_url": ""
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "about": "Nosotros",
+      "book_btn": "Agendar"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados."
+    },
+    "home": {
+      "visit_us": "Visítanos"
+    },
+    "services": {
+      "online_badge": "Reservable Online",
+      "description_label": "Descripción:",
+      "includes_label": "Incluye:",
+      "table_variant": "Variante / Tipo",
+      "table_price": "Precio",
+      "book_floating_btn": "Agendar Turno"
+    },
+    "about": {
+      "team_title": "Nuestro Equipo"
+    }
+  }
+}

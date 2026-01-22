@@ -1,0 +1,31 @@
+{
+  "displayInShowcase": true,
+  "testimonial": "TerraPet se destaca por su excelente trato hacia los dueños y sus mascotas, ofreciendo servicios veterinarios de calidad con precios accesibles.",
+  "shortTestimonial": "El mejor cuidado para tu peludo con precios accesibles",
+  "joinedDate": "2024-11",
+  "metrics": {
+    "appointmentsGrowth": "Nuevo",
+    "onlineBookingsPercent": "Habilitado",
+    "patientsRegistered": "Creciendo",
+    "satisfactionScore": "Excelente"
+  },
+  "contactPerson": {
+    "name": "Dr. Adrián Alexander Gill Sánchez",
+    "role": "Doctor en Ciencias Veterinarias",
+    "quote": "El buen trato y la atención tanto para dueños y pacientes es nuestra prioridad."
+  },
+  "specialties": [
+    "Clínica diaria para perros",
+    "Consultas a domicilio",
+    "Peluquería y baño canino",
+    "Vacunación y desparasitación",
+    "Certificados de salud y viaje"
+  ],
+  "highlights": [
+    "Especialistas en perros",
+    "Atención 7 días a la semana",
+    "Precios accesibles",
+    "Servicio a domicilio disponible",
+    "Tags QR para mascotas perdidas"
+  ]
+}

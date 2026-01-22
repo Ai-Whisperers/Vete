@@ -142,7 +142,10 @@ export const GET = withApiAuth(
       if (!vaccinesByPet.has(v.pet_id)) {
         vaccinesByPet.set(v.pet_id, [])
       }
-      vaccinesByPet.get(v.pet_id)!.push({ name: v.name, next_due_date: v.next_due_date })
+      const petVaccines = vaccinesByPet.get(v.pet_id)
+      if (petVaccines) {
+        petVaccines.push({ name: v.name, next_due_date: v.next_due_date })
+      }
     }
 
     // Check for recently sent reminders

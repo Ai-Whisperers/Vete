@@ -1,0 +1,231 @@
+{
+  "meta": {
+    "title": "Nuestros Servicios",
+    "subtitle": "Atención veterinaria especializada para perros con el mejor trato y precios accesibles."
+  },
+  "services": [
+    {
+      "id": "consultation",
+      "visible": true,
+      "category": "medical",
+      "title": "Consultas Veterinarias",
+      "icon": "stethoscope",
+      "summary": "Atención médica profesional para tu perro.",
+      "details": {
+        "description": "Evaluación completa del estado de salud de tu perro con el mejor trato y atención.",
+        "duration_minutes": 30,
+        "includes": ["Revisión Física Completa", "Diagnóstico", "Plan de Tratamiento"]
+      },
+      "variants": [
+        {
+          "name": "Consulta General",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Consulta veterinaria general en clínica"
+        },
+        {
+          "name": "Consulta a Domicilio",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Atención veterinaria en la comodidad de tu hogar"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "vaccination",
+      "visible": true,
+      "category": "preventative",
+      "title": "Vacunación",
+      "icon": "shield-check",
+      "summary": "Protección completa para tu perro.",
+      "details": {
+        "description": "Vacunas de alta calidad con registro y seguimiento para mantener a tu perro protegido.",
+        "duration_minutes": 20,
+        "includes": ["Revisión Pre-vacunal", "Vacuna", "Registro en Carnet"]
+      },
+      "variants": [
+        {
+          "name": "Antirrábica",
+          "price_display": "Consultar",
+          "price_value": 0
+        },
+        {
+          "name": "Polivalente Canina",
+          "price_display": "Consultar",
+          "price_value": 0
+        },
+        {
+          "name": "Otras Vacunas",
+          "price_display": "Consultar",
+          "price_value": 0
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "deworming",
+      "visible": true,
+      "category": "preventative",
+      "title": "Desparasitación",
+      "icon": "pill",
+      "summary": "Elimina y previene parásitos en tu perro.",
+      "details": {
+        "description": "Tratamiento antiparasitario interno y externo para mantener a tu perro saludable.",
+        "duration_minutes": 15,
+        "includes": ["Evaluación", "Medicamento Antiparasitario", "Recomendaciones"]
+      },
+      "variants": [
+        {
+          "name": "Desparasitación Interna",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Tratamiento contra parásitos intestinales"
+        },
+        {
+          "name": "Desparasitación Externa",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Tratamiento contra pulgas y garrapatas"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "weight-control",
+      "visible": true,
+      "category": "preventative",
+      "title": "Control de Peso",
+      "icon": "scale",
+      "summary": "Monitoreo del peso y condición corporal.",
+      "details": {
+        "description": "Control periódico de peso y asesoramiento nutricional para mantener a tu perro en forma óptima.",
+        "duration_minutes": 15,
+        "includes": ["Pesaje", "Evaluación de Condición Corporal", "Recomendaciones Nutricionales"]
+      },
+      "variants": [
+        {
+          "name": "Control de Peso",
+          "price_display": "Consultar",
+          "price_value": 0
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "grooming",
+      "visible": true,
+      "category": "cosmetic",
+      "title": "Peluquería / Grooming",
+      "icon": "sparkles",
+      "summary": "Tu perro lucirá hermoso y saludable.",
+      "details": {
+        "description": "Servicios de peluquería profesional con productos de calidad para perros.",
+        "duration_minutes": 60,
+        "includes": ["Corte de Pelo", "Corte de Uñas", "Limpieza de Oídos", "Secado"]
+      },
+      "variants": [
+        {
+          "name": "Peluquería Completa",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Corte de pelo, uñas, limpieza de oídos"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "bath",
+      "visible": true,
+      "category": "cosmetic",
+      "title": "Baño",
+      "icon": "droplet",
+      "summary": "Baño profesional para tu perro.",
+      "details": {
+        "description": "Servicio de baño completo con productos de calidad para el cuidado de la piel y pelo de tu perro.",
+        "duration_minutes": 45,
+        "includes": ["Baño con Shampoo de Calidad", "Secado", "Cepillado", "Corte de Uñas"]
+      },
+      "variants": [
+        {
+          "name": "Baño Completo",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Precio según tamaño del perro"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "microchip",
+      "visible": true,
+      "category": "preventative",
+      "title": "Microchip / Identificación",
+      "icon": "chip",
+      "summary": "Identificación permanente para tu perro.",
+      "details": {
+        "description": "Implantación de microchip de identificación para la seguridad de tu mascota.",
+        "duration_minutes": 15,
+        "includes": ["Microchip", "Implantación", "Registro Nacional"]
+      },
+      "variants": [
+        {
+          "name": "Microchip",
+          "price_display": "Consultar",
+          "price_value": 0
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "certificates",
+      "visible": true,
+      "category": "administrative",
+      "title": "Certificados",
+      "icon": "file-text",
+      "summary": "Certificados de salud y viaje.",
+      "details": {
+        "description": "Emisión de certificados veterinarios oficiales para diversos trámites.",
+        "duration_minutes": 20,
+        "includes": ["Examen Clínico", "Certificado Oficial", "Firma del Veterinario"]
+      },
+      "variants": [
+        {
+          "name": "Certificado de Salud",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Para trámites generales"
+        },
+        {
+          "name": "Certificado de Viaje",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Para viajes nacionales e internacionales"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "euthanasia",
+      "visible": true,
+      "category": "medical",
+      "title": "Eutanasia Humanitaria",
+      "icon": "heart",
+      "summary": "Despedida digna y sin sufrimiento.",
+      "details": {
+        "description": "Procedimiento humanitario realizado con compasión y respeto cuando es médicamente necesario.",
+        "duration_minutes": 30,
+        "includes": ["Consulta Previa", "Sedación", "Procedimiento", "Acompañamiento"]
+      },
+      "variants": [
+        {
+          "name": "Eutanasia Humanitaria",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Consulta previa requerida"
+        }
+      ],
+      "booking": { "online_enabled": false, "emergency_available": false }
+    }
+  ]
+}

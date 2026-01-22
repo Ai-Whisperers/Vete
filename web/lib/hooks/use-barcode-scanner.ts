@@ -82,6 +82,7 @@ export function useBarcodeScanner(
         },
         (errorMessage) => {
           // Scan error - ignore, keep scanning
+          // eslint-disable-next-line no-console
           console.debug('Scanning...', errorMessage)
         }
       )

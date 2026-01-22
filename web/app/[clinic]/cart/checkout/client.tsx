@@ -171,7 +171,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
           setStockErrors(result.stockErrors)
         }
       }
-    } catch (e) {
+    } catch (error) {
+      console.error('[Checkout] Error processing checkout:', error)
       setCheckoutError(t('errors.connectionError'))
     } finally {
       isSubmittingRef.current = false
@@ -371,11 +372,14 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
                   {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="h-12 w-12 rounded object-cover"
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                    </>
                   ) : (
                     <ShoppingBag className="h-12 w-12 text-[var(--primary)]" />
                   )}

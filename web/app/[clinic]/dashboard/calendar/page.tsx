@@ -248,10 +248,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       const staffName = staffMember?.full_name || 'Personal'
 
       const event = timeOffToCalendarEvent(request as TimeOffRequest, staffName)
-      if (staffMember) {
+      if (staffMember && event.resource) {
         event.color = request.time_off_type?.color_code || 'var(--accent-pink)'
-        event.resource!.staffId = staffMember.id
-        event.resource!.staffColor = staffMember.color_code
+        event.resource.staffId = staffMember.id
+        event.resource.staffColor = staffMember.color_code
       }
       events.push(event)
     }

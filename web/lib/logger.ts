@@ -276,6 +276,7 @@ function log(
       console.warn(output)
       break
     default:
+      // eslint-disable-next-line no-console
       console.log(output)
   }
 }

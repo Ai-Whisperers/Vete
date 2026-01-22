@@ -254,16 +254,16 @@ export function generateColorScale(baseHex: string): ColorScale {
   }
 
   // Main color is the 500 step
-  scale.main = scale['500']!
+  scale.main = scale['500'] || baseHex
 
   // Light variant (400 step)
-  scale.light = scale['400']!
+  scale.light = scale['400'] || baseHex
 
   // Dark variant (600 step)
-  scale.dark = scale['600']!
+  scale.dark = scale['600'] || baseHex
 
   // Contrast color
-  scale.contrast = getContrastColor(scale.main)
+  scale.contrast = getContrastColor(scale.main || baseHex)
 
   // RGB string
   scale.rgb = rgbToString(baseRgb)
@@ -314,10 +314,10 @@ export function generateColorScaleFromMain(mainHex: string): ColorScale {
   scale.main = mainHex.toLowerCase()
 
   // Light variant (400 step)
-  scale.light = scale['400']!
+  scale.light = scale['400'] || mainHex
 
   // Dark variant (600 step)
-  scale.dark = scale['600']!
+  scale.dark = scale['600'] || mainHex
 
   // Contrast color based on the main color
   scale.contrast = getContrastColor(mainHex)

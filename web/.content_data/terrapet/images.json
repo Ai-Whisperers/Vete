@@ -1,0 +1,133 @@
+{
+  "$comment": "TerraPet image configuration with Google Drive links",
+  "version": "1.0",
+  "basePath": "/branding/terrapet/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "https://drive.google.com/uc?id=1D0asBzUFtXERvtlGGpl32jvt3VfHw6Dm",
+        "alt": "TerraPet - El mejor cuidado para tu peludo",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "https://drive.google.com/uc?id=1PxWn_ruhPuu-bJ6-KBgf7vpau8FVsytM",
+        "alt": "Sobre TerraPet",
+        "width": 1920,
+        "height": 1080
+      },
+      "services": {
+        "src": "https://drive.google.com/uc?id=1x9LH8hirPP9MS0yJNq3dUiNl1HxocUwZ",
+        "alt": "Servicios veterinarios profesionales",
+        "width": 1920,
+        "height": 1080
+      },
+      "store": {
+        "src": "https://drive.google.com/uc?id=104xLoVZs3SqokDNh0DZQW7DGq2L4KxNE",
+        "alt": "Tienda de productos para mascotas",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "team": {
+      "vet": {
+        "src": "https://drive.google.com/uc?id=1t_z4_tSXiPqm_c3NpQGepcxGfuX_ONLH",
+        "alt": "Dr. Adrián Alexander Gill Sánchez - Doctor en Ciencias Veterinarias",
+        "width": 400,
+        "height": 533
+      }
+    },
+    "facilities": {
+      "exterior": {
+        "src": "https://drive.google.com/uc?id=1D0asBzUFtXERvtlGGpl32jvt3VfHw6Dm",
+        "alt": "Exterior de TerraPet",
+        "width": 800,
+        "height": 600
+      },
+      "interior": {
+        "src": "https://drive.google.com/uc?id=104xLoVZs3SqokDNh0DZQW7DGq2L4KxNE",
+        "alt": "Interior de TerraPet",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "services": {
+      "consultation": {
+        "src": "https://drive.google.com/uc?id=1PxWn_ruhPuu-bJ6-KBgf7vpau8FVsytM",
+        "alt": "Consulta veterinaria",
+        "width": 800,
+        "height": 600
+      },
+      "grooming": {
+        "src": "https://drive.google.com/uc?id=1x9LH8hirPP9MS0yJNq3dUiNl1HxocUwZ",
+        "alt": "Peluquería y baño",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "products": {
+      "food_1": {
+        "src": "https://drive.google.com/uc?id=1O38tvK4umrdLgIMmt5QFfGEH7BGW1xMS",
+        "alt": "Alimentos balanceados para perros",
+        "width": 600,
+        "height": 600
+      },
+      "food_2": {
+        "src": "https://drive.google.com/uc?id=1-gGKD-NW52FDZ2ZupGoblJkuQhBwwB6V",
+        "alt": "Alimentos balanceados para perros",
+        "width": 600,
+        "height": 600
+      },
+      "food_3": {
+        "src": "https://drive.google.com/uc?id=1lAKRa3qayxzBYBmotEwtlbYsXcm2gJAN",
+        "alt": "Alimentos balanceados para perros",
+        "width": 600,
+        "height": 600
+      },
+      "food_4": {
+        "src": "https://drive.google.com/uc?id=1E2M5BAqMcHpeU9JUtxqJb5cO1coJmrhy",
+        "alt": "Alimentos balanceados para perros",
+        "width": 600,
+        "height": 600
+      },
+      "food_5": {
+        "src": "https://drive.google.com/uc?id=1bx39hk06v81P42pOxQUaSVpvnjosjKNI",
+        "alt": "Alimentos balanceados para perros",
+        "width": 600,
+        "height": 600
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "https://drive.google.com/uc?id=1pLfZCCIYW6qPsrkTpfeFJuZ6AX8Q0IPG",
+        "alt": "Logo TerraPet",
+        "width": 300,
+        "height": 112
+      },
+      "logo-dark": {
+        "src": "https://drive.google.com/uc?id=1pLfZCCIYW6qPsrkTpfeFJuZ6AX8Q0IPG",
+        "alt": "Logo TerraPet (dark)",
+        "width": 300,
+        "height": 112
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "https://drive.google.com/uc?id=1pLfZCCIYW6qPsrkTpfeFJuZ6AX8Q0IPG",
+        "alt": "TerraPet - El mejor cuidado para tu peludo",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  },
+  "placeholders": {
+    "pet": "/images/placeholders/pet-placeholder.jpg",
+    "product": "/images/placeholders/product-placeholder.jpg",
+    "team": "/images/placeholders/team-placeholder.jpg",
+    "service": "/images/placeholders/service-placeholder.jpg"
+  }
+}

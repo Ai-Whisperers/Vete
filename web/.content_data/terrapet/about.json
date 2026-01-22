@@ -1,0 +1,19 @@
+{
+  "intro": {
+    "title": "Sobre TerraPet",
+    "text": "En TerraPet nos dedicamos al cuidado integral de tu mascota. Con 2 meses de trayectoria, nuestro equipo profesional brinda servicios veterinarios de excelencia con el mejor trato y atención tanto para dueños como para pacientes. Nos comprometemos con la salud y el bienestar de tus compañeros peludos ofreciendo precios accesibles y atención personalizada."
+  },
+  "mission": {
+    "title": "Nuestra Misión",
+    "text": "El buen trato y la atención tanto para dueños y pacientes. Ofrecemos precios accesibles para que todos puedan acceder a servicios veterinarios de calidad."
+  },
+  "team": [
+    {
+      "name": "Dr. Adrián Alexander Gill Sánchez",
+      "role": "Doctor en Ciencias Veterinarias",
+      "specialties": "Clínica diaria",
+      "bio": "Doctor en ciencias veterinarias especializado en clínica diaria. Comprometido con brindar la mejor atención a tu mascota con calidez y profesionalismo.",
+      "photo_url": "https://drive.google.com/uc?id=1t_z4_tSXiPqm_c3NpQGepcxGfuX_ONLH"
+    }
+  ]
+}

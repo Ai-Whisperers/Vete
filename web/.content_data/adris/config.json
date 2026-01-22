@@ -1,13 +1,13 @@
 {
   "id": "adris",
-  "name": "Veterinaria Adris",
-  "tagline": "Cuidado Experto, Amor Incondicional",
+  "name": "Terra Pet",
+  "tagline": "Para Nosotros, Ellos Son Familia",
   "contact": {
-    "whatsapp_number": "595981123456",
-    "phone_display": "+595 981 123 456",
-    "email": "contacto@veteadris.com",
-    "address": "Av. Santa Teresa 1234, Asunción",
-    "city": "Asunción",
+    "whatsapp_number": "595981673667",
+    "phone_display": "+595 981 673 6670",
+    "email": "contacto@terrapet.com.py",
+    "address": "Fernando de la Mora",
+    "city": "Fernando de la Mora",
     "country": "Paraguay",
     "google_maps_id": "ChIJrTLr-GyuEmsRBfy61i59si0",
     "coordinates": {
@@ -16,16 +16,16 @@
     }
   },
   "social": {
-    "facebook": "https://facebook.com/veterinariaadris",
-    "instagram": "https://instagram.com/veterinariaadris",
+    "facebook": "https://facebook.com/Terra.Pet.Py",
+    "instagram": "https://instagram.com/terrapetpy",
     "tiktok": "",
     "youtube": ""
   },
   "hours": {
     "weekdays": "08:00 - 20:00",
-    "saturday": "08:00 - 18:00",
-    "sunday": "Urgencias 24hs",
-    "holidays": "Solo Urgencias"
+    "saturday": "08:00 - 20:00",
+    "sunday": "08:00 - 20:00",
+    "holidays": "Urgencias 24hs"
   },
   "settings": {
     "currency": "PYG",

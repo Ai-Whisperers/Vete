@@ -26,7 +26,8 @@ export default defineConfig({
   expect: {
     timeout: 5000,
   },
-  fullyParallel: true,
+  fullyParallel: false, // Changed to false to respect workers: 1
+  workers: 1, // Run tests sequentially to prevent dev server overload
 
   // Global setup/teardown for E2E test data
   globalSetup: './e2e/global-setup.ts',
@@ -41,7 +42,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    navigationTimeout: 10000,
+    navigationTimeout: 30000, // Increased for slow dev server with heavy content
     actionTimeout: 10000,
   },
 

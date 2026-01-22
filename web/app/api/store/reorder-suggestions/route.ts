@@ -125,12 +125,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Map products with availability info
     const reorderProducts: ReorderProduct[] = (products || [])
-      .filter((product) => productStats.has(product.id))
+      .filter((product) => {
+        const stats = productStats.get(product.id)
+        return stats !== undefined
+      })
       .map((product) => {
         const inventory = product.store_inventory as unknown as { stock_quantity: number } | null
-        const stats = productStats.get(product.id)
-        // stats guaranteed to exist due to filter above
-        if (!stats) return null
+        const stats = productStats.get(product.id)!
 
         return {
           id: product.id,

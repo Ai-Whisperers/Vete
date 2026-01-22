@@ -231,8 +231,7 @@ export default async function ClinicLayout({
 
   const tier: TierId = (tenantData?.subscription_tier as TierId) || 'gratis'
   const tierConfig = getTierById(tier)
-  const gratisFeatures = getTierById('gratis')?.features
-  const tierFeatures = tierConfig?.features || gratisFeatures || { adFree: false, maxUsers: 1 }
+  const tierFeatures = tierConfig?.features || getTierById('gratis')!.features
   const isOnTrial = tenantData?.is_trial || false
   const trialEndsAt = tenantData?.trial_end_date || null
 

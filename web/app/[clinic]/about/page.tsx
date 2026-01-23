@@ -448,7 +448,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               {about.values && about.values.length > 0 ? (
                 // Use values from JSON
                 about.values.map(
-                  (value: { icon: string; title: string; text: string }, idx: number) => {
+                  (value: { icon: string; title: string; description: string }, idx: number) => {
                     const IconComponent = getValueIcon(value.icon)
                     return (
                       <div key={idx} className="text-center">
@@ -456,7 +456,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
                           <IconComponent className="h-8 w-8 text-white" />
                         </div>
                         <h3 className="mb-2 font-bold text-[var(--text-primary)]">{value.title}</h3>
-                        <p className="text-sm text-[var(--text-secondary)]">{value.text}</p>
+                        <p className="text-sm text-[var(--text-secondary)]">{value.description}</p>
                       </div>
                     )
                   }

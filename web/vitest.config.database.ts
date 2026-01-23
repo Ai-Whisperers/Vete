@@ -11,9 +11,10 @@ export default defineConfig({
     testTimeout: 30000, // 30s for database operations
     hookTimeout: 30000,
     teardownTimeout: 30000,
-    pool: 'threads',
+    pool: 'forks', // Use forks instead of threads for better isolation
     // Note: poolOptions removed in Vitest 4
-    // Database tests run sequentially via beforeAll/afterAll hooks
+    // Database tests run sequentially to avoid race conditions
+    fileParallelism: false, // Run test files sequentially
     maxConcurrency: 1,
   },
   resolve: {

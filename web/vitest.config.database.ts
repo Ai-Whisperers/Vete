@@ -12,11 +12,9 @@ export default defineConfig({
     hookTimeout: 30000,
     teardownTimeout: 30000,
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: true, // Run database tests sequentially to avoid race conditions
-      },
-    },
+    // Note: poolOptions removed in Vitest 4
+    // Database tests run sequentially via beforeAll/afterAll hooks
+    maxConcurrency: 1,
   },
   resolve: {
     alias: {

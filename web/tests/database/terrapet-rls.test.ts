@@ -240,17 +240,20 @@ describe('TerraPet RLS Policy Enforcement', () => {
     })
 
     it('terrapet user can CREATE appointment for own tenant', async () => {
+      // Create appointment for 2 days from now at 2:00 PM
+      const startTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+      startTime.setHours(14, 0, 0, 0)
+      const endTime = new Date(startTime.getTime() + 30 * 60 * 1000) // +30 minutes
+
       const { data, error } = await terrapetOwner.client
         .from('appointments')
         .insert({
           tenant_id: 'terrapet',
           pet_id: terrapetPetId,
-          client_id: terrapetOwner.userId,
-          appointment_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0],
-          appointment_time: '14:00:00',
-          service_type: 'consultation',
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          duration_minutes: 30,
+          reason: 'Consultation',
           status: 'scheduled',
         })
         .select('id')
@@ -266,24 +269,27 @@ describe('TerraPet RLS Policy Enforcement', () => {
     })
 
     it('terrapet user CANNOT CREATE appointment for adris', async () => {
+      const startTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+      startTime.setHours(14, 0, 0, 0)
+      const endTime = new Date(startTime.getTime() + 30 * 60 * 1000)
+
       const { data, error } = await terrapetOwner.client
         .from('appointments')
         .insert({
           tenant_id: 'adris', // Trying to create for different tenant
           pet_id: adrisPetId,
-          client_id: adrisOwner.userId,
-          appointment_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0],
-          appointment_time: '15:00:00',
-          service_type: 'consultation',
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          duration_minutes: 30,
+          reason: 'Consultation',
           status: 'scheduled',
         })
         .select('id')
         .single()
 
-      // RLS should block this insert
-      expect(error).toBeDefined()
+      // Should fail - cross-tenant appointment creation
+      expect(error).not.toBeNull()
+      expect(data).toBeNull()
     })
 
     it('appointment queries filter by tenant_id', async () => {
@@ -322,16 +328,19 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(data?.id).toBe(terrapetOwner.userId)
     })
 
-    it('terrapet user can query other terrapet profiles', async () => {
+    it('terrapet user CANNOT query other terrapet profiles', async () => {
+      // RLS policy: Users can only query their OWN profile (id = auth.uid())
+      // Even within the same tenant, users cannot see other users' profiles
       const { data, error } = await terrapetOwner.client
         .from('profiles')
         .select('*')
         .eq('id', terrapetVet.userId)
         .single()
 
-      expect(error).toBeNull()
-      expect(data).toBeDefined()
-      expect(data?.tenant_id).toBe('terrapet')
+      // Should return no results (0 rows) because RLS filters it out
+      expect(error).not.toBeNull() // Will get "Cannot coerce to single" error
+      expect(error?.code).toBe('PGRST116') // "Result contains 0 rows"
+      expect(data).toBeNull()
     })
 
     it('terrapet user CANNOT query adris profiles', async () => {

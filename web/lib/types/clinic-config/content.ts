@@ -183,7 +183,7 @@ export interface MissionVision {
 export interface ValueItem {
   icon: string
   title: string
-  text: string
+  description: string
 }
 
 export interface TeamMember {

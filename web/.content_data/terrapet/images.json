@@ -111,7 +111,7 @@
         "height": 112
       },
       "favicon": {
-        "src": "favicon.ico",
+        "src": "/favicon.ico",
         "alt": "Favicon",
         "width": 32,
         "height": 32

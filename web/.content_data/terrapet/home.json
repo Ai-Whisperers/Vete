@@ -9,16 +9,19 @@
     {
       "icon": "heart-pulse",
       "title": "El Mejor Trato",
+      "description": "Buen trato y atención tanto para dueños como para pacientes. Tu mascota está en las mejores manos.",
       "text": "Buen trato y atención tanto para dueños como para pacientes. Tu mascota está en las mejores manos."
     },
     {
       "icon": "dollar-sign",
       "title": "Precios Accesibles",
+      "description": "Servicios veterinarios de calidad a precios que se ajustan a tu presupuesto.",
       "text": "Servicios veterinarios de calidad a precios que se ajustan a tu presupuesto."
     },
     {
       "icon": "shield-check",
       "title": "Servicios Completos",
+      "description": "Consultas, vacunación, desparasitación, peluquería, baño y más para tu perro.",
       "text": "Consultas, vacunación, desparasitación, peluquería, baño y más para tu perro."
     }
   ],

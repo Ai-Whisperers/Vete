@@ -15,5 +15,22 @@
       "bio": "Doctor en ciencias veterinarias especializado en clínica diaria. Comprometido con brindar la mejor atención a tu mascota con calidez y profesionalismo.",
       "photo_url": "https://drive.google.com/uc?id=1t_z4_tSXiPqm_c3NpQGepcxGfuX_ONLH"
     }
+  ],
+  "values": [
+    {
+      "title": "Mejor Trato",
+      "description": "Tratamos a cada perro con amor, respeto y dedicación. Tu mascota recibirá atención personalizada y cariñosa.",
+      "icon": "heart"
+    },
+    {
+      "title": "Precios Accesibles",
+      "description": "Cuidado veterinario de calidad al alcance de todos. Creemos que tu perro merece la mejor atención sin comprometer tu presupuesto.",
+      "icon": "dollar-sign"
+    },
+    {
+      "title": "Atención a Domicilio",
+      "description": "Consultas veterinarias en la comodidad de tu hogar, reduciendo el estrés de tu mascota.",
+      "icon": "home"
+    }
   ]
 }

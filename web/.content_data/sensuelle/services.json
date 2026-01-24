@@ -1,0 +1,612 @@
+{
+  "meta": {
+    "title": "Nuestros Servicios",
+    "subtitle": "Explorá todas las experiencias que Sensuelle tiene para ofrecerte"
+  },
+  "categories": [
+    {
+      "id": "store",
+      "name": "Tienda",
+      "icon": "shopping-bag",
+      "color": "#B76E79"
+    },
+    {
+      "id": "events",
+      "name": "Eventos",
+      "icon": "moon",
+      "color": "#722F37"
+    },
+    {
+      "id": "education",
+      "name": "Educación",
+      "icon": "academic-cap",
+      "color": "#D4AF37"
+    },
+    {
+      "id": "wellness",
+      "name": "Bienestar",
+      "icon": "heart",
+      "color": "#8B4557"
+    },
+    {
+      "id": "celebrations",
+      "name": "Celebraciones",
+      "icon": "cake",
+      "color": "#A68B2A"
+    },
+    {
+      "id": "creators",
+      "name": "Creadores",
+      "icon": "camera",
+      "color": "#D4A5A5"
+    }
+  ],
+  "services": [
+    {
+      "id": "personal-shopping",
+      "visible": true,
+      "category": "store",
+      "title": "Personal Shopper Íntimo",
+      "icon": "user-circle",
+      "summary": "Asesoría personalizada para encontrar los productos perfectos para vos.",
+      "details": {
+        "description": "Sesión privada con nuestros especialistas para descubrir productos que se adapten a tus preferencias, nivel de experiencia y presupuesto. Ambiente cómodo, sin juicios.",
+        "duration_minutes": 45,
+        "includes": [
+          "Consulta privada en tienda o virtual",
+          "Demostración de productos seleccionados",
+          "10% de descuento en tu primera compra",
+          "Guía de cuidado y uso"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Sesión Individual",
+          "price_display": "Gratuito",
+          "price_value": 0,
+          "description": "Con compra mínima de Gs. 150.000"
+        },
+        {
+          "name": "Sesión de Pareja",
+          "price_display": "Gs. 80.000",
+          "price_value": 80000,
+          "description": "Incluye copa de champagne"
+        },
+        {
+          "name": "Party Shopping",
+          "price_display": "Gs. 250.000",
+          "price_value": 250000,
+          "description": "Grupo de hasta 6 personas"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": false
+      }
+    },
+    {
+      "id": "noir-subscription",
+      "visible": true,
+      "category": "events",
+      "title": "Membresía Noir",
+      "icon": "star",
+      "summary": "Acceso VIP a todos los eventos Sensuelle Noir.",
+      "details": {
+        "description": "Membresía exclusiva para los amantes del lifestyle alternativo. Acceso prioritario a fiestas BDSM, eventos temáticos y experiencias privadas.",
+        "includes": [
+          "Entrada gratuita a eventos regulares",
+          "50% descuento en eventos especiales",
+          "Acceso a área VIP con servicio exclusivo",
+          "Invitaciones a eventos privados",
+          "Descuento 15% en tienda",
+          "Locker personal en el venue"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Membresía Individual",
+          "price_display": "Gs. 350.000/mes",
+          "price_value": 350000,
+          "description": "Pago mensual"
+        },
+        {
+          "name": "Membresía Pareja",
+          "price_display": "Gs. 550.000/mes",
+          "price_value": 550000,
+          "description": "Para dos personas"
+        },
+        {
+          "name": "Anual Individual",
+          "price_display": "Gs. 3.500.000/año",
+          "price_value": 3500000,
+          "description": "Ahorrá 2 meses"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "bdsm-101",
+      "visible": true,
+      "category": "education",
+      "title": "BDSM para Principiantes",
+      "icon": "book-open",
+      "summary": "Taller introductorio al mundo BDSM: seguridad, consentimiento y técnicas básicas.",
+      "details": {
+        "description": "Curso de 3 horas que cubre los fundamentos del BDSM: negociación, palabras de seguridad, nudos básicos, uso de juguetes y aftercare. Perfecto para curiosos y principiantes.",
+        "duration_minutes": 180,
+        "includes": [
+          "Material didáctico digital",
+          "Kit de práctica para llevar",
+          "Certificado de participación",
+          "Acceso a grupo privado de WhatsApp",
+          "Coffee break incluido"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Entrada Individual",
+          "price_display": "Gs. 280.000",
+          "price_value": 280000,
+          "description": "Por persona"
+        },
+        {
+          "name": "Entrada Pareja",
+          "price_display": "Gs. 450.000",
+          "price_value": 450000,
+          "description": "Descuento especial para parejas"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "rope-bondage",
+      "visible": true,
+      "category": "education",
+      "title": "Arte del Shibari",
+      "icon": "link",
+      "summary": "Aprende el arte japonés del bondage con cuerdas en un ambiente seguro.",
+      "details": {
+        "description": "Taller práctico de Shibari (bondage japonés) desde nivel principiante hasta avanzado. Técnicas tradicionales, seguridad, y la conexión íntima entre atador y modelo.",
+        "duration_minutes": 240,
+        "includes": [
+          "Set de cuerdas de práctica",
+          "Manual ilustrado",
+          "Práctica supervisada",
+          "Foto profesional de tu trabajo"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Nivel 1 - Fundamentos",
+          "price_display": "Gs. 350.000",
+          "price_value": 350000,
+          "description": "Para principiantes"
+        },
+        {
+          "name": "Nivel 2 - Intermedio",
+          "price_display": "Gs. 420.000",
+          "price_value": 420000,
+          "description": "Suspensiones parciales"
+        },
+        {
+          "name": "Nivel 3 - Avanzado",
+          "price_display": "Gs. 550.000",
+          "price_value": 550000,
+          "description": "Suspensiones completas"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "couples-communication",
+      "visible": true,
+      "category": "education",
+      "title": "Comunicación Erótica en Pareja",
+      "icon": "chat-bubble-left-right",
+      "summary": "Aprende a expresar tus deseos y escuchar los de tu pareja.",
+      "details": {
+        "description": "Taller diseñado para parejas que quieren mejorar su comunicación sexual. Técnicas para hablar de fantasías, establecer límites y mantener viva la pasión.",
+        "duration_minutes": 150,
+        "includes": [
+          "Ejercicios prácticos en pareja",
+          "Guía de conversaciones íntimas",
+          "Juego de cartas para parejas",
+          "Sesión de seguimiento virtual"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Por Pareja",
+          "price_display": "Gs. 380.000",
+          "price_value": 380000,
+          "description": "Taller grupal"
+        },
+        {
+          "name": "Sesión Privada",
+          "price_display": "Gs. 650.000",
+          "price_value": 650000,
+          "description": "Solo para ustedes"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "massage-sensual",
+      "visible": true,
+      "category": "education",
+      "title": "Masaje Sensual para Parejas",
+      "icon": "hand-raised",
+      "summary": "Técnicas de masaje erótico para reconectar con tu pareja.",
+      "details": {
+        "description": "Aprende técnicas de masaje sensual, uso de aceites y velas, zonas erógenas y cómo crear el ambiente perfecto para una noche inolvidable.",
+        "duration_minutes": 180,
+        "includes": [
+          "Kit de aceites aromáticos",
+          "Vela de masaje premium",
+          "Guía ilustrada de técnicas",
+          "Playlist exclusiva"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Taller Grupal",
+          "price_display": "Gs. 320.000",
+          "price_value": 320000,
+          "description": "Por pareja"
+        },
+        {
+          "name": "Clase Privada",
+          "price_display": "Gs. 580.000",
+          "price_value": 580000,
+          "description": "En la comodidad de tu hogar"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "sex-coaching",
+      "visible": true,
+      "category": "wellness",
+      "title": "Coaching Sexual",
+      "icon": "clipboard-document-check",
+      "summary": "Sesiones personalizadas para mejorar tu vida íntima.",
+      "details": {
+        "description": "Trabajo individual o en pareja con sexólogos certificados. Abordamos disfunciones, traumas, comunicación y desarrollo de una sexualidad plena y satisfactoria.",
+        "duration_minutes": 60,
+        "includes": [
+          "Evaluación inicial completa",
+          "Plan de trabajo personalizado",
+          "Ejercicios para realizar en casa",
+          "Seguimiento entre sesiones"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Sesión Individual",
+          "price_display": "Gs. 400.000",
+          "price_value": 400000,
+          "description": "60 minutos"
+        },
+        {
+          "name": "Sesión de Pareja",
+          "price_display": "Gs. 550.000",
+          "price_value": 550000,
+          "description": "90 minutos"
+        },
+        {
+          "name": "Pack 4 Sesiones",
+          "price_display": "Gs. 1.400.000",
+          "price_value": 1400000,
+          "description": "Ahorrá 15%"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "despedida-soltera",
+      "visible": true,
+      "category": "celebrations",
+      "title": "Despedida de Soltera",
+      "icon": "gift",
+      "summary": "La despedida perfecta: divertida, atrevida e inolvidable.",
+      "details": {
+        "description": "Organizamos despedidas de soltera personalizadas: desde eventos elegantes hasta noches salvajes. Incluye juegos, shows, productos y mucha diversión.",
+        "duration_minutes": 240,
+        "includes": [
+          "Venue privado decorado",
+          "Juegos y dinámicas",
+          "Kit de regalos para la novia",
+          "Barra de tragos (3 horas)",
+          "Show sorpresa",
+          "Fotografía del evento"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Pack Blush",
+          "price_display": "Gs. 2.500.000",
+          "price_value": 2500000,
+          "description": "Hasta 10 personas"
+        },
+        {
+          "name": "Pack Velvet",
+          "price_display": "Gs. 4.200.000",
+          "price_value": 4200000,
+          "description": "Hasta 20 personas"
+        },
+        {
+          "name": "Pack Noir",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Personalizado sin límites"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "despedida-soltero",
+      "visible": true,
+      "category": "celebrations",
+      "title": "Despedida de Soltero",
+      "icon": "fire",
+      "summary": "Una noche épica que el novio nunca olvidará.",
+      "details": {
+        "description": "Despedidas de soltero con estilo. Desde experiencias clásicas hasta aventuras extremas, personalizamos todo según el grupo.",
+        "duration_minutes": 300,
+        "includes": [
+          "Venue exclusivo",
+          "Open bar premium (4 horas)",
+          "Show especial",
+          "Juegos y competencias",
+          "Transporte incluido"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Pack Classic",
+          "price_display": "Gs. 3.000.000",
+          "price_value": 3000000,
+          "description": "Hasta 12 personas"
+        },
+        {
+          "name": "Pack Wild",
+          "price_display": "Gs. 5.500.000",
+          "price_value": 5500000,
+          "description": "Hasta 20 personas"
+        },
+        {
+          "name": "Pack Legendary",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Todo incluido, sin límites"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "cumple-atrevido",
+      "visible": true,
+      "category": "celebrations",
+      "title": "Cumpleaños Atrevido",
+      "icon": "cake",
+      "summary": "Celebrá tu cumple con un toque picante.",
+      "details": {
+        "description": "Fiestas de cumpleaños para adultos con temáticas sensuales. Perfecto para los 30, 40 o cualquier excusa para celebrar.",
+        "includes": [
+          "Decoración temática",
+          "Torta personalizada",
+          "Juegos para adultos",
+          "Regalos sorpresa",
+          "DJ y música"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Pack Mini",
+          "price_display": "Gs. 1.500.000",
+          "price_value": 1500000,
+          "description": "Hasta 8 personas"
+        },
+        {
+          "name": "Pack Full",
+          "price_display": "Gs. 2.800.000",
+          "price_value": 2800000,
+          "description": "Hasta 15 personas"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "content-studio",
+      "visible": true,
+      "category": "creators",
+      "title": "Estudio de Contenido",
+      "icon": "video-camera",
+      "summary": "Espacio profesional equipado para creadores de contenido adulto.",
+      "details": {
+        "description": "Estudio profesional con múltiples sets, iluminación profesional y privacidad total. Ideal para creadores de OnlyFans, Fansly y otras plataformas.",
+        "includes": [
+          "Uso de estudio por hora",
+          "5 sets diferentes temáticos",
+          "Iluminación profesional",
+          "Ring lights y softboxes",
+          "Camerino con espejo de maquillaje",
+          "WiFi alta velocidad"
+        ]
+      },
+      "variants": [
+        {
+          "name": "2 Horas",
+          "price_display": "Gs. 350.000",
+          "price_value": 350000,
+          "description": "Mínimo de reserva"
+        },
+        {
+          "name": "4 Horas",
+          "price_display": "Gs. 600.000",
+          "price_value": 600000,
+          "description": "Pack medio día"
+        },
+        {
+          "name": "8 Horas",
+          "price_display": "Gs. 1.000.000",
+          "price_value": 1000000,
+          "description": "Día completo"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "content-photography",
+      "visible": true,
+      "category": "creators",
+      "title": "Fotografía Profesional",
+      "icon": "camera",
+      "summary": "Sesiones fotográficas sensuales con fotógrafos especializados.",
+      "details": {
+        "description": "Sesiones de fotos profesionales para tu contenido, portfolio o simplemente para celebrar tu cuerpo. Ambiente seguro y respetuoso.",
+        "includes": [
+          "Fotógrafo profesional especializado",
+          "Uso de estudio y sets",
+          "Maquillaje y peinado básico",
+          "50 fotos editadas",
+          "Entrega digital en 72 horas"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Sesión Express",
+          "price_display": "Gs. 800.000",
+          "price_value": 800000,
+          "description": "1 hora, 30 fotos"
+        },
+        {
+          "name": "Sesión Completa",
+          "price_display": "Gs. 1.400.000",
+          "price_value": 1400000,
+          "description": "2 horas, 50 fotos"
+        },
+        {
+          "name": "Sesión Premium",
+          "price_display": "Gs. 2.500.000",
+          "price_value": 2500000,
+          "description": "4 horas, 100 fotos, video backstage"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "branding-creators",
+      "visible": true,
+      "category": "creators",
+      "title": "Branding para Creadores",
+      "icon": "paint-brush",
+      "summary": "Diseño de marca personal para creadores de contenido adulto.",
+      "details": {
+        "description": "Servicio completo de branding: logo, colores, tipografías, banners y templates para redes sociales. Destacate en el mercado.",
+        "includes": [
+          "Sesión de estrategia de marca",
+          "Logo y variaciones",
+          "Paleta de colores y tipografías",
+          "Pack de banners para redes",
+          "Templates editables",
+          "Manual de marca digital"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Pack Starter",
+          "price_display": "Gs. 1.200.000",
+          "price_value": 1200000,
+          "description": "Logo + redes básico"
+        },
+        {
+          "name": "Pack Pro",
+          "price_display": "Gs. 2.500.000",
+          "price_value": 2500000,
+          "description": "Branding completo"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    },
+    {
+      "id": "private-party-venue",
+      "visible": true,
+      "category": "events",
+      "title": "Alquiler de Venue Privado",
+      "icon": "home-modern",
+      "summary": "Espacio exclusivo para tus eventos privados más atrevidos.",
+      "details": {
+        "description": "Alquila nuestro espacio para fiestas privadas, encuentros de comunidad o eventos corporativos alternativos. Capacidad para 50 personas.",
+        "includes": [
+          "Venue exclusivo por la noche",
+          "Sistema de sonido profesional",
+          "Iluminación ambiente",
+          "Mobiliario temático",
+          "Personal de seguridad",
+          "Limpieza incluida"
+        ]
+      },
+      "variants": [
+        {
+          "name": "4 Horas",
+          "price_display": "Gs. 2.500.000",
+          "price_value": 2500000,
+          "description": "Evento corto"
+        },
+        {
+          "name": "8 Horas",
+          "price_display": "Gs. 4.000.000",
+          "price_value": 4000000,
+          "description": "Noche completa"
+        },
+        {
+          "name": "12 Horas",
+          "price_display": "Gs. 5.500.000",
+          "price_value": 5500000,
+          "description": "Evento extendido"
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "requires_deposit": true
+      }
+    }
+  ]
+}

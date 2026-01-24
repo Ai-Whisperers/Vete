@@ -1,0 +1,469 @@
+{
+  "meta": {
+    "title": "Eventos Sensuelle Noir",
+    "subtitle": "Experiencias únicas para adultos que celebran la libertad",
+    "age_restriction": true,
+    "dress_code_required": true,
+    "consent_policy": "Consentimiento entusiasta y verificable es obligatorio en todos nuestros eventos."
+  },
+  "venue": {
+    "name": "Noir Lounge",
+    "address": "Ubicación revelada 24h antes del evento",
+    "capacity": 80,
+    "features": [
+      "Área social con bar",
+      "Zona de juegos equipada",
+      "Dungeon privado",
+      "Área de descanso",
+      "Vestuarios con lockers",
+      "Sistema de sonido profesional"
+    ]
+  },
+  "event_types": [
+    {
+      "id": "noir-regular",
+      "name": "Noir Night",
+      "icon": "moon",
+      "description": "Nuestra fiesta BDSM mensual con dresscode obligatorio",
+      "frequency": "Mensual - Primer sábado"
+    },
+    {
+      "id": "munch",
+      "name": "Munch Social",
+      "icon": "users",
+      "description": "Encuentro social casual para conocer a la comunidad",
+      "frequency": "Quincenal - Jueves"
+    },
+    {
+      "id": "workshop",
+      "name": "Talleres Prácticos",
+      "icon": "academic-cap",
+      "description": "Sesiones educativas con práctica supervisada",
+      "frequency": "Semanal - Miércoles"
+    },
+    {
+      "id": "themed",
+      "name": "Fiestas Temáticas",
+      "icon": "sparkles",
+      "description": "Eventos especiales con temáticas únicas",
+      "frequency": "Ocasional"
+    },
+    {
+      "id": "private",
+      "name": "Eventos Privados",
+      "icon": "lock-closed",
+      "description": "Solo para miembros VIP y sus invitados",
+      "frequency": "Mensual"
+    }
+  ],
+  "upcoming_events": [
+    {
+      "id": "noir-febrero-2026",
+      "type": "noir-regular",
+      "title": "Noir Night - Febrero",
+      "subtitle": "La noche que despierta tus deseos más oscuros",
+      "date": "2026-02-07",
+      "time": "22:00 - 04:00",
+      "image": "/events/noir-febrero.jpg",
+      "description": "Nuestra icónica fiesta BDSM regresa con todo. Una noche de exploración, conexión y placer en un ambiente seguro y respetuoso. Dresscode obligatorio: Negro, cuero, látex, lencería o fetish.",
+      "highlights": [
+        "DJ residente con set dark electro",
+        "Performance de Shibari en vivo",
+        "Zonas de juego equipadas",
+        "Bar con cócteles signature",
+        "Dungeon masters certificados"
+      ],
+      "dress_code": {
+        "required": true,
+        "options": ["Negro formal", "Cuero", "Látex", "Lencería", "Fetish wear"],
+        "forbidden": ["Jeans", "Zapatillas deportivas", "Ropa casual"]
+      },
+      "pricing": [
+        {
+          "type": "early_bird",
+          "name": "Early Bird Individual",
+          "price": 180000,
+          "price_display": "Gs. 180.000",
+          "available_until": "2026-01-31",
+          "remaining": 15
+        },
+        {
+          "type": "early_bird_couple",
+          "name": "Early Bird Pareja",
+          "price": 300000,
+          "price_display": "Gs. 300.000",
+          "available_until": "2026-01-31",
+          "remaining": 10
+        },
+        {
+          "type": "regular",
+          "name": "Entrada Regular",
+          "price": 250000,
+          "price_display": "Gs. 250.000",
+          "remaining": 30
+        },
+        {
+          "type": "regular_couple",
+          "name": "Entrada Pareja",
+          "price": 400000,
+          "price_display": "Gs. 400.000",
+          "remaining": 20
+        },
+        {
+          "type": "vip",
+          "name": "Mesa VIP (4 personas)",
+          "price": 1500000,
+          "price_display": "Gs. 1.500.000",
+          "includes": ["Botella premium", "Área reservada", "Servicio dedicado"],
+          "remaining": 3
+        }
+      ],
+      "includes": [
+        "Entrada al evento",
+        "Welcome drink",
+        "Uso de instalaciones",
+        "Preservativos cortesía"
+      ],
+      "rules": [
+        "Dresscode obligatorio - Sin excepción",
+        "Identificación y membresía requerida",
+        "Consentimiento explícito para cualquier interacción",
+        "No fotos ni videos en ningún momento",
+        "Respeto por los límites de todos",
+        "Consumo responsable de alcohol"
+      ],
+      "status": "on_sale",
+      "sold_out": false
+    },
+    {
+      "id": "munch-enero-2026",
+      "type": "munch",
+      "title": "Munch Social - Conocé a la Comunidad",
+      "subtitle": "Encuentro casual para nuevos y veteranos del lifestyle",
+      "date": "2026-01-30",
+      "time": "19:00 - 22:00",
+      "image": "/events/munch-enero.jpg",
+      "description": "Encuentro informal en un bar/restaurant normal para conocer a otros miembros de la comunidad BDSM. Ambiente relajado, sin dresscode ni actividades kinky. Perfecto para principiantes.",
+      "highlights": [
+        "Ambiente casual y acogedor",
+        "Sin dresscode requerido",
+        "Oportunidad de hacer preguntas",
+        "Conocer mentores experimentados",
+        "Información sobre próximos eventos"
+      ],
+      "location": {
+        "type": "public_venue",
+        "name": "Bar de la Esquina",
+        "address": "Revelada con confirmación de asistencia"
+      },
+      "pricing": [
+        {
+          "type": "free",
+          "name": "Entrada Libre",
+          "price": 0,
+          "price_display": "Gratis",
+          "note": "Consumición no incluida"
+        }
+      ],
+      "includes": [
+        "Entrada libre",
+        "Mesa reservada para el grupo"
+      ],
+      "status": "on_sale",
+      "sold_out": false
+    },
+    {
+      "id": "taller-shibari-feb-2026",
+      "type": "workshop",
+      "title": "Taller: Introducción al Shibari",
+      "subtitle": "Aprende los fundamentos del bondage japonés",
+      "date": "2026-02-05",
+      "time": "19:00 - 22:00",
+      "image": "/events/shibari-workshop.jpg",
+      "description": "Taller práctico para principiantes donde aprenderás los nudos básicos, seguridad, y la filosofía detrás del arte del Shibari. Incluye cuerdas de práctica para llevar.",
+      "instructor": {
+        "name": "Master K",
+        "bio": "15 años de experiencia en Shibari tradicional. Formación en Japón con Nawashi reconocidos.",
+        "image": "/team/master-k.jpg"
+      },
+      "highlights": [
+        "3 horas de práctica guiada",
+        "Cuerdas de práctica incluidas",
+        "Material didáctico digital",
+        "Certificado de participación",
+        "Grupo reducido (máximo 6 parejas)"
+      ],
+      "requirements": [
+        "Venir en pareja (atador + modelo)",
+        "Ropa cómoda",
+        "No se requiere experiencia previa"
+      ],
+      "pricing": [
+        {
+          "type": "per_couple",
+          "name": "Por Pareja",
+          "price": 450000,
+          "price_display": "Gs. 450.000",
+          "remaining": 4
+        }
+      ],
+      "includes": [
+        "Set de 2 cuerdas de yute",
+        "Manual ilustrado en PDF",
+        "Acceso a grupo de práctica"
+      ],
+      "status": "on_sale",
+      "sold_out": false
+    },
+    {
+      "id": "carnaval-2026",
+      "type": "themed",
+      "title": "Carnaval Noir - Masquerade Ball",
+      "subtitle": "Donde las máscaras revelan tu verdadero yo",
+      "date": "2026-02-28",
+      "time": "22:00 - 05:00",
+      "image": "/events/carnaval-noir.jpg",
+      "description": "Celebrá el carnaval con nosotros en una noche de misterio y seducción. Máscaras obligatorias. Dresscode: Elegancia oscura, lencería de lujo, o disfraz fetish elaborado.",
+      "highlights": [
+        "Concurso de máscaras con premios",
+        "Show de burlesque",
+        "DJ internacional invitado",
+        "Decoración temática inmersiva",
+        "Fotógrafo profesional (zona designada)",
+        "Champagne toast a medianoche"
+      ],
+      "dress_code": {
+        "required": true,
+        "theme": "Masquerade / Carnaval Oscuro",
+        "options": ["Máscara elegante obligatoria", "Vestimenta formal oscura", "Lencería de lujo", "Fetish elaborado"],
+        "forbidden": ["Ropa casual", "Sin máscara"]
+      },
+      "pricing": [
+        {
+          "type": "early_bird",
+          "name": "Early Bird Individual",
+          "price": 280000,
+          "price_display": "Gs. 280.000",
+          "available_until": "2026-02-15",
+          "remaining": 20
+        },
+        {
+          "type": "early_bird_couple",
+          "name": "Early Bird Pareja",
+          "price": 480000,
+          "price_display": "Gs. 480.000",
+          "available_until": "2026-02-15",
+          "remaining": 15
+        },
+        {
+          "type": "regular",
+          "name": "Entrada Regular",
+          "price": 350000,
+          "price_display": "Gs. 350.000",
+          "remaining": 40
+        },
+        {
+          "type": "vip_table",
+          "name": "Mesa VIP (6 personas)",
+          "price": 2500000,
+          "price_display": "Gs. 2.500.000",
+          "includes": ["2 botellas premium", "Servicio VIP", "Área exclusiva"],
+          "remaining": 2
+        }
+      ],
+      "includes": [
+        "Entrada al evento",
+        "Máscara básica de cortesía",
+        "2 copas de champagne",
+        "Acceso a todas las zonas"
+      ],
+      "status": "on_sale",
+      "sold_out": false
+    },
+    {
+      "id": "private-marzo-2026",
+      "type": "private",
+      "title": "Noir Exclusive - Solo Miembros",
+      "subtitle": "La experiencia más íntima y exclusiva",
+      "date": "2026-03-14",
+      "time": "21:00 - 03:00",
+      "image": "/events/noir-exclusive.jpg",
+      "description": "Evento ultra exclusivo solo para miembros VIP y sus invitados verificados. Capacidad limitada a 30 personas. La experiencia Noir en su forma más pura e íntima.",
+      "highlights": [
+        "Capacidad ultra reducida",
+        "Ratio equilibrado garantizado",
+        "Catering gourmet incluido",
+        "Open bar premium toda la noche",
+        "Staff dedicado",
+        "Amenities de lujo"
+      ],
+      "eligibility": {
+        "members_only": true,
+        "member_types": ["VIP Annual", "Founding Member"],
+        "guest_policy": "1 invitado por miembro, previamente verificado"
+      },
+      "pricing": [
+        {
+          "type": "member",
+          "name": "Miembro VIP",
+          "price": 0,
+          "price_display": "Incluido en membresía",
+          "remaining": 15
+        },
+        {
+          "type": "guest",
+          "name": "Invitado de Miembro",
+          "price": 350000,
+          "price_display": "Gs. 350.000",
+          "remaining": 15
+        }
+      ],
+      "includes": [
+        "Entrada completa",
+        "Catering gourmet",
+        "Open bar premium",
+        "Valet parking",
+        "Kit de amenities"
+      ],
+      "status": "members_only",
+      "sold_out": false
+    },
+    {
+      "id": "taller-dominacion-feb",
+      "type": "workshop",
+      "title": "Taller: El Arte de la Dominación",
+      "subtitle": "Liderazgo, control y responsabilidad en el D/s",
+      "date": "2026-02-12",
+      "time": "19:00 - 22:00",
+      "image": "/events/dominacion-workshop.jpg",
+      "description": "Taller para personas interesadas en el rol dominante. Exploramos la psicología del poder, técnicas de control, negociación de escenas y la responsabilidad del Dom/me.",
+      "instructor": {
+        "name": "Domina V",
+        "bio": "Dominatrix profesional con 12 años de experiencia. Especialista en D/s psicológico y protocol training.",
+        "image": "/team/domina-v.jpg"
+      },
+      "highlights": [
+        "Teoría y práctica del poder intercambio",
+        "Técnicas de comando y control",
+        "Negociación y contratos D/s",
+        "Aftercare para ambos roles",
+        "Sesión de Q&A privada"
+      ],
+      "requirements": [
+        "Puede asistir solo/a o en pareja",
+        "Mayores de 21 años",
+        "Formulario de pre-registro completado"
+      ],
+      "pricing": [
+        {
+          "type": "individual",
+          "name": "Individual",
+          "price": 320000,
+          "price_display": "Gs. 320.000",
+          "remaining": 8
+        },
+        {
+          "type": "couple",
+          "name": "Pareja D/s",
+          "price": 520000,
+          "price_display": "Gs. 520.000",
+          "remaining": 4
+        }
+      ],
+      "includes": [
+        "Material didáctico completo",
+        "Plantillas de contrato D/s",
+        "Acceso a comunidad privada"
+      ],
+      "status": "on_sale",
+      "sold_out": false
+    }
+  ],
+  "past_events_gallery": [
+    {
+      "id": "noir-enero-2026",
+      "title": "Noir Night - Enero 2026",
+      "date": "2026-01-04",
+      "attendees": 65,
+      "photos": 0,
+      "description": "Una noche memorable que abrió el año con intensidad."
+    },
+    {
+      "id": "navidad-noir-2025",
+      "title": "Christmas in Chains - Navidad 2025",
+      "date": "2025-12-21",
+      "attendees": 80,
+      "photos": 0,
+      "description": "Nuestra fiesta navideña más grande hasta la fecha."
+    }
+  ],
+  "membership": {
+    "title": "Membresía Noir",
+    "benefits": [
+      "Entrada gratuita a eventos regulares",
+      "50% descuento en eventos especiales",
+      "Acceso anticipado a entradas",
+      "Invitaciones a eventos privados",
+      "15% descuento en tienda Sensuelle",
+      "Locker personal en el venue",
+      "Acceso a comunidad exclusiva online"
+    ],
+    "tiers": [
+      {
+        "id": "individual",
+        "name": "Membresía Individual",
+        "price_monthly": 350000,
+        "price_display": "Gs. 350.000/mes"
+      },
+      {
+        "id": "couple",
+        "name": "Membresía Pareja",
+        "price_monthly": 550000,
+        "price_display": "Gs. 550.000/mes"
+      },
+      {
+        "id": "annual",
+        "name": "Anual Individual",
+        "price_yearly": 3500000,
+        "price_display": "Gs. 3.500.000/año",
+        "savings": "Ahorrás 2 meses"
+      }
+    ]
+  },
+  "safety": {
+    "title": "Seguridad y Consentimiento",
+    "intro": "Tu seguridad es nuestra prioridad absoluta. Todos nuestros eventos siguen estrictos protocolos.",
+    "policies": [
+      {
+        "icon": "shield-check",
+        "title": "Verificación de Identidad",
+        "description": "Todos los asistentes deben presentar identificación y completar registro previo."
+      },
+      {
+        "icon": "hand-raised",
+        "title": "Consentimiento Explícito",
+        "description": "Cualquier interacción requiere consentimiento verbal claro. 'No' significa no, siempre."
+      },
+      {
+        "icon": "eye-slash",
+        "title": "Política de Privacidad",
+        "description": "Prohibido tomar fotos o videos. Lo que pasa en Noir, se queda en Noir."
+      },
+      {
+        "icon": "users",
+        "title": "Dungeon Masters",
+        "description": "Personal capacitado supervisa las zonas de juego para garantizar prácticas seguras."
+      },
+      {
+        "icon": "phone",
+        "title": "Línea de Ayuda",
+        "description": "Staff disponible toda la noche para cualquier situación incómoda."
+      },
+      {
+        "icon": "heart",
+        "title": "Zona de Aftercare",
+        "description": "Espacio tranquilo con agua, snacks y personal de apoyo post-escena."
+      }
+    ]
+  }
+}

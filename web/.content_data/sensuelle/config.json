@@ -9,23 +9,19 @@
     "phone_display": "+595 981 000 000",
     "email": "hola@sensuelle.com.py",
     "address": "Av. Mariscal López 2500, Asunción",
-    "google_maps_id": "ChIJxxxxxxxxxx",
-    "social": {
-      "instagram": "@sensuelle.py",
-      "twitter": "@sensuelle_py",
-      "telegram": "@sensuelle_canal"
-    }
+    "city": "Asunción",
+    "country": "PY",
+    "google_maps_id": "ChIJxxxxxxxxxx"
   },
-  "business_hours": {
-    "store": {
-      "weekdays": "10:00 - 21:00",
-      "saturday": "10:00 - 22:00",
-      "sunday": "14:00 - 20:00"
-    },
-    "events": {
-      "friday": "22:00 - 04:00",
-      "saturday": "22:00 - 05:00"
-    }
+  "social": {
+    "instagram": "https://instagram.com/sensuelle.py",
+    "facebook": "https://facebook.com/sensuelle.py",
+    "tiktok": "https://tiktok.com/@sensuelle.py"
+  },
+  "hours": {
+    "weekdays": "10:00 - 21:00",
+    "saturday": "10:00 - 22:00",
+    "sunday": "14:00 - 20:00"
   },
   "settings": {
     "currency": "PYG",
@@ -44,6 +40,7 @@
   },
   "branding": {
     "logo_url": "/branding/sensuelle/logo.png",
+    "logo_dark_url": "/branding/sensuelle/logo-white.png",
     "logo_width": 180,
     "logo_height": 50,
     "favicon_url": "/branding/sensuelle/favicon.ico",
@@ -62,9 +59,23 @@
       "contact": "Contacto",
       "login": "Mi Cuenta"
     },
+    "home": {
+      "features_title": "Por Qué Elegirnos",
+      "features_subtitle": "Descubrí la diferencia Sensuelle",
+      "tools_badge": "Exclusivo",
+      "contact_badge": "Contacto",
+      "visit_us": "Visitanos",
+      "map_button": "Ver en Mapa"
+    },
     "footer": {
       "rights": "Todos los derechos reservados.",
-      "age_disclaimer": "Solo para mayores de 18 años."
+      "age_disclaimer": "Solo para mayores de 18 años.",
+      "contact_us": "Contacto",
+      "newsletter_title": "Unite al Círculo Íntimo",
+      "newsletter_placeholder": "tu@email.com",
+      "newsletter_button": "Suscribirme",
+      "privacy": "Privacidad",
+      "terms": "Términos"
     },
     "store": {
       "add_to_cart": "Agregar al Carrito",

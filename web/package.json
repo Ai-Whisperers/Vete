@@ -144,7 +144,7 @@
     "react-hook-form": "^7.69.0",
     "react-is": "^19.2.3",
     "react-leaflet": "^5.0.0",
-    "recharts": "^3.6.0",
+    "recharts": "^3.7.0",
     "resend": "^6.6.0",
     "server-only": "^0.0.1",
     "stripe": "^20.1.0",

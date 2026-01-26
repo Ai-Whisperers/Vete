@@ -1,0 +1,44 @@
+{
+  "displayInShowcase": true,
+  "testimonial": "Sensuelle transformó la forma en que Paraguay habla de sexualidad. Lo que empezó como una tienda online se convirtió en un movimiento que celebra el placer, educa sin tabúes y construye comunidad.",
+  "shortTestimonial": "El placer es un derecho, y la educación lo hace posible.",
+  "joinedDate": "2019-03",
+  "metrics": {
+    "customersServed": "15,000+",
+    "productsAvailable": "500+",
+    "eventsHosted": "200+",
+    "communityMembers": "5,000+"
+  },
+  "contactPerson": {
+    "name": "Valentina R.",
+    "role": "Fundadora & CEO",
+    "quote": "Creamos el espacio que siempre quisimos encontrar: uno donde el placer se celebra, no se esconde."
+  },
+  "specialties": [
+    "Tienda de productos íntimos premium",
+    "Eventos BDSM y lifestyle",
+    "Talleres de educación sexual",
+    "Coaching de parejas",
+    "Servicios para creadores de contenido",
+    "Organización de celebraciones"
+  ],
+  "highlights": [
+    "Primera tienda en Paraguay con productos body-safe certificados",
+    "Comunidad BDSM más grande del país",
+    "Equipo de sexólogos y educadores certificados",
+    "Envío 100% discreto a todo el país",
+    "Eventos con protocolos de seguridad y consentimiento"
+  ],
+  "awards": [
+    {
+      "year": "2024",
+      "title": "Emprendimiento del Año - Categoría Servicios",
+      "organization": "Cámara de Comercio de Asunción"
+    },
+    {
+      "year": "2023",
+      "title": "Mejor Iniciativa de Educación Sexual",
+      "organization": "Fundación Kuña Aty"
+    }
+  ]
+}

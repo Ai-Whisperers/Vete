@@ -1,0 +1,294 @@
+{
+  "$comment": "Replace paths with actual images when available",
+  "version": "1.0",
+  "basePath": "/branding/sensuelle/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero-bg.jpg",
+        "alt": "Sensuelle - Despierta tus sentidos",
+        "width": 1920,
+        "height": 1080
+      },
+      "store": {
+        "src": "store-hero.jpg",
+        "alt": "Tienda Sensuelle - Productos premium",
+        "width": 1920,
+        "height": 1080
+      },
+      "events": {
+        "src": "events-hero.jpg",
+        "alt": "Sensuelle Noir - Eventos exclusivos",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "about-hero.jpg",
+        "alt": "Nuestra historia",
+        "width": 1920,
+        "height": 1080
+      },
+      "academy": {
+        "src": "academy-hero.jpg",
+        "alt": "Sensuelle Academy - Educación sin tabúes",
+        "width": 1920,
+        "height": 1080
+      },
+      "wellness": {
+        "src": "wellness-hero.jpg",
+        "alt": "Sensuelle Wellness - Tu bienestar íntimo",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "team": {
+      "valentina": {
+        "src": "team/valentina.jpg",
+        "alt": "Valentina R. - Fundadora & CEO",
+        "width": 400,
+        "height": 500
+      },
+      "martin": {
+        "src": "team/martin.jpg",
+        "alt": "Martín S. - Director de Operaciones",
+        "width": 400,
+        "height": 500
+      },
+      "lucia": {
+        "src": "team/lucia.jpg",
+        "alt": "Lucía M. - Curadora de Productos",
+        "width": 400,
+        "height": 500
+      },
+      "carlos": {
+        "src": "team/carlos.jpg",
+        "alt": "Carlos D. - Director de Eventos",
+        "width": 400,
+        "height": 500
+      },
+      "ana": {
+        "src": "team/ana.jpg",
+        "alt": "Ana G. - Directora de Educación",
+        "width": 400,
+        "height": 500
+      },
+      "master-k": {
+        "src": "team/master-k.jpg",
+        "alt": "Master K - Instructor de Shibari",
+        "width": 400,
+        "height": 500
+      },
+      "domina-v": {
+        "src": "team/domina-v.jpg",
+        "alt": "Domina V - Instructora D/s",
+        "width": 400,
+        "height": 500
+      }
+    },
+    "venue": {
+      "lounge": {
+        "src": "venue/lounge.jpg",
+        "alt": "Noir Lounge - Área social",
+        "width": 800,
+        "height": 600
+      },
+      "bar": {
+        "src": "venue/bar.jpg",
+        "alt": "Bar con cócteles signature",
+        "width": 800,
+        "height": 600
+      },
+      "playroom": {
+        "src": "venue/playroom.jpg",
+        "alt": "Zona de juegos equipada",
+        "width": 800,
+        "height": 600
+      },
+      "dungeon": {
+        "src": "venue/dungeon.jpg",
+        "alt": "Dungeon privado",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "store": {
+      "interior": {
+        "src": "store/interior.jpg",
+        "alt": "Interior de la tienda Sensuelle",
+        "width": 800,
+        "height": 600
+      },
+      "display": {
+        "src": "store/display.jpg",
+        "alt": "Exhibición de productos",
+        "width": 800,
+        "height": 600
+      },
+      "consultation": {
+        "src": "store/consultation.jpg",
+        "alt": "Área de consulta privada",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "studio": {
+      "set1": {
+        "src": "studio/set1.jpg",
+        "alt": "Set de fotografía - Boudoir",
+        "width": 800,
+        "height": 600
+      },
+      "set2": {
+        "src": "studio/set2.jpg",
+        "alt": "Set de fotografía - Industrial",
+        "width": 800,
+        "height": 600
+      },
+      "set3": {
+        "src": "studio/set3.jpg",
+        "alt": "Set de fotografía - Luxury",
+        "width": 800,
+        "height": 600
+      },
+      "equipment": {
+        "src": "studio/equipment.jpg",
+        "alt": "Equipamiento profesional",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "events": {
+      "noir-night": {
+        "src": "events/noir-night.jpg",
+        "alt": "Noir Night - Ambiente",
+        "width": 1200,
+        "height": 800
+      },
+      "shibari-show": {
+        "src": "events/shibari-show.jpg",
+        "alt": "Performance de Shibari",
+        "width": 1200,
+        "height": 800
+      },
+      "masquerade": {
+        "src": "events/masquerade.jpg",
+        "alt": "Masquerade Ball",
+        "width": 1200,
+        "height": 800
+      },
+      "workshop": {
+        "src": "events/workshop.jpg",
+        "alt": "Taller en progreso",
+        "width": 1200,
+        "height": 800
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.png",
+        "alt": "Sensuelle Logo",
+        "width": 300,
+        "height": 80
+      },
+      "logo-white": {
+        "src": "logo-white.png",
+        "alt": "Sensuelle Logo (blanco)",
+        "width": 300,
+        "height": 80
+      },
+      "logo-noir": {
+        "src": "logo-noir.png",
+        "alt": "Sensuelle Noir Logo",
+        "width": 300,
+        "height": 80
+      },
+      "logo-academy": {
+        "src": "logo-academy.png",
+        "alt": "Sensuelle Academy Logo",
+        "width": 300,
+        "height": 80
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "Sensuelle - Open Graph Image",
+        "width": 1200,
+        "height": 630
+      },
+      "og-image-store": {
+        "src": "og-image-store.jpg",
+        "alt": "Sensuelle Store - Open Graph",
+        "width": 1200,
+        "height": 630
+      },
+      "og-image-events": {
+        "src": "og-image-events.jpg",
+        "alt": "Sensuelle Noir - Open Graph",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "categories": {
+      "vibradores": {
+        "src": "categories/vibradores.jpg",
+        "alt": "Vibradores - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "dildos": {
+        "src": "categories/dildos.jpg",
+        "alt": "Dildos - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "anal": {
+        "src": "categories/anal.jpg",
+        "alt": "Juguetes Anales - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "parejas": {
+        "src": "categories/parejas.jpg",
+        "alt": "Para Parejas - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "bdsm": {
+        "src": "categories/bdsm.jpg",
+        "alt": "BDSM & Fetish - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "lenceria": {
+        "src": "categories/lenceria.jpg",
+        "alt": "Lencería - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "lubricantes": {
+        "src": "categories/lubricantes.jpg",
+        "alt": "Lubricantes - Categoría",
+        "width": 600,
+        "height": 400
+      },
+      "bienestar": {
+        "src": "categories/bienestar.jpg",
+        "alt": "Bienestar Íntimo - Categoría",
+        "width": 600,
+        "height": 400
+      }
+    }
+  },
+  "placeholders": {
+    "product": "/images/placeholders/product-placeholder.jpg",
+    "team": "/images/placeholders/team-placeholder.jpg",
+    "event": "/images/placeholders/event-placeholder.jpg",
+    "category": "/images/placeholders/category-placeholder.jpg",
+    "venue": "/images/placeholders/venue-placeholder.jpg"
+  }
+}

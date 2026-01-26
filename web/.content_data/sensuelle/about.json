@@ -1,0 +1,207 @@
+{
+  "intro": {
+    "title": "Nuestra Historia",
+    "subtitle": "De un sueño a un movimiento",
+    "text": "Sensuelle nació en 2019 de la frustración de no encontrar un espacio seguro, elegante y sin juicios para explorar la sexualidad en Paraguay. Lo que empezó como una pequeña tienda online con productos curados a mano, evolucionó en un ecosistema completo de bienestar íntimo.\n\nHoy somos más que una tienda: somos una comunidad. Organizamos eventos que celebran la diversidad sexual, talleres que educan sin tabúes, y brindamos servicios que ayudan a las personas a conectar con su placer de manera saludable.\n\nCreemos que el placer es un derecho, que la educación sexual empodera, y que cada persona merece explorar su sexualidad en un ambiente de respeto y seguridad."
+  },
+  "values": [
+    {
+      "icon": "shield-check",
+      "title": "Seguridad Primero",
+      "description": "Todos nuestros productos son body-safe y certificados. Nuestros eventos tienen protocolos estrictos de seguridad y consentimiento."
+    },
+    {
+      "icon": "eye-slash",
+      "title": "Discreción Total",
+      "description": "Entendemos la importancia de la privacidad. Desde el empaque hasta la facturación, todo es 100% discreto."
+    },
+    {
+      "icon": "academic-cap",
+      "title": "Educación sin Tabúes",
+      "description": "Creemos en el poder de la información. Educamos sobre sexualidad de manera profesional, científica y sin moralismos."
+    },
+    {
+      "icon": "heart",
+      "title": "Sin Juicios",
+      "description": "Celebramos la diversidad sexual en todas sus formas. Aquí no hay fetiches raros, solo preferencias diferentes."
+    },
+    {
+      "icon": "users",
+      "title": "Comunidad",
+      "description": "Más que clientes, construimos una comunidad de personas que comparten valores de respeto y exploración consciente."
+    },
+    {
+      "icon": "sparkles",
+      "title": "Calidad Premium",
+      "description": "Seleccionamos solo las mejores marcas mundiales. Si no lo usaríamos nosotros, no lo vendemos."
+    }
+  ],
+  "milestones": [
+    {
+      "year": "2019",
+      "title": "El Inicio",
+      "description": "Lanzamiento de la tienda online con 50 productos seleccionados."
+    },
+    {
+      "year": "2020",
+      "title": "Crecimiento Digital",
+      "description": "La pandemia nos obligó a innovar. Lanzamos talleres virtuales y delivery discreto en todo el país."
+    },
+    {
+      "year": "2021",
+      "title": "Primera Tienda Física",
+      "description": "Abrimos nuestro showroom privado con atención personalizada con cita previa."
+    },
+    {
+      "year": "2022",
+      "title": "Sensuelle Noir",
+      "description": "Lanzamos nuestra línea de eventos BDSM, llenando un vacío en la comunidad local."
+    },
+    {
+      "year": "2023",
+      "title": "Sensuelle Academy",
+      "description": "Inauguramos nuestro programa de educación sexual con más de 500 graduados el primer año."
+    },
+    {
+      "year": "2024",
+      "title": "Expansión de Servicios",
+      "description": "Lanzamos Wellness, Celebrations y Studio, consolidando nuestro ecosistema completo."
+    },
+    {
+      "year": "2025",
+      "title": "5000 Miembros",
+      "description": "Alcanzamos 5000 miembros activos en nuestra comunidad."
+    }
+  ],
+  "team": [
+    {
+      "id": "valentina",
+      "name": "Valentina R.",
+      "role": "Fundadora & CEO",
+      "bio": "Sexóloga clínica y emprendedora. Después de años trabajando en clínicas tradicionales, decidió crear el espacio que siempre soñó: uno donde el placer se celebra, no se esconde.",
+      "image": "/team/valentina.jpg",
+      "specialties": ["Dirección estratégica", "Sexología clínica", "Comunicación"]
+    },
+    {
+      "id": "martin",
+      "name": "Martín S.",
+      "role": "Director de Operaciones",
+      "bio": "Background en retail de lujo y logística. Se encarga de que cada producto llegue perfecto y a tiempo, y que cada evento funcione sin problemas.",
+      "image": "/team/martin.jpg",
+      "specialties": ["Logística", "Operaciones", "Customer Experience"]
+    },
+    {
+      "id": "lucia",
+      "name": "Lucía M.",
+      "role": "Curadora de Productos",
+      "bio": "Viaja por el mundo buscando los mejores productos. Si algo está en nuestra tienda, es porque Lucía lo probó, investigó y aprobó personalmente.",
+      "image": "/team/lucia.jpg",
+      "specialties": ["Curaduría", "Tendencias", "Control de calidad"]
+    },
+    {
+      "id": "carlos",
+      "name": "Carlos D.",
+      "role": "Director de Eventos - Sensuelle Noir",
+      "bio": "Organizador de eventos con más de 10 años en la escena underground. Convierte espacios ordinarios en experiencias extraordinarias.",
+      "image": "/team/carlos.jpg",
+      "specialties": ["Producción de eventos", "Comunidad BDSM", "Seguridad"]
+    },
+    {
+      "id": "ana",
+      "name": "Ana G.",
+      "role": "Directora de Educación - Sensuelle Academy",
+      "bio": "Psicóloga especializada en sexualidad humana. Diseña nuestros talleres y entrena al equipo en atención al cliente sensible.",
+      "image": "/team/ana.jpg",
+      "specialties": ["Psicología sexual", "Diseño curricular", "Capacitación"]
+    },
+    {
+      "id": "master-k",
+      "name": "Master K",
+      "role": "Instructor de Shibari",
+      "bio": "15 años de práctica en bondage japonés. Formación en Japón con Nawashi reconocidos. Enseña el arte y la filosofía detrás de las cuerdas.",
+      "image": "/team/master-k.jpg",
+      "specialties": ["Shibari", "Bondage seguro", "Tradición japonesa"]
+    },
+    {
+      "id": "domina-v",
+      "name": "Domina V",
+      "role": "Instructora D/s & Fetish",
+      "bio": "Dominatrix profesional con 12 años de experiencia. Especialista en dinámicas de poder, protocolo y psicología del BDSM.",
+      "image": "/team/domina-v.jpg",
+      "specialties": ["D/s dinámicas", "Fetish", "Mentoring"]
+    }
+  ],
+  "partnerships": {
+    "title": "Marcas que Representamos",
+    "subtitle": "Trabajamos solo con las mejores marcas mundiales",
+    "brands": [
+      {
+        "name": "LELO",
+        "logo": "/brands/lelo.png",
+        "description": "Lujo sueco en juguetes íntimos"
+      },
+      {
+        "name": "We-Vibe",
+        "logo": "/brands/we-vibe.png",
+        "description": "Pioneros en tecnología para parejas"
+      },
+      {
+        "name": "Satisfyer",
+        "logo": "/brands/satisfyer.png",
+        "description": "Innovación alemana accesible"
+      },
+      {
+        "name": "Njoy",
+        "logo": "/brands/njoy.png",
+        "description": "Artesanía en acero inoxidable"
+      },
+      {
+        "name": "B-Vibe",
+        "logo": "/brands/b-vibe.png",
+        "description": "Especialistas en placer anal"
+      },
+      {
+        "name": "Sliquid",
+        "logo": "/brands/sliquid.png",
+        "description": "Lubricantes naturales y veganos"
+      },
+      {
+        "name": "Sportsheets",
+        "logo": "/brands/sportsheets.png",
+        "description": "Equipamiento BDSM de calidad"
+      },
+      {
+        "name": "Elvie",
+        "logo": "/brands/elvie.png",
+        "description": "Tecnología para bienestar íntimo"
+      }
+    ]
+  },
+  "press": {
+    "title": "En los Medios",
+    "mentions": [
+      {
+        "outlet": "La Nación",
+        "title": "La revolución del placer llega a Paraguay",
+        "date": "2024-03-15",
+        "quote": "Sensuelle está cambiando la conversación sobre sexualidad en el país..."
+      },
+      {
+        "outlet": "Última Hora",
+        "title": "Emprendimiento paraguayo rompe tabúes",
+        "date": "2023-11-22",
+        "quote": "Una propuesta que combina comercio, educación y comunidad..."
+      },
+      {
+        "outlet": "ABC Color",
+        "title": "Educación sexual para adultos: el nuevo negocio",
+        "date": "2023-08-10",
+        "quote": "Los talleres de Sensuelle Academy registran lleno total mes a mes..."
+      }
+    ]
+  },
+  "seo": {
+    "meta_title": "Sobre Nosotros | Sensuelle - Bienestar Íntimo en Paraguay",
+    "meta_description": "Conocé nuestra historia, valores y equipo. Sensuelle es más que una tienda: somos una comunidad que celebra el placer, la educación y la diversidad sexual."
+  }
+}

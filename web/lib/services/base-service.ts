@@ -31,6 +31,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
+import { ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/i18n/errors';
 
 // =============================================================================
 // SERVICE RESULT TYPES
@@ -191,8 +192,7 @@ export abstract class BaseService {
     resourceType: string = 'resource'
   ): void {
     if (resourceTenantId !== requestTenantId) {
-      throw new Error(
-        `Tenant mismatch: ${resourceType} belongs to '${resourceTenantId}', request from '${requestTenantId}'`
+      throw new Error(ERROR_MESSAGES.AUTH.FORBIDDEN_TENANT
       );
     }
   }

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Helper to create chainable mock query builder
 const createMockQueryBuilder = (overrides = {}) => ({
@@ -77,7 +78,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'owner' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'owner' },
           error: null,
         }),
       }))
@@ -105,7 +106,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -132,7 +133,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -164,7 +165,7 @@ describe('Invoice Server Actions', () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
-              data: { tenant_id: 'adris', role: 'vet' },
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
               error: null,
             }),
           }
@@ -174,7 +175,7 @@ describe('Invoice Server Actions', () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
-              data: { id: 'pet-123', tenant_id: 'adris', owner_id: 'owner-456' },
+              data: { id: 'pet-123', tenant_id: TENANT_IDS.ADRIS, owner_id: 'owner-456' },
               error: null,
             }),
           }
@@ -248,7 +249,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'owner' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'owner' },
           error: null,
         }),
       }))
@@ -277,7 +278,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -315,7 +316,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -353,7 +354,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -397,7 +398,7 @@ describe('Invoice Server Actions', () => {
           callCount++
           if (callCount === 1) {
             return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
               error: null,
             })
           }
@@ -408,7 +409,7 @@ describe('Invoice Server Actions', () => {
               total: 100000,
               amount_paid: 0,
               amount_due: 100000,
-              tenant_id: 'adris',
+              tenant_id: TENANT_IDS.ADRIS,
             },
             error: null,
           })
@@ -438,7 +439,7 @@ describe('Invoice Server Actions', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { tenant_id: 'adris', role: 'vet' },
+          data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
           error: null,
         }),
       }))
@@ -498,13 +499,13 @@ describe('Invoice Server Actions', () => {
           callCount++
           if (callCount === 1) {
             return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
               error: null,
             })
           }
           // Invoice already paid - can't change status
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'paid', tenant_id: 'adris' },
+            data: { id: 'invoice-123', status: 'paid', tenant_id: TENANT_IDS.ADRIS },
             error: null,
           })
         }),
@@ -549,13 +550,13 @@ describe('Invoice Server Actions', () => {
           callCount++
           if (callCount === 1) {
             return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
               error: null,
             })
           }
           // Invoice is void - can't be sent
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'void', tenant_id: 'adris' },
+            data: { id: 'invoice-123', status: 'void', tenant_id: TENANT_IDS.ADRIS },
             error: null,
           })
         }),
@@ -600,12 +601,12 @@ describe('Invoice Server Actions', () => {
           callCount++
           if (callCount === 1) {
             return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' },
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' },
               error: null,
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'void', tenant_id: 'adris', amount_paid: 0 },
+            data: { id: 'invoice-123', status: 'void', tenant_id: TENANT_IDS.ADRIS, amount_paid: 0 },
             error: null,
           })
         }),
@@ -634,12 +635,12 @@ describe('Invoice Server Actions', () => {
           callCount++
           if (callCount === 1) {
             return Promise.resolve({
-              data: { tenant_id: 'adris', role: 'vet' }, // Not admin
+              data: { tenant_id: TENANT_IDS.ADRIS, role: 'vet' }, // Not admin
               error: null,
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'partial', tenant_id: 'adris', amount_paid: 50000 },
+            data: { id: 'invoice-123', status: 'partial', tenant_id: TENANT_IDS.ADRIS, amount_paid: 50000 },
             error: null,
           })
         }),

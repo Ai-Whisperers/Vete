@@ -173,9 +173,11 @@ export function groupByService(items: CartItem[]): ServiceCartGroup[] {
       item.type === 'service' && item.service_id && item.pet_id && item.pet_name && item.pet_size
   )
 
+  // Non-null assertions safe: filter on lines 171-174 guarantees these exist
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   for (const item of serviceItems) {
     // Create composite key: service_id + variant_name
-    const key = `${item.service_id}-${item.variant_name || 'default'}`
+    const key = `${item.service_id!}-${item.variant_name || 'default'}`
 
     const existing = serviceMap.get(key)
 
@@ -212,6 +214,7 @@ export function groupByService(items: CartItem[]): ServiceCartGroup[] {
       })
     }
   }
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   // Convert to array and sort by service name
   return Array.from(serviceMap.values()).sort((a, b) =>

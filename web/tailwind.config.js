@@ -1,4 +1,16 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * ⚠️  TAILWIND VERSION LOCKED TO v3.4.19
+ * 
+ * DO NOT UPGRADE TO v4 without completing the migration in:
+ * docs/TAILWIND_V4_MIGRATION.md
+ * 
+ * Reason: Tailwind v4's scanner misinterprets JSON color values in
+ * .content_data/ as Tailwind class names, causing build failures.
+ * 
+ * See package.json - version is pinned exactly (no ^ or ~).
+ * 
+ * @type {import('tailwindcss').Config}
+ */
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',

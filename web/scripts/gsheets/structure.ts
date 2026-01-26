@@ -44,12 +44,8 @@ export async function clearSpreadsheet(spreadsheetId: string = SPREADSHEET_ID): 
     await batchUpdate(spreadsheetId, deleteRequests)
   }
 
-  // Get temp sheet ID for later deletion
-  const newSheetMap = await getSheetIds(spreadsheetId)
-  const tempSheetId = newSheetMap['__TEMP__']
-
-  // Store for later deletion after real sheets are created
-  return tempSheetId as any // Return temp sheet ID to delete later
+  // Temp sheet will be deleted later when real sheets are created
+  console.log('  ✓ Spreadsheet cleared')
 }
 
 /**

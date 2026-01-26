@@ -7,7 +7,7 @@ import { getPetProfile } from '@/app/actions/pets'
 import { getPetDocuments } from '@/app/actions/pet-documents'
 import { AuthService } from '@/lib/auth/core'
 import { createClient } from '@/lib/supabase/server'
-import type { MedicalRecord, Vaccine, Prescription } from '@/lib/types/database'
+import type { MedicalRecord, Prescription } from '@/lib/types/database'
 import type { AppointmentStatus } from '@/lib/types/status'
 
 interface VaccineReaction {

@@ -91,10 +91,13 @@ export function usePetSummaryData({ pet }: UsePetSummaryDataProps) {
   const getUpcomingVaccines = (): Vaccine[] => {
     if (!pet.vaccines) return []
     const today = new Date()
+    // Non-null assertions safe: filter ensures next_due_date exists
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     return pet.vaccines
       .filter((v) => v.next_due_date && new Date(v.next_due_date) >= today)
       .sort((a, b) => new Date(a.next_due_date!).getTime() - new Date(b.next_due_date!).getTime())
       .slice(0, 3)
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
   }
 
   // Get overdue vaccines

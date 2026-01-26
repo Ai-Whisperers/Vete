@@ -1,6 +1,7 @@
 import { GET, PUT } from '@/app/api/settings/general/route'
 import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Mock Next.js server modules
 vi.mock('next/server', () => {
@@ -21,7 +22,7 @@ vi.mock('@/lib/api/with-auth', () => ({
     return handler({
       request,
       user: { id: 'user-123' },
-      profile: { role: 'admin', tenant_id: 'adris' },
+      profile: { role: 'admin', tenant_id: TENANT_IDS.ADRIS },
       supabase: {},
     })
   },

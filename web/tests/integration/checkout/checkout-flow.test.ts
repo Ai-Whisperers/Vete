@@ -14,6 +14,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { POST } from '@/app/api/store/checkout/route'
 import { NextRequest } from 'next/server'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Mock response type helper
 interface MockResponse {
@@ -23,7 +24,7 @@ interface MockResponse {
 
 // Mock user and profile
 const mockUser = { id: 'user-123', email: 'customer@clinic.com' }
-const mockProfile = { tenant_id: 'adris', role: 'owner', full_name: 'Test Customer' }
+const mockProfile = { tenant_id: TENANT_IDS.ADRIS, role: 'owner', full_name: 'Test Customer' }
 
 // Mock RPC function
 const mockRpcFn = vi.fn()
@@ -454,7 +455,7 @@ describe('Checkout API', () => {
         await POST(request)
 
         expect(mockRpcFn).toHaveBeenCalledWith('process_checkout', {
-          p_tenant_id: 'adris',
+          p_tenant_id: TENANT_IDS.ADRIS,
           p_user_id: 'user-123',
           p_items: expect.any(String),
           p_notes: 'Test notes',

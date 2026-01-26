@@ -174,10 +174,13 @@ export async function getTimeOffRequests(
 
   // Get staff profile info for each request
   const staffProfileIds = [...new Set(requests.map((r) => r.staff_profile_id))]
+  // Non-null assertions safe: filter ensures these values exist
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   const reviewerIds = [...new Set(requests.filter((r) => r.reviewed_by).map((r) => r.reviewed_by!))]
   const coveringIds = [
     ...new Set(requests.filter((r) => r.covering_staff_id).map((r) => r.covering_staff_id!)),
   ]
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   // Get staff profiles
   const { data: staffProfiles } = await supabase

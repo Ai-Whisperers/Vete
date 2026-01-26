@@ -55,7 +55,8 @@ export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
 export function createSupabaseMock<T = unknown>() {
   // Chain methods - create chainable mock
   const createChainMock = () => {
-    const chain: any = {
+    // Using Record for test mock - allows dynamic properties while maintaining type safety
+    const chain: Record<string, ReturnType<typeof vi.fn>> = {
       select: vi.fn(),
       insert: vi.fn(),
       update: vi.fn(),

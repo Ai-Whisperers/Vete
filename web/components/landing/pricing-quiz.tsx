@@ -63,8 +63,11 @@ pricingTiers.forEach((tier) => {
 export function PricingQuiz(): React.ReactElement {
   const [selectedTier, setSelectedTier] = useState<TierId | null>(null)
 
+  // Non-null assertions safe: 'gratis' and 'profesional' are guaranteed core tier IDs
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   const gratisTier = pricingTiers.find((t) => t.id === 'gratis')!
   const profesionalTier = pricingTiers.find((t) => t.id === 'profesional')!
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   if (selectedTier) {
     const plan = plans[selectedTier]

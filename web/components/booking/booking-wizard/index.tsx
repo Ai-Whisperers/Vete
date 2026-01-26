@@ -18,8 +18,8 @@ import type { ClinicConfig, User, Pet } from './types'
 const STEP_ORDER = ['service', 'pet', 'confirm'] as const
 
 interface BookingWizardProps {
-  clinic: ClinicConfig | any // Allow ClinicData from getClinicData
-  user: User | any // Allow Supabase User
+  clinic: ClinicConfig | Record<string, unknown> // Allow ClinicData from getClinicData
+  user: User | Record<string, unknown> // Allow Supabase User
   userPets: Pet[]
   initialServiceIds?: string[] // Support multiple services
   initialPetId?: string

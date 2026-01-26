@@ -21,6 +21,7 @@
 import React, { ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { vi, Mock } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants'
 
 // =============================================================================
 // Types
@@ -448,7 +449,7 @@ export function createMockAppointment(overrides: Partial<MockAppointment> = {}):
 
   return {
     id: `appointment-${Math.random().toString(36).slice(2)}`,
-    tenant_id: 'adris',
+    tenant_id: TENANT_IDS.ADRIS,
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
     status: 'pending',

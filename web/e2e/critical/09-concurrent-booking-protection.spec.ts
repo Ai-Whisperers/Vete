@@ -13,7 +13,7 @@
  * @tags e2e, critical, concurrency, scheduling, appointments
  */
 
-/* eslint-disable no-console */
+ 
 import { test, expect, Page, BrowserContext } from '@playwright/test'
 import { TEST_USERS, TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
 

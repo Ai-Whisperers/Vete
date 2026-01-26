@@ -92,9 +92,9 @@ export function useServiceCartStatus(serviceId: string): Map<string, VariantCart
 
       if (existing) {
         // Add pet if not already in list
-        if (item.pet_id && !existing.petsInCart.includes(item.pet_id)) {
+        if (item.pet_id && item.pet_name && !existing.petsInCart.includes(item.pet_id)) {
           existing.petsInCart.push(item.pet_id)
-          existing.petNames.push(item.pet_name!)
+          existing.petNames.push(item.pet_name)
         }
         existing.count += item.quantity
       } else {

@@ -6,6 +6,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Create test client
 let testClient: SupabaseClient | null = null
@@ -136,7 +137,7 @@ export async function seedTestData(): Promise<{
     .from('profiles')
     .insert({
       id: crypto.randomUUID(),
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       full_name: 'Test User',
       email: `test-${Date.now()}@test.local`,
       phone: '+595981000000',
@@ -153,7 +154,7 @@ export async function seedTestData(): Promise<{
     .insert({
       id: crypto.randomUUID(),
       owner_id: profile.id,
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       name: 'Test Pet',
       species: 'dog',
       weight_kg: 10,

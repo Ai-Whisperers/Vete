@@ -5,7 +5,7 @@ import type { TemplateField } from './types'
 
 interface CustomFieldsProps {
   fields: TemplateField[]
-  values: Record<string, any>
+  values: Record<string, unknown>
   onChange: (fieldName: string, value: string | number | boolean | null) => void
 }
 

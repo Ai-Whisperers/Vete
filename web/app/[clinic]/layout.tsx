@@ -231,7 +231,16 @@ export default async function ClinicLayout({
 
   const tier: TierId = (tenantData?.subscription_tier as TierId) || 'gratis'
   const tierConfig = getTierById(tier)
-  const tierFeatures = tierConfig?.features || getTierById('gratis')!.features
+  const gratisTier = getTierById('gratis')
+  const tierFeatures = tierConfig?.features || gratisTier?.features || {
+    website: true,
+    petPortal: true,
+    appointments: true,
+    medicalRecords: true,
+    vaccineTracking: true,
+    clinicalTools: true,
+    adFree: false,
+  }
   const isOnTrial = tenantData?.is_trial || false
   const trialEndsAt = tenantData?.trial_end_date || null
 
@@ -431,14 +440,16 @@ export default async function ClinicLayout({
                           Inicio
                         </Link>
                       </li>
-                      <li>
-                        <Link
-                          href={`/${clinic}/services`}
-                          className="text-sm text-gray-400 transition-colors hover:text-white"
-                        >
-                          Servicios
-                        </Link>
-                      </li>
+                      {config.settings?.modules?.services_page !== false && (
+                        <li>
+                          <Link
+                            href={`/${clinic}/services`}
+                            className="text-sm text-gray-400 transition-colors hover:text-white"
+                          >
+                            Servicios
+                          </Link>
+                        </li>
+                      )}
                       <li>
                         <Link
                           href={`/${clinic}/about`}
@@ -474,41 +485,49 @@ export default async function ClinicLayout({
                     </ul>
                   </nav>
 
-                  {/* Tools Section */}
-                  <nav aria-labelledby="footer-tools">
-                    <h4
-                      id="footer-tools"
-                      className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
-                    >
-                      Herramientas
-                    </h4>
-                    <ul className="space-y-3">
-                      <li>
-                        <Link
-                          href={`/${clinic}/tools/age-calculator`}
-                          className="text-sm text-gray-400 transition-colors hover:text-white"
-                        >
-                          Calculadora de Edad
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href={`/${clinic}/tools/toxic-food`}
-                          className="text-sm text-gray-400 transition-colors hover:text-white"
-                        >
-                          Alimentos Tóxicos
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href={`/${clinic}/book`}
-                          className="text-sm text-gray-400 transition-colors hover:text-white"
-                        >
-                          Agendar Cita
-                        </Link>
-                      </li>
-                    </ul>
-                  </nav>
+                  {/* Tools Section - Only show if clinic has vet tools enabled */}
+                  {(config.settings?.modules?.toxic_checker || config.settings?.modules?.age_calculator || config.settings?.modules?.booking) && (
+                    <nav aria-labelledby="footer-tools">
+                      <h4
+                        id="footer-tools"
+                        className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
+                      >
+                        Herramientas
+                      </h4>
+                      <ul className="space-y-3">
+                        {config.settings?.modules?.age_calculator && (
+                          <li>
+                            <Link
+                              href={`/${clinic}/tools/age-calculator`}
+                              className="text-sm text-gray-400 transition-colors hover:text-white"
+                            >
+                              Calculadora de Edad
+                            </Link>
+                          </li>
+                        )}
+                        {config.settings?.modules?.toxic_checker && (
+                          <li>
+                            <Link
+                              href={`/${clinic}/tools/toxic-food`}
+                              className="text-sm text-gray-400 transition-colors hover:text-white"
+                            >
+                              Alimentos Tóxicos
+                            </Link>
+                          </li>
+                        )}
+                        {config.settings?.modules?.booking && (
+                          <li>
+                            <Link
+                              href={`/${clinic}/book`}
+                              className="text-sm text-gray-400 transition-colors hover:text-white"
+                            >
+                              Agendar Cita
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    </nav>
+                  )}
 
                   {/* Contact Info */}
                   <div aria-labelledby="footer-contact">

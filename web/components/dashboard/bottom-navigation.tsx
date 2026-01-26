@@ -167,8 +167,11 @@ export function BottomNavigation({ clinic }: BottomNavigationProps): React.React
                 )
               }
 
+              // Non-null assertions safe: center item (index 2) handled above, all others have icon and href
+              /* eslint-disable @typescript-eslint/no-non-null-assertion */
               const Icon = item.icon!
               const active = isActive(item.href!)
+              /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
               return (
                 <Link

@@ -12,6 +12,7 @@ import {
   TEST_TENANT_ID,
 } from '@/tests/__helpers__/integration-setup'
 import { POST } from '@/app/api/billing/pay-invoice/route'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Mock Stripe integration
 vi.mock('@/lib/billing/stripe', () => ({
@@ -130,7 +131,7 @@ describe('API: /api/billing/pay-invoice', () => {
       const { data: otherInvoice } = await supabase
         .from('platform_invoices')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           invoice_number: `INV-TEST-${Date.now()}`,
           period_start: new Date().toISOString(),
           period_end: new Date().toISOString(),
@@ -386,7 +387,7 @@ describe('API: /api/billing/pay-invoice', () => {
       const { data: otherPaymentMethod } = await supabase
         .from('tenant_payment_methods')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           stripe_payment_method_id: 'pm_test_other',
           display_name: 'Test Card',
           method_type: 'card',

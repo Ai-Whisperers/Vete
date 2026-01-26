@@ -16,6 +16,7 @@ import {
   PET_COLORS,
 } from './base'
 import { PetProfile } from './types'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface PetData {
   id: string
@@ -139,7 +140,7 @@ export class PetFactory {
   private constructor() {
     this.data = {
       id: generateId(),
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       species: 'dog',
       is_neutered: Math.random() > 0.3,
       photo_url: null,
@@ -351,8 +352,11 @@ export class PetFactory {
 
     // Calculate weight based on species and age if not set
     if (!this.data.weight_kg) {
+      // Test factory: birth_date and species are set in defaults or explicitly
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const birthDate = new Date(this.data.birth_date!)
       const ageYears = (Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.data.weight_kg = randomWeight(this.data.species!, ageYears)
     }
 

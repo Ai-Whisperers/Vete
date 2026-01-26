@@ -10,6 +10,7 @@ import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/d
 import { buildPet, createPet, createProfile, resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('Pet CRUD Operations', () => {
   const ctx = new TestContext()
@@ -498,7 +499,7 @@ describe('Pet CRUD Operations', () => {
         .from('pets')
         .insert({
           owner_id: testOwnerId,
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           name: 'AdrisPet',
           species: 'dog',
           weight_kg: 10,
@@ -512,7 +513,7 @@ describe('Pet CRUD Operations', () => {
         .from('pets')
         .insert({
           owner_id: otherTenantOwnerId,
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           name: 'PetLifePet',
           species: 'cat',
           weight_kg: 5,
@@ -522,10 +523,10 @@ describe('Pet CRUD Operations', () => {
       ctx.track('pets', petlifePet.id)
 
       // Query adris pets
-      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', 'adris')
+      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
 
       // Query petlife pets
-      const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', 'petlife')
+      const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
       expect(adrisPets).not.toBeNull()

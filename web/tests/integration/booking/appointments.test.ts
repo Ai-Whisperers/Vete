@@ -17,6 +17,7 @@ import {
   pastDate,
 } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 import {
   ALL_APPOINTMENT_TYPES,
   ALL_APPOINTMENT_STATUSES,
@@ -587,7 +588,7 @@ describe('Appointment Booking', () => {
       const { data: adrisAppt } = await client
         .from('appointments')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           pet_id: testPetId,
           owner_id: testOwnerId,
           type: 'consultation',
@@ -603,7 +604,7 @@ describe('Appointment Booking', () => {
       const { data: petlifeAppt } = await client
         .from('appointments')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: petlifePet.id,
           owner_id: petlifeOwner.id,
           type: 'checkup',
@@ -619,13 +620,13 @@ describe('Appointment Booking', () => {
       const { data: adrisAppts } = await client
         .from('appointments')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       // Query petlife appointments
       const { data: petlifeAppts } = await client
         .from('appointments')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
       expect(adrisAppts).not.toBeNull()

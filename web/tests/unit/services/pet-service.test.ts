@@ -31,7 +31,7 @@ vi.mock('@/lib/audit', () => ({
 const mockPet: Pet = {
   id: 'pet-1',
   owner_id: 'owner-1',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   name: 'Max',
   species: 'dog',
   breed: 'Labrador',
@@ -64,6 +64,7 @@ const mockPetWithOwner = {
 };
 
 import { createMockSupabase } from '@/tests/__helpers__/mocks';
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // =============================================================================
 // TEST SUITE
@@ -91,7 +92,7 @@ describe('PetService', () => {
       const pets = [mockPet];
       mockSupabase._mocks.setMockData({ data: pets, error: null });
 
-      const result = await petService.list('owner-1', 'adris', {}, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, {}, false);
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(pets);
@@ -104,7 +105,7 @@ describe('PetService', () => {
       const dogPets = [{ ...mockPet, species: 'dog' }];
       mockSupabase._mocks.setMockData({ data: dogPets, error: null });
 
-      const result = await petService.list('owner-1', 'adris', { species: 'dog' }, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, { species: 'dog' }, false);
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('species', 'dog');
@@ -114,7 +115,7 @@ describe('PetService', () => {
       const searchResults = [mockPet];
       mockSupabase._mocks.setMockData({ data: searchResults, error: null });
 
-      const result = await petService.list('owner-1', 'adris', { query: 'Max' }, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, { query: 'Max' }, false);
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.ilike).toHaveBeenCalledWith('name', '%Max%');
@@ -124,7 +125,7 @@ describe('PetService', () => {
       const allPets = [mockPet, { ...mockPet, id: 'pet-2', deleted_at: '2024-02-01T10:00:00Z' }];
       mockSupabase._mocks.setMockData({ data: allPets, error: null });
 
-      const result = await petService.list('owner-1', 'adris', { includeDeleted: true }, true);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, { includeDeleted: true }, true);
 
       expect(result.success).toBe(true);
       // When includeDeleted is true and user is staff, should NOT filter by deleted_at
@@ -134,7 +135,7 @@ describe('PetService', () => {
       const activePets = [mockPet];
       mockSupabase._mocks.setMockData({ data: activePets, error: null });
 
-      const result = await petService.list('owner-1', 'adris', { includeDeleted: true }, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, { includeDeleted: true }, false);
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.is).toHaveBeenCalledWith('deleted_at', null);
@@ -146,7 +147,7 @@ describe('PetService', () => {
         error: { message: 'Database connection failed' },
       });
 
-      const result = await petService.list('owner-1', 'adris', {}, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, {}, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -155,7 +156,7 @@ describe('PetService', () => {
     it('should return empty array when no pets found', async () => {
       mockSupabase._mocks.setMockData({ data: [], error: null });
 
-      const result = await petService.list('owner-1', 'adris', {}, false);
+      const result = await petService.list('owner-1', TENANT_IDS.ADRIS, {}, false);
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual([]);
@@ -170,7 +171,7 @@ describe('PetService', () => {
     it('should get pet by ID when user is owner', async () => {
       mockSupabase._mocks.single.mockResolvedValue({ data: mockPet, error: null });
 
-      const result = await petService.getById('pet-1', 'owner-1', 'adris', false);
+      const result = await petService.getById('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockPet);
@@ -182,7 +183,7 @@ describe('PetService', () => {
     it('should get pet by ID when user is staff', async () => {
       mockSupabase._mocks.single.mockResolvedValue({ data: mockPet, error: null });
 
-      const result = await petService.getById('pet-1', 'staff-1', 'adris', true);
+      const result = await petService.getById('pet-1', 'staff-1', TENANT_IDS.ADRIS, true);
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockPet);
@@ -191,7 +192,7 @@ describe('PetService', () => {
     it('should return error when pet not found', async () => {
       mockSupabase._mocks.single.mockResolvedValue({ data: null, error: null });
 
-      const result = await petService.getById('pet-999', 'owner-1', 'adris', false);
+      const result = await petService.getById('pet-999', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Mascota no encontrada');
@@ -201,7 +202,7 @@ describe('PetService', () => {
       const otherOwnerPet = { ...mockPet, owner_id: 'owner-2' };
       mockSupabase._mocks.single.mockResolvedValue({ data: otherOwnerPet, error: null });
 
-      const result = await petService.getById('pet-1', 'owner-1', 'adris', false);
+      const result = await petService.getById('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('No tiene permisos para ver esta mascota');
@@ -213,7 +214,7 @@ describe('PetService', () => {
         error: { message: 'Connection timeout' },
       });
 
-      const result = await petService.getById('pet-1', 'owner-1', 'adris', false);
+      const result = await petService.getById('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -241,7 +242,7 @@ describe('PetService', () => {
       const createdPet = {
         id: 'pet-2',
         owner_id: 'owner-1',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         ...newPetData,
         created_at: '2024-01-15T10:00:00Z',
         updated_at: '2024-01-15T10:00:00Z',
@@ -249,7 +250,7 @@ describe('PetService', () => {
 
       mockSupabase._mocks.single.mockResolvedValue({ data: createdPet, error: null });
 
-      const result = await petService.create('owner-1', 'adris', newPetData);
+      const result = await petService.create('owner-1', TENANT_IDS.ADRIS, newPetData);
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(createdPet);
@@ -263,7 +264,7 @@ describe('PetService', () => {
         species: 'dog' as const,
       };
 
-      const result = await petService.create('owner-1', 'adris', invalidData);
+      const result = await petService.create('owner-1', TENANT_IDS.ADRIS, invalidData);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -275,8 +276,8 @@ describe('PetService', () => {
         species: '',
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = await petService.create('owner-1', 'adris', invalidData as any);
+       
+      const result = await petService.create('owner-1', TENANT_IDS.ADRIS, invalidData as any);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -293,7 +294,7 @@ describe('PetService', () => {
         error: { code: '23505', message: 'Unique constraint violation' },
       });
 
-      const result = await petService.create('owner-1', 'adris', newPetData);
+      const result = await petService.create('owner-1', TENANT_IDS.ADRIS, newPetData);
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -310,7 +311,7 @@ describe('PetService', () => {
       const createdPet = {
         id: 'pet-3',
         owner_id: 'owner-1',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         ...newPetData,
         created_at: '2024-01-15T10:00:00Z',
         updated_at: '2024-01-15T10:00:00Z',
@@ -318,7 +319,7 @@ describe('PetService', () => {
 
       mockSupabase._mocks.single.mockResolvedValue({ data: createdPet, error: null });
 
-      await petService.create('owner-1', 'adris', newPetData);
+      await petService.create('owner-1', TENANT_IDS.ADRIS, newPetData);
 
       expect(logAudit).toHaveBeenCalledWith('CREATE_PET', 'pets/pet-3', {
         name: 'Coco',
@@ -339,7 +340,7 @@ describe('PetService', () => {
       const createdPet = {
         id: 'pet-4',
         owner_id: 'owner-1',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         name: 'Minimal',
         species: 'dog',
         breed: null,
@@ -356,7 +357,7 @@ describe('PetService', () => {
 
       mockSupabase._mocks.single.mockResolvedValue({ data: createdPet, error: null });
 
-      const result = await petService.create('owner-1', 'adris', minimalPetData);
+      const result = await petService.create('owner-1', TENANT_IDS.ADRIS, minimalPetData);
 
       expect(result.success).toBe(true);
     });
@@ -371,7 +372,7 @@ describe('PetService', () => {
       // First query: fetch existing pet
       mockSupabase._mocks.single
         .mockResolvedValueOnce({
-          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris' },
+          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS },
           error: null,
         })
         // Second query: return updated pet
@@ -385,7 +386,7 @@ describe('PetService', () => {
         weight_kg: 26.0,
       };
 
-      const result = await petService.update('pet-1', 'owner-1', 'adris', updates, false);
+      const result = await petService.update('pet-1', 'owner-1', TENANT_IDS.ADRIS, updates, false);
 
       expect(result.success).toBe(true);
       expect(result.data?.name).toBe('Max Updated');
@@ -395,7 +396,7 @@ describe('PetService', () => {
     it('should update pet when user is staff', async () => {
       mockSupabase._mocks.single
         .mockResolvedValueOnce({
-          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris' },
+          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS },
           error: null,
         })
         .mockResolvedValueOnce({
@@ -407,20 +408,20 @@ describe('PetService', () => {
         breed: 'Golden Retriever',
       };
 
-      const result = await petService.update('pet-1', 'staff-1', 'adris', updates, true);
+      const result = await petService.update('pet-1', 'staff-1', TENANT_IDS.ADRIS, updates, true);
 
       expect(result.success).toBe(true);
     });
 
     it('should deny update when user is not owner and not staff', async () => {
       mockSupabase._mocks.single.mockResolvedValueOnce({
-        data: { id: 'pet-1', owner_id: 'owner-2', tenant_id: 'adris' },
+        data: { id: 'pet-1', owner_id: 'owner-2', tenant_id: TENANT_IDS.ADRIS },
         error: null,
       });
 
       const updates = { name: 'Hacked Name' };
 
-      const result = await petService.update('pet-1', 'owner-1', 'adris', updates, false);
+      const result = await petService.update('pet-1', 'owner-1', TENANT_IDS.ADRIS, updates, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('No tiene permisos para modificar esta mascota');
@@ -434,7 +435,7 @@ describe('PetService', () => {
 
       const updates = { name: 'New Name' };
 
-      const result = await petService.update('pet-999', 'owner-1', 'adris', updates, false);
+      const result = await petService.update('pet-999', 'owner-1', TENANT_IDS.ADRIS, updates, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Mascota no encontrada');
@@ -445,7 +446,7 @@ describe('PetService', () => {
 
       mockSupabase._mocks.single
         .mockResolvedValueOnce({
-          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris' },
+          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS },
           error: null,
         })
         .mockResolvedValueOnce({
@@ -455,7 +456,7 @@ describe('PetService', () => {
 
       const updates = { weight_kg: 27.0 };
 
-      await petService.update('pet-1', 'owner-1', 'adris', updates, false);
+      await petService.update('pet-1', 'owner-1', TENANT_IDS.ADRIS, updates, false);
 
       expect(logAudit).toHaveBeenCalledWith('UPDATE_PET', 'pets/pet-1', { updates });
     });
@@ -463,7 +464,7 @@ describe('PetService', () => {
     it('should update updated_at timestamp', async () => {
       mockSupabase._mocks.single
         .mockResolvedValueOnce({
-          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris' },
+          data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS },
           error: null,
         })
         .mockResolvedValueOnce({
@@ -473,7 +474,7 @@ describe('PetService', () => {
 
       const updates = { color: 'Dark Golden' };
 
-      await petService.update('pet-1', 'owner-1', 'adris', updates, false);
+      await petService.update('pet-1', 'owner-1', TENANT_IDS.ADRIS, updates, false);
 
       expect(mockSupabase._mocks.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -490,11 +491,11 @@ describe('PetService', () => {
   describe('delete', () => {
     it('should soft delete pet when user is owner', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
+        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS, name: 'Max' },
         error: null,
       });
 
-      const result = await petService.delete('pet-1', 'owner-1', 'adris', false);
+      const result = await petService.delete('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.update).toHaveBeenCalledWith(
@@ -507,22 +508,22 @@ describe('PetService', () => {
 
     it('should soft delete pet when user is staff', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
+        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS, name: 'Max' },
         error: null,
       });
 
-      const result = await petService.delete('pet-1', 'staff-1', 'adris', true);
+      const result = await petService.delete('pet-1', 'staff-1', TENANT_IDS.ADRIS, true);
 
       expect(result.success).toBe(true);
     });
 
     it('should deny deletion when user is not owner and not staff', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', owner_id: 'owner-2', tenant_id: 'adris', name: 'Max' },
+        data: { id: 'pet-1', owner_id: 'owner-2', tenant_id: TENANT_IDS.ADRIS, name: 'Max' },
         error: null,
       });
 
-      const result = await petService.delete('pet-1', 'owner-1', 'adris', false);
+      const result = await petService.delete('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('No tiene permisos para eliminar esta mascota');
@@ -534,7 +535,7 @@ describe('PetService', () => {
         error: { message: 'Not found' },
       });
 
-      const result = await petService.delete('pet-999', 'owner-1', 'adris', false);
+      const result = await petService.delete('pet-999', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Mascota no encontrada');
@@ -544,11 +545,11 @@ describe('PetService', () => {
       const { logAudit } = await import('@/lib/audit');
 
       mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
+        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS, name: 'Max' },
         error: null,
       });
 
-      await petService.delete('pet-1', 'owner-1', 'adris', false);
+      await petService.delete('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       expect(logAudit).toHaveBeenCalledWith('DELETE_PET', 'pets/pet-1', {
         name: 'Max',
@@ -558,11 +559,11 @@ describe('PetService', () => {
 
     it('should NOT permanently delete pet', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: 'adris', name: 'Max' },
+        data: { id: 'pet-1', owner_id: 'owner-1', tenant_id: TENANT_IDS.ADRIS, name: 'Max' },
         error: null,
       });
 
-      await petService.delete('pet-1', 'owner-1', 'adris', false);
+      await petService.delete('pet-1', 'owner-1', TENANT_IDS.ADRIS, false);
 
       // Should call update, not delete
       expect(mockSupabase._mocks.update).toHaveBeenCalled();
@@ -703,7 +704,7 @@ describe('PetService', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(petsWithOwners);
       expect(mockSupabase.from).toHaveBeenCalledWith('pets');
-      expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('tenant_id', 'adris');
+      expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('tenant_id', TENANT_IDS.ADRIS);
     });
 
     it('should filter by species in listWithOwners', async () => {

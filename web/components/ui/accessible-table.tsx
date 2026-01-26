@@ -32,7 +32,7 @@
 
 'use client'
 
-import { useMemo, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { describeSortState } from '@/lib/accessibility/screen-reader'

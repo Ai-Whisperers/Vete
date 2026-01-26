@@ -9,6 +9,7 @@ import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
 import { createProfile, createPet, resetSequence } from '../__helpers__/factories'
 import { DEFAULT_TENANT, TENANTS } from '../__fixtures__/tenants'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('RLS Policies - Data Access Control', () => {
   const ctx = new TestContext()
@@ -190,7 +191,7 @@ describe('RLS Policies - Data Access Control', () => {
       const { data: adrisRecords } = await serviceClient
         .from('medical_records')
         .select('*, pet:pets(tenant_id)')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       expect(adrisRecords).not.toBeNull()
       const hasPetlifePet = adrisRecords!.some(
@@ -250,7 +251,7 @@ describe('RLS Policies - Data Access Control', () => {
       const { data: adrisExpense } = await serviceClient
         .from('expenses')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           description: 'Adris Only Expense',
           amount: 100000,
           category: 'Otros',
@@ -264,7 +265,7 @@ describe('RLS Policies - Data Access Control', () => {
       const { data: petlifeExpenses } = await serviceClient
         .from('expenses')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Adris expense should not appear in petlife query
       expect(petlifeExpenses).not.toBeNull()
@@ -292,7 +293,7 @@ describe('RLS Policies - Data Access Control', () => {
       const { data: adrisProduct } = await serviceClient
         .from('products')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           name: 'Adris Only Product',
           category: 'Test',
           price: 10000,
@@ -306,7 +307,7 @@ describe('RLS Policies - Data Access Control', () => {
       const { data: petlifeProducts } = await serviceClient
         .from('products')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       expect(petlifeProducts).not.toBeNull()
       expect(petlifeProducts!.some((p: { id: string }) => p.id === adrisProduct.id)).toBe(false)
@@ -473,7 +474,7 @@ describe('RLS Policies - Role-Based Access', () => {
       const { data: adrisProfiles } = await serviceClient
         .from('profiles')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       expect(adrisProfiles).not.toBeNull()
       expect(adrisProfiles!.some((p: { id: string }) => p.id === petlifeProfile.id)).toBe(false)

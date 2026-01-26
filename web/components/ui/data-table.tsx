@@ -59,7 +59,7 @@ interface DataTableProps<T> {
   mobileRender?: (item: T, index: number) => React.ReactNode
 }
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends Record<string, unknown>>({
   data,
   columns,
   keyExtractor = (item, index) => item.id || index.toString(),

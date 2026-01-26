@@ -51,6 +51,8 @@ export interface HomeLabels {
   visit_us: string
   features_title: string
   features_subtitle: string
+  features_badge?: string // Override for "Nuestros Servicios" badge
+  testimonials_badge?: string // Override for "Testimonios" badge
   tools_badge: string
   contact_badge: string
   map_button: string
@@ -58,6 +60,13 @@ export interface HomeLabels {
   emergency_title: string
   emergency_text: string
   emergency_cta: string
+  // Optional override labels for non-veterinary tenants
+  address_label?: string
+  phone_label?: string
+  schedule_label?: string
+  schedule_text?: string
+  whatsapp_label?: string
+  whatsapp_text?: string
 }
 
 export interface VaccineScheduleData {

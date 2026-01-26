@@ -61,7 +61,7 @@ export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandler
 
   // Parse age in weeks
   const ageWeeks = ageWeeksParam ? parseInt(ageWeeksParam, 10) : null
-  if (ageWeeksParam && (isNaN(ageWeeks!) || ageWeeks! < 0)) {
+  if (ageWeeksParam && ageWeeks !== null && (isNaN(ageWeeks) || ageWeeks < 0)) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
       details: { field: 'age_weeks', reason: 'Debe ser un número positivo' },
     })

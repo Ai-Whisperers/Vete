@@ -7,10 +7,9 @@
  */
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
-import { Plus, Shield, CheckCircle2, XCircle, Calendar, DollarSign, type LucideIcon } from 'lucide-react'
+import { Plus, Shield, CheckCircle2, XCircle, Calendar, type LucideIcon } from 'lucide-react'
 
 interface Policy {
   id: string
@@ -37,8 +36,6 @@ interface Policy {
 }
 
 export default function InsurancePoliciesPage() {
-  const router = useRouter()
-
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null)
 

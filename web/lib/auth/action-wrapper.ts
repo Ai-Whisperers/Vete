@@ -45,7 +45,7 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
       const authResult = await AuthService.validateAuth(options)
 
       if (!authResult.success || !authResult.context) {
-        return actionError(authResult.error!.message)
+        return actionError(authResult.error?.message || 'No autorizado')
       }
 
       // Execute handler

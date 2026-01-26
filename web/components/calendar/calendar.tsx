@@ -166,6 +166,8 @@ export function Calendar({
       if (!details.has(dateKey)) {
         details.set(dateKey, { appointments: [], shifts: 0, timeOff: [], blocks: 0 })
       }
+      // Non-null assertion safe: key guaranteed to exist after lines 166-167
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const day = details.get(dateKey)!
       const resource = event.resource as CalendarEventResource | undefined
       const timeStr = event.start.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })

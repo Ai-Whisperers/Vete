@@ -413,9 +413,9 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                   </span>
                 )}
               </div>
-              {product.has_discount && product.discount_percentage && (
+              {product.has_discount && product.discount_percentage && originalPrice && (
                 <p className="mt-1 text-sm font-medium text-green-600">
-                  Ahorrás {formatPrice(originalPrice! - currentPrice)} (
+                  Ahorrás {formatPrice(originalPrice - currentPrice)} (
                   {product.discount_percentage}% OFF)
                 </p>
               )}

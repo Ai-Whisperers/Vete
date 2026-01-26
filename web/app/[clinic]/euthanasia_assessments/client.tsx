@@ -41,10 +41,10 @@ export default function EuthanasiaAssessmentClient({
   const router = useRouter()
 
   const [petId, setPetId] = useState(initialPetId || '')
-  const [pets, setPets] = useState<any[]>([])
+  const [pets, setPets] = useState<Record<string, unknown>[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [notes, setNotes] = useState('')
-  const [history, setHistory] = useState<any[]>([])
+  const [history, setHistory] = useState<Record<string, unknown>[]>([])
 
   const [scores, setScores] = useState<AssessmentScore>({
     hurt: 5,

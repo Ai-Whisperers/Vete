@@ -235,6 +235,8 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     }
 
     // Also add any patient records that weren't matched to ensure all data points show
+    // Non-null assertions safe: early return ensures age_weeks is non-null
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     patientRecords.forEach((p) => {
       if (p.age_weeks == null) return
       const existingPoint = chartData.find(
@@ -252,6 +254,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         })
       }
     })
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
     // Sort by age
     chartData.sort((a, b) => a.age - b.age)

@@ -11,6 +11,8 @@ import type {
   UserListFilters,
   OwnerListFilters,
   UserRole,
+  CreateUserData,
+  UpdateUserData,
 } from './types';
 
 export class UserRepository {
@@ -333,7 +335,7 @@ export class UserRepository {
    * @param tenantId - Tenant ID
    * @returns Created user profile
    */
-  async create(data: any, tenantId: string): Promise<UserProfile> {
+  async create(data: CreateUserData, tenantId: string): Promise<UserProfile> {
     const profileId = data.id || crypto.randomUUID();
 
     const { data: profile, error } = await this.supabase
@@ -364,7 +366,7 @@ export class UserRepository {
    * @param tenantId - Tenant ID for access control
    * @returns Updated user profile
    */
-  async update(id: string, data: any, tenantId: string): Promise<UserProfile> {
+  async update(id: string, data: UpdateUserData, tenantId: string): Promise<UserProfile> {
     const { data: profile, error } = await this.supabase
       .from('profiles')
       .update({

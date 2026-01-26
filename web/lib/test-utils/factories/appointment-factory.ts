@@ -6,6 +6,7 @@ import { apiClient } from '../api-client'
 import { testContext } from '../context'
 import { generateId, pick, randomBusinessDate, randomPastDate, randomFutureDate } from './base'
 import { AppointmentScenario, TimeRange, DEFAULT_BUSINESS_HOURS } from './types'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface AppointmentData {
   id: string
@@ -132,7 +133,7 @@ export class AppointmentFactory {
   private constructor() {
     this.data = {
       id: generateId(),
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       status: 'scheduled',
       vet_id: null,
       service_id: null,
@@ -342,8 +343,11 @@ export class AppointmentFactory {
     }
 
     // Calculate duration_minutes from start/end times
+    // Non-null assertions safe: start_time and end_time always set above (lines 341-342)
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     const startMs = new Date(this.data.start_time!).getTime()
     const endMs = new Date(this.data.end_time!).getTime()
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
     this.data.duration_minutes = Math.round((endMs - startMs) / (60 * 1000))
 
     // Set reason if not set
@@ -518,15 +522,18 @@ export async function createAppointmentHistory(
   // Create future appointments
   for (let i = 0; i < future; i++) {
     const scenario = pick(scenarios)
-    const result = await AppointmentFactory.create()
+    const factory = AppointmentFactory.create()
       .forTenant(tenantId)
       .forPet(petId)
       .createdBy(ownerId)
       .withScenario(scenario)
-      .withVet(vetId || undefined!)
       .inFuture()
-      .build()
 
+    if (vetId) {
+      factory.withVet(vetId)
+    }
+
+    const result = await factory.build()
     results.push(result)
   }
 

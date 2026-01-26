@@ -13,6 +13,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 import {
   createServiceClient,
   createAnonymousClient,
@@ -323,7 +324,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
     it('cannot update pet to different tenant_id', async () => {
       const { error } = await terrapetOwner.client
         .from('pets')
-        .update({ tenant_id: 'adris' })
+        .update({ tenant_id: TENANT_IDS.ADRIS })
         .eq('id', terrapetPetId)
 
       // Should fail - RLS should prevent tenant_id changes
@@ -389,7 +390,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
       const { data: adrisRecords } = await serviceClient
         .from('medical_records')
         .select('id')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
         .limit(1)
         .single()
 
@@ -495,7 +496,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
       const { data: tempPet2 } = await serviceClient
         .from('pets')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           owner_id: adrisOwner.userId,
           name: 'Temp Pet 2',
           species: 'cat',

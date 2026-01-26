@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Mock the Supabase client
 const mockSupabaseClient = {
@@ -83,7 +84,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'owner', tenant_id: 'adris' })
+          return createMockChain({ role: 'owner', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -141,7 +142,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'owner', tenant_id: 'adris' })
+          return createMockChain({ role: 'owner', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -180,7 +181,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'owner', tenant_id: 'adris' })
+          return createMockChain({ role: 'owner', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -203,7 +204,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'vet', tenant_id: 'adris' })
+          return createMockChain({ role: 'vet', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -226,7 +227,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'vet', tenant_id: 'adris' })
+          return createMockChain({ role: 'vet', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -265,7 +266,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'owner', tenant_id: 'adris' })
+          return createMockChain({ role: 'owner', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -304,7 +305,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'vet', tenant_id: 'adris' }) // Vet, not admin
+          return createMockChain({ role: 'vet', tenant_id: TENANT_IDS.ADRIS }) // Vet, not admin
         }
         return createMockChain(null)
       })
@@ -327,7 +328,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'admin', tenant_id: 'adris' })
+          return createMockChain({ role: 'admin', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -350,7 +351,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'admin', tenant_id: 'adris' })
+          return createMockChain({ role: 'admin', tenant_id: TENANT_IDS.ADRIS })
         }
         return createMockChain(null)
       })
@@ -387,7 +388,7 @@ describe('WhatsApp Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') {
-          return createMockChain({ role: 'vet', tenant_id: 'adris' }) // Vet, not admin
+          return createMockChain({ role: 'vet', tenant_id: TENANT_IDS.ADRIS }) // Vet, not admin
         }
         return createMockChain(null)
       })

@@ -13,6 +13,7 @@ import {
   TEST_TENANT_ID,
 } from '@/tests/__helpers__/integration-setup'
 import { GET, POST } from '@/app/api/appointments/waitlist/route'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('API: /api/appointments/waitlist', () => {
   let supabase: SupabaseClient
@@ -369,7 +370,7 @@ describe('API: /api/appointments/waitlist', () => {
       const { data: service } = await supabase
         .from('services')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           name: `Test Service ${Date.now()}`,
           duration_minutes: 30,
           base_price: 50000,
@@ -384,7 +385,7 @@ describe('API: /api/appointments/waitlist', () => {
       const { data: otherEntry } = await supabase
         .from('appointment_waitlists')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: otherPet.id,
           service_id: service?.id,
           preferred_date: '2026-02-01',

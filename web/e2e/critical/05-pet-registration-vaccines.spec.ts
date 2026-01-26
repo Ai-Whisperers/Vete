@@ -14,7 +14,7 @@
  * @tags e2e, critical, pet, vaccine, medical
  */
 
-/* eslint-disable no-console */
+ 
 import { test, expect, Page } from '@playwright/test'
 import { TEST_USERS, E2E_TEST_TENANT } from '../fixtures/test-users'
 

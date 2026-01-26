@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 /**
  * API Contract Tests for Appointments
@@ -392,7 +393,7 @@ describe('Appointments API Contract', () => {
     it('validates tenant isolation pattern in queries', () => {
       // Mock filter object
       const queryFilter = {
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         id: 'apt-123',
       }
 

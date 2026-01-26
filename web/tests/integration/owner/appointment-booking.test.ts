@@ -13,6 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants'
 
 // Mock dependencies before imports - ORDER MATTERS!
 // Must mock auth BEFORE anything that imports it to prevent database connection
@@ -103,7 +104,7 @@ vi.mock('@/lib/logger', () => ({
 function createMockSupabase(overrides: Record<string, unknown> = {}) {
   const defaultProfile = {
     id: 'owner-user-id',
-    tenant_id: 'adris',
+    tenant_id: TENANT_IDS.ADRIS,
     role: 'owner',
     full_name: 'Test Owner',
     email: 'owner@test.com',
@@ -152,6 +153,7 @@ function createMockSupabase(overrides: Record<string, unknown> = {}) {
 }
 
 import { createClient } from '@/lib/supabase/server'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 import {
   cancelAppointment,
   rescheduleAppointment,
@@ -171,22 +173,22 @@ const USERS = {
   OWNER_A: {
     id: 'owner-a-id',
     email: 'owner-a@test.com',
-    profile: { id: 'owner-a-id', tenant_id: 'adris', role: 'owner', full_name: 'Owner A' },
+    profile: { id: 'owner-a-id', tenant_id: TENANT_IDS.ADRIS, role: 'owner', full_name: 'Owner A' },
   },
   OWNER_B: {
     id: 'owner-b-id',
     email: 'owner-b@test.com',
-    profile: { id: 'owner-b-id', tenant_id: 'adris', role: 'owner', full_name: 'Owner B' },
+    profile: { id: 'owner-b-id', tenant_id: TENANT_IDS.ADRIS, role: 'owner', full_name: 'Owner B' },
   },
   VET: {
     id: 'vet-id',
     email: 'vet@test.com',
-    profile: { id: 'vet-id', tenant_id: 'adris', role: 'vet', full_name: 'Dr. Vet' },
+    profile: { id: 'vet-id', tenant_id: TENANT_IDS.ADRIS, role: 'vet', full_name: 'Dr. Vet' },
   },
   ADMIN: {
     id: 'admin-id',
     email: 'admin@test.com',
-    profile: { id: 'admin-id', tenant_id: 'adris', role: 'admin', full_name: 'Admin User' },
+    profile: { id: 'admin-id', tenant_id: TENANT_IDS.ADRIS, role: 'admin', full_name: 'Admin User' },
   },
 }
 
@@ -845,7 +847,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       const mockSupabase = createMockSupabase({
         user: { id: USERS.VET.id, email: USERS.VET.email },
-        profile: USERS.VET.profile, // tenant_id is 'adris'
+        profile: USERS.VET.profile, // tenant_id is TENANT_IDS.ADRIS
         appointments: appointment,
       })
 

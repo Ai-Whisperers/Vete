@@ -13,6 +13,7 @@ import {
   getAuthTokenFromUser,
 } from '@/tests/__helpers__/integration-setup'
 import { GET, POST } from '@/app/api/medical-records/route'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('API: /api/medical-records', () => {
   let supabase: SupabaseClient
@@ -124,7 +125,7 @@ describe('API: /api/medical-records', () => {
       const { data: otherRecord } = await supabase
         .from('medical_records')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: otherPet.id,
           performed_by: vetUser.userId,
           type: 'consultation',

@@ -11,6 +11,7 @@ import {
   TEST_TENANT_ID,
 } from '@/tests/__helpers__/integration-setup'
 import { GET } from '@/app/api/billing/bank-transfer/route'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('API: /api/billing/bank-transfer', () => {
   let supabase: SupabaseClient
@@ -217,7 +218,7 @@ describe('API: /api/billing/bank-transfer', () => {
       const { data: otherInvoice } = await supabase
         .from('platform_invoices')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           invoice_number: `INV-TEST-${Date.now()}`,
           period_start: new Date().toISOString(),
           period_end: new Date().toISOString(),

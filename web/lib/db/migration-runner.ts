@@ -65,9 +65,12 @@ export async function runMigrations(
   const sorted = [...migrations].sort((a, b) => a.id - b.id)
 
   // Filter to target if specified
+  // Non-null assertion safe: conditional checks options.target exists
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   const toApply = options.target
     ? sorted.filter((m) => m.id <= options.target!)
     : sorted
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   for (const migration of toApply) {
     const startTime = Date.now()
@@ -165,6 +168,8 @@ export async function rollbackMigrations(
   // Determine which migrations to rollback
   let toRollback: Migration[]
   if (options.target !== undefined) {
+    // Non-null assertion safe: conditional checks target is defined
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     toRollback = sorted.filter((m) => m.id > options.target!)
   } else {
     toRollback = sorted.slice(0, steps)

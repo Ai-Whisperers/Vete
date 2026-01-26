@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 /**
  * API Contract Tests for Store & Prescriptions
@@ -25,7 +26,7 @@ describe('Store & Prescriptions API Contract', () => {
       const mockResponse = [
         {
           id: 'prod-123',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           category_id: 'cat-456',
           sku: 'PRD-001',
           name: 'Alimento Premium para Perros',
@@ -119,7 +120,7 @@ describe('Store & Prescriptions API Contract', () => {
       // Expected response structure
       const mockResponse = {
         id: 'prod-123',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         category_id: 'cat-456',
         sku: 'PRD-001',
         name: 'Alimento Premium para Perros',
@@ -480,7 +481,7 @@ describe('Store & Prescriptions API Contract', () => {
       // Expected response structure
       const mockResponse = {
         id: 'ord-123',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         order_number: 'ORD-2026-001',
         customer_id: 'cust-456',
         status: 'confirmed',

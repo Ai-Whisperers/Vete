@@ -405,7 +405,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
       try {
         const orders = await createOrderHistory(owner.id, TENANT_ID, {
           count: orderCount,
-          scenarios: scenarios as any,
+          scenarios: [...scenarios], // Convert readonly array to mutable
         })
 
         stats.storeOrders += orders.length
@@ -421,7 +421,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     console.log('7️⃣ Creating abandoned carts...')
     try {
       const carts = await createAbandonedCarts(
-        owners.map((o: any) => o.id),
+        owners.map((o) => o.id),
         TENANT_ID
       )
       stats.carts = carts.length
@@ -435,11 +435,11 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     // 8. Create loyalty points based on persona
     console.log('8️⃣ Creating loyalty points...')
     for (const owner of owners) {
-      const presetOwner = PREDEFINED_OWNERS.find((p: any) => p.email === owner.email)
-      const persona = presetOwner?.persona || 'standard'
+      const presetOwner = PREDEFINED_OWNERS.find((p) => p.email === owner.email)
+      const persona = (presetOwner?.persona || 'standard') as 'vip' | 'frequent' | 'standard' | 'inactive'
 
       try {
-        const { transactions } = await createLoyaltyForPersona(owner.id, persona as any, TENANT_ID)
+        const { transactions } = await createLoyaltyForPersona(owner.id, persona, TENANT_ID)
 
         stats.loyaltyTransactions += transactions.length
       } catch (err) {

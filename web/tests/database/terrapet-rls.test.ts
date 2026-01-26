@@ -13,6 +13,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 import {
   createServiceClient,
   createAnonymousClient,
@@ -276,7 +277,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       const { data, error } = await terrapetOwner.client
         .from('appointments')
         .insert({
-          tenant_id: 'adris', // Trying to create for different tenant
+          tenant_id: TENANT_IDS.ADRIS, // Trying to create for different tenant
           pet_id: adrisPetId,
           start_time: startTime.toISOString(),
           end_time: endTime.toISOString(),
@@ -365,7 +366,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
     it('cannot update profile to different tenant', async () => {
       const { error } = await terrapetOwner.client
         .from('profiles')
-        .update({ tenant_id: 'adris' })
+        .update({ tenant_id: TENANT_IDS.ADRIS })
         .eq('id', terrapetOwner.userId)
 
       // RLS should block tenant_id changes

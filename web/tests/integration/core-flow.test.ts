@@ -11,6 +11,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { getTestClient, cleanupTestData, seedTenants } from '@/tests/__helpers__/db'
 import { createProfile, createPet, buildProfile, buildPet } from '@/tests/__helpers__/factories'
+import { TENANT_IDS } from '@/lib/constants/tenants'
 
 describe('Core Entity Flow', () => {
   // Track IDs for cleanup
@@ -37,12 +38,12 @@ describe('Core Entity Flow', () => {
       const { data, error } = await adminClient
         .from('tenants')
         .select('id, name')
-        .eq('id', 'adris')
+        .eq('id', TENANT_IDS.ADRIS)
         .single()
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
-      expect(data?.id).toBe('adris')
+      expect(data?.id).toBe(TENANT_IDS.ADRIS)
       expect(data?.name).toBe('Veterinaria Adris')
     })
   })
@@ -50,7 +51,7 @@ describe('Core Entity Flow', () => {
   describe('Owner Registration Mapping', () => {
     test('creates owner profile correctly mapped to tenant', async () => {
       const profileData = buildProfile({
-        tenantId: 'adris',
+        tenantId: TENANT_IDS.ADRIS,
         role: 'owner',
         fullName: 'Integration Test Owner',
       })
@@ -73,7 +74,7 @@ describe('Core Entity Flow', () => {
         .single()
 
       expect(error).toBeNull()
-      expect(storedProfile.tenant_id).toBe('adris')
+      expect(storedProfile.tenant_id).toBe(TENANT_IDS.ADRIS)
       expect(storedProfile.full_name).toBe(profileData.fullName)
     })
   })
@@ -81,13 +82,13 @@ describe('Core Entity Flow', () => {
   describe('Pet Creation & Association', () => {
     test('creates pet with full fields mapped to owner and tenant', async () => {
       // 1. Setup Owner
-      const owner = await createProfile({ tenantId: 'adris', role: 'owner' })
+      const owner = await createProfile({ tenantId: TENANT_IDS.ADRIS, role: 'owner' })
       cleanupIds.profiles.push(owner.id)
 
       // 2. Prepare Pet Data with ALL fields
       const petData = buildPet({
         ownerId: owner.id,
-        tenantId: 'adris',
+        tenantId: TENANT_IDS.ADRIS,
         name: 'CoreFlow Pet',
         species: 'dog',
         breed: 'Labrador',
@@ -123,7 +124,7 @@ describe('Core Entity Flow', () => {
       expect(error).toBeNull()
       // Core Foreign Keys
       expect(storedPet.owner_id).toBe(owner.id)
-      expect(storedPet.tenant_id).toBe('adris')
+      expect(storedPet.tenant_id).toBe(TENANT_IDS.ADRIS)
 
       // Core Identify Fields
       expect(storedPet.name).toBe('CoreFlow Pet')
@@ -140,10 +141,10 @@ describe('Core Entity Flow', () => {
 
     test('enforces RLS: anon users cannot see pets', async () => {
       // 1. Setup Owner and Pet
-      const ownerA = await createProfile({ tenantId: 'adris' })
+      const ownerA = await createProfile({ tenantId: TENANT_IDS.ADRIS })
       cleanupIds.profiles.push(ownerA.id)
 
-      const petA = await createPet({ ownerId: ownerA.id, tenantId: 'adris' })
+      const petA = await createPet({ ownerId: ownerA.id, tenantId: TENANT_IDS.ADRIS })
       cleanupIds.pets.push(petA.id)
 
       // 2. Verify Admin CAN see it

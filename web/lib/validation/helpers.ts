@@ -13,7 +13,7 @@ export const sanitizeErrors = ValidationEngine.sanitizeErrors.bind(ValidationEng
 
 // Helper for API validation
 export function validateApiData(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   schema: ValidationSchema,
   context?: ValidationContext
 ): ValidationResult {
@@ -22,7 +22,7 @@ export function validateApiData(
 
 // Helper for action validation
 export function validateActionData(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   schema: ValidationSchema,
   context?: ValidationContext
 ): { success: boolean; errors?: Record<string, string[]> } {
@@ -40,7 +40,7 @@ export function validateActionData(
 
 // Helper to validate and transform errors for API responses
 export function validateForApi(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   schema: ValidationSchema,
   context?: ValidationContext
 ) {

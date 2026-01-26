@@ -9,6 +9,7 @@ import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
 import { createProfile, resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('Finance - Expenses CRUD', () => {
   const ctx = new TestContext()
@@ -451,7 +452,7 @@ describe('Finance - Expenses CRUD', () => {
       const { data: petlifeExpense } = await client
         .from('expenses')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           description: 'PetLife Only Expense',
           amount: 999999,
           category: 'Otros',
@@ -465,13 +466,13 @@ describe('Finance - Expenses CRUD', () => {
       const { data: adrisExpenses } = await client
         .from('expenses')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       // Query petlife expenses
       const { data: petlifeExpenses } = await client
         .from('expenses')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
       expect(adrisExpenses).not.toBeNull()

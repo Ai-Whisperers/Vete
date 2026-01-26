@@ -26,7 +26,7 @@ export default function SigningForm({
   onSubmit,
   onCancel,
 }: SigningFormProps): JSX.Element {
-  const [fieldValues, setFieldValues] = useState<Record<string, any>>({})
+  const [fieldValues, setFieldValues] = useState<Record<string, unknown>>({})
   const [witnessName, setWitnessName] = useState('')
   const [idVerificationType, setIdVerificationType] = useState('')
   const [idVerificationNumber, setIdVerificationNumber] = useState('')

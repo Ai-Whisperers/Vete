@@ -23,10 +23,12 @@ const resetRpcCalls = () => {
   rpcCalls.length = 0
 }
 
+import { TENANT_IDS } from '@/lib/constants/tenants'
+
 // Invoice fixtures for different states
 const INVOICE_UNPAID = {
   id: 'invoice-unpaid',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   total: 100000,
   amount_paid: 0,
   amount_due: 100000,
@@ -35,7 +37,7 @@ const INVOICE_UNPAID = {
 
 const INVOICE_PARTIAL = {
   id: 'invoice-partial',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   total: 100000,
   amount_paid: 50000,
   amount_due: 50000,
@@ -44,7 +46,7 @@ const INVOICE_PARTIAL = {
 
 const INVOICE_PAID = {
   id: 'invoice-paid',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   total: 100000,
   amount_paid: 100000,
   amount_due: 0,
@@ -53,7 +55,7 @@ const INVOICE_PAID = {
 
 // Mock user/profile for auth
 const mockStaffUser = { id: 'staff-001', email: 'staff@clinic.com' }
-const mockStaffProfile = { id: 'staff-001', tenant_id: 'adris', role: 'admin' as const, full_name: 'Staff Admin' }
+const mockStaffProfile = { id: 'staff-001', tenant_id: TENANT_IDS.ADRIS, role: 'admin' as const, full_name: 'Staff Admin' }
 
 // Current invoice state (set per test)
 let currentInvoice = INVOICE_UNPAID
@@ -180,6 +182,7 @@ vi.mock('@/lib/rate-limit', () => ({
 import { POST as recordPayment } from '@/app/api/invoices/[id]/payments/route'
 import { logAudit } from '@/lib/audit/logger'
 import { mockState, testStaffOnlyEndpoint, TENANTS } from '@/lib/test-utils'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // =============================================================================
 // Request Factories
@@ -317,7 +320,7 @@ describe('Payment Duplicate Prevention', () => {
 
       await recordPayment(request, createContext('invoice-unpaid'))
 
-      expect(rpcCalls[0].params.p_tenant_id).toBe('adris')
+      expect(rpcCalls[0].params.p_tenant_id).toBe(TENANT_IDS.ADRIS)
     })
   })
 
@@ -395,7 +398,7 @@ describe('Payment Duplicate Prevention', () => {
       expect(rpcCalls).toHaveLength(1)
       expect(rpcCalls[0].params).toMatchObject({
         p_invoice_id: 'invoice-unpaid',
-        p_tenant_id: 'adris',
+        p_tenant_id: TENANT_IDS.ADRIS,
         p_amount: 75000,
         p_payment_method: 'transfer',
         p_reference_number: 'REF-001',

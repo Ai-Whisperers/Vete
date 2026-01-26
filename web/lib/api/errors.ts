@@ -219,4 +219,108 @@ export const HTTP_STATUS = {
   TOO_MANY_REQUESTS: 429,
   INTERNAL_SERVER_ERROR: 500,
   SERVICE_UNAVAILABLE: 503,
-} as const
+} as const;
+
+// =============================================================================
+// ENHANCED ERROR HELPERS (Using Centralized Error Messages)
+// =============================================================================
+
+/**
+ * Import centralized error messages
+ * These provide more specific, consistent Spanish error messages
+ */
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, COMMON_ERRORS } from '@/lib/i18n/errors';
+
+/**
+ * Create error response with detailed Spanish message
+ * 
+ * @example
+ * ```typescript
+ * return errorResponse('AUTH', 'UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+ * return errorResponse('NOT_FOUND', 'PET', HTTP_STATUS.NOT_FOUND);
+ * return errorResponse('BUSINESS', 'OUT_OF_STOCK', HTTP_STATUS.CONFLICT);
+ * ```
+ */
+export function errorResponse(
+  category: keyof typeof ERROR_MESSAGES,
+  key: string,
+  status: number,
+  details?: Record<string, unknown>
+): NextResponse {
+  const categoryMessages = ERROR_MESSAGES[category];
+  const message = (categoryMessages as Record<string, string>)[key] || 'Error desconocido';
+  
+  return NextResponse.json(
+    {
+      error: message,
+      code: `${category}_${key}`,
+      ...details,
+    },
+    { status }
+  );
+}
+
+/**
+ * Common error response shortcuts
+ * 
+ * @example
+ * ```typescript
+ * return commonError('UNAUTHORIZED');
+ * return commonError('NOT_FOUND');
+ * return commonError('SERVER_ERROR');
+ * ```
+ */
+export function commonError(
+  key: keyof typeof COMMON_ERRORS,
+  details?: Record<string, unknown>
+): NextResponse {
+  const statusMap: Record<keyof typeof COMMON_ERRORS, number> = {
+    UNAUTHORIZED: HTTP_STATUS.UNAUTHORIZED,
+    FORBIDDEN: HTTP_STATUS.FORBIDDEN,
+    NOT_FOUND: HTTP_STATUS.NOT_FOUND,
+    SERVER_ERROR: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    VALIDATION_FAILED: HTTP_STATUS.BAD_REQUEST,
+    SESSION_EXPIRED: HTTP_STATUS.UNAUTHORIZED,
+    INVALID_CREDENTIALS: HTTP_STATUS.UNAUTHORIZED,
+    FETCH_FAILED: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    SAVE_FAILED: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    UPDATE_FAILED: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    DELETE_FAILED: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    OUT_OF_STOCK: HTTP_STATUS.CONFLICT,
+    INVOICE_PAID: HTTP_STATUS.CONFLICT,
+    SLOT_UNAVAILABLE: HTTP_STATUS.CONFLICT,
+  };
+  
+  return NextResponse.json(
+    {
+      error: COMMON_ERRORS[key],
+      code: key,
+      ...details,
+    },
+    { status: statusMap[key] }
+  );
+}
+
+/**
+ * Success response with Spanish message
+ * 
+ * @example
+ * ```typescript
+ * return successResponse({ id: '123' }, 'SAVED');
+ * return successResponse(invoice, 'INVOICE_SENT', HTTP_STATUS.OK);
+ * ```
+ */
+export function successResponse<T>(
+  data: T,
+  messageKey: keyof typeof SUCCESS_MESSAGES,
+  status: number = HTTP_STATUS.OK
+): NextResponse {
+  return NextResponse.json(
+    {
+      success: true,
+      data,
+      message: SUCCESS_MESSAGES[messageKey],
+    },
+    { status }
+  );
+}

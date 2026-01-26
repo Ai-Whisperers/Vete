@@ -28,6 +28,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { mockState, AuthScenario } from './mock-presets'
+import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
 
 // =============================================================================
 // Types
@@ -38,9 +39,9 @@ export type Role = 'owner' | 'vet' | 'admin'
 export interface AuthTestConfig {
   /**
    * The route handler function to test
-   * Uses `any` for context to support both optional and required params handlers
+   * Supports both optional and required params handlers with flexible context types
    */
-  handler: (request: NextRequest, context?: any) => Promise<Response>
+  handler: (request: NextRequest, context?: unknown) => Promise<Response>
 
   /**
    * Factory function to create the request for each test

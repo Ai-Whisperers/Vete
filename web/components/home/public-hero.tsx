@@ -10,6 +10,20 @@ interface PublicHeroProps {
 }
 
 export function PublicHero({ clinic, home, config }: PublicHeroProps): React.ReactElement {
+  // Determine secondary CTA link - support "whatsapp", "store", or custom paths
+  const getSecondaryCTALink = (): string => {
+    const link = home.hero.cta_secondary_link
+    if (!link) return `/${clinic}/services` // Default for vets
+    if (link === 'whatsapp') return `https://wa.me/${config.contact.whatsapp_number}`
+    if (link === 'store') return `/${clinic}/store`
+    if (link.startsWith('/')) return `/${clinic}${link}`
+    if (link.startsWith('http')) return link
+    return `/${clinic}/${link}`
+  }
+
+  const secondaryCTALink = getSecondaryCTALink()
+  const isExternalLink = secondaryCTALink.startsWith('http')
+
   return (
     <section className="relative flex min-h-[85vh] items-center overflow-hidden">
       {/* Background Image with optimized next/image */}
@@ -59,13 +73,25 @@ export function PublicHero({ clinic, home, config }: PublicHeroProps): React.Rea
               <MessageCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
               {home.hero.cta_primary}
             </a>
-            <Link
-              href={`/${clinic}/services`}
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/20 active:scale-95 md:h-16 md:px-10 md:text-lg"
-            >
-              {home.hero.cta_secondary}
-              <ArrowRight className="h-5 w-5" />
-            </Link>
+            {isExternalLink ? (
+              <a
+                href={secondaryCTALink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/20 active:scale-95 md:h-16 md:px-10 md:text-lg"
+              >
+                {home.hero.cta_secondary}
+                <ArrowRight className="h-5 w-5" />
+              </a>
+            ) : (
+              <Link
+                href={secondaryCTALink}
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/20 active:scale-95 md:h-16 md:px-10 md:text-lg"
+              >
+                {home.hero.cta_secondary}
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

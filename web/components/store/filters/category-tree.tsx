@@ -32,6 +32,8 @@ function buildTree(categories: Category[]): CategoryNode[] {
   })
 
   // Second pass: build tree
+  // Non-null assertions safe: node exists from first pass, parent checked with has()
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   categories.forEach((cat) => {
     const node = categoryMap.get(cat.slug)!
     if (cat.parent_slug && categoryMap.has(cat.parent_slug)) {
@@ -42,6 +44,7 @@ function buildTree(categories: Category[]): CategoryNode[] {
       roots.push(node)
     }
   })
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   // Sort children alphabetically
   const sortNodes = (nodes: CategoryNode[]): CategoryNode[] => {

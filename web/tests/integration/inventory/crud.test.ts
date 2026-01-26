@@ -9,6 +9,7 @@ import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
 import { resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('Inventory Management', () => {
   const ctx = new TestContext()
@@ -457,7 +458,7 @@ describe('Inventory Management', () => {
       const { data: petlifeProduct } = await client
         .from('products')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           name: 'PetLife Exclusive',
           category: 'Test',
           price: 99999,
@@ -471,13 +472,13 @@ describe('Inventory Management', () => {
       const { data: adrisProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       // Query petlife products
       const { data: petlifeProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
       expect(adrisProducts).not.toBeNull()

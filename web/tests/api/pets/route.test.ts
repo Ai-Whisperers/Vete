@@ -21,6 +21,7 @@ import {
   getAuthTokenFromUser,
 } from '../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('API: /api/pets', () => {
   let supabase: SupabaseClient
@@ -213,7 +214,7 @@ describe('API: /api/pets', () => {
         body: {
           name: 'Pet with Wrong Tenant',
           species: 'cat',
-          tenant_id: 'petlife', // Attempting to override tenant
+          tenant_id: TENANT_IDS.PETLIFE, // Attempting to override tenant
         },
       })
 

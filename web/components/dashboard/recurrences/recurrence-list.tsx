@@ -382,6 +382,8 @@ export function RecurrenceList(): React.ReactElement {
                       {isPaused && (
                         <div className="mt-2 flex items-center gap-2 text-sm text-[var(--status-warning)]">
                           <AlertCircle className="h-4 w-4" />
+                          {/* Non-null assertion safe: isPaused = !!recurrence.paused_until */}
+                          {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
                           Pausada hasta {formatDate(recurrence.paused_until!)}
                         </div>
                       )}

@@ -6,7 +6,7 @@
  * RES-001: Migrated to React Query for data fetching
  */
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'

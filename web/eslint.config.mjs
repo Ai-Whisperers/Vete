@@ -32,10 +32,16 @@ export default [
       },
     },
     rules: {
-      // Console usage - warn to help identify places to migrate to logger
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      // Console usage - ERROR in production, warn in dev
+      "no-console": process.env.NODE_ENV === 'production' 
+        ? ["error", { allow: ["warn", "error"] }]
+        : ["warn", { allow: ["warn", "error"] }],
 
-      // Pre-existing technical debt - downgrade to warnings
+      // CRITICAL RULES - Now enforced as errors
+      "@typescript-eslint/no-explicit-any": "error",  // Was: warn - Forces proper typing
+      "@typescript-eslint/no-non-null-assertion": "error",  // Was: warn - Prevents null reference bugs
+      
+      // Pre-existing technical debt - still warnings but tracked
       "@typescript-eslint/no-unused-expressions": "warn",
       "no-undef": "off", // TypeScript handles undefined references
       "no-prototype-builtins": "warn",
@@ -46,7 +52,7 @@ export default [
       "no-func-assign": "warn",
       "@typescript-eslint/no-this-alias": "warn",
 
-      // TypeScript - downgrade to warnings for pre-existing issues
+      // TypeScript - Progressive tightening
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -56,8 +62,6 @@ export default [
         },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-non-null-assertion": "warn",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/ban-ts-comment": "warn",

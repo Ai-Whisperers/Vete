@@ -228,8 +228,9 @@ export function useFilters<T extends Record<string, unknown>>(
       const config = filterConfigs.find((c) => c.key === key)
 
       if (config?.filterFn) {
-        // Use custom filter function
-        result = result.filter((item) => config.filterFn!(item, value))
+        // Use custom filter function (config exists due to optional chaining check)
+        const filterFn = config.filterFn
+        result = result.filter((item) => filterFn(item, value))
       } else {
         // Default: simple equality check
         result = result.filter((item) => {

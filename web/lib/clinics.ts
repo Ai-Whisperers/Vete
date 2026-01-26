@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import merge from 'lodash.merge'
+import { validateConfig, validateTheme } from './schemas/clinic-config'
 
 // Import all types from the centralized types file
 export type {
@@ -120,8 +121,36 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
     return null
   }
 
-  const config = readJson<ClinicConfig>('config.json')
-  const theme = readJson<ClinicTheme>('theme.json')
+  // Read and validate config
+  let config: ClinicConfig | null = null
+  try {
+    const rawConfig = readJson<unknown>('config.json')
+    if (rawConfig) {
+      config = validateConfig(rawConfig) // Validates and throws if invalid
+    }
+  } catch (error) {
+    console.error(`❌ [${slug}] config.json validation failed:`, error)
+    // In production, fail fast. In dev, we want to see the error.
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`Invalid config.json for clinic: ${slug}`)
+    }
+    return null // In dev, return null to show error page
+  }
+
+  // Read and validate theme
+  let theme: ClinicTheme | null = null
+  try {
+    const rawTheme = readJson<unknown>('theme.json')
+    if (rawTheme) {
+      theme = validateTheme(rawTheme) // Validates and throws if invalid
+    }
+  } catch (error) {
+    console.error(`❌ [${slug}] theme.json validation failed:`, error)
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`Invalid theme.json for clinic: ${slug}`)
+    }
+    return null
+  }
   const images = readJson<ClinicImages>('images.json')
   const home = readJson<HomeData>('home.json')
   const services = readJson<ServicesData>('services.json')

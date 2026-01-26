@@ -184,7 +184,7 @@ interface ConsentPDFProps {
   ownerEmail: string
   ownerPhone: string
   content: string
-  fieldValues: Record<string, any>
+  fieldValues: Record<string, unknown>
   signatureData: string
   signedAt: string
   witnessName?: string

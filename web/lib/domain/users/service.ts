@@ -261,7 +261,12 @@ export class UserService {
   /**
    * Get user statistics
    */
-  async getStats(tenantId: string): Promise<ServiceResult<any>> {
+  async getStats(tenantId: string): Promise<ServiceResult<{
+    total: number
+    by_role: { owner: number; vet: number; admin: number }
+    staff_count: number
+    active_owners: number
+  }>> {
     try {
       const counts = await this.repository.countByRole(tenantId);
       const total = counts.owner + counts.vet + counts.admin;

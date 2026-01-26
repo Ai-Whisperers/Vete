@@ -36,7 +36,7 @@ export interface SigningFormData {
   template_id: string
   pet_id: string
   owner_id: string
-  field_values: Record<string, any>
+  field_values: Record<string, unknown>
   signature_data: string
   witness_signature_data?: string
   witness_name?: string

@@ -28,6 +28,7 @@ import { vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 import type { User } from '@supabase/supabase-js'
 import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // =============================================================================
 // Types
@@ -64,7 +65,7 @@ export const DEFAULT_MOCK_USER: MockUser = {
 
 export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000001',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   role: 'vet',
   full_name: 'Dr. Test Vet',
   email: 'vet@clinic.com',
@@ -72,7 +73,7 @@ export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
 
 export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000002',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   role: 'admin',
   full_name: 'Admin User',
   email: 'admin@clinic.com',
@@ -80,7 +81,7 @@ export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
 
 export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000003',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   role: 'owner',
   full_name: 'Pet Owner',
   email: 'owner@gmail.com',
@@ -349,6 +350,8 @@ export function createStatefulSupabaseMock() {
       }
 
       // Check for configured rejection (throws/rejects instead of returning error object)
+      // Non-null assertions safe: has* methods check existence before get* methods
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
       if (mockState.hasTableRejection(table)) {
         return createRejectionChainMock(mockState.getTableRejection(table)!)
       }
@@ -357,17 +360,21 @@ export function createStatefulSupabaseMock() {
       if (mockState.hasTableError(table)) {
         return createErrorChainMock(mockState.getTableError(table)!)
       }
+      /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
       // Return configured result or null
       const result = mockState.getTableResult(table)
       return createChainMock(result)
     }),
-    rpc: vi.fn((fn: string, params?: unknown) => {
+    rpc: vi.fn((fn: string, _params?: unknown) => {
       if (mockState.hasRpcError(fn)) {
+        // Non-null assertion safe: hasRpcError checks existence
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         return Promise.resolve({
           data: null,
           error: { message: mockState.getRpcError(fn)!.message },
         })
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
       }
       return Promise.resolve({
         data: mockState.getRpcResult(fn),

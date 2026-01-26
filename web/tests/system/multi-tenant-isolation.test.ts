@@ -9,6 +9,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
 import { createProfile, createPet, futureDate } from '../__helpers__/factories'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('Multi-Tenant Isolation', () => {
   const ctx = new TestContext()
@@ -88,12 +89,12 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisProfiles } = await client
         .from('profiles')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { data: petlifeProfiles } = await client
         .from('profiles')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Adris profiles should not include PetLife users
       expect(adrisProfiles).not.toBeNull()
@@ -115,9 +116,9 @@ describe('Multi-Tenant Isolation', () => {
 
   describe('Pet Isolation', () => {
     test('pets are separated by tenant', async () => {
-      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', 'adris')
+      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
 
-      const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', 'petlife')
+      const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
       expect(adrisPets).not.toBeNull()
@@ -142,7 +143,7 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisAppt } = await client
         .from('appointments')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           pet_id: adrisPetId,
           owner_id: adrisOwnerId,
           vet_id: adrisVetId,
@@ -159,7 +160,7 @@ describe('Multi-Tenant Isolation', () => {
       const { data: petlifeAppt } = await client
         .from('appointments')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: petlifePetId,
           owner_id: petlifeOwnerId,
           vet_id: petlifeVetId,
@@ -178,12 +179,12 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisAppts } = await client
         .from('appointments')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { data: petlifeAppts } = await client
         .from('appointments')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       expect(adrisAppts).not.toBeNull()
       expect(petlifeAppts).not.toBeNull()
@@ -208,7 +209,7 @@ describe('Multi-Tenant Isolation', () => {
         .from('medical_records')
         .insert({
           pet_id: adrisPetId,
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           performed_by: adrisVetId,
           type: 'consultation',
           title: 'Adris Consultation',
@@ -222,7 +223,7 @@ describe('Multi-Tenant Isolation', () => {
         .from('medical_records')
         .insert({
           pet_id: petlifePetId,
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           performed_by: petlifeVetId,
           type: 'exam',
           title: 'PetLife Exam',
@@ -237,12 +238,12 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisRecords } = await client
         .from('medical_records')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { data: petlifeRecords } = await client
         .from('medical_records')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       expect(adrisRecords).not.toBeNull()
       expect(petlifeRecords).not.toBeNull()
@@ -266,7 +267,7 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisProduct } = await client
         .from('products')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           name: 'Adris Dog Food',
           category: 'Alimentos',
           price: 50000,
@@ -280,7 +281,7 @@ describe('Multi-Tenant Isolation', () => {
       const { data: petlifeProduct } = await client
         .from('products')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           name: 'PetLife Cat Food',
           category: 'Alimentos',
           price: 45000,
@@ -296,12 +297,12 @@ describe('Multi-Tenant Isolation', () => {
       const { data: adrisProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { data: petlifeProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       expect(adrisProducts).not.toBeNull()
       expect(petlifeProducts).not.toBeNull()
@@ -321,7 +322,7 @@ describe('Multi-Tenant Isolation', () => {
       // Try to create pet with mismatched owner/tenant
       const { error } = await client.from('pets').insert({
         owner_id: adrisOwnerId, // Adris owner
-        tenant_id: 'petlife', // PetLife tenant - mismatch!
+        tenant_id: TENANT_IDS.PETLIFE, // PetLife tenant - mismatch!
         name: 'Cross-Tenant Pet',
         species: 'dog',
         weight_kg: 10,
@@ -338,7 +339,7 @@ describe('Multi-Tenant Isolation', () => {
       const { data, error } = await client
         .from('appointments')
         .insert({
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           pet_id: adrisPetId,
           owner_id: adrisOwnerId,
           vet_id: petlifeVetId, // Wrong tenant vet!
@@ -364,12 +365,12 @@ describe('Multi-Tenant Isolation', () => {
       const { count: adrisCount } = await client
         .from('pets')
         .select('*', { count: 'exact', head: true })
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { count: petlifeCount } = await client
         .from('pets')
         .select('*', { count: 'exact', head: true })
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Each tenant should have at least 1 pet (the ones we created)
       expect(adrisCount).toBeGreaterThanOrEqual(1)
@@ -380,12 +381,12 @@ describe('Multi-Tenant Isolation', () => {
       const { count: adrisCount } = await client
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .eq('tenant_id', 'adris')
+        .eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { count: petlifeCount } = await client
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Each tenant should have at least 1 appointment
       expect(adrisCount).toBeGreaterThanOrEqual(1)

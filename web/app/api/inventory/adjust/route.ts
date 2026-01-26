@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
+import { VALIDATION_ERRORS, NOT_FOUND_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,14 +27,14 @@ interface AdjustRequest {
  * Requires vet or admin role
  */
 export const POST = withApiAuth(
-  async ({ profile, supabase, request }: ApiHandlerContext) => {
+  async ({ profile, supabase, request, log }: ApiHandlerContext) => {
     // Parse request body
     let body: AdjustRequest
     try {
       body = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'JSON inválido' },
+        details: { message: VALIDATION_ERRORS.INVALID_FORMAT },
       })
     }
 
@@ -43,19 +43,19 @@ export const POST = withApiAuth(
     // Validate required fields
     if (!product_id) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'product_id es requerido' },
+        details: { message: VALIDATION_ERRORS.REQUIRED_FIELD },
       })
     }
 
     if (new_quantity === undefined || new_quantity < 0) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'new_quantity debe ser 0 o mayor' },
+        details: { message: VALIDATION_ERRORS.INVALID_QUANTITY },
       })
     }
 
     if (!reason) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'reason es requerido' },
+        details: { message: VALIDATION_ERRORS.REQUIRED_FIELD },
       })
     }
 
@@ -71,20 +71,20 @@ export const POST = withApiAuth(
       })
 
       if (rpcError) {
-        logger.error('Error adjusting inventory (RPC)', { error: rpcError })
+        log.error('Error adjusting inventory (RPC)', { error: rpcError })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-          details: { message: 'Error al ajustar inventario' },
+          details: { message: DATABASE_ERRORS.QUERY_FAILED },
         })
       }
 
       if (!result?.success) {
         if (result?.error_code === 'not_found') {
           return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-            details: { message: result?.error || 'Inventario no encontrado' },
+            details: { message: result?.error || NOT_FOUND_ERRORS.PRODUCT },
           })
         }
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: result?.error || 'Error al ajustar inventario' },
+          details: { message: result?.error || VALIDATION_ERRORS.INVALID_FORMAT },
         })
       }
 
@@ -97,9 +97,9 @@ export const POST = withApiAuth(
       })
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err))
-      logger.error('Exception in inventory adjust', { error: error.message })
+      log.error('Exception in inventory adjust', { error: error.message })
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-        details: { message: 'Error del servidor' },
+        details: { message: DATABASE_ERRORS.SERVER_ERROR },
       })
     }
   },

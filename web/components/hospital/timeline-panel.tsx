@@ -75,6 +75,8 @@ export function TimelinePanel({ hospitalization }: TimelinePanelProps): JSX.Elem
     })),
     ...(hospitalization.treatments || [])
       .filter((t) => t.administered_at)
+      // Non-null assertion safe: filter ensures administered_at exists
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       .map((t) => ({ type: 'treatment' as const, date: t.administered_at!, data: t })),
     ...(hospitalization.feedings || []).map((f) => ({
       type: 'feeding' as const,

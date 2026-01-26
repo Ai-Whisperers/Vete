@@ -56,6 +56,8 @@ async function getClinics(): Promise<ClinicLocation[]> {
     }
 
     // Map DB results to ClinicLocation format
+    // Non-null assertions safe: filter ensures latitude and longitude exist
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     const clinicsWithCoords: ClinicLocation[] = (data as ClinicFromDB[])
       .filter((clinic) => clinic.latitude && clinic.longitude)
       .map((clinic) => ({
@@ -67,6 +69,7 @@ async function getClinics(): Promise<ClinicLocation[]> {
         lng: clinic.longitude!,
         specialties: clinic.specialties,
       }))
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
     // If no clinics have coordinates, fall back to demo data
     if (clinicsWithCoords.length === 0) {

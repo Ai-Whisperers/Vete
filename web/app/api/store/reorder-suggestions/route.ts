@@ -131,6 +131,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       })
       .map((product) => {
         const inventory = product.store_inventory as unknown as { stock_quantity: number } | null
+        // Non-null assertion safe: filter above (line 130) ensures stats exists
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const stats = productStats.get(product.id)!
 
         return {

@@ -143,6 +143,8 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
   const waitStats = useMemo(() => {
     if (checkedIn.length === 0) return null
 
+    // Non-null assertions safe: filter and reduce checks ensure checked_in_at exists
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     const waitTimes = checkedIn
       .filter((a) => a.checked_in_at)
       .map((a) => getMinutesDiff(a.checked_in_at!))
@@ -161,6 +163,7 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       },
       null as Appointment | null
     )
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
     return { avg, max, longestWaiting }
   }, [checkedIn])

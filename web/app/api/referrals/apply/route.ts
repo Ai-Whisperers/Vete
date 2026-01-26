@@ -20,7 +20,10 @@ import { logger } from '@/lib/logger'
 import { timingSafeEqual } from 'crypto'
 
 // Use service role for this endpoint
+// Required environment variables - app will not function without these
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 // Rate limiting

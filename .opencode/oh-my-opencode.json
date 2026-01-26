@@ -4,7 +4,7 @@
   "// Prioritizes cheap/free agents for 80% of work": "",
   "// Reserves expensive agents for critical tasks only": "",
   "agents": {
-    "Planner-Sisyphus": {
+    "prometheus": {
       "enabled": true,
       "replace_plan": true,
       "model": "google/antigravity-gemini-3-flash",
@@ -149,7 +149,9 @@
   "mcpServers": {
     "vete-supabase-tenant": {
       "command": "node",
-      "args": ["web/mcp/dist/supabase-tenant-wrapper.js"],
+      "args": [
+        "web/mcp/dist/supabase-tenant-wrapper.js"
+      ],
       "env": {
         "NEXT_PUBLIC_SUPABASE_URL": "https://okddppczckbjdotrxiev.supabase.co",
         "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c"
@@ -158,7 +160,9 @@
     },
     "veterinary-tools": {
       "command": "node",
-      "args": ["web/mcp/dist/veterinary-server.js"],
+      "args": [
+        "web/mcp/dist/veterinary-server.js"
+      ],
       "env": {
         "NEXT_PUBLIC_SUPABASE_URL": "https://okddppczckbjdotrxiev.supabase.co",
         "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c"
@@ -167,7 +171,10 @@
     },
     "next-devtools": {
       "command": "npx",
-      "args": ["-y", "next-devtools-mcp"],
+      "args": [
+        "-y",
+        "next-devtools-mcp"
+      ],
       "env": {
         "NEXT_DEV_PORT": "3000"
       },

@@ -1058,6 +1058,8 @@ export class LabService extends BaseService {
       if (completedOrders.length > 0) {
         const totalHours = completedOrders.reduce((sum, o) => {
           const created = new Date(o.created_at).getTime();
+          // Non-null assertion safe: completedOrders filtered to only include orders with completed_at (line 1054)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const completed = new Date(o.completed_at!).getTime();
           return sum + (completed - created) / (1000 * 60 * 60);
         }, 0);

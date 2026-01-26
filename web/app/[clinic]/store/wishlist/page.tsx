@@ -337,6 +337,8 @@ export default function WishlistPage(): React.ReactElement {
                     {isOnSale ? (
                       <>
                         <span className="text-lg font-bold text-[var(--primary)]">
+                          {/* Non-null assertion safe: isOnSale check (line 266) ensures sale_price exists */}
+                          {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
                           {formatCurrency(product.sale_price!)}
                         </span>
                         <span className="text-sm text-[var(--text-secondary)] line-through">

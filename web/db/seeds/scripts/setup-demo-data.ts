@@ -13,6 +13,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
 import { resolve } from 'path'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.local') })
@@ -39,32 +40,32 @@ interface DemoUser {
 const DEMO_USERS: DemoUser[] = [
   {
     email: 'admin@adris.demo',
-    tenant_id: 'adris',
+    tenant_id: TENANT_IDS.ADRIS,
     role: 'admin',
     full_name: 'Maria Garcia (Admin)',
   },
-  { email: 'vet@adris.demo', tenant_id: 'adris', role: 'vet', full_name: 'Dr. Carlos Rodriguez' },
+  { email: 'vet@adris.demo', tenant_id: TENANT_IDS.ADRIS, role: 'vet', full_name: 'Dr. Carlos Rodriguez' },
   {
     email: 'owner@adris.demo',
-    tenant_id: 'adris',
+    tenant_id: TENANT_IDS.ADRIS,
     role: 'owner',
     full_name: 'Juan Perez (Cliente)',
   },
   {
     email: 'admin@petlife.demo',
-    tenant_id: 'petlife',
+    tenant_id: TENANT_IDS.PETLIFE,
     role: 'admin',
     full_name: 'Ana Martinez (Admin)',
   },
   {
     email: 'vet@petlife.demo',
-    tenant_id: 'petlife',
+    tenant_id: TENANT_IDS.PETLIFE,
     role: 'vet',
     full_name: 'Dra. Laura Gonzalez',
   },
   {
     email: 'owner@petlife.demo',
-    tenant_id: 'petlife',
+    tenant_id: TENANT_IDS.PETLIFE,
     role: 'owner',
     full_name: 'Sofia Benitez (Cliente)',
   },

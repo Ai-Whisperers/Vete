@@ -21,6 +21,8 @@ const TEASER_TIER_IDS: TierId[] = ['gratis', 'profesional']
  * Derive teaser plans from central pricing config
  * All base data comes from lib/pricing/tiers.ts - single source of truth
  */
+// Non-null assertion safe: TEASER_TIER_IDS contains guaranteed tier IDs ('gratis', 'profesional')
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const teaserPlans = TEASER_TIER_IDS.map((tierId) => {
   const tier = getTierById(tierId)!
   return {
@@ -33,6 +35,7 @@ const teaserPlans = TEASER_TIER_IDS.map((tierId) => {
     features: tierTeaserFeatures[tier.id],
   }
 })
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 export function PricingTeaser(): React.ReactElement {
   return (

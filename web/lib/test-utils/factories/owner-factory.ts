@@ -13,6 +13,7 @@ import {
   PARAGUAYAN_LAST_NAMES,
 } from './base'
 import { OwnerPersona } from './types'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface OwnerData {
   id: string
@@ -98,7 +99,7 @@ export class OwnerFactory {
   private constructor() {
     this.data = {
       id: generateId(),
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       role: 'owner',
       avatar_url: null,
     }

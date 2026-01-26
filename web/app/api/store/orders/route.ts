@@ -169,6 +169,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch variant names if any variant_ids are provided
+    // Non-null assertion safe: filter ensures variant_id exists
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const variantIds = items.filter((i) => i.variant_id).map((i) => i.variant_id!)
     let variantMap: Record<string, string> = {}
     if (variantIds.length > 0) {
@@ -225,7 +227,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Calculate totals
     let subtotal = 0
     const orderItems = items.map((item) => {
-      const product = products.find((p) => p.id === item.product_id)!
+      const product = products.find((p) => p.id === item.product_id)
+      if (!product) {
+        throw new Error(`Producto no encontrado: ${item.product_id}`)
+      }
       const unitPrice = item.unit_price || product.base_price
       const discount = item.discount_amount || 0
       const lineTotal = unitPrice * item.quantity - discount

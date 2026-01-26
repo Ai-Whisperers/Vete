@@ -21,8 +21,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // SEC-006: Use timing-safe cron authentication
   const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized && errorResponse) {
+    return errorResponse
+  }
   if (!authorized) {
-    return errorResponse!
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   const supabase = await createClient('service_role')

@@ -33,7 +33,10 @@ class ConfigManager {
   isFeatureEnabled(feature: keyof FeatureFlags): boolean {
     // Check overrides first
     if (this.featureOverrides.has(feature)) {
-      return this.featureOverrides.get(feature)!
+      const override = this.featureOverrides.get(feature)
+      if (override !== undefined) {
+        return override
+      }
     }
 
     // Check configuration

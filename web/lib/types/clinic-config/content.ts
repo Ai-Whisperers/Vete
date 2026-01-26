@@ -18,6 +18,7 @@ export interface HeroSection {
   subhead: string
   cta_primary: string
   cta_secondary: string
+  cta_secondary_link?: string // Optional: "whatsapp", "store", "/custom-path", or full URL
   trust_badges: TrustBadge[]
 }
 

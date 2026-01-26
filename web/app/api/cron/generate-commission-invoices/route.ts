@@ -24,7 +24,10 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 120 // 2 minutes for processing all tenants
 
 // Use service role key for cron jobs to bypass RLS
+// Required environment variables - app will not function without these
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 interface InvoiceResult {
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // SEC-006: Use timing-safe cron authentication
   const { authorized, errorResponse } = checkCronAuth(request)
   if (!authorized) {
-    return errorResponse!
+    return errorResponse || NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)

@@ -8,7 +8,7 @@
  * - Replaced manual mutation with useMutation hook
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   PawPrint,

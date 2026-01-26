@@ -109,7 +109,7 @@ export const createMockSupabase = () => {
   
   // Terminal methods need to support BOTH chaining AND promise resolution
   // Make the queryBuilder thenable so it can be awaited while still allowing chaining
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   (queryBuilderMock as any).then = function(resolve: (value: any) => any) {
     // When awaited, use queued data if available, otherwise use mockData
     const dataToUse = mockDataQueue.length > 0 ? mockDataQueue.shift() : mockData;
@@ -173,6 +173,6 @@ export const createMockSupabase = () => {
       queueMockData: (...responses: any[]) => { mockDataQueue = responses; },
       clearQueue: () => { mockDataQueue = []; },
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
   } as unknown as SupabaseClient & { _mocks: any };
 };

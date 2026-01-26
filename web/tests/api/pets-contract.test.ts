@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 /**
  * API Contract Tests for Pets
@@ -24,7 +25,7 @@ describe('Pets API Contract', () => {
       const mockResponse = [
         {
           id: 'pet-123',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           owner_id: 'owner-456',
           name: 'Max',
           species: 'dog',
@@ -146,7 +147,7 @@ describe('Pets API Contract', () => {
       // Expected response structure with full details
       const mockResponse = {
         id: 'pet-123',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         owner_id: 'owner-456',
         name: 'Max',
         species: 'dog',
@@ -222,7 +223,7 @@ describe('Pets API Contract', () => {
         success: true,
         data: {
           id: 'pet-123',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           owner_id: 'owner-456',
           name: 'Max',
           species: 'dog',
@@ -501,7 +502,7 @@ describe('Pets API Contract', () => {
         {
           id: 'rec-123',
           pet_id: 'pet-123',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           vet_id: 'vet-456',
           visit_date: '2026-01-15',
           record_type: 'consultation',

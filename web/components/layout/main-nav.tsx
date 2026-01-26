@@ -27,6 +27,9 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const tNav = useTranslations('nav')
   const tStore = useTranslations('store')
 
+  // Check if services page is enabled (default true for backwards compatibility)
+  const servicesPageEnabled = config.settings?.modules?.services_page !== false
+
   const navItems: NavItem[] = [
     {
       label: config.ui_labels?.nav.home || tNav('home'),
@@ -34,11 +37,16 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       exact: true,
       icon: Home,
     },
-    {
-      label: config.ui_labels?.nav.services || tNav('services'),
-      href: `/${clinic}/services`,
-      icon: Briefcase,
-    },
+    // Only show services if enabled
+    ...(servicesPageEnabled
+      ? [
+          {
+            label: config.ui_labels?.nav.services || tNav('services'),
+            href: `/${clinic}/services`,
+            icon: Briefcase,
+          },
+        ]
+      : []),
     {
       label: config.ui_labels?.nav.about || tNav('about'),
       href: `/${clinic}/about`,

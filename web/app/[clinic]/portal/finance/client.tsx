@@ -122,7 +122,7 @@ export default function FinanceDashboardClient() {
 
           {data?.breakdown && Object.keys(data.breakdown).length > 0 ? (
             <div className="space-y-4">
-              {Object.entries(data.breakdown).map(([cat, amount]: [string, any]) => (
+              {Object.entries(data.breakdown).map(([cat, amount]: [string, number]) => (
                 <div key={cat} className="group flex items-center gap-4">
                   <div className="w-32 text-sm font-bold uppercase tracking-wider text-gray-500">
                     {cat}

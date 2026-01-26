@@ -13,6 +13,7 @@ import {
   TEST_TENANT_ID,
 } from '@/tests/__helpers__/integration-setup'
 import { GET, POST } from '@/app/api/store/products/route'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('API: /api/store/products', () => {
   let supabase: SupabaseClient
@@ -187,7 +188,7 @@ describe('API: /api/store/products', () => {
       const { data: otherAssignment } = await supabase
         .from('clinic_product_assignments')
         .insert({
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           catalog_product_id: otherProduct.id,
           is_active: true,
         })

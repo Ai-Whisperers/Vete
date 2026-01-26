@@ -159,6 +159,8 @@ export function withApiAuth(
       perf.checkpoint('auth_complete')
 
       if (!authResult.success || !authResult.context) {
+        // Non-null assertions safe: !success guarantees error exists
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const errorCode = authResult.error!.code as ApiErrorType
         log.warn('Authentication failed', {
           errorCode,
@@ -171,6 +173,7 @@ export function withApiAuth(
         })
         response.headers.set('x-request-id', requestId)
         perf.finish({ statusCode: authResult.error!.statusCode })
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
         return response
       }
 
@@ -367,6 +370,8 @@ export function withApiAuthParams<P extends Record<string, string>>(
       perf.checkpoint('auth_complete')
 
       if (!authResult.success || !authResult.context) {
+        // Non-null assertions safe: !success guarantees error exists
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const errorCode = authResult.error!.code as ApiErrorType
         log.warn('Authentication failed', {
           errorCode,
@@ -379,6 +384,7 @@ export function withApiAuthParams<P extends Record<string, string>>(
         })
         response.headers.set('x-request-id', requestId)
         perf.finish({ statusCode: authResult.error!.statusCode })
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
         return response
       }
 

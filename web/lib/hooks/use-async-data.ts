@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef, DependencyList } from 'react'
 /**
  * Options for useAsyncData hook
  */
-export interface UseAsyncDataOptions {
+export interface UseAsyncDataOptions<T = unknown> {
   /**
    * Whether to fetch data immediately on mount (default: true)
    */
@@ -17,7 +17,7 @@ export interface UseAsyncDataOptions {
   /**
    * Callback when data fetch succeeds
    */
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: T) => void;
 
   /**
    * Callback when data fetch fails
@@ -70,7 +70,7 @@ export interface UseAsyncDataReturn<T> {
 export function useAsyncData<T>(
   fetcher: () => Promise<T>,
   deps: DependencyList = [],
-  options: UseAsyncDataOptions = {}
+  options: UseAsyncDataOptions<T> = {}
 ): UseAsyncDataReturn<T> {
   const {
     enabled = true,

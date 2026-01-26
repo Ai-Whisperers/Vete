@@ -39,6 +39,8 @@ export class SafetyService {
 
     // Filter by location if coordinates provided
     if (filters.near_lat && filters.near_lng && filters.radius_km) {
+      // Non-null assertions safe: if condition ensures all filter values exist
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
       results = results.filter((report) => {
         if (!report.last_seen_lat || !report.last_seen_lng) return false
         const distance = this.calculateDistanceKm(
@@ -49,6 +51,7 @@ export class SafetyService {
         )
         return distance <= filters.radius_km!
       })
+      /* eslint-enable @typescript-eslint/no-non-null-assertion */
     }
 
     return results

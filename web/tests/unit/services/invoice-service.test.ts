@@ -17,6 +17,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { InvoiceService } from '@/lib/services';
 import type { Invoice, Payment, Refund } from '@/lib/types/entities/invoice';
 import { createMockSupabase } from '../../__helpers__/mocks';
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // =============================================================================
 // MOCK SETUP
@@ -24,7 +25,7 @@ import { createMockSupabase } from '../../__helpers__/mocks';
 
 const mockInvoice: Invoice = {
   id: 'inv-1',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   client_id: 'client-1',
   pet_id: 'pet-1',
   invoice_number: 'INV-2026-001',
@@ -91,7 +92,7 @@ const mockInvoiceWithDetails = {
 
 const mockPayment: Payment = {
   id: 'pay-1',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   invoice_id: 'inv-1',
   amount: 165000,
   payment_method: 'cash',
@@ -105,7 +106,7 @@ const mockPayment: Payment = {
 
 const mockRefund: Refund = {
   id: 'ref-1',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   payment_id: 'pay-1',
   invoice_id: 'inv-1',
   amount: 50000,
@@ -313,7 +314,7 @@ describe('InvoiceService', () => {
     it('should create invoice with items successfully', async () => {
       // Queue responses: 1) pet lookup, 2) invoice number, 3) invoice insert, 4) items insert, 5) audit log insert
       mockSupabase._mocks.queueMockData(
-        { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null },
+        { data: { id: 'pet-1', tenant_id: TENANT_IDS.ADRIS, owner_id: 'owner-1' }, error: null },
         { data: 'INV-2026-001', error: null },
         { data: mockInvoice, error: null },
         { data: null, error: null },
@@ -368,7 +369,7 @@ describe('InvoiceService', () => {
       const result = await service.create('adris', 'user-1', {
         pet_id: '',
         items: [],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
       } as any);
 
       expect(result.success).toBe(false);
@@ -418,7 +419,7 @@ describe('InvoiceService', () => {
 
       // Queue responses: 1) pet lookup, 2) invoice number, 3) invoice insert, 4) items insert, 5) audit log insert
       mockSupabase._mocks.queueMockData(
-        { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null },
+        { data: { id: 'pet-1', tenant_id: TENANT_IDS.ADRIS, owner_id: 'owner-1' }, error: null },
         { data: 'INV-2026-001', error: null },
         { data: discountedInvoice, error: null },
         { data: null, error: null },
@@ -464,7 +465,7 @@ describe('InvoiceService', () => {
     it('should allow full edit for draft invoices', async () => {
       // Queue responses: 1) invoice lookup, 2) invoice update, 3) items delete, 4) items insert, 5) totals update
       mockSupabase._mocks.queueMockData(
-        { data: { id: 'inv-1', status: 'draft', tenant_id: 'adris' }, error: null },
+        { data: { id: 'inv-1', status: 'draft', tenant_id: TENANT_IDS.ADRIS }, error: null },
         { data: { ...mockInvoice, tax_rate: 10 }, error: null },
         { data: null, error: null },
         { data: null, error: null },
@@ -481,7 +482,7 @@ describe('InvoiceService', () => {
 
     it('should restrict edits for sent invoices', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'inv-1', status: 'sent', tenant_id: 'adris' },
+        data: { id: 'inv-1', status: 'sent', tenant_id: TENANT_IDS.ADRIS },
         error: null,
       });
 
@@ -500,7 +501,7 @@ describe('InvoiceService', () => {
 
     it('should reject invalid updates for sent invoices', async () => {
       mockSupabase._mocks.setMockData({
-        data: { id: 'inv-1', status: 'sent', tenant_id: 'adris' },
+        data: { id: 'inv-1', status: 'sent', tenant_id: TENANT_IDS.ADRIS },
         error: null,
       });
 
@@ -526,7 +527,7 @@ describe('InvoiceService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toContain('Tenant mismatch');
+        expect(result.error).toContain('No puede acceder a datos de otra clínica');
       }
     });
   });
@@ -539,7 +540,7 @@ describe('InvoiceService', () => {
     it('should hard delete draft invoices', async () => {
       // Queue responses: 1) invoice lookup, 2) items delete, 3) invoice delete
       mockSupabase._mocks.queueMockData(
-        { data: { id: 'inv-1', status: 'draft', invoice_number: 'INV-001', tenant_id: 'adris' }, error: null },
+        { data: { id: 'inv-1', status: 'draft', invoice_number: 'INV-001', tenant_id: TENANT_IDS.ADRIS }, error: null },
         { data: null, error: null },
         { data: null, error: null }
       );
@@ -556,7 +557,7 @@ describe('InvoiceService', () => {
     it('should void sent invoices', async () => {
       // Queue responses: 1) invoice lookup, 2) invoice void update
       mockSupabase._mocks.queueMockData(
-        { data: { id: 'inv-1', status: 'sent', invoice_number: 'INV-001', tenant_id: 'adris' }, error: null },
+        { data: { id: 'inv-1', status: 'sent', invoice_number: 'INV-001', tenant_id: TENANT_IDS.ADRIS }, error: null },
         { data: null, error: null }
       );
 
@@ -581,7 +582,7 @@ describe('InvoiceService', () => {
         {
           data: {
             id: 'inv-1',
-            tenant_id: 'adris',
+            tenant_id: TENANT_IDS.ADRIS,
             total: 165000,
             amount_paid: 0,
             amount_due: 165000,
@@ -622,7 +623,7 @@ describe('InvoiceService', () => {
       mockSupabase._mocks.setMockData({
         data: {
           id: 'inv-1',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           total: 165000,
           amount_paid: 100000,
           amount_due: 65000,
@@ -668,7 +669,7 @@ describe('InvoiceService', () => {
         {
           data: {
             id: 'pay-1',
-            tenant_id: 'adris',
+            tenant_id: TENANT_IDS.ADRIS,
             invoice_id: 'inv-1',
             amount: 165000,
             payment_method: 'cash',
@@ -707,7 +708,7 @@ describe('InvoiceService', () => {
       mockSupabase._mocks.setMockData({
         data: {
           id: 'pay-1',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           invoice_id: 'inv-1',
           amount: 50000,
           payment_method: 'cash',

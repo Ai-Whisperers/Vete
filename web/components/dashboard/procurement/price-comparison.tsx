@@ -224,6 +224,8 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
                             </td>
                             <td className="py-3 text-right">
                               {onSelectSupplier && supplierData.supplier && comparison.product && (
+                                // Non-null assertions safe: conditional checks supplier and product exist
+                                /* eslint-disable @typescript-eslint/no-non-null-assertion */
                                 <button
                                   onClick={() => onSelectSupplier(
                                     supplierData.supplier!.id,
@@ -234,6 +236,7 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
                                 >
                                   Seleccionar
                                 </button>
+                                /* eslint-enable @typescript-eslint/no-non-null-assertion */
                               )}
                             </td>
                           </tr>

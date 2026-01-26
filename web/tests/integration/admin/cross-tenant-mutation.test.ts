@@ -15,6 +15,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Test using mocked API routes to verify tenant isolation
 // This tests the application-level security, not just RLS
@@ -23,7 +24,7 @@ import { NextRequest } from 'next/server'
 const mockTenantAAdmin = { id: 'admin-a-001', email: 'admin@adris.com' }
 const mockTenantAProfile = {
   id: 'admin-a-001',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   role: 'admin',
   full_name: 'Adris Admin',
 }
@@ -31,7 +32,7 @@ const mockTenantAProfile = {
 const mockTenantBAdmin = { id: 'admin-b-001', email: 'admin@petlife.com' }
 const mockTenantBProfile = {
   id: 'admin-b-001',
-  tenant_id: 'petlife',
+  tenant_id: TENANT_IDS.PETLIFE,
   role: 'admin',
   full_name: 'PetLife Admin',
 }
@@ -39,7 +40,7 @@ const mockTenantBProfile = {
 const mockTenantAVet = { id: 'vet-a-001', email: 'vet@adris.com' }
 const mockTenantAVetProfile = {
   id: 'vet-a-001',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   role: 'vet',
   full_name: 'Dr. Adris Vet',
 }
@@ -47,7 +48,7 @@ const mockTenantAVetProfile = {
 const mockTenantBOwner = { id: 'owner-b-001', email: 'owner@gmail.com' }
 const mockTenantBOwnerProfile = {
   id: 'owner-b-001',
-  tenant_id: 'petlife',
+  tenant_id: TENANT_IDS.PETLIFE,
   role: 'owner',
   full_name: 'PetLife Owner',
 }
@@ -56,27 +57,27 @@ const mockTenantBOwnerProfile = {
 const tenantAPet = {
   id: 'pet-adris-001',
   name: 'Luna',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   owner_id: 'owner-a-001',
 }
 
 const tenantBPet = {
   id: 'pet-petlife-001',
   name: 'Max',
-  tenant_id: 'petlife',
+  tenant_id: TENANT_IDS.PETLIFE,
   owner_id: 'owner-b-001',
 }
 
 const tenantAInvoice = {
   id: 'invoice-adris-001',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   total: 150000,
   status: 'paid',
 }
 
 const tenantBInvoice = {
   id: 'invoice-petlife-001',
-  tenant_id: 'petlife',
+  tenant_id: TENANT_IDS.PETLIFE,
   total: 200000,
   status: 'pending',
 }
@@ -196,7 +197,7 @@ describe('Cross-Tenant Mutation Security', () => {
         const otherOwnerPet = {
           id: 'pet-petlife-002',
           name: 'Rocky',
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           owner_id: 'owner-b-002', // Different owner
         }
 
@@ -256,7 +257,7 @@ describe('Cross-Tenant Mutation Security', () => {
 
         const tenantBMedicalRecord = {
           id: 'record-petlife-001',
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: tenantBPet.id,
           diagnosis: 'Healthy',
         }
@@ -301,7 +302,7 @@ describe('Cross-Tenant Mutation Security', () => {
 
         const tenantBAppointment = {
           id: 'apt-petlife-001',
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: tenantBPet.id,
           status: 'scheduled',
         }
@@ -323,7 +324,7 @@ describe('Cross-Tenant Mutation Security', () => {
 
         const tenantBVaccine = {
           id: 'vaccine-petlife-001',
-          tenant_id: 'petlife',
+          tenant_id: TENANT_IDS.PETLIFE,
           pet_id: tenantBPet.id,
           vaccine_name: 'Rabies',
         }
@@ -351,7 +352,7 @@ describe('Cross-Tenant Mutation Security', () => {
       // Try to create pet in Tenant A with owner from Tenant B
       await mockSupabase.from('pets').insert({
         name: 'Orphan Pet',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         owner_id: mockTenantBOwnerProfile.id, // Owner is from petlife!
         species: 'dog',
       })
@@ -368,7 +369,7 @@ describe('Cross-Tenant Mutation Security', () => {
       // Try to create record in Tenant B with vet from Tenant A
       await mockSupabase.from('medical_records').insert({
         pet_id: tenantBPet.id,
-        tenant_id: 'petlife',
+        tenant_id: TENANT_IDS.PETLIFE,
         performed_by: mockTenantAVetProfile.id, // Vet is from adris!
         type: 'consultation',
         title: 'Cross-tenant record',
@@ -419,7 +420,7 @@ describe('Cross-Tenant Mutation Security', () => {
         .from('profiles')
         .update({ role: 'admin' })
         .eq('id', mockTenantBOwnerProfile.id)
-        .eq('tenant_id', 'petlife')
+        .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Should be blocked - can't modify other tenant's roles
     })
@@ -432,10 +433,10 @@ describe('Cross-Tenant API Security', () => {
   })
 
   describe('API Route Tenant Validation', () => {
-    it('should validate tenant_id matches authenticated user tenant', () => {
+      it('should validate tenant_id matches authenticated user tenant', () => {
       // Verify that API routes check profile.tenant_id against request data
-      const requestData = { tenant_id: 'petlife', pet_id: 'some-pet' }
-      const userProfile = mockTenantAProfile
+      const requestData = { tenant_id: TENANT_IDS.PETLIFE, pet_id: 'some-pet' }
+      const userProfile = mockTenantAProfile // tenant_id is TENANT_IDS.ADRIS
 
       const isTenantMatch = requestData.tenant_id === userProfile.tenant_id
       expect(isTenantMatch).toBe(false)
@@ -446,7 +447,7 @@ describe('Cross-Tenant API Security', () => {
     it('should prevent tenant_id spoofing in request body', () => {
       // User tries to specify a different tenant_id in the request body
       const spoofedRequest = {
-        tenant_id: 'petlife', // Spoofed - user is actually from adris
+        tenant_id: TENANT_IDS.PETLIFE, // Spoofed - user is actually from adris
         name: 'Malicious Pet',
         species: 'dog',
       }
@@ -475,7 +476,7 @@ describe('Cross-Tenant API Security', () => {
     it('should reject requests with mismatched tenant in URL vs auth', () => {
       // API routes like /api/[tenant]/pets should verify [tenant] matches auth
       const urlTenant = 'petlife'
-      const authTenant = mockTenantAProfile.tenant_id // 'adris'
+      const authTenant = mockTenantAProfile.tenant_id // TENANT_IDS.ADRIS
 
       const isValidRequest = urlTenant === authTenant
       expect(isValidRequest).toBe(false)
@@ -488,7 +489,7 @@ describe('Financial Data Cross-Tenant Protection', () => {
     it('should block cross-tenant payment recording', () => {
       const tenantBPayment = {
         invoice_id: tenantBInvoice.id,
-        tenant_id: 'petlife',
+        tenant_id: TENANT_IDS.PETLIFE,
         amount: 100000,
       }
 
@@ -518,7 +519,7 @@ describe('Financial Data Cross-Tenant Protection', () => {
     it('should block viewing other tenant expenses', () => {
       const tenantBExpense = {
         id: 'expense-petlife-001',
-        tenant_id: 'petlife',
+        tenant_id: TENANT_IDS.PETLIFE,
         amount: 500000,
         description: 'Confidential expense',
       }
@@ -532,7 +533,7 @@ describe('Financial Data Cross-Tenant Protection', () => {
     it('should block modifying other tenant expenses', () => {
       const tenantBExpense = {
         id: 'expense-petlife-001',
-        tenant_id: 'petlife',
+        tenant_id: TENANT_IDS.PETLIFE,
         amount: 500000,
       }
 

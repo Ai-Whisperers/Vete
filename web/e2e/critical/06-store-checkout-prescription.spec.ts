@@ -17,7 +17,7 @@
  * @tags e2e, critical, store, checkout, prescription, cart
  */
 
-/* eslint-disable no-console */
+ 
 import { test, expect, Page } from '@playwright/test'
 import path from 'path'
 import { TEST_USERS, E2E_TEST_TENANT } from '../fixtures/test-users'

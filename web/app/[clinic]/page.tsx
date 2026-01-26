@@ -85,8 +85,8 @@ export default async function ClinicHomePage({
       <section className="section-padding bg-[var(--bg-subtle)]">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12 text-center md:mb-16">
-            <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
-              {tHome('ourServices')}
+<span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
+              {config.ui_labels?.home?.features_badge || tHome('ourServices')}
             </span>
             <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
               {config.ui_labels?.home?.features_title}
@@ -123,7 +123,7 @@ export default async function ClinicHomePage({
       </section>
 
       {/* INTERACTIVE TOOLS */}
-      {home.interactive_tools_section && (
+      {home.interactive_tools_section?.enabled && (
         <section className="section-padding relative overflow-hidden bg-white">
           {/* Decorative blobs */}
           <div className="bg-[var(--primary)]/5 absolute right-0 top-0 h-48 w-48 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl sm:h-72 sm:w-72 lg:h-96 lg:w-96" />
@@ -160,8 +160,8 @@ export default async function ClinicHomePage({
 
           <div className="container mx-auto px-4 md:px-6">
             <div className="mb-12 text-center md:mb-16">
-              <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
-                {tHome('testimonials')}
+<span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
+                {config.ui_labels?.home?.testimonials_badge || tHome('testimonials')}
               </span>
               <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
                 {home.testimonials_section.title}
@@ -263,20 +263,57 @@ export default async function ClinicHomePage({
                     </p>
                   </div>
                 </div>
-                <div className="bg-[var(--accent)]/10 border-[var(--accent)]/20 flex items-center gap-4 rounded-xl border p-4">
-                  <div className="bg-[var(--accent)]/20 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
-                    <Icons.Zap className="h-6 w-6 text-[var(--secondary-dark)]" />
+{config.settings?.emergency_24h ? (
+                  <div className="bg-[var(--accent)]/10 border-[var(--accent)]/20 flex items-center gap-4 rounded-xl border p-4">
+                    <div className="bg-[var(--accent)]/20 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                      <Icons.Zap className="h-6 w-6 text-[var(--secondary-dark)]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('emergency')}</p>
+                      <p className="text-sm font-medium text-[var(--secondary-dark)]">
+                        {tHome('emergencyHours')}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('emergency')}</p>
-                    <p className="text-sm font-medium text-[var(--secondary-dark)]">
-                      {tHome('emergencyHours')}
-                    </p>
+                ) : (
+                  <div className="bg-[var(--accent)]/10 border-[var(--accent)]/20 flex items-center gap-4 rounded-xl border p-4">
+                    <div className="bg-[var(--accent)]/20 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                      <Icons.MessageCircle className="h-6 w-6 text-[var(--secondary-dark)]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[var(--text-primary)]">
+                        {config.ui_labels?.home?.whatsapp_label || 'WhatsApp'}
+                      </p>
+                      <p className="text-sm font-medium text-[var(--secondary-dark)]">
+                        {config.ui_labels?.home?.whatsapp_text || 'Atencion personalizada'}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              <AppointmentForm />
+              {config.settings?.modules?.booking !== false ? (
+                <AppointmentForm />
+              ) : (
+                /* WhatsApp Contact Card for non-booking tenants */
+                <div className="rounded-2xl border border-gray-100 bg-[var(--bg-subtle)] p-6 shadow-[var(--shadow-card)]">
+                  <h3 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+                    {config.ui_labels?.home?.emergency_title || 'Contactanos'}
+                  </h3>
+                  <p className="mb-6 text-[var(--text-secondary)]">
+                    {config.ui_labels?.home?.emergency_text || 'Escribinos por WhatsApp para atencion personalizada.'}
+                  </p>
+                  <a
+                    href={`https://wa.me/${config.contact.whatsapp_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#25D366] px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    <Icons.MessageCircle className="h-5 w-5" />
+                    {config.ui_labels?.home?.emergency_cta || 'Enviar Mensaje'}
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Map Side - Interactive Map */}

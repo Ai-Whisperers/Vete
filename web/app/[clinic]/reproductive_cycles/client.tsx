@@ -23,7 +23,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
   const router = useRouter()
 
   const [petId, setPetId] = useState('')
-  const [pets, setPets] = useState<any[]>([])
+  const [pets, setPets] = useState<Record<string, unknown>[]>([])
   const [cycles, setCycles] = useState<ReproductiveCycle[]>([])
   const [isSaving, setIsSaving] = useState(false)
 

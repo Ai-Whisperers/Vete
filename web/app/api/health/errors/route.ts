@@ -118,8 +118,11 @@ export async function GET(request: Request): Promise<NextResponse> {
 export async function POST(request: Request): Promise<NextResponse> {
   // Verify auth (using cron auth for admin operations)
   const { authorized, errorResponse } = checkCronAuth(request as unknown as import('next/server').NextRequest)
+  if (!authorized && errorResponse) {
+    return errorResponse
+  }
   if (!authorized) {
-    return errorResponse!
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   try {

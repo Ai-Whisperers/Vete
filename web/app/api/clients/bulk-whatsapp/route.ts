@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { logger } from '@/lib/logger'
+import { NOT_FOUND_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
 import { requireFeature } from '@/lib/features/server'
 import { z } from 'zod'
 
@@ -24,7 +24,7 @@ interface BulkWhatsAppResult {
  * POST /api/clients/bulk-whatsapp - Send bulk WhatsApp messages to selected clients
  */
 export const POST = withApiAuth(
-  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+  async ({ request, user, profile, supabase, log }: ApiHandlerContext) => {
     // Check if tenant has WhatsApp API feature enabled
     const featureCheck = await requireFeature(profile.tenant_id, 'whatsappApi')
     if (featureCheck) return featureCheck
@@ -50,16 +50,18 @@ export const POST = withApiAuth(
         .not('phone', 'is', null)
 
       if (clientsError) {
-        logger.error('Error fetching clients for bulk WhatsApp', {
+        log.error('Error fetching clients for bulk WhatsApp', {
           tenantId: profile.tenant_id,
           error: clientsError.message,
         })
-        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+          details: { message: DATABASE_ERRORS.QUERY_FAILED },
+        })
       }
 
       if (!clients || clients.length === 0) {
         return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-          details: { message: 'No se encontraron clientes con número de teléfono' },
+          details: { message: NOT_FOUND_ERRORS.USER },
         })
       }
 
@@ -169,7 +171,7 @@ export const POST = withApiAuth(
         },
       })
 
-      logger.info('Bulk WhatsApp completed', {
+      log.info('Bulk WhatsApp completed', {
         tenantId: profile.tenant_id,
         userId: user.id,
         sent: result.sent,
@@ -179,11 +181,13 @@ export const POST = withApiAuth(
 
       return NextResponse.json(result)
     } catch (error) {
-      logger.error('Bulk WhatsApp error', {
+      log.error('Bulk WhatsApp error', {
         tenantId: profile.tenant_id,
         error: error instanceof Error ? error.message : 'Unknown',
       })
-      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: DATABASE_ERRORS.SERVER_ERROR },
+      })
     }
   },
   { roles: ['vet', 'admin'], rateLimit: 'write' }

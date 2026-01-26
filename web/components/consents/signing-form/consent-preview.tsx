@@ -25,7 +25,7 @@ interface ConsentPreviewProps {
   template: ConsentTemplate
   pet: Pet
   owner: Owner
-  fieldValues: Record<string, any>
+  fieldValues: Record<string, unknown>
 }
 
 export default function ConsentPreview({

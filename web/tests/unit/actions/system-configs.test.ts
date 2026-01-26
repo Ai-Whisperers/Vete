@@ -33,7 +33,7 @@ vi.mock('@/db/schema', () => ({
 vi.mock('@/lib/auth', () => ({
   withActionAuth: vi.fn((handler) => async (...args: any[]) => {
     // Simulate admin profile
-    return handler({ profile: { role: 'admin', tenant_id: 'adris' } }, ...args)
+    return handler({ profile: { role: 'admin', tenant_id: TENANT_IDS.ADRIS } }, ...args)
   }),
 }))
 
@@ -42,6 +42,7 @@ vi.mock('next/cache', () => ({
 }))
 
 import { setSystemConfig } from '@/app/actions/system-configs'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('System Config Actions', () => {
   beforeEach(() => {

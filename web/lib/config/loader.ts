@@ -162,8 +162,12 @@ const configSchema = z.object({
 
 /**
  * Load configuration from environment variables
+ * 
+ * Note: Non-null assertions are used for required environment variables.
+ * The app will fail at startup if these are not set, which is intentional.
  */
 export function loadConfig(): AppConfig {
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   try {
     const config = configSchema.parse({
       env: (process.env.NODE_ENV as Environment) || 'development',
@@ -319,6 +323,7 @@ export function loadConfig(): AppConfig {
 
     throw new Error(`Configuration loading failed: ${error}`)
   }
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 }
 
 /**

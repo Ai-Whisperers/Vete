@@ -6,6 +6,7 @@ import { apiClient } from '../api-client'
 import { testContext } from '../context'
 import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
 import { OrderScenario, PaymentMethod } from './types'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface StoreOrderData {
   id: string
@@ -145,7 +146,7 @@ export class StoreOrderFactory {
     const id = generateId()
     this.data = {
       id,
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       order_number: `ORD-${Date.now()}-${id.slice(0, 8)}`,
       status: 'pending',
       discount_amount: 0,
@@ -326,6 +327,8 @@ export class StoreOrderFactory {
     switch (this.scenario) {
       case 'prescription':
         if (!this.items.some((i) => i.prescription)) {
+          // Non-null assertion safe: SAMPLE_PRODUCTS has 3 prescription items (lines 71-73)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const prescriptionProduct = SAMPLE_PRODUCTS.find((p) => p.prescription)!
           this.items.push({
             productId: prescriptionProduct.id,
@@ -490,7 +493,7 @@ export class CartFactory {
   private constructor() {
     this.data = {
       id: generateId(),
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       items: [],
     }
   }
@@ -582,6 +585,8 @@ export class CartFactory {
       throw new Error(`Failed to create cart: ${error}`)
     }
 
+    // Non-null assertion safe: id initialized in constructor (line 495)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     testContext.track('store_carts', this.data.id!, this.data.tenant_id)
 
     return this.data as StoreCartData

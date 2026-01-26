@@ -6,7 +6,7 @@
  * REF-006: Refactored from 1421 lines to use decomposed components
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import {
   ImportWizard,
@@ -17,7 +17,6 @@ import {
   AddProductModal,
   DeleteConfirmModal,
   type InventoryProduct,
-  type SortField,
   type ScannerMode,
 } from '@/components/dashboard/inventory'
 import { StockHistoryModal } from '@/components/dashboard/inventory/stock-history-modal'

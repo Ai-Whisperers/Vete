@@ -22,7 +22,7 @@ export interface MemoizeOptions {
    * Custom key generator function (optional)
    * By default, uses JSON.stringify on arguments
    */
-  keyGenerator?: (...args: any[]) => string
+  keyGenerator?: (...args: unknown[]) => string
 }
 
 interface CacheEntry<T> {
@@ -51,6 +51,7 @@ interface CacheEntry<T> {
  * memoized(5, 10) // Computed
  * memoized(5, 10) // Cached result
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function memoize<T extends (...args: any[]) => any>(fn: T, options: MemoizeOptions = {}): T {
   const { maxSize = 100, ttlMs, keyGenerator } = options
   const cache = new Map<string, CacheEntry<ReturnType<T>>>()
@@ -106,6 +107,7 @@ export function memoize<T extends (...args: any[]) => any>(fn: T, options: Memoi
  * await memoized('123') // Fetched from API
  * await memoized('123') // Cached result
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   options: MemoizeOptions = {}
@@ -173,7 +175,7 @@ export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(
  * }
  */
 export function Memoize(options: MemoizeOptions = {}): MethodDecorator {
-  return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+  return function (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     descriptor.value = memoize(originalMethod, options)
     return descriptor
@@ -187,6 +189,7 @@ export function Memoize(options: MemoizeOptions = {}): MethodDecorator {
  * const memoized = memoize(fn)
  * memoized.clear() // Clear cache
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface MemoizedFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T>
   clear: () => void
@@ -207,6 +210,7 @@ export interface MemoizedFunction<T extends (...args: any[]) => any> {
  * memoized.clear()
  * console.log(memoized.size()) // 0
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function memoizeWithControl<T extends (...args: any[]) => any>(
   fn: T,
   options: MemoizeOptions = {}

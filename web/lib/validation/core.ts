@@ -16,7 +16,7 @@ export class ValidationEngine {
    * Validate data against a schema
    */
   static validate(
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     schema: ValidationSchema,
     context?: ValidationContext
   ): ValidationResult {
@@ -182,7 +182,7 @@ export class ValidationEngine {
    * Validate and throw if invalid
    */
   static validateOrThrow(
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     schema: ValidationSchema,
     context?: ValidationContext
   ): void {

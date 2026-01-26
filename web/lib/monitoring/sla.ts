@@ -172,7 +172,9 @@ export function calculateMTBF(
   let totalTimeBetween = 0
   for (let i = 1; i < sorted.length; i++) {
     const prevEnd = sorted[i - 1].endTime
-      ? new Date(sorted[i - 1].endTime!).getTime()
+      ? // Non-null assertion safe: Conditional check guarantees endTime exists
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        new Date(sorted[i - 1].endTime!).getTime()
       : new Date(sorted[i - 1].startTime).getTime() + sorted[i - 1].durationMinutes * 60 * 1000
 
     const nextStart = new Date(sorted[i].startTime).getTime()

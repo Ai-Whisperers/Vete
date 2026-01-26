@@ -872,7 +872,10 @@ export class MessagingService extends BaseService {
       const responseTimes = conversations
         ?.filter(c => c.last_client_message_at && c.last_staff_message_at)
         .map(c => {
+          // Non-null assertion safe: filter ensures both timestamps exist
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const clientTime = new Date(c.last_client_message_at!).getTime();
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const staffTime = new Date(c.last_staff_message_at!).getTime();
           if (staffTime > clientTime) {
             return (staffTime - clientTime) / (1000 * 60 * 60); // hours

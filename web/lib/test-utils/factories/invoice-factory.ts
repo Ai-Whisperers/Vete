@@ -6,6 +6,7 @@ import { apiClient } from '../api-client'
 import { testContext } from '../context'
 import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
 import { PaymentMethod } from './types'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface InvoiceData {
   id: string
@@ -91,7 +92,7 @@ export class InvoiceFactory {
     const id = generateId()
     this.data = {
       id,
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       invoice_number: `FAC-${Date.now()}-${id.slice(0, 8)}`,
       invoice_date: new Date().toISOString().split('T')[0],
       pet_id: null,

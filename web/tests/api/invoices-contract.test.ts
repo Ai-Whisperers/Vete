@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 /**
  * API Contract Tests for Invoices
@@ -20,7 +21,7 @@ describe('Invoices API Contract', () => {
       const mockResponse = [
         {
           id: 'inv-123',
-          tenant_id: 'adris',
+          tenant_id: TENANT_IDS.ADRIS,
           invoice_number: 'INV-2026-001',
           client_id: 'client-456',
           total: 150.0,
@@ -149,7 +150,7 @@ describe('Invoices API Contract', () => {
       // Expected response structure with full details
       const mockResponse = {
         id: 'inv-123',
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         invoice_number: 'INV-2026-001',
         client_id: 'client-456',
         total: 150.0,

@@ -16,6 +16,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AppointmentService } from '@/lib/services';
 import type { Appointment, CreateAppointmentInput } from '@/lib/types/entities/appointment';
 import { createMockSupabase } from '../../__helpers__/mocks';
+import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // =============================================================================
 // MOCK SETUP
@@ -23,7 +24,7 @@ import { createMockSupabase } from '../../__helpers__/mocks';
 
 const mockAppointment: Appointment = {
   id: 'apt-1',
-  tenant_id: 'adris',
+  tenant_id: TENANT_IDS.ADRIS,
   pet_id: 'pet-1',
   vet_id: 'vet-1',
   service_id: 'service-1',
@@ -224,7 +225,7 @@ describe('AppointmentService', () => {
 
   describe('create', () => {
     const validInput: CreateAppointmentInput = {
-      tenant_id: 'adris',
+      tenant_id: TENANT_IDS.ADRIS,
       pet_id: 'pet-1',
       vet_id: 'vet-1',
       service_id: 'service-1',
@@ -255,7 +256,7 @@ describe('AppointmentService', () => {
 
     it('validates required fields', async () => {
       const invalidInput = {
-        tenant_id: 'adris',
+        tenant_id: TENANT_IDS.ADRIS,
         // Missing required fields
       } as CreateAppointmentInput;
 
@@ -312,7 +313,7 @@ describe('AppointmentService', () => {
       mockSupabase._mocks.single
         .mockReturnValueOnce({
           then: vi.fn((cb) =>
-            cb({ data: { tenant_id: 'adris', status: 'pending' }, error: null })
+            cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'pending' }, error: null })
           ),
         })
         .mockReturnValueOnce({
@@ -338,14 +339,14 @@ describe('AppointmentService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.details?.message).toContain('Tenant mismatch');
+        expect(result.details?.message).toContain('No puede acceder a datos de otra clínica');
       }
     });
 
     it('prevents updating completed appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'completed' }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'completed' }, error: null })
         ),
       });
 
@@ -360,7 +361,7 @@ describe('AppointmentService', () => {
     it('prevents updating cancelled appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'cancelled' }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'cancelled' }, error: null })
         ),
       });
 
@@ -382,7 +383,7 @@ describe('AppointmentService', () => {
       mockSupabase._mocks.single
         .mockReturnValueOnce({
           then: vi.fn((cb) =>
-            cb({ data: { tenant_id: 'adris', status: 'pending' }, error: null })
+            cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'pending' }, error: null })
           ),
         })
         .mockReturnValueOnce({
@@ -403,7 +404,7 @@ describe('AppointmentService', () => {
       mockSupabase._mocks.single
         .mockReturnValueOnce({
           then: vi.fn((cb) =>
-            cb({ data: { tenant_id: 'adris', status: 'confirmed' }, error: null })
+            cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'confirmed' }, error: null })
           ),
         })
         .mockReturnValueOnce({
@@ -420,7 +421,7 @@ describe('AppointmentService', () => {
     it('prevents checking in completed appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'completed' }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'completed' }, error: null })
         ),
       });
 
@@ -442,7 +443,7 @@ describe('AppointmentService', () => {
       mockSupabase._mocks.single
         .mockReturnValueOnce({
           then: vi.fn((cb) =>
-            cb({ data: { tenant_id: 'adris', status: 'checked_in', notes: null }, error: null })
+            cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'checked_in', notes: null }, error: null })
           ),
         })
         .mockReturnValueOnce({
@@ -464,7 +465,7 @@ describe('AppointmentService', () => {
         then: vi.fn((cb) =>
           cb({
             data: {
-              tenant_id: 'adris',
+              tenant_id: TENANT_IDS.ADRIS,
               status: 'in_progress',
               notes: 'Notas previas',
             },
@@ -482,7 +483,7 @@ describe('AppointmentService', () => {
     it('prevents completing pending appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'pending', notes: null }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'pending', notes: null }, error: null })
         ),
       });
 
@@ -504,7 +505,7 @@ describe('AppointmentService', () => {
       mockSupabase._mocks.single
         .mockReturnValueOnce({
           then: vi.fn((cb) =>
-            cb({ data: { tenant_id: 'adris', status: 'pending' }, error: null })
+            cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'pending' }, error: null })
           ),
         })
         .mockReturnValueOnce({
@@ -524,7 +525,7 @@ describe('AppointmentService', () => {
     it('prevents cancelling completed appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'completed' }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'completed' }, error: null })
         ),
       });
 
@@ -539,7 +540,7 @@ describe('AppointmentService', () => {
     it('prevents cancelling already cancelled appointments', async () => {
       mockSupabase._mocks.single.mockReturnValueOnce({
         then: vi.fn((cb) =>
-          cb({ data: { tenant_id: 'adris', status: 'cancelled' }, error: null })
+          cb({ data: { tenant_id: TENANT_IDS.ADRIS, status: 'cancelled' }, error: null })
         ),
       });
 

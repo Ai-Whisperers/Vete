@@ -194,14 +194,15 @@ export interface ThemeTypography {
 
 /** Gradient definitions */
 export interface ThemeGradients {
-  hero: string
-  primary: string
-  accent: string
+  hero?: string
+  primary?: string
+  accent?: string
   dark?: string
   card?: string
   toRight?: string
   toBottom?: string
   radial?: string
+  [key: string]: string | undefined
 }
 
 /** UI settings (shadows, radii, etc.) */

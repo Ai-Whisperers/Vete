@@ -16,7 +16,7 @@ export interface ContactInfo {
   address: string
   city?: string
   country?: string
-  google_maps_id: string
+  google_maps_id?: string
   coordinates?: {
     lat: number
     lng: number
@@ -53,6 +53,7 @@ export interface ModuleSettings {
   online_store?: boolean
   booking?: boolean
   telemedicine?: boolean
+  services_page?: boolean
 }
 
 export interface ClinicSettings {

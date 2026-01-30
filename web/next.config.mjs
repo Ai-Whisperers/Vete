@@ -72,6 +72,10 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Enable standalone output for Docker deployments
+  // This creates a minimal production bundle with all dependencies
+  output: 'standalone',
+
   // Set workspace root to web directory to fix multiple lockfiles warning
   // This tells Next.js that the web directory is the root for output file tracing
   outputFileTracingRoot: __dirname,

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { env } from '@/lib/env'
+import { getDomainMapping, isCustomDomain } from '@/lib/domains'
 
 // ============================================================================
 // MIDDLEWARE LOGGING
@@ -96,6 +97,34 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Skip root path
   if (path === '/') {
     return NextResponse.next()
+  }
+
+  // ============================================================================
+  // CUSTOM DOMAIN RESOLUTION
+  // Resolve custom domains to tenant slugs via URL rewriting
+  // ============================================================================
+
+  const host = request.headers.get('host')
+  if (host && isCustomDomain(host)) {
+    const domainMapping = getDomainMapping(host)
+    if (domainMapping) {
+      const tenant = domainMapping.tenant
+      // Check if path already starts with tenant slug
+      if (!path.startsWith(`/${tenant}`)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/${tenant}${path}`
+
+        middlewareLog('info', 'Custom domain resolved', {
+          ...baseLogContext,
+          domain: host,
+          tenant,
+          from: path,
+          to: url.pathname,
+        })
+
+        return NextResponse.rewrite(url)
+      }
+    }
   }
 
   // Create response with pathname and request ID headers

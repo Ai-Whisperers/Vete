@@ -1,0 +1,70 @@
+{
+  "$schema": "./schemas/domains.schema.json",
+  "version": "1.0.0",
+  "defaultDomain": "vetic.vercel.app",
+  "domains": [
+    {
+      "domain": "adris.vetic.vercel.app",
+      "tenant": "adris",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2025-01-31T00:00:00Z"
+    },
+    {
+      "domain": "petlife.vetic.vercel.app",
+      "tenant": "petlife",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2025-01-31T00:00:00Z"
+    },
+    {
+      "domain": "cavillpet.vetic.vercel.app",
+      "tenant": "CavillPet",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2025-01-31T00:00:00Z"
+    },
+    {
+      "domain": "fun4me.vetic.vercel.app",
+      "tenant": "fun4me",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2025-01-31T00:00:00Z"
+    },
+    {
+      "domain": "terrapet.vetic.vercel.app",
+      "tenant": "terrapet",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2025-01-31T00:00:00Z"
+    }
+  ],
+  "cloudflare": {
+    "tunnels": []
+  }
+}

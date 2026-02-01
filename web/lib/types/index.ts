@@ -437,3 +437,21 @@ export type {
   Conversation as WhatsAppConversationExtended,
   TwilioWhatsAppWebhook,
 } from './whatsapp'
+
+// =============================================================================
+// DOMAIN MANAGEMENT TYPES
+// =============================================================================
+export type {
+  DomainType,
+  DomainProvider,
+  DomainStatus,
+  SSLProvider,
+  DNSRecordType,
+  SSLConfig,
+  DNSRecord,
+  DomainEntry,
+  CloudflareTunnel,
+  DomainsConfig,
+  DomainLookupResult,
+  DomainTenantMap,
+} from './domains'

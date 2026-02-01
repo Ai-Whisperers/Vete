@@ -112,7 +112,14 @@
     "update:images:dry-run": "npx tsx scripts/update-product-images.ts --dry-run --verbose",
     "validate:configs": "npx tsx scripts/validate-clinic-configs.ts",
     "validate:configs:fix": "npx tsx scripts/validate-clinic-configs.ts --fix",
-    "migrate:auth": "npx tsx scripts/migrate-api-auth.ts"
+    "migrate:auth": "npx tsx scripts/migrate-api-auth.ts",
+    "domains": "node ../scripts/domains.mjs",
+    "domains:list": "node ../scripts/domains.mjs list",
+    "domains:validate": "node ../scripts/domains.mjs validate",
+    "domains:verify": "node ../scripts/domains.mjs verify",
+    "domains:sync": "node ../scripts/domains.mjs sync-vercel",
+    "domains:sync:dry": "node ../scripts/domains.mjs sync-vercel --dry-run",
+    "domains:cloudflare": "node ../scripts/domains.mjs generate-cloudflare"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -15,6 +15,16 @@ Welcome to the technical documentation for **Vete**, a comprehensive multi-tenan
 | [Development](development/setup.md) | Contributing and coding standards |
 | [Growth Strategy](growth-strategy/01-pricing-strategy.md) | Pricing, ambassador program, pre-generation |
 
+### Operations & Infrastructure
+
+| Document | Description |
+|----------|-------------|
+| [Domain Management](../docs/DOMAIN_MANAGEMENT.md) | Custom domains, CNAME configuration, DNS setup |
+| [Docker Deployment](../docs/DOCKER_DEPLOYMENT.md) | Self-hosted deployment with Docker |
+| [Cloudflare Tunnels](../docs/CLOUDFLARE_TUNNELS.md) | Zero-trust tunnel configuration |
+| [Environment Variables](../docs/ENV_COMPLETE_REFERENCE.md) | All 77+ environment variables |
+| [Security Guidelines](../docs/SECURITY_GUIDELINES.md) | Security best practices |
+
 ---
 
 ## Platform Overview
@@ -186,6 +196,25 @@ Each clinic operates as an isolated tenant:
 - Routes: `/[clinic]/*` (e.g., `/adris/services`)
 - Content: `.content_data/[clinic]/` JSON files
 - Database: `tenant_id` column + RLS policies
+
+### Deployment Options
+
+| Method | Use Case | Documentation |
+|--------|----------|---------------|
+| **Vercel** | Production SaaS (default) | Automatic via GitHub |
+| **Docker** | Self-hosted, on-premise | [Docker Guide](../docs/DOCKER_DEPLOYMENT.md) |
+| **Cloudflare Tunnel** | Behind NAT/firewall | [Tunnel Guide](../docs/CLOUDFLARE_TUNNELS.md) |
+
+### Domain Management
+
+Custom domains are managed via CLI:
+```bash
+node scripts/domains.mjs list              # List all domains
+node scripts/domains.mjs add <domain> <tenant>  # Add domain
+node scripts/domains.mjs validate          # Validate config
+```
+
+See [Domain Management Guide](../docs/DOMAIN_MANAGEMENT.md) for details.
 
 ### JSON-CMS
 

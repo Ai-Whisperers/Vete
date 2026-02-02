@@ -30,7 +30,7 @@ const emptyForm: TemplateFormData = {
   variables: [],
 }
 
-export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
+export function TemplateManager({ templates, clinic: _clinic }: TemplateManagerProps) {
   const router = useRouter()
   const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)

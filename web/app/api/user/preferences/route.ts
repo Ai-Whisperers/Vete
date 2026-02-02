@@ -9,7 +9,7 @@ const userPreferencesSchema = z.object({
   reminderTimeBefore: z.enum(['24h', '12h', '1h', '30m']).optional(),
 })
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   const supabase = await createClient()
 
   // 1. Authenticate user
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   return NextResponse.json(preferences, { status: 200 })
 }
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   const supabase = await createClient()
 
   // 1. Authenticate user

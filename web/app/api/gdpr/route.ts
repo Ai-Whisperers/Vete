@@ -25,7 +25,7 @@ const createRequestSchema = z.object({
  * GET /api/gdpr
  * List user's GDPR requests
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient()
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
  * POST /api/gdpr
  * Create new GDPR request
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient()
 

@@ -84,7 +84,7 @@ interface Props {
   isAdmin: boolean
 }
 
-export default function RemindersDashboard({ clinic, isAdmin }: Props) {
+export default function RemindersDashboard({ clinic: _clinic, isAdmin }: Props) {
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'overview' | 'reminders' | 'rules'>('overview')

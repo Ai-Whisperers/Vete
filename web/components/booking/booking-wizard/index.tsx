@@ -31,7 +31,7 @@ interface BookingWizardProps {
  */
 export default function BookingWizard({
   clinic,
-  user,
+  user: _user,
   userPets,
   initialServiceIds = [],
   initialPetId,

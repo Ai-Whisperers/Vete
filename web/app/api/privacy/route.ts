@@ -23,7 +23,7 @@ import {
  * For owners: Returns current published policy
  * For staff: Returns all policies with query params
  */
-export const GET = withApiAuth(async ({ user, profile, log }: ApiHandlerContext) => {
+export const GET = withApiAuth(async ({ user: _user, profile, log }: ApiHandlerContext) => {
   log.info('Fetching privacy policies', { action: 'privacy.list' })
 
   if (['vet', 'admin'].includes(profile.role)) {
@@ -49,7 +49,7 @@ export const GET = withApiAuth(async ({ user, profile, log }: ApiHandlerContext)
  * Admin only
  */
 export const POST = withApiAuth(
-  async ({ request, user, profile, log }: ApiHandlerContext) => {
+  async ({ request, user: _user, profile, log }: ApiHandlerContext) => {
     log.info('Creating privacy policy', { action: 'privacy.create' })
 
     let body

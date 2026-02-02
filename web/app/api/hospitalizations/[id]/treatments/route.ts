@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger'
  * POST /api/hospitalizations/[id]/treatments - Add treatment
  */
 export const POST = withApiAuthParams(
-  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+  async ({ request, params, user: _user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const hospitalizationId = params.id
 
     // Verify hospitalization exists and belongs to clinic
@@ -81,7 +81,7 @@ export const POST = withApiAuthParams(
  * PATCH /api/hospitalizations/[id]/treatments - Update treatment status
  */
 export const PATCH = withApiAuthParams(
-  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+  async ({ request, params, user: _user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     // Parse body
     let body
     try {

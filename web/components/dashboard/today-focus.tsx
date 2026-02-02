@@ -81,7 +81,7 @@ const typeLabels = {
   vaccine: 'Vacuna',
 }
 
-function FocusItemCard({ item, clinic }: { item: FocusItem; clinic: string }) {
+function FocusItemCard({ item, clinic: _clinic }: { item: FocusItem; clinic: string }) {
   const Icon = typeIcons[item.type]
 
   return (
@@ -171,7 +171,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function TodayFocus({ clinic }: TodayFocusProps) {
+export function TodayFocus({ clinic: _clinic }: TodayFocusProps) {
   // React Query: Fetch focus items with 1-minute auto-refresh
   const { data: rawItems = [], isLoading: loading } = useQuery({
     queryKey: queryKeys.dashboard.todayFocus(clinic),

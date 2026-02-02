@@ -94,7 +94,7 @@ function ProgressBar({
   )
 }
 
-function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
+function StatCard({ card, clinic: _clinic }: { card: StatCardConfig; clinic: string }) {
   const Icon = card.icon
 
   return (
@@ -175,7 +175,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function StatsCards({ clinic }: StatsCardsProps) {
+export function StatsCards({ clinic: _clinic }: StatsCardsProps) {
   // React Query: Fetch stats with 2-minute auto-refresh
   const { data: stats, isLoading: loading } = useQuery({
     queryKey: queryKeys.dashboard.stats(clinic),

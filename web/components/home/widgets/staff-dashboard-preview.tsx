@@ -40,7 +40,7 @@ interface StaffDashboardPreviewProps {
   clinic: string
 }
 
-function AppointmentRow({ appointment, clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
+function AppointmentRow({ appointment, clinic: _clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
   const startTime = new Date(appointment.start_time)
   const formattedTime = startTime.toLocaleTimeString('es-PY', {
     hour: '2-digit',
@@ -151,7 +151,7 @@ function SkeletonLoader(): React.ReactElement {
   )
 }
 
-export function StaffDashboardPreview({ clinic }: StaffDashboardPreviewProps): React.ReactElement | null {
+export function StaffDashboardPreview({ clinic: _clinic }: StaffDashboardPreviewProps): React.ReactElement | null {
   const { data, isLoading, error } = useQuery<StaffPreviewData>({
     queryKey: ['staff-preview', clinic],
     queryFn: () => fetch(`/api/homepage/staff-preview?clinic=${clinic}`).then((r) => r.json()),

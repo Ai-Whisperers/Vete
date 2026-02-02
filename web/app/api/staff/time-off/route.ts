@@ -12,7 +12,7 @@ import { logger } from '@/lib/logger'
  *   - start_date (optional): filter requests starting from this date
  *   - end_date (optional): filter requests ending before this date
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const supabase = await createClient()
   const { searchParams } = new URL(request.url)
 
@@ -203,7 +203,7 @@ export async function GET(request: NextRequest) {
  *   covering_staff_id?: string
  * }
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
@@ -366,7 +366,7 @@ export async function POST(request: NextRequest) {
  *   review_notes?: string
  * }
  */
-export async function PATCH(request: NextRequest) {
+export async function PATCH(_request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check

@@ -18,7 +18,7 @@ interface StatusButtonsProps {
   clinic: string
 }
 
-export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusButtonsProps) {
+export function StatusButtons({ appointmentId, currentStatus, clinic: _clinic }: StatusButtonsProps) {
   const t = useTranslations('dashboard.statusButtons')
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)

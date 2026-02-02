@@ -40,7 +40,7 @@ interface OwnerDashboardPreviewProps {
   clinic: string
 }
 
-function PetMiniCard({ pet, clinic }: { pet: Pet; clinic: string }): React.ReactElement {
+function PetMiniCard({ pet, clinic: _clinic }: { pet: Pet; clinic: string }): React.ReactElement {
   const SpeciesIcon = pet.species === 'dog' ? Dog : pet.species === 'cat' ? Cat : PawPrint
 
   return (
@@ -78,7 +78,7 @@ function PetMiniCard({ pet, clinic }: { pet: Pet; clinic: string }): React.React
   )
 }
 
-function AppointmentMiniCard({ appointment, clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
+function AppointmentMiniCard({ appointment, clinic: _clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
   const date = new Date(appointment.start_time)
   const formattedDate = date.toLocaleDateString('es-PY', {
     weekday: 'short',
@@ -133,7 +133,7 @@ function SkeletonLoader(): React.ReactElement {
   )
 }
 
-export function OwnerDashboardPreview({ clinic }: OwnerDashboardPreviewProps): React.ReactElement | null {
+export function OwnerDashboardPreview({ clinic: _clinic }: OwnerDashboardPreviewProps): React.ReactElement | null {
   const { data, isLoading, error } = useQuery<OwnerPreviewData>({
     queryKey: ['owner-preview', clinic],
     queryFn: async () => {

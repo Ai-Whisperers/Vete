@@ -14,7 +14,7 @@ const offerSchema = z.object({
  * POST /api/appointments/waitlist/[id]/offer - Staff offers slot to client
  */
 export const POST = withApiAuthParams(
-  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+  async ({ request, params, user: _user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const entryId = params.id
 
     try {

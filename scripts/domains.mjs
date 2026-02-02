@@ -702,8 +702,8 @@ function cmdGenerateCloudflare(args) {
   const config = loadDomains()
 
   // Find tunnel or create placeholder
-  let tunnel = config.cloudflare?.tunnels?.find(t => t.name === tunnelName)
-  let tunnelId = tunnel?.id || '<TUNNEL_UUID>'
+  const tunnel = config.cloudflare?.tunnels?.find(t => t.name === tunnelName)
+  const tunnelId = tunnel?.id || '<TUNNEL_UUID>'
 
   if (!tunnel) {
     logWarn(`  Tunnel "${tunnelName}" not registered. Using placeholder UUID.`)

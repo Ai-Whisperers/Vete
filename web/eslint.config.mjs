@@ -151,7 +151,7 @@ export default [
       "*.config.js",
       "*.config.mjs",
       "*.config.ts",
-      "scripts/**",
+      "scripts/**",  // Use root eslint.config.mjs for scripts
       "db/**",
       "supabase/**",
     ],

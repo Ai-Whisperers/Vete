@@ -82,7 +82,7 @@ export function CalendarViewComponent({
         case 'shift':
           backgroundColor = EVENT_COLORS.shift
           break
-        default:
+        default: {
           // Use status color for appointments
           const eventStatus = event.resource?.status || event.status
           if (eventStatus) {
@@ -97,6 +97,7 @@ export function CalendarViewComponent({
             }
             backgroundColor = statusColors[eventStatus] || EVENT_COLORS.appointment
           }
+        }
       }
     }
 

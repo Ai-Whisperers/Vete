@@ -581,7 +581,7 @@ export function getViewDateRange(date: Date, view: CalendarView): { start: Date;
       start.setHours(0, 0, 0, 0)
       end.setHours(23, 59, 59, 999)
       break
-    case 'week':
+    case 'week': {
       // Start from Sunday
       const dayOfWeek = start.getDay()
       start.setDate(start.getDate() - dayOfWeek)
@@ -589,6 +589,7 @@ export function getViewDateRange(date: Date, view: CalendarView): { start: Date;
       end.setDate(start.getDate() + 6)
       end.setHours(23, 59, 59, 999)
       break
+    }
     case 'month':
       start.setDate(1)
       start.setHours(0, 0, 0, 0)

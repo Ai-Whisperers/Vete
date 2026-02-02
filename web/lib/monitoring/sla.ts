@@ -53,18 +53,20 @@ export function getPeriodMinutes(period: SLAPeriod, referenceDate: Date = new Da
       return 24 * 60 // 1,440 minutes
     case 'weekly':
       return 7 * 24 * 60 // 10,080 minutes
-    case 'monthly':
+    case 'monthly': {
       // Use actual days in month
       const year = referenceDate.getFullYear()
       const month = referenceDate.getMonth()
       const daysInMonth = new Date(year, month + 1, 0).getDate()
       return daysInMonth * 24 * 60
+    }
     case 'quarterly':
       return 90 * 24 * 60 // ~129,600 minutes
-    case 'yearly':
+    case 'yearly': {
       const isLeapYear = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0
       const days = isLeapYear(referenceDate.getFullYear()) ? 366 : 365
       return days * 24 * 60
+    }
     default:
       return 30 * 24 * 60 // Default to 30 days
   }

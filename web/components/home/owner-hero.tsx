@@ -42,7 +42,7 @@ function QuickActionCard({ icon, label, href, primary }: QuickActionCardProps): 
   )
 }
 
-export function OwnerHero({ clinic, profile, config }: OwnerHeroProps): React.ReactElement {
+export function OwnerHero({ clinic, profile: _profile, config }: OwnerHeroProps): React.ReactElement {
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'

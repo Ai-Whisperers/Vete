@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger'
 /**
  * GET /api/user/notification-settings - Get user's notification preferences
  */
-export const GET = withApiAuth(async ({ user, profile, supabase }: ApiHandlerContext) => {
+export const GET = withApiAuth(async ({ user, profile: _profile, supabase }: ApiHandlerContext) => {
   // Get user's communication preferences
   const { data: prefs, error } = await supabase
     .from('communication_preferences')

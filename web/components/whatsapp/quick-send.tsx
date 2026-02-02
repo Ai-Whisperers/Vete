@@ -58,7 +58,7 @@ export function QuickSend({
       } else {
         setError(result.error || 'Error al enviar mensaje')
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error de conexión. Por favor intenta de nuevo.')
     } finally {
       setSending(false)

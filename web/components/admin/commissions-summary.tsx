@@ -29,7 +29,7 @@ export function CommissionsSummary() {
         if (!response.ok) throw new Error('Failed to fetch')
         const data = await response.json()
         setStats(data)
-      } catch (e) {
+      } catch (_e) {
         setError('Error al cargar estadísticas')
       } finally {
         setIsLoading(false)

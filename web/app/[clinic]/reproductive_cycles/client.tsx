@@ -92,7 +92,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
           .order('cycle_start', { ascending: false })
         if (data) setCycles(data)
       }
-    } catch (err) {
+    } catch (_err) {
       showToast(t('saveError'))
     } finally {
       setIsSaving(false)

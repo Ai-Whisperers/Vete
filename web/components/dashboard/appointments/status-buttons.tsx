@@ -38,7 +38,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic: _clinic }:
       } else {
         router.refresh()
       }
-    } catch (e) {
+    } catch (_e) {
       setError(t('errorProcessing'))
     } finally {
       setLoading(null)

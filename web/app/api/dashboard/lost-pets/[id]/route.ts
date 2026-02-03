@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { withApiAuth, type ApiHandlerContextWithParams } from '@/lib/auth/api-wrapper'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth/api-wrapper'
 import { NOT_FOUND_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
 import { z } from 'zod'
 
@@ -22,7 +22,7 @@ const updateStatusSchema = z.object({
  * GET /api/dashboard/lost-pets/[id]
  * Get detailed report with sightings
  */
-export const GET = withApiAuth(
+export const GET = withApiAuthParams<{ id: string }>(
   async ({ profile, supabase, log, params }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 
@@ -116,7 +116,7 @@ export const GET = withApiAuth(
  * PUT /api/dashboard/lost-pets/[id]
  * Update report status
  */
-export const PUT = withApiAuth(
+export const PUT = withApiAuthParams<{ id: string }>(
   async ({ request, profile, user, supabase, log, params }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 

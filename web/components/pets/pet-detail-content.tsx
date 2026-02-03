@@ -230,7 +230,8 @@ export function PetDetailContent({
 
       // Update local state with new documents
       if (result.data) {
-        setLocalDocuments((prev) => [...result.data, ...prev])
+        const newDocs = result.data
+        setLocalDocuments((prev) => [...newDocs, ...prev])
       }
     },
     [pet.id, clinic]

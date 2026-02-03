@@ -11,15 +11,17 @@ import { Confirmation } from './Confirmation'
 import { SuccessScreen } from './SuccessScreen'
 import { BookingSummary } from './BookingSummary'
 import { ProgressStepper, type Step } from '@/components/ui/progress-stepper'
-import type { ClinicConfig, User, Pet } from './types'
+import type { ClinicData } from '@/lib/types/clinic-config'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
+import type { Pet } from './types'
 
 // Note: 'datetime' step removed - customers no longer select times
 // Clinic will contact them to schedule
 const STEP_ORDER = ['service', 'pet', 'confirm'] as const
 
 interface BookingWizardProps {
-  clinic: ClinicConfig | Record<string, unknown> // Allow ClinicData from getClinicData
-  user: User | Record<string, unknown> // Allow Supabase User
+  clinic: ClinicData
+  user: SupabaseUser
   userPets: Pet[]
   initialServiceIds?: string[] // Support multiple services
   initialPetId?: string

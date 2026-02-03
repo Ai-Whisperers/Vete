@@ -25,7 +25,7 @@ interface ConsentPreviewProps {
   template: ConsentTemplate
   pet: Pet
   owner: Owner
-  fieldValues: Record<string, unknown>
+  fieldValues: Record<string, string | number | boolean | null | undefined>
 }
 
 export default function ConsentPreview({
@@ -50,7 +50,7 @@ export default function ConsentPreview({
     // Replace custom field placeholders
     Object.keys(fieldValues).forEach((key) => {
       const value = fieldValues[key]
-      content = content.replace(new RegExp(`{{${key}}}`, 'g'), value || '')
+      content = content.replace(new RegExp(`{{${key}}}`, 'g'), String(value ?? ''))
     })
 
     // Replace date placeholder

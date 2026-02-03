@@ -14,7 +14,7 @@
 import Stripe from 'stripe'
 
 // Stripe API version - must match installed stripe package types
-const STRIPE_API_VERSION = '2025-12-15.clover'
+const STRIPE_API_VERSION = '2026-01-28.clover'
 
 // Initialize Stripe client (lazy initialization)
 let stripeClient: Stripe | null = null

@@ -25,8 +25,8 @@ Phase 5: ░░░░░░░░░░░░░░░░░░░░  0%
 |--------|-------|---------|--------|
 | Unit Test Pass Rate | 72.5% | **100%** ✅ | 100% |
 | Unit Tests Passing | 1341 | **1524** | 1524 |
-| Integration Tests | - | 509 failing | 0 |
-| Statement Coverage | ~30% | ~61% | 70% |
+| Integration Tests | - | 509 failing | 0 (needs DB) |
+| Statement Coverage | ~30% | **61.31%** | 70% |
 | TypeScript Errors | 38 | 0 | 0 |
 | Lint Warnings | 776 | 776 | <100 |
 

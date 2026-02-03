@@ -8,7 +8,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { factories } from '../__fixtures__/factories'
 import { UserFixture } from '../__fixtures__/users'
-import { createMockAuthState } from '../__mocks__/auth-state'
 
 // Database client for test setup
 let testDb: ReturnType<typeof createClient> | null = null

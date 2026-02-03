@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Calendar, Clock, CalendarPlus, ArrowRight } from 'lucide-react'
+import { Calendar, Clock, CalendarPlus } from 'lucide-react'
 
 interface Appointment {
   id: string

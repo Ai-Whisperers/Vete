@@ -9,7 +9,7 @@ import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
 import { buildPet, createPet, createProfile, resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
-import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets'
+import { ALL_SPECIES } from '../../__fixtures__/pets'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('Pet CRUD Operations', () => {

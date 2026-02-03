@@ -1,6 +1,6 @@
 'use client'
 
-import { TrendingUp, Users, Award, ArrowDownRight, ArrowUpRight } from 'lucide-react'
+import { TrendingUp, ArrowDownRight, ArrowUpRight } from 'lucide-react'
 
 interface FunnelData {
   totalReferrals: number

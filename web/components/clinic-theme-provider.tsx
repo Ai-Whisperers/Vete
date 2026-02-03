@@ -2,7 +2,6 @@
 
 import type {
   ClinicTheme,
-  ColorScale,
   StatusColorSet,
   NeutralColors,
 } from '@/lib/types/clinic-config'

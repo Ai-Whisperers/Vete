@@ -18,10 +18,8 @@ import {
   getSupabaseServerMock,
   resetAllMocks,
   DEFAULT_OWNER,
-  DEFAULT_VET,
   DEFAULT_PET,
   DEFAULT_TENANT,
-  USERS,
 } from '@/lib/test-utils'
 
 // Test fixtures

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Trash2, Loader2, Building2, Package, Search } from 'lucide-react'
+import { X, Trash2, Loader2, Building2, Package, Search } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
 interface Supplier {

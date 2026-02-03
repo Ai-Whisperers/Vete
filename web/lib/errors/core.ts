@@ -12,7 +12,6 @@ import type {
   ErrorContext,
   ErrorResponse,
   SuccessResponse,
-  ApiResponse,
 } from './types'
 import { ERROR_CODES } from './types'
 

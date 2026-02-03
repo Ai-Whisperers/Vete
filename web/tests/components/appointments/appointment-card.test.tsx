@@ -12,7 +12,7 @@
  * @ticket TEST-002
  */
 import { render, screen } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
 import { createMockAppointment } from '@/lib/test-utils/component-test-helpers'
 
 // Mock next/link

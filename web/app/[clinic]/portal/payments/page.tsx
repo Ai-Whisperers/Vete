@@ -16,7 +16,6 @@ import {
   Receipt,
   CreditCard,
   Calendar,
-  Download,
   CheckCircle2,
   Clock,
   XCircle,

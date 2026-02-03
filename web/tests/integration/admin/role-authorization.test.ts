@@ -17,7 +17,6 @@ import {
   mockState,
   getSupabaseServerMock,
   testAdminOnlyEndpoint,
-  USERS,
   TENANTS,
 } from '@/lib/test-utils'
 

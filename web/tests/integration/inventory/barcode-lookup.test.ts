@@ -14,7 +14,6 @@ import { GET } from '@/app/api/inventory/barcode-lookup/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   PRODUCTS,
   resetAllMocks,
   createStatefulSupabaseMock,

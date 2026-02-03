@@ -4,7 +4,6 @@
  * Utilities for testing API routes and server actions.
  */
 
-import { NextRequest } from 'next/server'
 
 /**
  * HTTP Methods

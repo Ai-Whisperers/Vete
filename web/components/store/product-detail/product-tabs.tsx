@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, ThumbsUp, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react'
+import { Star, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react'
 import type { StoreProductWithDetails, ReviewSummary } from '@/lib/types/store'
 import {
   SPECIES_LABELS,

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Star, ArrowLeft, Gift, TrendingUp, History, Award } from 'lucide-react'
+import { Star, ArrowLeft, Gift, TrendingUp, Award } from 'lucide-react'
 import { LoyaltyClient } from './client'
 
 interface LoyaltyPageProps {

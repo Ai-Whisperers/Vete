@@ -31,7 +31,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
-import { ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/i18n/errors';
+import { ERROR_MESSAGES } from '@/lib/i18n/errors';
 
 // =============================================================================
 // SERVICE RESULT TYPES

@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
-import { Check, Search, MapPin, Phone, AlertTriangle, PawPrint } from 'lucide-react'
+import { Check, Search, MapPin, PawPrint } from 'lucide-react'
 
 interface LostPet {
   id: string

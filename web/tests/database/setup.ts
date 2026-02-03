@@ -9,7 +9,6 @@ import { config } from 'dotenv'
 import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { randomUUID } from 'crypto'
 
 // Load environment variables from .env.local
 config({ path: resolve(process.cwd(), '.env.local') })

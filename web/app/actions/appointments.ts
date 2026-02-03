@@ -2,11 +2,9 @@
 
 import { withActionAuth } from '@/lib/auth'
 import type { AuthContext } from '@/lib/auth'
-import { actionSuccess, actionError, handleActionError } from '@/lib/errors'
-import { getDomainFactory } from '@/lib/domain'
+import { actionSuccess, actionError } from '@/lib/errors'
 import { revalidatePath } from 'next/cache'
 import { logger } from '@/lib/logger'
-import type { CancelAppointmentResult, RescheduleAppointmentResult } from '@/lib/types/appointments'
 
 /**
  * Cancel an appointment

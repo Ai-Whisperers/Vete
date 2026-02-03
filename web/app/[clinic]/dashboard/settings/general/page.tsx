@@ -15,7 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react'
-import { generalSettingsSchema, type GeneralSettingsInput } from '@/lib/schemas/settings'
+import { generalSettingsSchema } from '@/lib/schemas/settings'
 
 export default function GeneralSettingsPage(): React.ReactElement {
   const { clinic } = useParams() as { clinic: string }

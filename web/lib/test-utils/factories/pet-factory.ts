@@ -7,7 +7,6 @@ import { testContext } from '../context'
 import {
   generateId,
   pick,
-  pickN,
   randomWeight,
   randomBirthDate,
   DOG_BREEDS,

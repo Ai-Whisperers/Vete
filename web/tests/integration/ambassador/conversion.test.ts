@@ -10,7 +10,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { mockState, getSupabaseServerMock, TENANTS } from '@/lib/test-utils'
+import { mockState, getSupabaseServerMock } from '@/lib/test-utils'
 
 // Import route
 

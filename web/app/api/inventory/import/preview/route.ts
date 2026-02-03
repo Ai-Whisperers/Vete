@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { LIMITS, formatFileSize } from '@/lib/constants'
+import { LIMITS } from '@/lib/constants'
 import * as ExcelJS from 'exceljs'
 
 interface PreviewRow {

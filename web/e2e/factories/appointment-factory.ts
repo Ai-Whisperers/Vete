@@ -7,7 +7,7 @@
  */
 
 import { Page } from '@playwright/test'
-import { TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
+import { TEST_URLS } from '../fixtures/test-users'
 
 // =============================================================================
 // Types

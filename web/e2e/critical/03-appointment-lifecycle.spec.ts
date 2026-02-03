@@ -16,7 +16,7 @@
 
  
 import { test, expect, Page } from '@playwright/test'
-import { TEST_USERS, TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
+import { TEST_USERS, E2E_TEST_TENANT } from '../fixtures/test-users'
 
 const TENANT_SLUG = E2E_TEST_TENANT
 const BOOKING_URL = `/${TENANT_SLUG}/book`

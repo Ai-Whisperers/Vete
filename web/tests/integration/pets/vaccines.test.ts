@@ -8,9 +8,7 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
 import {
-  buildVaccine,
   createPet,
-  createVaccine,
   createProfile,
   resetSequence,
   futureDate,

@@ -1,4 +1,4 @@
-import { GET, PUT } from '@/app/api/settings/general/route'
+import { PUT } from '@/app/api/settings/general/route'
 import { vi, expect, describe, it, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { TENANT_IDS } from '@/lib/constants/tenants';

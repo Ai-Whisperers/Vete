@@ -7,7 +7,6 @@ import {
   FileText,
   Check,
   X,
-  ExternalLink,
   Loader2,
   AlertCircle,
   Calendar,
@@ -16,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  Search,
   Eye,
 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'

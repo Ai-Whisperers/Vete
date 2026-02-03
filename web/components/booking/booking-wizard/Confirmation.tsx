@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2, Phone, Info } from 'lucide-react'
+import { ArrowLeft, ArrowRight, AlertCircle, Loader2, Phone } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useBookingStore, formatPrice, getLocalDateString } from '@/lib/store/booking-store'
 import type { PreferredTimeOfDay } from './types'

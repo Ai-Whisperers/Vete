@@ -15,7 +15,7 @@
 
  
 import { test, expect, Page, BrowserContext } from '@playwright/test'
-import { TEST_USERS, TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
+import { TEST_USERS, TEST_URLS } from '../fixtures/test-users'
 
 /**
  * Helper: Login as specific staff user

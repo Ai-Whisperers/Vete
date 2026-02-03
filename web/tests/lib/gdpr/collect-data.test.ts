@@ -4,7 +4,7 @@
  * COMP-001: Tests for data collection utility
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { generateExportJson, calculateExportSize } from '../../../lib/gdpr/collect-data'
 import type { UserDataExport } from '../../../lib/gdpr/types'
 

@@ -8,7 +8,7 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
 import { createProfile, createPet, resetSequence } from '../__helpers__/factories'
-import { DEFAULT_TENANT, TENANTS } from '../__fixtures__/tenants'
+import { DEFAULT_TENANT } from '../__fixtures__/tenants'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('RLS Policies - Data Access Control', () => {

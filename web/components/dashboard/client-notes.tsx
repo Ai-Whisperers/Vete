@@ -13,12 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   StickyNote,
   Plus,
-  X,
   Loader2,
   Edit2,
   Trash2,
   Check,
-  AlertTriangle,
   Lock,
   Unlock,
 } from 'lucide-react'

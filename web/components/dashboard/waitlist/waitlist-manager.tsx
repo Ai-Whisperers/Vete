@@ -27,7 +27,6 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { OfferSlotModal } from './offer-slot-modal'
 import { Badge } from '@/components/ui/badge'
-import { queryKeys } from '@/lib/queries'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface WaitlistEntry {

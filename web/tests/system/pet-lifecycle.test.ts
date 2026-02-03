@@ -8,7 +8,7 @@
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
-import { createProfile, createPet, futureDate, pastDate } from '../__helpers__/factories'
+import { createProfile, futureDate, pastDate } from '../__helpers__/factories'
 import { DEFAULT_TENANT } from '../__fixtures__/tenants'
 
 describe('Pet Lifecycle', () => {

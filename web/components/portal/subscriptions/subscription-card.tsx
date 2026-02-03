@@ -11,7 +11,6 @@ import {
   Trash2,
   Edit2,
   SkipForward,
-  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { IconButton } from '@/components/ui/icon-button'

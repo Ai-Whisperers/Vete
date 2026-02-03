@@ -3,10 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Camera,
   X,
   Loader2,
-  Package,
   AlertCircle,
   CheckCircle,
   ScanLine,

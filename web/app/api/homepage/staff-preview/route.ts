@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { withApiAuth } from '@/lib/auth/api-wrapper'
 import { logger } from '@/lib/logger'
 

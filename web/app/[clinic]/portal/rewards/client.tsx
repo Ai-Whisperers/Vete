@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Gift, Star, Check, X, AlertCircle, Sparkles, Clock, Package } from 'lucide-react'
+import { Gift, Star, Check, AlertCircle, Sparkles, Clock, Package } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
 interface Reward {

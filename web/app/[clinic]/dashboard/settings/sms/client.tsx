@@ -18,7 +18,6 @@ import {
   AlertTriangle,
   Settings,
   BarChart2,
-  RefreshCw,
   ExternalLink,
 } from 'lucide-react'
 

@@ -10,8 +10,6 @@ import {
   createScreenshotHelper,
   waitForPageReady,
   waitForToast,
-  parseGuaranies,
-  getPriceFromElement,
 } from '../helpers/screenshot-helper'
 
 const E2E_TENANT = 'adris'

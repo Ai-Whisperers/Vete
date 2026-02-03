@@ -7,7 +7,6 @@ import {
   Cat,
   PawPrint,
   Calendar,
-  Syringe,
   AlertTriangle,
   Clock,
   ChevronRight,

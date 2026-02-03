@@ -14,7 +14,7 @@
  * @ticket TEST-002
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 // Mock next/link
 vi.mock('next/link', () => ({

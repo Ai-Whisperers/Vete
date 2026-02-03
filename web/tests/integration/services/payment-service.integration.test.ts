@@ -19,7 +19,7 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { PaymentService } from '@/lib/services/payment-service';
-import type { ProcessPaymentInput, PaymentStatus } from '@/lib/services/payment-service';
+import type { ProcessPaymentInput } from '@/lib/services/payment-service';
 import {
   createTestClient,
   createTestDataTracker,

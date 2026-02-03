@@ -8,9 +8,7 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
 import {
-  buildAppointment,
   createPet,
-  createAppointment,
   createProfile,
   resetSequence,
   futureDate,
@@ -20,7 +18,6 @@ import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 import {
   ALL_APPOINTMENT_TYPES,
-  ALL_APPOINTMENT_STATUSES,
   TIME_SLOTS,
 } from '../../__fixtures__/appointments'
 

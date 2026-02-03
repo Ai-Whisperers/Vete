@@ -4,7 +4,7 @@
 
 import { apiClient } from '../api-client'
 import { testContext } from '../context'
-import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
+import { generateId, pick, randomAmount } from './base'
 import { PaymentMethod } from './types'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 

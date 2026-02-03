@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { Upload, X, FileText, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react'
+import { Upload, X, FileText, AlertCircle, Check, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'

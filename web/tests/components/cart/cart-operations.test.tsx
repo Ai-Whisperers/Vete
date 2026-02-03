@@ -41,7 +41,6 @@ import {
   type PrescriptionCartItem,
   type CartItemForCount,
   type CartForPersistence,
-  type ShippingRule,
   type CartState,
 } from '@/lib/cart/operations'
 

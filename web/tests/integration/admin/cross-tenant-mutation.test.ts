@@ -13,8 +13,7 @@
  *
  * @tags security, multi-tenant, mutations, critical
  */
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
-import { NextRequest } from 'next/server'
+import { describe, it, expect, afterAll, beforeEach, vi } from 'vitest'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
 // Test using mocked API routes to verify tenant isolation

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { CalendarClock, Plus, Users, Clock, CheckCircle2 } from 'lucide-react'
+import { CalendarClock, Plus, Users, CheckCircle2 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
 
 interface StaffHeroProps {

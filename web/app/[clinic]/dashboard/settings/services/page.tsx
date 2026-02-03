@@ -4,11 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import {
   DollarSign,
-  Plus,
-  Edit2,
-  Trash2,
   Save,
-  X,
   Loader2,
   CheckCircle,
   AlertCircle,

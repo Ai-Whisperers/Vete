@@ -23,7 +23,6 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 // =============================================================================
 // TYPE DEFINITIONS

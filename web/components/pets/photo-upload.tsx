@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Camera, Upload, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { Camera, X, AlertCircle, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { validateImageFile, ValidationResult } from '@/lib/validation/image'
 

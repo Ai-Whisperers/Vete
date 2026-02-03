@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Clock,
   CheckCircle,
-  AlertCircle,
   XCircle,
   CreditCard,
   Loader2,

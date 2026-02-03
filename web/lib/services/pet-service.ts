@@ -26,12 +26,9 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   Pet,
   PetWithOwner,
-  CreatePetInput,
-  UpdatePetInput,
 } from '@/lib/types/entities/pet';
 import {
   mapPetsWithOwner,

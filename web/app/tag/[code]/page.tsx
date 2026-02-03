@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound, redirect } from 'next/navigation'
 import { PublicPetProfile } from '@/components/public-pet-profile'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'

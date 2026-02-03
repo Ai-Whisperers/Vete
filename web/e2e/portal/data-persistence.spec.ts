@@ -8,7 +8,6 @@
  */
 
 import { test, expect, portalUrl, waitForLoadingComplete, getFirstPet } from '../factories/test-fixtures'
-import { E2EDataFactory } from '../factories/e2e-data-factory'
 
 // =============================================================================
 // Pet Data Persistence

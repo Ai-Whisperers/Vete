@@ -21,7 +21,6 @@ import type {
   ServiceFromJSON,
   BookableService,
   Pet,
-  PreferredTimeOfDay,
 } from '@/components/booking/booking-wizard/types'
 import type { ClinicData } from '@/lib/types/clinic-config'
 import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'

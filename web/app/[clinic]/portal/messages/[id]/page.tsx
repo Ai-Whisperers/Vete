@@ -21,12 +21,11 @@ import {
   User,
   MoreVertical,
   X,
-  Check,
   FileText,
   Image as ImageIcon,
   Loader2,
 } from 'lucide-react'
-import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
+import { format, isToday, isYesterday } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@/components/ui/Toast'
 

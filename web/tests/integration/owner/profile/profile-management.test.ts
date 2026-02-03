@@ -20,8 +20,6 @@ import {
   resetAllMocks,
   DEFAULT_TENANT,
   DEFAULT_OWNER,
-  DEFAULT_VET,
-  USERS,
 } from '@/lib/test-utils'
 
 // =============================================================================

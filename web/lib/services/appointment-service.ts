@@ -18,7 +18,6 @@
  * ```
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { BaseService, type ServiceResult } from './base-service';
 import type {
   Appointment,

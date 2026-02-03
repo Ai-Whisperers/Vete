@@ -10,8 +10,6 @@ import type {
   Invoice,
   InvoiceWithDetails,
   InvoiceListFilters,
-  CreateInvoiceInput,
-  UpdateInvoiceInput,
   InvoiceListResult,
 } from './types'
 import {

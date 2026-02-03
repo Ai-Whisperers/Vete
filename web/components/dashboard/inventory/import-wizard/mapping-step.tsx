@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, ChevronDown, Save, Loader2, Trash2 } from 'lucide-react'
+import { ArrowRight, ChevronDown, Save, Loader2 } from 'lucide-react'
 import { TARGET_FIELDS, type ImportMapping } from './types'
 
 interface MappingStepProps {

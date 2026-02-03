@@ -15,7 +15,6 @@ import {
   TEST_TENANT_ID,
   cleanupManager,
   createTestRequest,
-  expectResponse,
   expectSuccess,
   expectError,
   getAuthTokenFromUser,

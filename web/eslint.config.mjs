@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
+import unusedImports from "eslint-plugin-unused-imports";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -18,6 +19,7 @@ export default [
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       "@next/next": nextPlugin,
+      "unused-imports": unusedImports,
     },
     settings: {
       react: {
@@ -53,12 +55,15 @@ export default [
       "@typescript-eslint/no-this-alias": "warn",
 
       // TypeScript - Progressive tightening
-      "@typescript-eslint/no-unused-vars": [
+      "@typescript-eslint/no-unused-vars": "off", // Replaced by unused-imports
+      "unused-imports/no-unused-imports": "warn",
+      "unused-imports/no-unused-vars": [
         "warn",
         {
-          argsIgnorePattern: "^_",
+          vars: "all",
           varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
         },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",

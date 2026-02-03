@@ -16,7 +16,6 @@ import {
   Syringe,
   Loader2,
   ArrowRight,
-  Command,
 } from 'lucide-react'
 
 interface SearchResult {

@@ -20,11 +20,9 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   Invoice,
   InvoiceWithDetails,
-  InvoiceFormData,
   InvoiceItemFormData,
   Payment,
   RecordPaymentInput,

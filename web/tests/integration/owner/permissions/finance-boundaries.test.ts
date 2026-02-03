@@ -29,7 +29,7 @@ vi.mock('@/lib/logger', () => ({
 // Import finance routes after mocks
 import { GET as GetExpenses, POST as PostExpenses } from '@/app/api/finance/expenses/route'
 import { GET as GetPL } from '@/app/api/finance/pl/route'
-import { GET as GetInvoices, POST as PostInvoices } from '@/app/api/invoices/route'
+import { POST as PostInvoices } from '@/app/api/invoices/route'
 import { GET as GetSettingsGeneral, PUT as PutSettingsGeneral } from '@/app/api/settings/general/route'
 import { GET as GetSettingsBranding, PUT as PutSettingsBranding } from '@/app/api/settings/branding/route'
 import { GET as GetClients } from '@/app/api/clients/route'

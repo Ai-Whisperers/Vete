@@ -13,12 +13,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import {
   ArrowLeft,
-  Bell,
   Mail,
   MessageSquare,
   Calendar,
   Syringe,
-  Package,
   Sparkles,
   Loader2,
   Check,

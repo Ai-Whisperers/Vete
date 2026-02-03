@@ -19,7 +19,6 @@ import { GET } from '@/app/api/analytics/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   resetAllMocks,
   createStatefulSupabaseMock,
 } from '@/lib/test-utils'

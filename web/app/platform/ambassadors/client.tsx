@@ -10,7 +10,6 @@ import {
   Phone,
   Award,
   Search,
-  Filter,
   ChevronDown,
   Eye,
   BadgeCheck,

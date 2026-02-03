@@ -10,7 +10,6 @@ import {
   ArrowRight,
   ArrowLeft,
   PawPrint,
-  Camera,
   Mail,
   Check,
 } from 'lucide-react'

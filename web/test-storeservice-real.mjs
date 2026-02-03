@@ -10,7 +10,6 @@ import { resolve } from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { randomUUID } from 'crypto';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);

@@ -14,7 +14,6 @@ import {
   calculateTax,
   calculatePercentageDiscount,
   calculateFinalTotal,
-  validateCart,
 } from '../helpers/screenshot-helper'
 
 const E2E_TENANT = 'adris'

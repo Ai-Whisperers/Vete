@@ -7,8 +7,6 @@ import { createClient } from '@/lib/supabase/server'
 import type {
   UserRole,
   UserProfile,
-  AuthContext,
-  UnauthenticatedContext,
   AppAuthContext,
   AuthResult,
 } from './types'

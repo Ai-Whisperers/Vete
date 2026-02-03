@@ -12,7 +12,7 @@
  * @epic EPIC-17
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TENANT_IDS } from '@/lib/constants/tenants'
 
 // Mock dependencies before imports - ORDER MATTERS!

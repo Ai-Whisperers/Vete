@@ -10,7 +10,7 @@
  * - Error handling
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getClinicData } from '@/lib/clinics'
 import { TENANT_IDS } from '@/lib/constants/tenants'
 

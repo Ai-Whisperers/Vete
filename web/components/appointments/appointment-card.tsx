@@ -7,7 +7,6 @@ import { CancelButton } from './cancel-button'
 import { RescheduleDialog } from './reschedule-dialog'
 import {
   statusConfig,
-  formatAppointmentDate,
   formatAppointmentTime,
   canCancelAppointment,
   canRescheduleAppointment,

@@ -13,8 +13,6 @@ import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/inventory/reorder-suggestions/route'
 import {
   mockState,
-  TENANTS,
-  USERS,
   PRODUCTS,
   resetAllMocks,
   createStatefulSupabaseMock,

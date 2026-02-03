@@ -6,7 +6,6 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { test as testWithFixtures } from '../factories/test-fixtures'
 import { createScreenshotHelper, waitForPageReady, waitForToast } from '../helpers/screenshot-helper'
 
 const E2E_TENANT = 'adris'

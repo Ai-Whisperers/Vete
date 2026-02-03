@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { createScreenshotHelper, waitForPageReady, waitForToast } from '../helpers/screenshot-helper'
+import { createScreenshotHelper, waitForPageReady } from '../helpers/screenshot-helper'
 
 const E2E_TENANT = 'adris'
 const LOGIN_URL = `/${E2E_TENANT}/portal/login`

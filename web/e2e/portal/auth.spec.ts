@@ -10,8 +10,8 @@
  * Note: Uses a separate unauthenticated browser context for login tests.
  */
 
-import { test as baseTest, expect, Page } from '@playwright/test'
-import { E2E_TENANT, E2E_OWNER, portalUrl } from '../factories/test-fixtures'
+import { test as baseTest, expect } from '@playwright/test'
+import { E2E_TENANT, E2E_OWNER } from '../factories/test-fixtures'
 
 // Use unauthenticated context for auth tests
 const test = baseTest

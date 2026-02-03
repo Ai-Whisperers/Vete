@@ -10,7 +10,7 @@
  *
  * @ticket TEST-002
  */
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest'
 
 // Mock modules before component import

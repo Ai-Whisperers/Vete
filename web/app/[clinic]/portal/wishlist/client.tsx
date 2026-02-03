@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, ShoppingCart, Trash2, Bell, Check, AlertCircle, Loader2 } from 'lucide-react'
+import { ShoppingCart, Trash2, Bell, Check, AlertCircle, Loader2 } from 'lucide-react'
 import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
 import { formatPriceGs } from '@/lib/utils/pet-size'

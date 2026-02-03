@@ -6,7 +6,6 @@ import {
   Calendar,
   Stethoscope,
   Pill,
-  FileText,
   Download,
   Paperclip,
   Plus,

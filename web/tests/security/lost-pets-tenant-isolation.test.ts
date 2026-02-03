@@ -10,9 +10,7 @@
  * 4. Public access is properly restricted
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest } from 'next/server'
+import { describe, it, expect } from 'vitest'
 
 // Mock data
 const TENANT_A = 'adris'

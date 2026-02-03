@@ -7,8 +7,6 @@ import type {
   NotificationChannel,
   MessageType,
   MessageStatus,
-  ConversationStatus,
-  ConversationPriority,
 } from './enums'
 
 // =============================================================================

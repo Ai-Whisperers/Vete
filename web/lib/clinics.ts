@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import merge from 'lodash.merge'
-import { validateConfig, validateTheme, type ClinicConfig as ZodClinicConfig } from './schemas/clinic-config'
+import { validateConfig, validateTheme } from './schemas/clinic-config'
 
 // Import all types from the centralized types file
 export type {

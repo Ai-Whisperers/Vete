@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { invoiceStatusConfig } from '@/lib/types/invoicing'
 
 interface StatusFilterProps {
   currentStatus: string

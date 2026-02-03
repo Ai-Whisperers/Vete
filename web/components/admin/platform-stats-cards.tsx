@@ -6,7 +6,7 @@
  * Overview cards showing key platform metrics.
  */
 
-import { Building2, Users, Gift, CreditCard, TrendingUp, Percent } from 'lucide-react'
+import { Building2, Gift, CreditCard, TrendingUp } from 'lucide-react'
 
 interface PlatformStats {
   totalTenants: number

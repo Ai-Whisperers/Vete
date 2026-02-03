@@ -9,7 +9,6 @@ import { describe, it, expect } from 'vitest'
 // Currency formatting
 import {
   formatPrice,
-  formatCurrency,
   formatPriceGs,
   parseCurrency,
   formatPriceRange,

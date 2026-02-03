@@ -1,7 +1,7 @@
 'use client'
 
 import { Component, ErrorInfo, ReactNode } from 'react'
-import { AlertTriangle, RefreshCw, Home, WifiOff } from 'lucide-react'
+import { AlertTriangle, RefreshCw, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { logger } from '@/lib/logger'
 

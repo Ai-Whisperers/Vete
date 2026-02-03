@@ -16,7 +16,6 @@ import {
   type LabTest,
   type LabPanel,
   type LabOrder,
-  type LabOrderItem,
   type LabResult,
   type LabAttachment,
   type LabComment,

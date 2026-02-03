@@ -24,7 +24,7 @@
  * ============================================================================
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // MIGRATION APPLIED: db/migrations/029_purchase_orders.sql
 // API routes created: app/api/procurement/orders/route.ts

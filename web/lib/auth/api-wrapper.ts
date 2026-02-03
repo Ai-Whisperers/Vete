@@ -20,8 +20,6 @@ import { rateLimit, type RateLimitType } from '@/lib/rate-limit'
 import {
   createRequestLogger,
   createPerformanceTracker,
-  logger,
-  type LogContext,
 } from '@/lib/logger'
 
 // Import Sentry conditionally

@@ -10,7 +10,6 @@ import {
   createScreenshotHelper,
   waitForPageReady,
   hasWarningColor,
-  hasVisualIndicator,
 } from '../helpers/screenshot-helper'
 
 const E2E_TENANT = 'adris'

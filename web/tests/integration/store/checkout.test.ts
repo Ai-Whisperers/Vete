@@ -19,7 +19,6 @@ import { POST } from '@/app/api/store/checkout/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   PRODUCTS,
   resetAllMocks,
   createStatefulSupabaseMock,

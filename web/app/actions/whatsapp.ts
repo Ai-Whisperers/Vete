@@ -73,7 +73,7 @@ export async function getConversations(
     }
 
     return { data: Array.from(conversationMap.values()) }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error loading WhatsApp conversations', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -131,7 +131,7 @@ export async function getMessages(
       })) || []
 
     return { data: transformed as WhatsAppMessage[] }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error loading WhatsApp messages', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -182,7 +182,7 @@ export async function sendMessage(
     try {
       const variables = JSON.parse(variablesJson)
       finalMessage = fillTemplateVariables(message, variables)
-    } catch (_e) {
+    } catch (e) {
       // Use message as-is
     }
   }
@@ -257,7 +257,7 @@ export async function getTemplates(
     if (error) throw error
 
     return { data: templates as WhatsAppTemplate[] }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error loading WhatsApp templates', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -302,7 +302,7 @@ export async function createTemplate(
   let variables: string[] = []
   try {
     variables = JSON.parse(variablesJson || '[]')
-  } catch (_e) {
+  } catch (e) {
     // Extract variables from content
     const matches = content.match(/{{(\w+)}}/g) || []
     variables = [...new Set(matches.map((m) => m.replace(/[{}]/g, '')))]
@@ -325,7 +325,7 @@ export async function createTemplate(
 
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true, templateId: template.id }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error creating WhatsApp template', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -372,7 +372,7 @@ export async function updateTemplate(
   let variables: string[] = []
   try {
     variables = JSON.parse(variablesJson || '[]')
-  } catch (_e) {
+  } catch (e) {
     const matches = content.match(/{{(\w+)}}/g) || []
     variables = [...new Set(matches.map((m) => m.replace(/[{}]/g, '')))]
   }
@@ -393,7 +393,7 @@ export async function updateTemplate(
 
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error updating WhatsApp template', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -438,7 +438,7 @@ export async function deleteTemplate(
 
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error deleting WhatsApp template', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -538,7 +538,7 @@ export async function getWhatsAppStats(
         deliveryRate,
       },
     }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error loading WhatsApp stats', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -613,7 +613,7 @@ export async function getWhatsAppWeeklyTrend(
     }
 
     return { data: days }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error loading WhatsApp weekly trend', {
       tenantId: profile.tenant_id,
       userId: user.id,
@@ -656,7 +656,7 @@ export async function findClientByPhone(
     if (error && error.code !== 'PGRST116') throw error
 
     return { data: client }
-  } catch (_e) {
+  } catch (e) {
     logger.error('Error finding client by phone', {
       userId: user.id,
       phoneSearched: formattedPhone,

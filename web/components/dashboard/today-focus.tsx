@@ -171,7 +171,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function TodayFocus({ clinic: _clinic }: TodayFocusProps) {
+export function TodayFocus({ clinic }: TodayFocusProps) {
   // React Query: Fetch focus items with 1-minute auto-refresh
   const { data: rawItems = [], isLoading: loading } = useQuery({
     queryKey: queryKeys.dashboard.todayFocus(clinic),

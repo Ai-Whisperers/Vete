@@ -44,7 +44,7 @@ export const GET = withApiAuthParams<Params>(
 
 // PUT /api/platform/announcements/[id]
 export const PUT = withApiAuthParams<Params>(
-  async ({ profile, supabase, request, user: _user, params }: ApiHandlerContextWithParams<Params>) => {
+  async ({ profile, supabase, request, user, params }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     if (!profile.is_platform_admin) {
@@ -122,7 +122,7 @@ export const PUT = withApiAuthParams<Params>(
 
 // DELETE /api/platform/announcements/[id]
 export const DELETE = withApiAuthParams<Params>(
-  async ({ profile, supabase, user: _user, params }: ApiHandlerContextWithParams<Params>) => {
+  async ({ profile, supabase, user, params }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     if (!profile.is_platform_admin) {
@@ -164,7 +164,7 @@ export const DELETE = withApiAuthParams<Params>(
 
 // POST /api/platform/announcements/[id]/dismiss - Dismiss announcement for user
 export const POST = withApiAuthParams<Params>(
-  async ({ supabase, user: _user, params }: ApiHandlerContextWithParams<Params>) => {
+  async ({ supabase, user, params }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     // Check if announcement exists and is dismissible

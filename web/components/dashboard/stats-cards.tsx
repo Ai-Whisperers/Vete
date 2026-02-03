@@ -175,7 +175,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function StatsCards({ clinic: _clinic }: StatsCardsProps) {
+export function StatsCards({ clinic }: StatsCardsProps) {
   // React Query: Fetch stats with 2-minute auto-refresh
   const { data: stats, isLoading: loading } = useQuery({
     queryKey: queryKeys.dashboard.stats(clinic),

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 
 // GET /api/messages/quick-replies - List quick replies for current user
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   const supabase = await createClient()
 
   const {
@@ -48,7 +48,7 @@ export async function GET(_request: Request) {
 }
 
 // POST /api/messages/quick-replies - Create quick reply
-export async function POST(_request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient()
 
   const {
@@ -118,7 +118,7 @@ export async function POST(_request: Request) {
 }
 
 // DELETE /api/messages/quick-replies - Delete quick reply
-export async function DELETE(_request: Request) {
+export async function DELETE(request: Request) {
   const supabase = await createClient()
 
   const {

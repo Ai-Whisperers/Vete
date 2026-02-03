@@ -43,7 +43,7 @@ export async function GET(_request: Request) {
   return NextResponse.json(preferences, { status: 200 })
 }
 
-export async function POST(_request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient()
 
   // 1. Authenticate user

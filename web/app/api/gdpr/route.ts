@@ -84,7 +84,7 @@ export async function GET(_request: NextRequest) {
  * POST /api/gdpr
  * Create new GDPR request
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 

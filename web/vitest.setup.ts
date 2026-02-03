@@ -2,6 +2,35 @@ import { vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom'
 
 // =============================================================================
+// Next.js Headers Mock (MUST BE FIRST)
+// =============================================================================
+// Mock next/headers to avoid "cookies was called outside a request scope" errors
+// This mock provides working cookies() and headers() functions for API route tests
+
+const mockCookieStore = new Map<string, string>()
+// Default auth cookie for authenticated tests
+mockCookieStore.set('sb-auth-token', 'mock-auth-token')
+
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() => ({
+    get: vi.fn((name: string) => {
+      const value = mockCookieStore.get(name) || mockCookieStore.get('sb-auth-token')
+      return value ? { name, value } : undefined
+    }),
+    getAll: vi.fn(() => 
+      Array.from(mockCookieStore.entries()).map(([name, value]) => ({ name, value }))
+    ),
+    set: vi.fn((name: string, value: string) => mockCookieStore.set(name, value)),
+    delete: vi.fn((name: string) => mockCookieStore.delete(name)),
+    has: vi.fn((name: string) => mockCookieStore.has(name)),
+  })),
+  headers: vi.fn(() => new Headers({
+    'content-type': 'application/json',
+    'x-tenant-id': 'test-tenant',
+  })),
+}))
+
+// =============================================================================
 // QA Infrastructure Integration
 // =============================================================================
 

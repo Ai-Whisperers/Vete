@@ -50,7 +50,7 @@ const CATEGORY_ICONS = {
   general: Gift,
 }
 
-export function RewardsClient({ clinic, rewards, userPoints, categories }: RewardsClientProps) {
+export function RewardsClient({ clinic: _clinic, rewards, userPoints, categories }: RewardsClientProps) {
   const { toast } = useToast()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [redeemingId, setRedeemingId] = useState<string | null>(null)

@@ -76,7 +76,7 @@ function getFrequencyLabel(days: number): string {
 
 export function SubscriptionCard({
   subscription,
-  clinic,
+  clinic: _clinic,
   onUpdate,
 }: SubscriptionCardProps): React.ReactElement {
   const { toast } = useToast()

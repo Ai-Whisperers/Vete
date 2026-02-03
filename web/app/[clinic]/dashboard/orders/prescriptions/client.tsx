@@ -66,7 +66,7 @@ interface Props {
   config: ClinicConfig
 }
 
-export default function PrescriptionOrdersClient({ clinic, config }: Props) {
+export default function PrescriptionOrdersClient({ clinic: _clinic, config }: Props) {
   const [orders, setOrders] = useState<PendingOrder[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [isLoading, setIsLoading] = useState(true)

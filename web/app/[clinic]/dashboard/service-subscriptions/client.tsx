@@ -28,7 +28,7 @@ interface ServiceSubscriptionsDashboardProps {
   clinic: string
 }
 
-export function ServiceSubscriptionsDashboard({ clinic }: ServiceSubscriptionsDashboardProps) {
+export function ServiceSubscriptionsDashboard({ clinic: _clinic }: ServiceSubscriptionsDashboardProps) {
   const {
     // Tab state
     activeTab,

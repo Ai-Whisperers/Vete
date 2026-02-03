@@ -33,7 +33,7 @@ export default function ProductTabs({
   product,
   reviewSummary,
   questions,
-  clinic,
+  clinic: _clinic,
   currencySymbol,
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('description')

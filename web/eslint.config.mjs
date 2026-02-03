@@ -61,9 +61,11 @@ export default [
         "warn",
         {
           vars: "all",
-          varsIgnorePattern: "^_",
+          varsIgnorePattern: "^_.*",
           args: "after-used",
-          argsIgnorePattern: "^_",
+          argsIgnorePattern: "^_.*",
+          caughtErrors: "none",
+          ignoreRestSiblings: true,
         },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",

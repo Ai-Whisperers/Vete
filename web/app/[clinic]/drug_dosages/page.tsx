@@ -48,7 +48,7 @@ type SortDirection = 'asc' | 'desc'
 
 export default function DrugDosagesPage() {
   const params = useParams()
-  const clinic = params.clinic as string
+  const _clinic = params.clinic as string
   const t = useTranslations('drugDosages')
   const tc = useTranslations('common')
   const queryClient = useQueryClient()

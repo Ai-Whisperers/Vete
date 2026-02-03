@@ -34,7 +34,7 @@ interface WaitlistEntry {
 
 export function WaitlistStatus(): React.ReactElement {
   const params = useParams()
-  const clinic = params?.clinic as string
+  const _clinic = params?.clinic as string
   const { toast } = useToast()
   const t = useTranslations('portal.waitlist')
 

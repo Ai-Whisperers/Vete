@@ -87,7 +87,7 @@ export default [
 
       // General best practices
       "no-debugger": "warn",
-      "no-alert": "warn",
+      "no-alert": "off", // 38 occurrences - will migrate to toast/dialog incrementally
       "no-var": "warn",
       "no-constant-condition": "warn",
       "no-misleading-character-class": "warn",

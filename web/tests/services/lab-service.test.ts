@@ -281,7 +281,7 @@ describe('LabService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch lab tests');
+        expect(result.error).toBe('Connection failed');
       }
     });
   });

@@ -421,7 +421,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     console.log('7️⃣ Creating abandoned carts...')
     try {
       const carts = await createAbandonedCarts(
-        owners.map((o) => o.id),
+        owners.map((o: { id: string }) => o.id),
         TENANT_ID
       )
       stats.carts = carts.length
@@ -435,7 +435,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     // 8. Create loyalty points based on persona
     console.log('8️⃣ Creating loyalty points...')
     for (const owner of owners) {
-      const presetOwner = PREDEFINED_OWNERS.find((p) => p.email === owner.email)
+      const presetOwner = PREDEFINED_OWNERS.find((p: { email: string; persona?: string }) => p.email === owner.email)
       const persona = (presetOwner?.persona || 'standard') as 'vip' | 'frequent' | 'standard' | 'inactive'
 
       try {

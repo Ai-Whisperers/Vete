@@ -8,6 +8,21 @@ import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/Toast'
 import { useRouter } from 'next/navigation'
 
+interface Pet {
+  id: string
+  name: string
+  species: string
+  breed?: string
+}
+
+interface AssessmentHistory {
+  id: string
+  assessed_at: string
+  score: number
+  scores?: AssessmentScore
+  notes?: string
+}
+
 interface AssessmentScore {
   hurt: number
   hunger: number
@@ -41,10 +56,10 @@ export default function EuthanasiaAssessmentClient({
   const router = useRouter()
 
   const [petId, setPetId] = useState(initialPetId || '')
-  const [pets, setPets] = useState<Record<string, unknown>[]>([])
+  const [pets, setPets] = useState<Pet[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [notes, setNotes] = useState('')
-  const [history, setHistory] = useState<Record<string, unknown>[]>([])
+  const [history, setHistory] = useState<AssessmentHistory[]>([])
 
   const [scores, setScores] = useState<AssessmentScore>({
     hurt: 5,

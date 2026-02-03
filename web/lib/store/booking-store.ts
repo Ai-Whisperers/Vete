@@ -21,9 +21,9 @@ import type {
   ServiceFromJSON,
   BookableService,
   Pet,
-  ClinicConfig,
   PreferredTimeOfDay,
 } from '@/components/booking/booking-wizard/types'
+import type { ClinicData } from '@/lib/types/clinic-config'
 import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'
 
 // Icon mapping from string names to Lucide components
@@ -112,7 +112,7 @@ interface BookingState {
   toggleService: (serviceId: string) => void
   clearServices: () => void
   initialize: (
-    clinic: ClinicConfig,
+    clinic: ClinicData,
     userPets: Pet[],
     initialServiceIds?: string[],
     initialPetId?: string
@@ -192,7 +192,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   },
 
   initialize: (clinic, userPets, initialServiceIds = [], initialPetId) => {
-    const servicesList = extractServices(clinic.services as ServicesData)
+    const servicesList = extractServices(clinic.services as unknown as ServicesData)
     const transformed = transformServices(servicesList)
 
     // Filter valid service IDs (must exist in available services)

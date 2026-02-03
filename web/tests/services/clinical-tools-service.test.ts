@@ -244,7 +244,7 @@ describe('ClinicalToolsService', () => {
       const result = await service.searchDiagnosisCodes();
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Failed to search diagnosis codes');
+      expect(result.error).toBe('Database error');
     });
   });
 

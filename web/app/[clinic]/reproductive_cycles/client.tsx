@@ -8,6 +8,14 @@ import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/Toast'
 import { useRouter } from 'next/navigation'
 
+interface Pet {
+  id: string
+  name: string
+  species: string
+  breed?: string
+  gender: string
+}
+
 interface ReproductiveCycle {
   id: string
   pet_id: string
@@ -23,7 +31,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
   const router = useRouter()
 
   const [petId, setPetId] = useState('')
-  const [pets, setPets] = useState<Record<string, unknown>[]>([])
+  const [pets, setPets] = useState<Pet[]>([])
   const [cycles, setCycles] = useState<ReproductiveCycle[]>([])
   const [isSaving, setIsSaving] = useState(false)
 

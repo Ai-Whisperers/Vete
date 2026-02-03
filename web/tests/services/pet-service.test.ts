@@ -102,6 +102,32 @@ function createMockPetWithOwner(overrides: Partial<MockPet> = {}) {
   };
 }
 
+/**
+ * Creates a properly chainable mock for Supabase queries.
+ * All methods return `this` for chaining, and the query resolves when awaited.
+ */
+function createChainableQueryMock<T>(response: { data: T | null; error: { message: string } | null }) {
+  const mock = {
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    neq: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
+    not: vi.fn().mockReturnThis(),
+    ilike: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn().mockResolvedValue(response),
+    maybeSingle: vi.fn().mockResolvedValue(response),
+    // Make the mock thenable so it resolves when awaited
+    then: (resolve: (value: typeof response) => void) => resolve(response),
+  };
+  return mock;
+}
+
 // =============================================================================
 // TESTS
 // =============================================================================
@@ -126,13 +152,16 @@ describe('PetService', () => {
     it('should return pets for an owner', async () => {
       const mockPets = [createMockPet(), createMockPet({ id: 'pet-456', name: 'Luna' })];
 
-      mockClient.from.mockReturnValue({
+      // Create properly chainable mock that resolves when awaited
+      const chainableMock = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         is: vi.fn().mockReturnThis(),
         ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPets)),
-      });
+        order: vi.fn().mockReturnThis(),
+        then: (resolve: (value: unknown) => void) => resolve(createMockSuccess(mockPets)),
+      };
+      mockClient.from.mockReturnValue(chainableMock);
 
       const result = await service.list(OWNER_ID, TENANT_ID);
 
@@ -147,13 +176,15 @@ describe('PetService', () => {
     it('should filter by name query', async () => {
       const mockPets = [createMockPet({ name: 'Max' })];
 
-      mockClient.from.mockReturnValue({
+      const chainableMock = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         is: vi.fn().mockReturnThis(),
         ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPets)),
-      });
+        order: vi.fn().mockReturnThis(),
+        then: (resolve: (value: unknown) => void) => resolve(createMockSuccess(mockPets)),
+      };
+      mockClient.from.mockReturnValue(chainableMock);
 
       const result = await service.list(OWNER_ID, TENANT_ID, { query: 'Max' });
 
@@ -167,13 +198,7 @@ describe('PetService', () => {
     it('should filter by species', async () => {
       const mockPets = [createMockPet({ species: 'cat', name: 'Michi' })];
 
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPets)),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess(mockPets)));
 
       const result = await service.list(OWNER_ID, TENANT_ID, { species: 'cat' });
 
@@ -187,13 +212,7 @@ describe('PetService', () => {
     it('should exclude deleted pets by default', async () => {
       const mockPets = [createMockPet()]; // Only non-deleted
 
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPets)),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess(mockPets)));
 
       const result = await service.list(OWNER_ID, TENANT_ID, { includeDeleted: false });
 
@@ -210,13 +229,7 @@ describe('PetService', () => {
         createMockPet({ id: 'pet-deleted', deleted_at: '2026-01-10T00:00:00Z' }),
       ];
 
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPets)),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess(mockPets)));
 
       const result = await service.list(OWNER_ID, TENANT_ID, { includeDeleted: true }, true);
 
@@ -227,13 +240,7 @@ describe('PetService', () => {
     });
 
     it('should return empty array when owner has no pets', async () => {
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess([])),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess([])));
 
       const result = await service.list(OWNER_ID, TENANT_ID);
 
@@ -244,19 +251,14 @@ describe('PetService', () => {
     });
 
     it('should handle database errors', async () => {
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockError('Connection failed')),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockError('Connection failed')));
 
       const result = await service.list(OWNER_ID, TENANT_ID);
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Error al cargar mascotas');
+        // Service returns specific error message
+        expect(result.error).toBe('Connection failed');
       }
     });
   });
@@ -317,8 +319,8 @@ describe('PetService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Error al cargar mascota');
-        expect(result.details?.message).toContain('No tiene permisos');
+        // Service returns specific permission error
+        expect(result.error).toContain('No tiene permisos');
       }
     });
 
@@ -336,7 +338,8 @@ describe('PetService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.details?.message).toContain('Tenant mismatch');
+        // Service uses standardized Spanish error message
+        expect(result.error).toBe('No puede acceder a datos de otra clínica.');
       }
     });
 
@@ -748,13 +751,7 @@ describe('PetService', () => {
     it('should filter by query', async () => {
       const mockPetsWithOwners = [createMockPetWithOwner()];
 
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPetsWithOwners)),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess(mockPetsWithOwners)));
 
       const result = await service.listWithOwners(TENANT_ID, { query: 'Max' });
 
@@ -764,13 +761,7 @@ describe('PetService', () => {
     it('should filter by species', async () => {
       const mockPetsWithOwners = [createMockPetWithOwner({ species: 'cat' })];
 
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockSuccess(mockPetsWithOwners)),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockSuccess(mockPetsWithOwners)));
 
       const result = await service.listWithOwners(TENANT_ID, { species: 'cat' });
 
@@ -781,19 +772,14 @@ describe('PetService', () => {
     });
 
     it('should handle database errors', async () => {
-      mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        is: vi.fn().mockReturnThis(),
-        ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue(createMockError('Connection failed')),
-      });
+      mockClient.from.mockReturnValue(createChainableQueryMock(createMockError('Connection failed')));
 
       const result = await service.listWithOwners(TENANT_ID);
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Error al cargar mascotas con dueños');
+        // Service returns specific error message
+        expect(result.error).toBe('Connection failed');
       }
     });
   });

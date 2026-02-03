@@ -8,20 +8,20 @@
 // ============================================================================
 
 export interface NavLabels {
-  home: string
-  services: string
-  about: string
-  store: string
-  book: string
-  contact: string
-  owners_zone: string
-  login_profile: string
-  dashboard: string
-  profile: string
-  my_pets: string
-  back: string
-  book_btn: string
-  emergency_btn: string
+  home?: string
+  services?: string
+  about?: string
+  store?: string
+  book?: string
+  contact?: string
+  owners_zone?: string
+  login_profile?: string
+  dashboard?: string
+  profile?: string
+  my_pets?: string
+  back?: string
+  book_btn?: string
+  emergency_btn?: string
   faq?: string
   loyalty_program?: string
   menu?: string

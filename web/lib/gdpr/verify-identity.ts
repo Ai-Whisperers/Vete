@@ -207,6 +207,7 @@ export async function sendVerificationEmail(
   
   // Development only: log email content
   if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
     console.info('[GDPR] Verification email would be sent:', {
       to: emailContent.to,
       subject: emailContent.subject,

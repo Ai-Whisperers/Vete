@@ -142,6 +142,18 @@ export default [
     },
   },
 
+  // Relaxed rules for CLI tools, migration scripts, and config files
+  {
+    files: [
+      "lib/db/**/*.ts",
+      "lib/test-utils/**/*.ts",
+      "vitest.config*.ts",
+    ],
+    rules: {
+      "no-console": "off",
+    },
+  },
+
   // Ignore patterns
   {
     ignores: [

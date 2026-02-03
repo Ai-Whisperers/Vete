@@ -11,7 +11,7 @@ interface DailyBriefingProps {
 }
 
 export function DailyBriefing({
-  clinic,
+  clinic: _clinic,
   todayAppointments,
   waitingCount,
   alertCount = 0,

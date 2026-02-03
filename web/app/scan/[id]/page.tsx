@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import * as Icons from 'lucide-react'
-import Link from 'next/link'
+
 import { ReportFoundButton } from '@/components/safety/report-found-button'
 
 export default async function ScanPage({ params }: { params: Promise<{ id: string }> }) {

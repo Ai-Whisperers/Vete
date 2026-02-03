@@ -121,7 +121,7 @@ export function StockHistoryModal({
   productName,
   isOpen,
   onClose,
-  clinic,
+  clinic: _clinic,
 }: StockHistoryModalProps) {
   const [typeFilter, setTypeFilter] = useState<string>('')
   const modalRef = useRef<HTMLDivElement>(null)

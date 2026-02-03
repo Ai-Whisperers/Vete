@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+
 import { useRouter } from 'next/navigation'
 import { Search, X, Loader2, Package, Tag, ArrowRight, Clock, Sparkles } from 'lucide-react'
 import type { SearchSuggestion } from '@/lib/types/store'

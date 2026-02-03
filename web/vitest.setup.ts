@@ -11,8 +11,9 @@ const mockCookieStore = new Map<string, string>()
 // Default auth cookie for authenticated tests
 mockCookieStore.set('sb-auth-token', 'mock-auth-token')
 
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(() => ({
+vi.mock('next/headers', () => {
+  // Create the cookie store object that will be returned
+  const createCookieStore = () => ({
     get: vi.fn((name: string) => {
       const value = mockCookieStore.get(name) || mockCookieStore.get('sb-auth-token')
       return value ? { name, value } : undefined
@@ -23,12 +24,18 @@ vi.mock('next/headers', () => ({
     set: vi.fn((name: string, value: string) => mockCookieStore.set(name, value)),
     delete: vi.fn((name: string) => mockCookieStore.delete(name)),
     has: vi.fn((name: string) => mockCookieStore.has(name)),
-  })),
-  headers: vi.fn(() => new Headers({
-    'content-type': 'application/json',
-    'x-tenant-id': 'test-tenant',
-  })),
-}))
+  })
+
+  return {
+    // Next.js 15 cookies() returns a Promise
+    cookies: vi.fn(() => Promise.resolve(createCookieStore())),
+    // headers() also returns a Promise in Next.js 15
+    headers: vi.fn(() => Promise.resolve(new Headers({
+      'content-type': 'application/json',
+      'x-tenant-id': 'test-tenant',
+    }))),
+  }
+})
 
 // =============================================================================
 // QA Infrastructure Integration

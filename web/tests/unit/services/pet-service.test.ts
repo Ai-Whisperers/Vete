@@ -37,7 +37,7 @@ const mockPet: Pet = {
   breed: 'Labrador',
   birth_date: '2020-01-15',
   weight_kg: 25.5,
-  microchip_id: 'CHIP123456',
+  microchip_number: 'CHIP123456',
   photo_url: 'https://example.com/pets/max.jpg',
   sex: 'male',
   color: 'Golden',

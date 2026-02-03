@@ -50,7 +50,7 @@ interface MockPet {
   color: string | null;
   is_neutered: boolean | null;
   photo_url: string | null;
-  microchip_id: string | null;
+  microchip_number: string | null;
   temperament: string | null;
   diet_category: string | null;
   diet_notes: string | null;
@@ -76,7 +76,7 @@ function createMockPet(overrides: Partial<MockPet> = {}): MockPet {
     color: 'Golden',
     is_neutered: true,
     photo_url: 'https://example.com/max.jpg',
-    microchip_id: 'CHIP-12345',
+    microchip_number: 'CHIP-12345',
     temperament: 'friendly',
     diet_category: 'premium',
     diet_notes: null,

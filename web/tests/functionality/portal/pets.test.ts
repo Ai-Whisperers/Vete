@@ -362,14 +362,14 @@ describe('Pet Portal Functionality', () => {
           name: 'Microchip Pet',
           species: 'dog',
           weight_kg: 10,
-          microchip_id: '985121004567890',
+          microchip_number: '985121004567890',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
       expect(data).not.toBeNull()
-      expect(data!.microchip_id).toBe('985121004567890')
+      expect(data!.microchip_number).toBe('985121004567890')
       ctx.track('pets', data!.id)
     })
   })

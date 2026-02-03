@@ -121,7 +121,7 @@ export class PetService extends BaseService {
             breed,
             birth_date,
             weight_kg,
-            microchip_id,
+            microchip_number,
             photo_url,
             sex,
             color,

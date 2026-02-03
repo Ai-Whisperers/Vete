@@ -25,7 +25,7 @@
     "test": "npm run test:unit && npm run test:integration && npm run test:api && npm run test:e2e",
     "test:all": "npm run test",
     "test:watch": "vitest watch",
-    "test:unit": "vitest run tests/unit --coverage",
+    "test:unit": "vitest run tests/unit tests/services --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts --coverage",
     "test:components": "vitest run --config vitest.config.components.ts",
     "test:components:watch": "vitest watch --config vitest.config.components.ts",

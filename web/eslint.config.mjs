@@ -87,9 +87,9 @@ export default [
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/exhaustive-deps": "warn",
 
-      // Next.js
-      "@next/next/no-img-element": "warn",
-      "@next/next/no-html-link-for-pages": "warn",
+      // Next.js - disabled: high false-positive rate for external links and SVGs
+      "@next/next/no-img-element": "off",
+      "@next/next/no-html-link-for-pages": "off",
 
       // General best practices
       "no-debugger": "warn",
@@ -138,7 +138,9 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-vars": "off",
       "no-debugger": "off",
+      "no-redeclare": "off",  // Common to redeclare mocks in test blocks
     },
   },
 

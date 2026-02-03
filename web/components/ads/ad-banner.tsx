@@ -58,17 +58,12 @@ export function AdBanner({
   const [isDismissed, setIsDismissed] = useState(false)
   const [showFallback, setShowFallback] = useState(false)
 
-  // Don't show ads for paid tiers (adFree: true)
-  if (tenantTier !== 'gratis') {
-    return null
-  }
-
-  // Don't show if user dismissed
-  if (isDismissed) {
-    return null
-  }
+  // Determine if we should show ads
+  const shouldShowAd = tenantTier === 'gratis' && !isDismissed
 
   useEffect(() => {
+    // Skip if not showing ads
+    if (!shouldShowAd) return
     // Check if AdSense script is loaded
     const checkAdSense = () => {
       if (typeof window !== 'undefined' && (window as unknown as { adsbygoogle?: unknown[] }).adsbygoogle) {
@@ -89,7 +84,7 @@ export function AdBanner({
     // Wait a bit for AdSense to initialize
     const timer = setTimeout(checkAdSense, 1000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [shouldShowAd])
 
   const dimensions = AD_DIMENSIONS[placement]
 
@@ -98,6 +93,11 @@ export function AdBanner({
     sidebar: 'w-[300px] rounded-lg border border-gray-200 bg-white shadow-sm',
     footer: 'w-full border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100',
     inline: 'w-full my-4 rounded-lg border border-gray-200 bg-white',
+  }
+
+  // Don't show ads for paid tiers or if dismissed
+  if (!shouldShowAd) {
+    return null
   }
 
   return (

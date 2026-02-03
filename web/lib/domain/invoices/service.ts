@@ -266,7 +266,7 @@ export class InvoiceService {
   async delete(
     id: string,
     tenantId: string,
-    userId: string
+    _userId: string
   ): Promise<DeleteInvoiceResult> {
     const invoice = await this.repository.findById(id, tenantId)
 

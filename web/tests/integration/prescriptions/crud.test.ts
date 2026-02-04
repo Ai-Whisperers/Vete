@@ -10,6 +10,11 @@ import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/d
 import { createProfile, createPet, resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 
+let prescriptionCounter = 0
+function nextRxNumber(): string {
+  return `RX-TEST-${Date.now()}-${++prescriptionCounter}`
+}
+
 describe('Prescriptions CRUD', () => {
   const ctx = new TestContext()
   let client: ReturnType<typeof getTestClient>
@@ -21,7 +26,6 @@ describe('Prescriptions CRUD', () => {
     await waitForDatabase()
     client = getTestClient({ serviceRole: true })
 
-    // Create test owner
     const owner = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
@@ -29,7 +33,6 @@ describe('Prescriptions CRUD', () => {
     ownerId = owner.id
     ctx.track('profiles', ownerId)
 
-    // Create test vet with signature
     const vet = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'vet',
@@ -38,7 +41,6 @@ describe('Prescriptions CRUD', () => {
     vetId = vet.id
     ctx.track('profiles', vetId)
 
-    // Create test pet
     const pet = await createPet({
       ownerId,
       tenantId: DEFAULT_TENANT.id,
@@ -63,100 +65,112 @@ describe('Prescriptions CRUD', () => {
         .from('prescriptions')
         .insert({
           pet_id: petId,
-          drug_name: 'Amoxicilina',
-          dosage: '250mg cada 12 horas',
-          instructions: 'Administrar con comida. Tratamiento por 7 días.',
-          signed_by: vetId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [{ name: 'Amoxicilina', dosage: '250mg cada 12 horas' }],
+          notes: 'Administrar con comida. Tratamiento por 7 días.',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
-      expect(data.drug_name).toBe('Amoxicilina')
-      expect(data.signed_by).toBe(vetId)
+      expect(data.medications[0].name).toBe('Amoxicilina')
+      expect(data.vet_id).toBe(vetId)
 
       ctx.track('prescriptions', data.id)
     })
 
-    test('creates prescription with detailed dosage', async () => {
+    test('creates prescription with detailed medications', async () => {
       const { data, error } = await client
         .from('prescriptions')
         .insert({
           pet_id: petId,
-          drug_name: 'Metronidazol',
-          dosage: '15mg/kg cada 8 horas (300mg por dosis)',
-          instructions:
-            'Administrar 30 minutos antes de cada comida. No suspender tratamiento aunque mejore. Duración: 10 días.',
-          signed_by: vetId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [
+            { name: 'Metronidazol', dosage: '15mg/kg cada 8 horas (300mg por dosis)', duration: '10 days' },
+          ],
+          notes: 'Administrar 30 minutos antes de cada comida. No suspender tratamiento.',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.dosage).toContain('15mg/kg')
+      expect(data.medications[0].dosage).toContain('15mg/kg')
 
       ctx.track('prescriptions', data.id)
     })
 
-    test('creates multiple prescriptions for same pet', async () => {
-      const prescriptions = [
-        {
+    test('creates prescription with multiple medications', async () => {
+      const { data, error } = await client
+        .from('prescriptions')
+        .insert({
           pet_id: petId,
-          drug_name: 'Omeprazol',
-          dosage: '1mg/kg cada 24 horas',
-          instructions: 'En ayunas, 30 min antes de comer.',
-          signed_by: vetId,
-        },
-        {
-          pet_id: petId,
-          drug_name: 'Sucralfato',
-          dosage: '500mg cada 8 horas',
-          instructions: '1 hora antes de comidas.',
-          signed_by: vetId,
-        },
-      ]
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [
+            { name: 'Omeprazol', dosage: '1mg/kg cada 24 horas' },
+            { name: 'Sucralfato', dosage: '500mg cada 8 horas' },
+          ],
+        })
+        .select()
+        .single()
 
-      for (const rx of prescriptions) {
-        const { data, error } = await client.from('prescriptions').insert(rx).select().single()
+      expect(error).toBeNull()
+      expect(data.medications).toHaveLength(2)
 
-        expect(error).toBeNull()
-        ctx.track('prescriptions', data.id)
-      }
+      ctx.track('prescriptions', data.id)
 
-      // Verify count
+      // Verify all prescriptions for pet
       const { data: allRx } = await client.from('prescriptions').select('*').eq('pet_id', petId)
-
       expect(allRx).not.toBeNull()
       expect(allRx!.length).toBeGreaterThanOrEqual(2)
     })
 
-    test('fails without drug name', async () => {
-      const { error } = await client.from('prescriptions').insert({
-        pet_id: petId,
-        dosage: '100mg',
-        signed_by: vetId,
-      })
+    test('creates prescription with validity period', async () => {
+      const { data, error } = await client
+        .from('prescriptions')
+        .insert({
+          pet_id: petId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [{ name: 'Prednisolona', dosage: '0.5mg/kg' }],
+          prescribed_date: '2026-02-01',
+          valid_until: '2026-03-01',
+        })
+        .select()
+        .single()
 
-      expect(error).not.toBeNull()
-    })
+      expect(error).toBeNull()
+      expect(data.valid_until).toBe('2026-03-01')
 
-    test('fails without dosage', async () => {
-      const { error } = await client.from('prescriptions').insert({
-        pet_id: petId,
-        drug_name: 'Test Drug',
-        signed_by: vetId,
-      })
-
-      expect(error).not.toBeNull()
+      ctx.track('prescriptions', data.id)
     })
 
     test('fails with non-existent pet', async () => {
       const { error } = await client.from('prescriptions').insert({
         pet_id: '00000000-0000-0000-0000-999999999999',
-        drug_name: 'Orphan Drug',
-        dosage: '100mg',
-        signed_by: vetId,
+        tenant_id: DEFAULT_TENANT.id,
+        vet_id: vetId,
+        prescription_number: nextRxNumber(),
+      })
+
+      expect(error).not.toBeNull()
+    })
+
+    test('fails when valid_until is before prescribed_date', async () => {
+      const { error } = await client.from('prescriptions').insert({
+        pet_id: petId,
+        tenant_id: DEFAULT_TENANT.id,
+        vet_id: vetId,
+        prescription_number: nextRxNumber(),
+        prescribed_date: '2026-02-01',
+        valid_until: '2026-01-01', // Before prescribed
       })
 
       expect(error).not.toBeNull()
@@ -171,10 +185,11 @@ describe('Prescriptions CRUD', () => {
         .from('prescriptions')
         .insert({
           pet_id: petId,
-          drug_name: 'Read Test Drug',
-          dosage: '100mg',
-          instructions: 'Test instructions',
-          signed_by: vetId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [{ name: 'Read Test Drug', dosage: '100mg' }],
+          notes: 'Test instructions',
         })
         .select()
         .single()
@@ -190,7 +205,7 @@ describe('Prescriptions CRUD', () => {
         .single()
 
       expect(error).toBeNull()
-      expect(data.drug_name).toBe('Read Test Drug')
+      expect(data.medications[0].name).toBe('Read Test Drug')
     })
 
     test('reads prescriptions by pet', async () => {
@@ -198,7 +213,7 @@ describe('Prescriptions CRUD', () => {
         .from('prescriptions')
         .select('*')
         .eq('pet_id', petId)
-        .order('signed_at', { ascending: false })
+        .order('created_at', { ascending: false })
 
       expect(error).toBeNull()
       expect(data).not.toBeNull()
@@ -211,8 +226,8 @@ describe('Prescriptions CRUD', () => {
         .select(
           `
           *,
-          pet:pets(id, name, species, weight_kg),
-          vet:profiles!prescriptions_signed_by_fkey(id, full_name)
+          pet:pets!prescriptions_pet_id_fkey(id, name, species, weight_kg),
+          vet:profiles!prescriptions_vet_id_fkey(id, full_name)
         `
         )
         .eq('id', prescriptionId)
@@ -226,11 +241,11 @@ describe('Prescriptions CRUD', () => {
     })
 
     test('filters prescriptions by vet', async () => {
-      const { data, error } = await client.from('prescriptions').select('*').eq('signed_by', vetId)
+      const { data, error } = await client.from('prescriptions').select('*').eq('vet_id', vetId)
 
       expect(error).toBeNull()
       expect(data).not.toBeNull()
-      expect(data!.every((rx: { signed_by: string }) => rx.signed_by === vetId)).toBe(true)
+      expect(data!.every((rx: { vet_id: string }) => rx.vet_id === vetId)).toBe(true)
     })
 
     test('filters prescriptions by date', async () => {
@@ -241,7 +256,7 @@ describe('Prescriptions CRUD', () => {
         .from('prescriptions')
         .select('*')
         .eq('pet_id', petId)
-        .gte('signed_at', thirtyDaysAgo.toISOString())
+        .gte('created_at', thirtyDaysAgo.toISOString())
 
       expect(error).toBeNull()
     })
@@ -255,9 +270,10 @@ describe('Prescriptions CRUD', () => {
         .from('prescriptions')
         .insert({
           pet_id: petId,
-          drug_name: 'Update Test Drug',
-          dosage: '50mg',
-          signed_by: vetId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [{ name: 'Update Test Drug', dosage: '50mg' }],
         })
         .select()
         .single()
@@ -265,59 +281,69 @@ describe('Prescriptions CRUD', () => {
       ctx.track('prescriptions', updatePrescriptionId)
     })
 
-    test('updates instructions', async () => {
+    test('updates notes', async () => {
       const { data, error } = await client
         .from('prescriptions')
         .update({
-          instructions: 'Updated: Tomar con abundante agua.',
+          notes: 'Updated: Tomar con abundante agua.',
         })
         .eq('id', updatePrescriptionId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.instructions).toContain('Updated')
+      expect(data.notes).toContain('Updated')
     })
 
-    test('updates dosage', async () => {
+    test('updates medications', async () => {
       const { data, error } = await client
         .from('prescriptions')
-        .update({ dosage: '100mg cada 8 horas' })
+        .update({
+          medications: [{ name: 'Update Test Drug', dosage: '100mg cada 8 horas' }],
+        })
         .eq('id', updatePrescriptionId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.dosage).toBe('100mg cada 8 horas')
+      expect(data.medications[0].dosage).toBe('100mg cada 8 horas')
+    })
+
+    test('updates status to dispensed', async () => {
+      const { data, error } = await client
+        .from('prescriptions')
+        .update({ status: 'dispensed' })
+        .eq('id', updatePrescriptionId)
+        .select()
+        .single()
+
+      expect(error).toBeNull()
+      expect(data.status).toBe('dispensed')
     })
   })
 
   describe('DELETE', () => {
     test('deletes prescription by ID', async () => {
-      // Create prescription to delete
       const { data: created } = await client
         .from('prescriptions')
         .insert({
           pet_id: petId,
-          drug_name: 'To Delete Drug',
-          dosage: '10mg',
-          signed_by: vetId,
+          tenant_id: DEFAULT_TENANT.id,
+          vet_id: vetId,
+          prescription_number: nextRxNumber(),
+          medications: [{ name: 'To Delete Drug', dosage: '10mg' }],
         })
         .select()
         .single()
 
-      // Delete it
       const { error } = await client.from('prescriptions').delete().eq('id', created.id)
-
       expect(error).toBeNull()
 
-      // Verify deleted
       const { data: found } = await client
         .from('prescriptions')
         .select('*')
         .eq('id', created.id)
         .single()
-
       expect(found).toBeNull()
     })
   })
@@ -333,10 +359,7 @@ describe('Prescriptions CRUD', () => {
         return `${totalDosage}${unit}`
       }
 
-      // 10 mg/kg for a 20 kg dog
       expect(calculateDosage(10, 20)).toBe('200mg')
-
-      // 0.5 ml/kg for a 5 kg cat
       expect(calculateDosage(0.5, 5, 'ml')).toBe('2.5ml')
     })
 

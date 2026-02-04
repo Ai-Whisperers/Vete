@@ -12,14 +12,23 @@ import {
   createProfile,
   resetSequence,
   futureDate,
-  pastDate,
 } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
-import { TENANT_IDS } from '@/lib/constants/tenants';
-import {
-  ALL_APPOINTMENT_TYPES,
-  TIME_SLOTS,
-} from '../../__fixtures__/appointments'
+import { TENANT_IDS } from '@/lib/constants/tenants'
+
+/**
+ * Helper to build appointment start_time, end_time, duration_minutes
+ * from a date string, time string, and duration in minutes.
+ */
+function buildAppointmentTimes(date: string, time: string, durationMinutes = 30) {
+  const start = new Date(`${date}T${time}:00Z`)
+  const end = new Date(start.getTime() + durationMinutes * 60 * 1000)
+  return {
+    start_time: start.toISOString(),
+    end_time: end.toISOString(),
+    duration_minutes: durationMinutes,
+  }
+}
 
 describe('Appointment Booking', () => {
   const ctx = new TestContext()
@@ -66,46 +75,38 @@ describe('Appointment Booking', () => {
   describe('CREATE', () => {
     test('creates appointment with required fields', async () => {
       const client = getTestClient({ serviceRole: true })
-      const appointmentDate = futureDate(7)
+      const times = buildAppointmentTimes(futureDate(7), '10:00')
 
       const { data, error } = await client
         .from('appointments')
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
-          type: 'consultation',
-          date: appointmentDate,
-          time: '10:00',
-          status: 'pending',
+          ...times,
+          status: 'scheduled',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
-      expect(data.type).toBe('consultation')
-      expect(data.status).toBe('pending')
-      expect(data.date).toBe(appointmentDate)
+      expect(data.status).toBe('scheduled')
+      expect(data.duration_minutes).toBe(30)
 
       ctx.track('appointments', data.id)
     })
 
     test('creates appointment with all fields', async () => {
       const client = getTestClient({ serviceRole: true })
-      const appointmentDate = futureDate(14)
+      const times = buildAppointmentTimes(futureDate(14), '09:30', 30)
 
       const { data, error } = await client
         .from('appointments')
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
           vet_id: testVetId,
-          type: 'vaccination',
-          date: appointmentDate,
-          time: '09:30',
-          duration: 30,
+          ...times,
           status: 'confirmed',
           reason: 'Vacuna antirrábica anual',
           notes: 'Traer cartilla de vacunación',
@@ -115,7 +116,6 @@ describe('Appointment Booking', () => {
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
-      expect(data.type).toBe('vaccination')
       expect(data.status).toBe('confirmed')
       expect(data.vet_id).toBe(testVetId)
       expect(data.reason).toBe('Vacuna antirrábica anual')
@@ -123,57 +123,59 @@ describe('Appointment Booking', () => {
       ctx.track('appointments', data.id)
     })
 
-    test('creates appointments for all types', async () => {
+    test('creates appointments with different durations', async () => {
       const client = getTestClient({ serviceRole: true })
+      const durations = [15, 30, 45, 60]
 
-      for (const type of ALL_APPOINTMENT_TYPES) {
+      for (const dur of durations) {
+        const times = buildAppointmentTimes(
+          futureDate(Math.floor(Math.random() * 30) + 1),
+          '10:00',
+          dur,
+        )
         const { data, error } = await client
           .from('appointments')
           .insert({
             tenant_id: DEFAULT_TENANT.id,
             pet_id: testPetId,
-            owner_id: testOwnerId,
-            type,
-            date: futureDate(Math.floor(Math.random() * 30) + 1),
-            time: TIME_SLOTS[Math.floor(Math.random() * TIME_SLOTS.length)],
-            status: 'pending',
+            ...times,
+            status: 'scheduled',
           })
           .select()
           .single()
 
         expect(error).toBeNull()
-        expect(data.type).toBe(type)
+        expect(data.duration_minutes).toBe(dur)
         ctx.track('appointments', data.id)
       }
     })
 
-    test('fails with invalid type', async () => {
+    test('fails with invalid status', async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(7), '10:00')
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
         pet_id: testPetId,
-        owner_id: testOwnerId,
-        type: 'invalid_type', // Invalid
-        date: futureDate(7),
-        time: '10:00',
-        status: 'pending',
+        ...times,
+        status: 'invalid_status',
       })
 
       expect(error).not.toBeNull()
     })
 
-    test('fails with invalid status', async () => {
+    test('fails with end_time before start_time', async () => {
       const client = getTestClient({ serviceRole: true })
+      const start = new Date(`${futureDate(7)}T10:00:00Z`)
+      const end = new Date(start.getTime() - 30 * 60 * 1000) // 30 min BEFORE start
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
         pet_id: testPetId,
-        owner_id: testOwnerId,
-        type: 'consultation',
-        date: futureDate(7),
-        time: '10:00',
-        status: 'invalid_status', // Invalid
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        duration_minutes: 30,
+        status: 'scheduled',
       })
 
       expect(error).not.toBeNull()
@@ -181,15 +183,13 @@ describe('Appointment Booking', () => {
 
     test('fails with non-existent pet_id', async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(7), '10:00')
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
-        pet_id: '00000000-0000-0000-0000-999999999999', // Non-existent
-        owner_id: testOwnerId,
-        type: 'consultation',
-        date: futureDate(7),
-        time: '10:00',
-        status: 'pending',
+        pet_id: '00000000-0000-0000-0000-999999999999',
+        ...times,
+        status: 'scheduled',
       })
 
       expect(error).not.toBeNull()
@@ -201,16 +201,14 @@ describe('Appointment Booking', () => {
 
     beforeAll(async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(21), '11:00')
       const { data } = await client
         .from('appointments')
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
           vet_id: testVetId,
-          type: 'checkup',
-          date: futureDate(21),
-          time: '11:00',
+          ...times,
           status: 'confirmed',
           reason: 'Read test appointment',
         })
@@ -234,21 +232,6 @@ describe('Appointment Booking', () => {
       expect(data.reason).toBe('Read test appointment')
     })
 
-    test('reads appointments by owner', async () => {
-      const client = getTestClient({ serviceRole: true })
-
-      const { data, error } = await client
-        .from('appointments')
-        .select('*')
-        .eq('owner_id', testOwnerId)
-
-      expect(error).toBeNull()
-      expect(data).toBeDefined()
-      expect(data).not.toBeNull()
-      expect(Array.isArray(data)).toBe(true)
-      expect(data!.length).toBeGreaterThan(0)
-    })
-
     test('reads appointments by pet', async () => {
       const client = getTestClient({ serviceRole: true })
 
@@ -256,6 +239,8 @@ describe('Appointment Booking', () => {
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
+      expect(Array.isArray(data)).toBe(true)
+      expect(data!.length).toBeGreaterThan(0)
     })
 
     test('reads appointments by vet', async () => {
@@ -269,7 +254,7 @@ describe('Appointment Booking', () => {
       expect(data!.every((a: { vet_id: string }) => a.vet_id === testVetId)).toBe(true)
     })
 
-    test('reads appointment with pet and owner details (join)', async () => {
+    test('reads appointment with pet details (join)', async () => {
       const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
@@ -277,8 +262,7 @@ describe('Appointment Booking', () => {
         .select(
           `
           *,
-          pet:pets(id, name, species),
-          owner:profiles!appointments_owner_id_fkey(id, full_name, phone)
+          pet:pets!appointments_pet_id_fkey(id, name, species)
         `
         )
         .eq('id', readTestAppointmentId)
@@ -287,7 +271,6 @@ describe('Appointment Booking', () => {
       expect(error).toBeNull()
       expect(data).toBeDefined()
       expect(data.pet).toBeDefined()
-      expect(data.owner).toBeDefined()
     })
 
     test('filters appointments by status', async () => {
@@ -306,29 +289,28 @@ describe('Appointment Booking', () => {
 
     test('filters appointments by date range', async () => {
       const client = getTestClient({ serviceRole: true })
-      const startDate = futureDate(0)
-      const endDate = futureDate(30)
+      const startDate = new Date().toISOString()
+      const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
       const { data, error } = await client
         .from('appointments')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .gte('date', startDate)
-        .lte('date', endDate)
+        .gte('start_time', startDate)
+        .lte('start_time', endDate)
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
     })
 
-    test('orders appointments by date and time', async () => {
+    test('orders appointments by start_time', async () => {
       const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .order('date', { ascending: true })
-        .order('time', { ascending: true })
+        .order('start_time', { ascending: true })
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
@@ -340,16 +322,14 @@ describe('Appointment Booking', () => {
 
     beforeAll(async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(10), '14:00')
       const { data } = await client
         .from('appointments')
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
-          type: 'consultation',
-          date: futureDate(10),
-          time: '14:00',
-          status: 'pending',
+          ...times,
+          status: 'scheduled',
         })
         .select()
         .single()
@@ -357,7 +337,7 @@ describe('Appointment Booking', () => {
       ctx.track('appointments', updateTestAppointmentId)
     })
 
-    test('updates appointment status from pending to confirmed', async () => {
+    test('updates appointment status from scheduled to confirmed', async () => {
       const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
@@ -385,23 +365,19 @@ describe('Appointment Booking', () => {
       expect(data.vet_id).toBe(testVetId)
     })
 
-    test('reschedules appointment (date and time)', async () => {
+    test('reschedules appointment', async () => {
       const client = getTestClient({ serviceRole: true })
-      const newDate = futureDate(15)
+      const newTimes = buildAppointmentTimes(futureDate(15), '16:00')
 
       const { data, error } = await client
         .from('appointments')
-        .update({
-          date: newDate,
-          time: '16:00',
-        })
+        .update(newTimes)
         .eq('id', updateTestAppointmentId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.date).toBe(newDate)
-      expect(data.time).toBe('16:00')
+      expect(data.duration_minutes).toBe(30)
     })
 
     test('adds notes to appointment', async () => {
@@ -425,7 +401,7 @@ describe('Appointment Booking', () => {
         .from('appointments')
         .update({
           status: 'cancelled',
-          notes: 'Cancelado por cliente',
+          cancellation_reason: 'Cancelado por cliente',
         })
         .eq('id', updateTestAppointmentId)
         .select()
@@ -437,18 +413,16 @@ describe('Appointment Booking', () => {
 
     test('completes appointment', async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(1), '10:00')
 
-      // First create a confirmed appointment
+      // Create a confirmed appointment
       const { data: newAppt } = await client
         .from('appointments')
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
           vet_id: testVetId,
-          type: 'checkup',
-          date: pastDate(1), // Yesterday
-          time: '10:00',
+          ...times,
           status: 'confirmed',
         })
         .select()
@@ -471,6 +445,7 @@ describe('Appointment Booking', () => {
   describe('DELETE', () => {
     test('deletes appointment by ID', async () => {
       const client = getTestClient({ serviceRole: true })
+      const times = buildAppointmentTimes(futureDate(5), '09:00')
 
       // Create appointment to delete
       const { data: created } = await client
@@ -478,11 +453,8 @@ describe('Appointment Booking', () => {
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
-          type: 'grooming',
-          date: futureDate(5),
-          time: '09:00',
-          status: 'pending',
+          ...times,
+          status: 'scheduled',
         })
         .select()
         .single()
@@ -506,8 +478,7 @@ describe('Appointment Booking', () => {
   describe('SCHEDULING CONFLICTS', () => {
     test('allows multiple appointments at same time for different vets', async () => {
       const client = getTestClient({ serviceRole: true })
-      const appointmentDate = futureDate(25)
-      const appointmentTime = '10:00'
+      const times = buildAppointmentTimes(futureDate(25), '10:00')
 
       // Create another vet
       const vet2 = await createProfile({
@@ -522,11 +493,8 @@ describe('Appointment Booking', () => {
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: testPetId,
-          owner_id: testOwnerId,
           vet_id: testVetId,
-          type: 'consultation',
-          date: appointmentDate,
-          time: appointmentTime,
+          ...times,
           status: 'confirmed',
         })
         .select()
@@ -548,11 +516,8 @@ describe('Appointment Booking', () => {
         .insert({
           tenant_id: DEFAULT_TENANT.id,
           pet_id: pet2.id,
-          owner_id: testOwnerId,
           vet_id: vet2.id,
-          type: 'consultation',
-          date: appointmentDate,
-          time: appointmentTime,
+          ...times,
           status: 'confirmed',
         })
         .select()
@@ -582,32 +547,28 @@ describe('Appointment Booking', () => {
       ctx.track('pets', petlifePet.id)
 
       // Create appointment in adris
+      const adrisTimes = buildAppointmentTimes(futureDate(30), '10:00')
       const { data: adrisAppt } = await client
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
           pet_id: testPetId,
-          owner_id: testOwnerId,
-          type: 'consultation',
-          date: futureDate(30),
-          time: '10:00',
-          status: 'pending',
+          ...adrisTimes,
+          status: 'scheduled',
         })
         .select()
         .single()
       ctx.track('appointments', adrisAppt.id)
 
       // Create appointment in petlife
+      const petlifeTimes = buildAppointmentTimes(futureDate(30), '11:00')
       const { data: petlifeAppt } = await client
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.PETLIFE,
           pet_id: petlifePet.id,
-          owner_id: petlifeOwner.id,
-          type: 'checkup',
-          date: futureDate(30),
-          time: '11:00',
-          status: 'pending',
+          ...petlifeTimes,
+          status: 'scheduled',
         })
         .select()
         .single()

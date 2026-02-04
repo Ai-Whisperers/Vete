@@ -7,7 +7,7 @@
 
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
-import { createProfile, createPet, resetSequence } from '../../__helpers__/factories'
+import { createProfile, createPet, resetSequence, pastDate } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 
 describe('Medical Records CRUD', () => {
@@ -21,7 +21,6 @@ describe('Medical Records CRUD', () => {
     await waitForDatabase()
     client = getTestClient({ serviceRole: true })
 
-    // Create test owner
     const owner = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
@@ -29,7 +28,6 @@ describe('Medical Records CRUD', () => {
     ownerId = owner.id
     ctx.track('profiles', ownerId)
 
-    // Create test vet
     const vet = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'vet',
@@ -38,7 +36,6 @@ describe('Medical Records CRUD', () => {
     vetId = vet.id
     ctx.track('profiles', vetId)
 
-    // Create test pet
     const pet = await createPet({
       ownerId,
       tenantId: DEFAULT_TENANT.id,
@@ -63,48 +60,46 @@ describe('Medical Records CRUD', () => {
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'consultation',
-          title: 'Consulta General',
-          diagnosis: 'Paciente sano',
-          notes: 'Sin anomalías detectadas.',
+          vet_id: vetId,
+          record_type: 'consultation',
+          chief_complaint: 'Consulta General',
+          diagnosis_text: 'Paciente sano',
+          clinical_notes: 'Sin anomalías detectadas.',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
       expect(data).toBeDefined()
-      expect(data.type).toBe('consultation')
-      expect(data.title).toBe('Consulta General')
+      expect(data.record_type).toBe('consultation')
+      expect(data.chief_complaint).toBe('Consulta General')
 
       ctx.track('medical_records', data.id)
     })
 
-    test('creates exam record with vitals', async () => {
-      const vitals = {
-        weight: 25.5,
-        temp: 38.5,
-        hr: 80,
-        rr: 20,
-      }
-
+    test('creates checkup record with vitals', async () => {
       const { data, error } = await client
         .from('medical_records')
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'exam',
-          title: 'Examen Físico Completo',
-          diagnosis: 'Estado general bueno',
-          vitals,
+          vet_id: vetId,
+          record_type: 'checkup',
+          chief_complaint: 'Examen Físico Completo',
+          diagnosis_text: 'Estado general bueno',
+          weight_kg: 25.5,
+          temperature_celsius: 38.5,
+          heart_rate_bpm: 80,
+          respiratory_rate_rpm: 20,
         })
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.vitals).toEqual(vitals)
-      expect(data.vitals.weight).toBe(25.5)
+      expect(data.weight_kg).toBe(25.5)
+      expect(data.temperature_celsius).toBe(38.5)
+      expect(data.heart_rate_bpm).toBe(80)
+      expect(data.respiratory_rate_rpm).toBe(20)
 
       ctx.track('medical_records', data.id)
     })
@@ -115,64 +110,64 @@ describe('Medical Records CRUD', () => {
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'surgery',
-          title: 'Castración',
-          diagnosis: 'Procedimiento exitoso',
-          notes: 'Paciente toleró bien la anestesia. Sin complicaciones.',
+          vet_id: vetId,
+          record_type: 'surgery',
+          chief_complaint: 'Castración',
+          diagnosis_text: 'Procedimiento exitoso',
+          clinical_notes: 'Paciente toleró bien la anestesia. Sin complicaciones.',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.type).toBe('surgery')
+      expect(data.record_type).toBe('surgery')
 
       ctx.track('medical_records', data.id)
     })
 
-    test('creates hospitalization record', async () => {
+    test('creates emergency record', async () => {
       const { data, error } = await client
         .from('medical_records')
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'hospitalization',
-          title: 'Internación por observación',
-          diagnosis: 'Gastritis aguda',
-          notes: 'Paciente en observación 24 horas.',
+          vet_id: vetId,
+          record_type: 'emergency',
+          chief_complaint: 'Emergencia por intoxicación',
+          diagnosis_text: 'Gastritis aguda',
+          is_emergency: true,
+          clinical_notes: 'Paciente en observación 24 horas.',
         })
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.type).toBe('hospitalization')
+      expect(data.record_type).toBe('emergency')
+      expect(data.is_emergency).toBe(true)
 
       ctx.track('medical_records', data.id)
     })
 
-    test('creates wellness record', async () => {
+    test('creates follow-up record', async () => {
       const { data, error } = await client
         .from('medical_records')
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'wellness',
-          title: 'Control Anual',
-          diagnosis: 'Paciente sano',
-          vitals: {
-            weight: 26.0,
-            temp: 38.3,
-            hr: 75,
-            rr: 18,
-          },
+          vet_id: vetId,
+          record_type: 'follow_up',
+          chief_complaint: 'Control post-cirugía',
+          diagnosis_text: 'Recuperación satisfactoria',
+          weight_kg: 26.0,
+          temperature_celsius: 38.3,
+          heart_rate_bpm: 75,
+          respiratory_rate_rpm: 18,
         })
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.type).toBe('wellness')
+      expect(data.record_type).toBe('follow_up')
 
       ctx.track('medical_records', data.id)
     })
@@ -183,10 +178,10 @@ describe('Medical Records CRUD', () => {
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'exam',
-          title: 'Radiografía de Tórax',
-          diagnosis: 'Sin alteraciones',
+          vet_id: vetId,
+          record_type: 'imaging',
+          chief_complaint: 'Radiografía de Tórax',
+          diagnosis_text: 'Sin alteraciones',
           attachments: [
             'https://storage.example.com/xray-001.jpg',
             'https://storage.example.com/xray-002.jpg',
@@ -205,8 +200,7 @@ describe('Medical Records CRUD', () => {
       const { error } = await client.from('medical_records').insert({
         pet_id: petId,
         tenant_id: DEFAULT_TENANT.id,
-        type: 'invalid_type',
-        title: 'Invalid',
+        record_type: 'invalid_type',
       })
 
       expect(error).not.toBeNull()
@@ -216,8 +210,7 @@ describe('Medical Records CRUD', () => {
       const { error } = await client.from('medical_records').insert({
         pet_id: '00000000-0000-0000-0000-999999999999',
         tenant_id: DEFAULT_TENANT.id,
-        type: 'consultation',
-        title: 'Orphan Record',
+        record_type: 'consultation',
       })
 
       expect(error).not.toBeNull()
@@ -233,11 +226,14 @@ describe('Medical Records CRUD', () => {
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'consultation',
-          title: 'Read Test Record',
-          diagnosis: 'Test diagnosis',
-          vitals: { weight: 20, temp: 38.5, hr: 70, rr: 15 },
+          vet_id: vetId,
+          record_type: 'consultation',
+          chief_complaint: 'Read Test Record',
+          diagnosis_text: 'Test diagnosis',
+          weight_kg: 20,
+          temperature_celsius: 38.5,
+          heart_rate_bpm: 70,
+          respiratory_rate_rpm: 15,
         })
         .select()
         .single()
@@ -253,7 +249,7 @@ describe('Medical Records CRUD', () => {
         .single()
 
       expect(error).toBeNull()
-      expect(data.title).toBe('Read Test Record')
+      expect(data.chief_complaint).toBe('Read Test Record')
     })
 
     test('reads records by pet', async () => {
@@ -274,7 +270,7 @@ describe('Medical Records CRUD', () => {
         .select(
           `
           *,
-          vet:profiles!medical_records_performed_by_fkey(id, full_name)
+          vet:profiles!medical_records_vet_id_fkey(id, full_name)
         `
         )
         .eq('id', recordId)
@@ -290,11 +286,11 @@ describe('Medical Records CRUD', () => {
         .from('medical_records')
         .select('*')
         .eq('pet_id', petId)
-        .eq('type', 'consultation')
+        .eq('record_type', 'consultation')
 
       expect(error).toBeNull()
       expect(data).not.toBeNull()
-      expect(data!.every((r: { type: string }) => r.type === 'consultation')).toBe(true)
+      expect(data!.every((r: { record_type: string }) => r.record_type === 'consultation')).toBe(true)
     })
 
     test('filters records by date range', async () => {
@@ -320,9 +316,9 @@ describe('Medical Records CRUD', () => {
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          performed_by: vetId,
-          type: 'consultation',
-          title: 'Update Test Record',
+          vet_id: vetId,
+          record_type: 'consultation',
+          chief_complaint: 'Update Test Record',
         })
         .select()
         .single()
@@ -333,39 +329,43 @@ describe('Medical Records CRUD', () => {
     test('updates diagnosis', async () => {
       const { data, error } = await client
         .from('medical_records')
-        .update({ diagnosis: 'Updated diagnosis' })
+        .update({ diagnosis_text: 'Updated diagnosis' })
         .eq('id', updateRecordId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.diagnosis).toBe('Updated diagnosis')
+      expect(data.diagnosis_text).toBe('Updated diagnosis')
     })
 
     test('updates notes', async () => {
       const { data, error } = await client
         .from('medical_records')
-        .update({ notes: 'Updated notes with more details.' })
+        .update({ clinical_notes: 'Updated notes with more details.' })
         .eq('id', updateRecordId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.notes).toBe('Updated notes with more details.')
+      expect(data.clinical_notes).toBe('Updated notes with more details.')
     })
 
     test('updates vitals', async () => {
-      const newVitals = { weight: 22, temp: 38.0, hr: 72, rr: 16 }
-
       const { data, error } = await client
         .from('medical_records')
-        .update({ vitals: newVitals })
+        .update({
+          weight_kg: 22,
+          temperature_celsius: 38.0,
+          heart_rate_bpm: 72,
+          respiratory_rate_rpm: 16,
+        })
         .eq('id', updateRecordId)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data.vitals).toEqual(newVitals)
+      expect(data.weight_kg).toBe(22)
+      expect(data.temperature_celsius).toBe(38)
     })
 
     test('adds attachments', async () => {
@@ -385,24 +385,21 @@ describe('Medical Records CRUD', () => {
 
   describe('DELETE', () => {
     test('deletes record by ID', async () => {
-      // Create record to delete
       const { data: created } = await client
         .from('medical_records')
         .insert({
           pet_id: petId,
           tenant_id: DEFAULT_TENANT.id,
-          type: 'consultation',
-          title: 'To Delete',
+          record_type: 'consultation',
+          chief_complaint: 'To Delete',
         })
         .select()
         .single()
 
-      // Delete it
       const { error } = await client.from('medical_records').delete().eq('id', created.id)
 
       expect(error).toBeNull()
 
-      // Verify deleted
       const { data: found } = await client
         .from('medical_records')
         .select('*')
@@ -420,7 +417,7 @@ describe('Medical Records CRUD', () => {
         .select(
           `
           *,
-          vet:profiles!medical_records_performed_by_fkey(full_name)
+          vet:profiles!medical_records_vet_id_fkey(full_name)
         `
         )
         .eq('pet_id', petId)
@@ -433,15 +430,14 @@ describe('Medical Records CRUD', () => {
     test('calculates record statistics', async () => {
       const { data, error } = await client
         .from('medical_records')
-        .select('type')
+        .select('record_type')
         .eq('pet_id', petId)
 
       expect(error).toBeNull()
       expect(data).not.toBeNull()
 
-      // Count by type
-      const stats = data!.reduce((acc: Record<string, number>, record: { type: string }) => {
-        acc[record.type] = (acc[record.type] || 0) + 1
+      const stats = data!.reduce((acc: Record<string, number>, record: { record_type: string }) => {
+        acc[record.record_type] = (acc[record.record_type] || 0) + 1
         return acc
       }, {})
 

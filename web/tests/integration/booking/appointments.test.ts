@@ -65,7 +65,7 @@ describe('Appointment Booking', () => {
 
   describe('CREATE', () => {
     test('creates appointment with required fields', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const appointmentDate = futureDate(7)
 
       const { data, error } = await client
@@ -92,7 +92,7 @@ describe('Appointment Booking', () => {
     })
 
     test('creates appointment with all fields', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const appointmentDate = futureDate(14)
 
       const { data, error } = await client
@@ -124,7 +124,7 @@ describe('Appointment Booking', () => {
     })
 
     test('creates appointments for all types', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       for (const type of ALL_APPOINTMENT_TYPES) {
         const { data, error } = await client
@@ -148,7 +148,7 @@ describe('Appointment Booking', () => {
     })
 
     test('fails with invalid type', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
@@ -164,7 +164,7 @@ describe('Appointment Booking', () => {
     })
 
     test('fails with invalid status', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
@@ -180,7 +180,7 @@ describe('Appointment Booking', () => {
     })
 
     test('fails with non-existent pet_id', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { error } = await client.from('appointments').insert({
         tenant_id: DEFAULT_TENANT.id,
@@ -200,7 +200,7 @@ describe('Appointment Booking', () => {
     let readTestAppointmentId: string
 
     beforeAll(async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const { data } = await client
         .from('appointments')
         .insert({
@@ -221,7 +221,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reads appointment by ID', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -235,7 +235,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reads appointments by owner', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -250,7 +250,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reads appointments by pet', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client.from('appointments').select('*').eq('pet_id', testPetId)
 
@@ -259,7 +259,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reads appointments by vet', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client.from('appointments').select('*').eq('vet_id', testVetId)
 
@@ -270,7 +270,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reads appointment with pet and owner details (join)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -291,7 +291,7 @@ describe('Appointment Booking', () => {
     })
 
     test('filters appointments by status', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -305,7 +305,7 @@ describe('Appointment Booking', () => {
     })
 
     test('filters appointments by date range', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const startDate = futureDate(0)
       const endDate = futureDate(30)
 
@@ -321,7 +321,7 @@ describe('Appointment Booking', () => {
     })
 
     test('orders appointments by date and time', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -339,7 +339,7 @@ describe('Appointment Booking', () => {
     let updateTestAppointmentId: string
 
     beforeAll(async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const { data } = await client
         .from('appointments')
         .insert({
@@ -358,7 +358,7 @@ describe('Appointment Booking', () => {
     })
 
     test('updates appointment status from pending to confirmed', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -372,7 +372,7 @@ describe('Appointment Booking', () => {
     })
 
     test('assigns vet to appointment', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -386,7 +386,7 @@ describe('Appointment Booking', () => {
     })
 
     test('reschedules appointment (date and time)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const newDate = futureDate(15)
 
       const { data, error } = await client
@@ -405,7 +405,7 @@ describe('Appointment Booking', () => {
     })
 
     test('adds notes to appointment', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -419,7 +419,7 @@ describe('Appointment Booking', () => {
     })
 
     test('cancels appointment', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('appointments')
@@ -436,7 +436,7 @@ describe('Appointment Booking', () => {
     })
 
     test('completes appointment', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // First create a confirmed appointment
       const { data: newAppt } = await client
@@ -470,7 +470,7 @@ describe('Appointment Booking', () => {
 
   describe('DELETE', () => {
     test('deletes appointment by ID', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // Create appointment to delete
       const { data: created } = await client
@@ -505,7 +505,7 @@ describe('Appointment Booking', () => {
 
   describe('SCHEDULING CONFLICTS', () => {
     test('allows multiple appointments at same time for different vets', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const appointmentDate = futureDate(25)
       const appointmentTime = '10:00'
 
@@ -565,7 +565,7 @@ describe('Appointment Booking', () => {
 
   describe('MULTI-TENANT ISOLATION', () => {
     test('appointments are isolated by tenant', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // Create profile in petlife
       const petlifeOwner = await createProfile({

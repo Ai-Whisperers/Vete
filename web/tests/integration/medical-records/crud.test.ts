@@ -19,7 +19,7 @@ describe('Medical Records CRUD', () => {
 
   beforeAll(async () => {
     await waitForDatabase()
-    client = getTestClient()
+    client = getTestClient({ serviceRole: true })
 
     // Create test owner
     const owner = await createProfile({

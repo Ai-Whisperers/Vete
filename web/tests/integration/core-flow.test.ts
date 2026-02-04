@@ -20,7 +20,7 @@ describe('Core Entity Flow', () => {
     pets: [],
   }
 
-  const client = getTestClient()
+  const client = getTestClient({ serviceRole: true })
 
   beforeAll(async () => {
     // Ensure tenants exist

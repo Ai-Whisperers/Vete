@@ -17,7 +17,7 @@ describe('Inventory Management', () => {
 
   beforeAll(async () => {
     await waitForDatabase()
-    client = getTestClient()
+    client = getTestClient({ serviceRole: true })
   })
 
   afterAll(async () => {

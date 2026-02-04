@@ -18,7 +18,7 @@ describe('Finance - Expenses CRUD', () => {
 
   beforeAll(async () => {
     await waitForDatabase()
-    client = getTestClient()
+    client = getTestClient({ serviceRole: true })
 
     // Create test admin who can manage expenses
     const admin = await createProfile({

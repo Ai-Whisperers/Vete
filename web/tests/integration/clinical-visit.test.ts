@@ -29,7 +29,7 @@ describe('Clinical Visit Lifecycle', () => {
     invoices: [],
   }
 
-  const client = getTestClient()
+  const client = getTestClient({ serviceRole: true })
 
   beforeAll(async () => {
     // Ensure tenents exist

@@ -238,6 +238,203 @@ function sendToSentry(
   }
 }
 
+/**
+ * Send logs to external monitoring services (DataDog, LogRocket, etc.)
+ */
+function sendToExternalServices(entry: LogEntry): void {
+  // Skip external services in development
+  if (process.env.NODE_ENV === 'development') return
+
+  try {
+    // Send to DataDog if configured
+    if (process.env.DATADOG_API_KEY && process.env.DATADOG_SITE) {
+      sendToDataDog(entry)
+    }
+
+    // Send to LogRocket if configured
+    if (process.env.LOGROCKET_APP_ID) {
+      sendToLogRocket(entry)
+    }
+
+    // Send to custom monitoring API if configured
+    if (process.env.MONITORING_API_URL && process.env.MONITORING_API_KEY) {
+      sendToCustomAPI(entry)
+    }
+
+    // Send performance metrics to specialized services
+    if (entry.level === 'info' && entry.context?.duration) {
+      sendPerformanceMetrics(entry)
+    }
+  } catch (_error: unknown) {
+    // External service failures shouldn't break logging
+  }
+}
+
+/**
+ * Send logs to DataDog
+ */
+function sendToDataDog(entry: LogEntry): void {
+  if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_SITE) return
+
+  const ddData = {
+    timestamp: new Date(entry.timestamp).getTime(),
+    level: entry.level,
+    message: entry.message,
+    service: 'vete-web',
+    hostname: process.env.HOSTNAME || 'vete-server',
+    ddtags: [
+      `env:${process.env.NODE_ENV || 'production'}`,
+      `version:${process.env.APP_VERSION || 'unknown'}`,
+      ...(entry.context?.tenant ? [`tenant:${entry.context.tenant}`] : []),
+      ...(entry.context?.userRole ? [`role:${entry.context.userRole}`] : []),
+      ...(entry.context?.action ? [`action:${entry.context.action}`] : []),
+    ].join(','),
+    ...entry.context,
+  }
+
+  if (entry.error) {
+    ddData.error = entry.error
+  }
+
+  // Send to DataDog Logs API
+  fetch(`https://http-intake.logs.${process.env.DATADOG_SITE}/v1/input/${process.env.DATADOG_API_KEY}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'DD-API-KEY': process.env.DATADOG_API_KEY,
+    },
+    body: JSON.stringify(ddData),
+  }).catch(() => {
+    // Ignore DataDog send errors
+  })
+}
+
+/**
+ * Send session recordings and performance data to LogRocket
+ */
+function sendToLogRocket(entry: LogEntry): void {
+  if (!process.env.LOGROCKET_APP_ID) return
+
+  // LogRocket is typically client-side, but we can send server events
+  // via their REST API for correlation with client sessions
+  const lrData = {
+    timestamp: entry.timestamp,
+    level: entry.level,
+    message: entry.message,
+    tags: {
+      server: true,
+      tenant: entry.context?.tenant,
+      action: entry.context?.action,
+      path: entry.context?.path,
+    },
+    sessionId: entry.context?.requestId, // Use request ID as session correlation
+    metadata: entry.context,
+  }
+
+  if (entry.error) {
+    lrData.error = {
+      name: entry.error.name,
+      message: entry.error.message,
+      stack: entry.error.stack,
+    }
+  }
+
+  // Send to LogRocket Events API (requires LogRocket backend plan)
+  fetch(`https://api.logrocket.com/v1/orgs/${process.env.LOGROCKET_ORG_ID}/apps/${process.env.LOGROCKET_APP_ID}/events`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.LOGROCKET_API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(lrData),
+  }).catch(() => {
+    // Ignore LogRocket send errors
+  })
+}
+
+/**
+ * Send logs to custom monitoring API
+ */
+function sendToCustomAPI(entry: LogEntry): void {
+  if (!process.env.MONITORING_API_URL || !process.env.MONITORING_API_KEY) return
+
+  fetch(process.env.MONITORING_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.MONITORING_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ...entry,
+      service: 'vete',
+      environment: process.env.NODE_ENV,
+      version: process.env.APP_VERSION,
+    }),
+  }).catch(() => {
+    // Ignore custom API send errors
+  })
+}
+
+/**
+ * Send performance metrics to specialized monitoring services
+ */
+function sendPerformanceMetrics(entry: LogEntry): void {
+  if (!entry.context?.duration || !entry.context?.path) return
+
+  const metrics = {
+    timestamp: entry.timestamp,
+    metric: 'request.duration',
+    value: entry.context.duration,
+    tags: {
+      method: entry.context.method,
+      path: entry.context.path,
+      status: entry.context.statusCode,
+      tenant: entry.context.tenant,
+    },
+    environment: process.env.NODE_ENV,
+    service: 'vete-web',
+  }
+
+  // Send to DataDog Metrics API
+  if (process.env.DATADOG_API_KEY && process.env.DATADOG_SITE) {
+    fetch(`https://api.${process.env.DATADOG_SITE}/api/v2/series`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'DD-API-KEY': process.env.DATADOG_API_KEY,
+        'DD-APPLICATION-KEY': process.env.DATADOG_APP_KEY || '',
+      },
+      body: JSON.stringify({
+        series: [{
+          metric: 'vete.request.duration',
+          type: 'gauge',
+          points: [{
+            timestamp: Math.floor(new Date(entry.timestamp).getTime() / 1000),
+            value: entry.context.duration,
+          }],
+          tags: Object.entries(metrics.tags).map(([k, v]) => `${k}:${v}`).filter(t => !t.endsWith(':undefined')),
+        }],
+      }),
+    }).catch(() => {
+      // Ignore DataDog metrics send errors
+    })
+  }
+
+  // Send custom metrics API
+  if (process.env.METRICS_API_URL && process.env.METRICS_API_KEY) {
+    fetch(process.env.METRICS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.METRICS_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metrics),
+    }).catch(() => {
+      // Ignore custom metrics API send errors
+    })
+  }
+}
+
 function log(
   level: LogLevel,
   message: string,
@@ -279,6 +476,9 @@ function log(
       // eslint-disable-next-line no-console
       console.log(output)
   }
+
+  // Send all logs to external monitoring services
+  sendToExternalServices(entry)
 }
 
 /**

@@ -11,11 +11,7 @@ import { PaymentService } from './payments'
 import { MedicalRecordRepository } from './medical-records'
 import { HospitalizationRepository } from './hospitalizations'
 import { LabRepository } from './lab'
-// TODO: Migrate these services to domain pattern
-// import { InventoryService } from './inventory'
-// import { StoreService } from './store'
-// import { ConsentService } from './consent'
-// import { UserService } from './users'
+// All core services have been migrated to domain pattern
 import { ClinicalToolsService } from './clinical-tools'
 import { MessagingService } from './messaging'
 import { ReminderService } from './reminders'
@@ -24,6 +20,7 @@ import { VaccineService } from './vaccines'
 import { UserService } from './users'
 import { InventoryService } from './inventory'
 import { ConsentService } from './consent'
+import { StoreService } from './store'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
@@ -84,9 +81,9 @@ export class DomainFactory {
     return new InventoryService(this.supabase)
   }
 
-  // createStoreService(): StoreService {
-  //   return new StoreService(this.supabase)
-  // }
+  createStoreService(): StoreService {
+    return new StoreService(this.supabase)
+  }
 
   createConsentService(): ConsentService {
     return new ConsentService(this.supabase)

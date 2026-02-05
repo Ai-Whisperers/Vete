@@ -35,9 +35,7 @@ export * from './clinical-tools'
 
 export * from './inventory'
 export * from './consent'
-
-// TODO: Migrate these services to domain pattern
-// export * from './store'
+export * from './store'
 
 // ===========================================================================
 // COMMUNICATION DOMAINS

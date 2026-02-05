@@ -76,7 +76,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/auth', () => ({
-  withApiAuth: (handler: Function, options?: { roles: string[] }) => {
+  withApiAuth: (handler: (...args: unknown[]) => unknown, options?: { roles: string[] }) => {
     return async (request: NextRequest) => {
       // Check role restriction
       if (options?.roles && !options.roles.includes(currentProfile.role)) {

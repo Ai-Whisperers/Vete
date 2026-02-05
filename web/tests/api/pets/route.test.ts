@@ -33,6 +33,9 @@ describe('API: /api/pets', () => {
     // Create test users
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+
+    // Checkpoint: preserve these shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -40,7 +43,7 @@ describe('API: /api/pets', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/pets', () => {

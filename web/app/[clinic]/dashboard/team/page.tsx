@@ -150,7 +150,7 @@ export default async function DashboardTeamPage({ params }: Props) {
                     </p>
                   </div>
                 </div>
-                {/* @ts-expect-error Server action returns ActionResult */}
+                {/* @ts-expect-error - Server action returns ActionResult which conflicts with form action types */}
                 <form action={removeInvite}>
                   <input type="hidden" name="id" value={invite.id} />
                   <input type="hidden" name="clinic" value={clinic} />

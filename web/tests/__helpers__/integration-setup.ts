@@ -199,7 +199,7 @@ async function ensureProfileVisibleToDrizzle(userId: string): Promise<void> {
         db.select().from(profiles).where(eq(profiles.id, userId)).limit(1),
         
         // Check via Supabase service client (what tests use) 
-        getServiceRoleClient().from('profiles').select('id').eq('id', userId).single()
+        getServiceRoleClient().from('profiles').select('id').eq('id', userId).maybeSingle()
       ])
       
       if (drizzleResult.length > 0 && supabaseResult.data) {
@@ -333,29 +333,25 @@ export async function createTestAuthUser(
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
       
       if (data && !error) {
         // Profile exists, now verify it's actually readable with a second query
         // to ensure it's fully committed and not just in-transaction
-        try {
-          const { data: verifyData, error: verifyError } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', userId)
-            .single()
-          
-          if (verifyData && !verifyError) {
-            profile = data
-            break
-          }
-        } catch (verifyErr) {
-          // Verification failed, continue polling
-          console.log(`[Integration Test] Profile verification failed on attempt ${attempts + 1}:`, verifyErr)
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', userId)
+          .maybeSingle()
+        
+        if (verifyData && !verifyError) {
+          profile = data
+          break
+        } else {
+          console.log(`[Integration Test] Profile verification failed on attempt ${attempts + 1}:`, verifyError?.message)
         }
       }
     } catch (error) {
-      // Handle .single() throwing when no rows found
       console.log(`[Integration Test] Profile polling attempt ${attempts + 1}/${maxAttempts}:`, error)
     }
     
@@ -430,14 +426,13 @@ export async function createTestAuthUser(
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
       
       if (data && !error) {
         finalVerified = true
         break
       }
     } catch (error) {
-      // Handle .single() throwing when no rows found
       console.log(`[Integration Test] Profile verification attempt ${i + 1}/${maxRetries} failed:`, error)
     }
     
@@ -496,36 +491,25 @@ export async function createTestPet(
   
   for (let i = 0; i < maxRetries; i++) {
     try {
+      // Use .maybeSingle() instead of .single() to avoid PostgREST coercion errors
       const { data, error } = await supabase
         .from('profiles')
         .select('id, tenant_id, full_name')
         .eq('id', ownerId)
-        .single()
+        .maybeSingle()
       
       if (data && !error) {
-        // Additional verification: ensure profile is visible via count query
-        const { count, error: countError } = await supabase
-          .from('profiles')
-          .select('id', { count: 'exact' })
-          .eq('id', ownerId)
-
-        if (!countError && count && count > 0) {
-          ownerProfile = data
-          break
-        } else {
-          lastError = countError || new Error(`Profile visibility check failed: count=${count}`)
-          console.log(`[Integration Test] Profile visibility check failed for ${ownerId} on attempt ${i + 1}/${maxRetries}`)
-        }
+        ownerProfile = data
+        break
       } else {
-        lastError = error
+        lastError = error || new Error('Profile not found')
       }
     } catch (error) {
-      lastError = error
+      lastError = error instanceof Error ? error : new Error(String(error))
       console.log(`[Integration Test] Profile verification for pet creation attempt ${i + 1}/${maxRetries}:`, error)
     }
     
     if (i < maxRetries - 1) {
-      // Exponential backoff for better stability
       const delay = Math.min(200 + (i * 100), 1000)
       await new Promise(resolve => setTimeout(resolve, delay))
     }

@@ -125,7 +125,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 // Mock auth module - reads from mockState for auth tests to work
 vi.mock('@/lib/auth', () => ({
-  withApiAuthParams: (handler: Function, _options?: { roles: string[] }) => {
+  withApiAuthParams: (handler: (...args: unknown[]) => unknown, _options?: { roles: string[] }) => {
     return async (request: Request, context: { params: Promise<Record<string, string>> }) => {
       // Import mockState dynamically to get current value
       const { mockState } = await import('@/lib/test-utils')

@@ -24,7 +24,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 // Mock the entire auth module to prevent database imports
 vi.mock('@/lib/auth', () => ({
-  withActionAuth: (handler: Function) => {
+  withActionAuth: (handler: (...args: unknown[]) => unknown) => {
     return async (...args: unknown[]) => {
       const { createClient } = await import('@/lib/supabase/server')
       const supabase = await createClient()

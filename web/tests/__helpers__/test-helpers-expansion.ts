@@ -463,7 +463,7 @@ export class TestTimeTravel {
     
     // Override new Date() for tests
     const RealDate = Date
-    // @ts-expect-error
+    // @ts-expect-error - Overriding global Date constructor for testing
     global.Date = function(...args) {
       if (args.length === 0) {
         return this.currentTime
@@ -474,7 +474,7 @@ export class TestTimeTravel {
 
   restore() {
     Date.now = this.originalNow
-    // @ts-expect-error
+    // @ts-expect-error - Restoring original global Date constructor
     global.Date = Date
   }
 
@@ -503,7 +503,7 @@ export const testNotificationCapture = {
 
   capture() {
     // Mock notification system
-    // @ts-expect-error
+    // @ts-expect-error - Mocking global Notification API for testing
     global.Notification = class MockNotification {
       static permission = 'granted'
       
@@ -525,11 +525,11 @@ export const testNotificationCapture = {
 
   reset() {
     testNotificationCapture.capturedNotifications = []
-    // @ts-expect-error
+    // @ts-expect-error - Checking if global Notification is our mock
     if (global.Notification?.prototype?.constructor?.name === 'MockNotification') {
       return
     }
-    // @ts-expect-error
+    // @ts-expect-error - Deleting mocked global Notification
     delete global.Notification
   },
 

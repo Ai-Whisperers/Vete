@@ -61,7 +61,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/auth', () => ({
-  withApiAuth: (handler: Function, _options?: Record<string, unknown>) => {
+  withApiAuth: (handler: (...args: unknown[]) => unknown, _options?: Record<string, unknown>) => {
     return async (request: NextRequest) => {
       const supabase = createMockSupabase()
       return handler({ user: mockUser, profile: mockProfile, supabase, request })

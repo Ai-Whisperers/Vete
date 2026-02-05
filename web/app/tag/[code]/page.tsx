@@ -108,7 +108,7 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
             </div>
           ) : (
             <form
-              // @ts-expect-error Server action returns ActionResult
+              // @ts-expect-error - Server action returns ActionResult which conflicts with form action types
               action={assignTag} className="space-y-4">
               <input type="hidden" name="tagCode" value={code} />
               <label className="block text-sm font-bold uppercase tracking-wider text-gray-400">

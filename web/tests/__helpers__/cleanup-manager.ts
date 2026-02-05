@@ -256,6 +256,7 @@ export type CleanupTable = (typeof COMPLETE_TABLE_DEPENDENCY_ORDER)[number]
 export class CleanupManager {
   private mode: CleanupMode = 'test'
   private trackedResources: Map<string, Set<string>> = new Map()
+  private checkpointResources: Map<string, Set<string>> | null = null
   private client: SupabaseClient | null = null
   private static instance: CleanupManager | null = null
 
@@ -355,6 +356,58 @@ export class CleanupManager {
       count += ids.size
     })
     return count
+  }
+
+  /**
+   * Save a checkpoint of currently tracked resources.
+   * Call after beforeAll to preserve shared resources.
+   * afterEach should then use cleanupSinceCheckpoint() instead of cleanupWithRetry().
+   */
+  checkpoint(): void {
+    this.checkpointResources = new Map()
+    this.trackedResources.forEach((ids, table) => {
+      this.checkpointResources!.set(table, new Set(ids))
+    })
+  }
+
+  /**
+   * Clean up only resources added SINCE the last checkpoint.
+   * Preserves beforeAll resources while cleaning per-test resources.
+   */
+  async cleanupSinceCheckpoint(): Promise<CleanupResult> {
+    if (!this.checkpointResources) {
+      // No checkpoint set — clean everything
+      return this.cleanupWithRetry()
+    }
+
+    // Identify resources added since checkpoint
+    const newResources = new Map<string, Set<string>>()
+    this.trackedResources.forEach((ids, table) => {
+      const checkpointIds = this.checkpointResources!.get(table) || new Set()
+      const newIds = new Set<string>()
+      ids.forEach((id) => {
+        if (!checkpointIds.has(id)) {
+          newIds.add(id)
+        }
+      })
+      if (newIds.size > 0) {
+        newResources.set(table, newIds)
+      }
+    })
+
+    // Temporarily swap tracked resources to only clean new ones
+    const savedResources = this.trackedResources
+    this.trackedResources = newResources
+
+    const result = await this.cleanupWithRetry()
+
+    // Restore checkpoint resources (the shared/beforeAll ones)
+    this.trackedResources = new Map()
+    this.checkpointResources!.forEach((ids, table) => {
+      this.trackedResources.set(table, new Set(ids))
+    })
+
+    return result
   }
 
   /**

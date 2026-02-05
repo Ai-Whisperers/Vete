@@ -60,7 +60,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/auth', () => ({
-  withApiAuthParams: (handler: Function, _options?: { roles: string[] }) => {
+  withApiAuthParams: (handler: (...args: unknown[]) => unknown, _options?: { roles: string[] }) => {
     return async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
       const supabase = createMockSupabase()
       const params = await context.params

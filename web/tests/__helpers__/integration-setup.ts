@@ -189,27 +189,48 @@ async function ensureProfileVisibleToDrizzle(userId: string): Promise<void> {
   const { eq } = await import('drizzle-orm')
   
   let attempts = 0
-  const maxAttempts = 20
+  const maxAttempts = 30 // Increased from 20
   
   while (attempts < maxAttempts) {
     try {
-      const result = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1)
-      if (result.length > 0) {
-        return // Profile is visible
+      // Try multiple verification methods to ensure profile visibility across all connection types
+      const [drizzleResult, supabaseResult] = await Promise.all([
+        // Check via Drizzle (what API routes use)
+        db.select().from(profiles).where(eq(profiles.id, userId)).limit(1),
+        
+        // Check via Supabase service client (what tests use) 
+        getServiceRoleClient().from('profiles').select('id').eq('id', userId).single()
+      ])
+      
+      if (drizzleResult.length > 0 && supabaseResult.data) {
+        // Profile is visible to both connection types
+        console.log(`[Integration Test] Profile ${userId} verified visible via both Drizzle and Supabase`)
+        return
       }
+      
+      if (drizzleResult.length === 0) {
+        console.warn(`[Integration Test] Profile ${userId} not visible to Drizzle on attempt ${attempts + 1}`)
+      }
+      
+      if (!supabaseResult.data || supabaseResult.error) {
+        console.warn(`[Integration Test] Profile ${userId} not visible to Supabase on attempt ${attempts + 1}:`, supabaseResult.error)
+      }
+      
     } catch (error) {
-      console.warn(`[Integration Test] Drizzle visibility check failed on attempt ${attempts + 1}:`, error)
+      console.warn(`[Integration Test] Profile visibility check failed on attempt ${attempts + 1}:`, error)
     }
     
     attempts++
     if (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Progressive backoff: start with 200ms, increase to max 1000ms
+      const delay = Math.min(200 + (attempts * 100), 1000)
+      await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
   
   throw new Error(
     `[Integration Test] Profile ${userId} not visible to Drizzle after ${maxAttempts} attempts. ` +
-    `This indicates a database connectivity or transaction isolation issue.`
+    `This indicates a persistent database connectivity or transaction isolation issue.`
   )
 }
 

@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Dynamic PDF Component Wrapper
  * 

@@ -1,3 +1,5 @@
+'use client'
+
 import { requireStaff } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { getClinicData } from '@/lib/clinics'

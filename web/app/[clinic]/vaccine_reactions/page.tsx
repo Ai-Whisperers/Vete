@@ -1,3 +1,5 @@
+'use client'
+
 // Server component wrapper for Vaccine Reactions page
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'

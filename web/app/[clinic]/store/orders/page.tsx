@@ -1,3 +1,5 @@
+'use client'
+
 import { getClinicData } from '@/lib/clinics'
 import { notFound } from 'next/navigation'
 import dynamic from 'next/dynamic'

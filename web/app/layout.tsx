@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { WebVitalsTracker } from '@/components/analytics/WebVitalsTracker'
 import { getMetadataBaseUrl } from '@/lib/config'
 import './globals.css'
 
@@ -41,6 +42,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
+        <WebVitalsTracker />
       </body>
     </html>
   )

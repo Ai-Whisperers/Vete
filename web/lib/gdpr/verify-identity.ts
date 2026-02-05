@@ -201,17 +201,35 @@ export async function sendVerificationEmail(
     `,
   }
 
-  // TODO: Implement actual email sending
-  // In production, this would call your email service:
-  // await sendEmail(emailContent)
+  // Send email using the unified email service
+  const { sendEmail } = await import('@/lib/email/service')
   
-  // Development only: log email content
-  if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.info('[GDPR] Verification email would be sent:', {
+  try {
+    const result = await sendEmail({
       to: emailContent.to,
       subject: emailContent.subject,
+      html: emailContent.html,
+      priority: 'high',
+      tags: ['gdpr', 'verification', requestType],
     })
+
+    if (!result.success) {
+      throw new Error(`Failed to send verification email: ${result.error}`)
+    }
+  } catch (error) {
+    // Log error but don't fail the verification process
+    console.error('[GDPR] Failed to send verification email:', error)
+    
+    // In development, still log the content for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.info('[GDPR] Email content that failed to send:', {
+        to: emailContent.to,
+        subject: emailContent.subject,
+      })
+    }
+    
+    // Re-throw error as this is critical for GDPR compliance
+    throw error
   }
 }
 

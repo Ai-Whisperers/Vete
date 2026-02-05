@@ -457,7 +457,7 @@ export async function notifyStaff(payload: {
       tenantId: payload.tenantId,
       title: payload.title,
       message: payload.message,
-      channels: channels as any[],
+      channels: channels,
       data: { ...payload.data, staffRole: staff.role },
     }
 

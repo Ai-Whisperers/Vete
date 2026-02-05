@@ -510,7 +510,7 @@ export class StoreService {
   /**
    * Map database errors to user-friendly messages
    */
-  private mapDatabaseError(error: any): string {
+  private mapDatabaseError(error: unknown): string {
     if (error?.code === '23505') {
       return 'This item already exists in the system';
     }

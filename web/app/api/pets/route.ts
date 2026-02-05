@@ -3,6 +3,7 @@ import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { PetService, type CreatePetData, type PetListFilters } from '@/lib/services/pet-service'
+import { VaccineService } from '@/lib/services/vaccine-service'
 import { PET_SPECIES } from '@/lib/schemas/pet'
 import { z } from 'zod'
 
@@ -187,15 +188,31 @@ export const GET = withApiAuth(async ({ user, profile, supabase, request }: ApiH
   }
 
   // Map to include vaccine status for compatibility with existing API consumers
-  const petsWithVaccines = result.data.map((pet) => ({
-    id: pet.id,
-    name: pet.name,
-    species: pet.species,
-    breed: pet.breed,
-    birth_date: pet.birth_date,
-    photo_url: pet.photo_url,
-    vaccines: [], // TODO: Add vaccine join in service if needed for this endpoint
-  }))
+  const vaccineService = new VaccineService(supabase)
+  
+  const petsWithVaccines = await Promise.all(
+    result.data.map(async (pet) => {
+      // Fetch vaccines for each pet
+      const vaccineResult = await vaccineService.getPetVaccines(pet.id, profile.tenant_id)
+      const vaccines = vaccineResult.success ? vaccineResult.data : []
+      
+      return {
+        id: pet.id,
+        name: pet.name,
+        species: pet.species,
+        breed: pet.breed,
+        birth_date: pet.birth_date,
+        photo_url: pet.photo_url,
+        vaccines: vaccines.map(vaccine => ({
+          id: vaccine.id,
+          name: vaccine.name,
+          administered_date: vaccine.administered_date,
+          next_due_date: vaccine.next_due_date,
+          status: vaccine.status,
+        })),
+      }
+    })
+  )
 
   return NextResponse.json(petsWithVaccines, { status: 200 })
 })

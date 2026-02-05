@@ -319,61 +319,16 @@ export async function POST(request: NextRequest) {
       code: rpcError.code,
     })
 
-    // Provide specific error messages based on error code
+    // Migration 090 has been applied, atomic function should exist
     if (rpcError.code === '42883') {
-      // Function doesn't exist - database not migrated
-      logger.warn('merge_cart_atomic function not found - falling back to non-atomic merge')
-
-      // Fallback to non-atomic merge (legacy behavior)
-      // TODO: Remove this fallback after migration 090 is applied
-      const { data: existingCart } = await supabase
-        .from('store_carts')
-        .select('items')
-        .eq('customer_id', user.id)
-        .eq('tenant_id', tenantId)
-        .single()
-
-      let mergedItems = localItems
-
-      if (existingCart?.items && Array.isArray(existingCart.items)) {
-        const existingMap = new Map<string, (typeof localItems)[0]>()
-
-        for (const item of existingCart.items) {
-          const key = `${item.id}-${item.type}`
-          existingMap.set(key, item)
-        }
-
-        for (const localItem of localItems) {
-          const key = `${localItem.id}-${localItem.type}`
-          const existing = existingMap.get(key)
-
-          if (existing) {
-            existing.quantity = Math.max(existing.quantity, localItem.quantity)
-          } else {
-            existingMap.set(key, localItem)
-          }
-        }
-
-        mergedItems = Array.from(existingMap.values())
-      }
-
-      const { error: upsertError } = await supabase.from('store_carts').upsert({
-        customer_id: user.id,
-        tenant_id: tenantId,
-        items: mergedItems,
-        updated_at: new Date().toISOString(),
-      })
-
-      if (upsertError) {
-        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-          details: { message: 'Error al fusionar carrito' },
-        })
-      }
-
-      return NextResponse.json({
-        success: true,
-        items: mergedItems,
-        fallback: true,
+      // Function doesn't exist - this should not happen after migration 090
+      logger.error('merge_cart_atomic function not found - migration 090 may not be applied correctly')
+      
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { 
+          message: 'Función de carrito no disponible',
+          context: 'missing_atomic_function'
+        },
       })
     }
 

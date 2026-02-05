@@ -545,16 +545,17 @@ async function setupTestCoupon(supabase: SupabaseClient): Promise<void> {
     return
   }
 
-  // DISABLED: Create 20% discount coupon for E2E tests
-  // TODO: Fix schema - 'discount_type' column doesn't exist
-  /* const { error } = await supabase.from('store_coupons').insert({
+  // Create 20% discount coupon for E2E tests
+  const { error } = await supabase.from('store_coupons').insert({
     tenant_id: E2E_TEST_TENANT,
     code: couponCode,
-    discount_type: 'percentage',
-    discount_value: 20,
+    name: 'E2E Test Coupon',
+    description: 'Test coupon for E2E testing - 20% discount',
+    type: 'percentage', // Column is 'type', not 'discount_type'
+    value: 20,
     usage_limit: 1000,
-    valid_from: new Date().toISOString(),
-    valid_until: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+    starts_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
     is_active: true,
   })
 
@@ -562,8 +563,7 @@ async function setupTestCoupon(supabase: SupabaseClient): Promise<void> {
     console.warn(`[E2E Setup] Failed to create test coupon: ${error.message}`)
   } else {
     console.log('[E2E Setup] Created test coupon: E2ETEST20 (20% off)')
-  } */
-  console.log('[E2E Setup] Skipped test coupon creation (schema mismatch)')
+  }
 }
 
 /**
@@ -651,18 +651,16 @@ async function setupTestLoyaltyPoints(
   supabase: SupabaseClient,
   userId: string
 ): Promise<number> {
-  console.log('[E2E Setup] Skipping test loyalty points setup (schema mismatch)...')
-  // DISABLED: loyalty_points 'user_id' column doesn't exist
-  // TODO: Fix schema mismatch
-  return 0
-
-  /* const initialPoints = 5000
+  console.log('[E2E Setup] Setting up test loyalty points...')
+  
+  const initialPoints = 5000
 
   // Check if loyalty record exists
   const { data: existingLoyalty } = await supabase
     .from('loyalty_points')
     .select('id, balance')
-    .eq('user_id', userId)
+    .eq('client_id', userId) // Column is 'client_id', not 'user_id'
+    .eq('tenant_id', E2E_TEST_TENANT)
     .single()
 
   if (existingLoyalty) {
@@ -672,10 +670,11 @@ async function setupTestLoyaltyPoints(
 
   // Create loyalty record
   const { error } = await supabase.from('loyalty_points').insert({
-    user_id: userId,
+    client_id: userId, // Column is 'client_id', not 'user_id'
     tenant_id: E2E_TEST_TENANT,
     balance: initialPoints,
     lifetime_earned: initialPoints,
+    tier: 'bronze',
   })
 
   if (error) {
@@ -683,17 +682,21 @@ async function setupTestLoyaltyPoints(
     return 0
   }
 
-  // Create initial transaction
-  await supabase.from('loyalty_transactions').insert({
-    clinic_id: E2E_TEST_TENANT,
-    user_id: userId,
+  // Create initial transaction (check if loyalty_transactions table exists)
+  const { error: transactionError } = await supabase.from('loyalty_transactions').insert({
+    tenant_id: E2E_TEST_TENANT,
+    client_id: userId,
     points: initialPoints,
     description: 'E2E Test - Puntos iniciales',
     type: 'earned',
-  })
+  }).catch(() => ({ error: 'Table may not exist' }))
+
+  if (transactionError) {
+    console.warn(`[E2E Setup] Failed to create loyalty transaction (table may not exist): ${transactionError}`)
+  }
 
   console.log(`[E2E Setup] Created loyalty balance: ${initialPoints}`)
-  return initialPoints */
+  return initialPoints
 }
 
 /**

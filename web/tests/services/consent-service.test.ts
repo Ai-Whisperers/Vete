@@ -602,7 +602,7 @@ describe('ConsentService', () => {
     it('revokes a signed document', async () => {
       const currentDoc = {
         tenant_id: 'tenant-abc',
-        template: { can_be_revoked: true },
+        template: [{ can_be_revoked: true }],
       };
       const revokedDoc = createMockDocument({
         status: 'revoked',

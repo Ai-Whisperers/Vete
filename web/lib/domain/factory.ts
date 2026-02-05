@@ -21,6 +21,8 @@ import { MessagingService } from './messaging'
 import { ReminderService } from './reminders'
 import { SafetyService } from './safety'
 import { VaccineService } from './vaccines'
+import { UserService } from './users'
+import { InventoryService } from './inventory'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
@@ -45,10 +47,9 @@ export class DomainFactory {
     return new PaymentService(this.supabase)
   }
 
-  // TODO: Migrate UserService to domain pattern
-  // createUserService(): UserService {
-  //   return new UserService(this.supabase)
-  // }
+  createUserService(): UserService {
+    return new UserService(this.supabase)
+  }
 
   // ===========================================================================
   // CLINICAL DOMAINS
@@ -78,10 +79,9 @@ export class DomainFactory {
   // OPERATIONAL DOMAINS
   // ===========================================================================
 
-  // TODO: Migrate these services to domain pattern
-  // createInventoryService(): InventoryService {
-  //   return new InventoryService(this.supabase)
-  // }
+  createInventoryService(): InventoryService {
+    return new InventoryService(this.supabase)
+  }
 
   // createStoreService(): StoreService {
   //   return new StoreService(this.supabase)

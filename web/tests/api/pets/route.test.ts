@@ -70,7 +70,7 @@ describe('API: /api/pets', () => {
       // Get auth token for first owner
       const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const request = createTestRequest('http://localhost:3000/api/pets', {
+      const request = createTestRequest(`http://localhost:3000/api/pets?userId=${ownerUser.profile.id}`, {
         authToken,
       })
 
@@ -96,7 +96,7 @@ describe('API: /api/pets', () => {
       // Get auth token for vet
       const authToken = await getAuthTokenFromUser(vetUser)
 
-      const request = createTestRequest('http://localhost:3000/api/pets', {
+      const request = createTestRequest(`http://localhost:3000/api/pets?userId=${vetUser.profile.id}`, {
         authToken,
       })
 
@@ -119,7 +119,7 @@ describe('API: /api/pets', () => {
 
       const authToken = await getAuthTokenFromUser(ownerUser)
 
-      const request = createTestRequest('http://localhost:3000/api/pets?search=fluffy', {
+      const request = createTestRequest(`http://localhost:3000/api/pets?userId=${ownerUser.profile.id}&query=fluffy`, {
         authToken,
       })
 

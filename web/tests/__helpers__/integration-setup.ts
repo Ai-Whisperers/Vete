@@ -468,31 +468,45 @@ export async function createTestPet(
     birth_date: string
   }> = {}
 ): Promise<{ id: string; name: string; species: string }> {
-  // Verify owner profile exists before creating pet with retry logic
+  // Verify owner profile exists before creating pet with enhanced retry logic
   let ownerProfile = null
-  const maxRetries = 5
+  const maxRetries = 10 // Increased from 5
   let lastError = null
   
   for (let i = 0; i < maxRetries; i++) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, tenant_id, full_name')
         .eq('id', ownerId)
         .single()
       
       if (data && !error) {
-        ownerProfile = data
-        break
+        // Additional verification: ensure profile is visible via count query
+        const { count, error: countError } = await supabase
+          .from('profiles')
+          .select('id', { count: 'exact' })
+          .eq('id', ownerId)
+
+        if (!countError && count && count > 0) {
+          ownerProfile = data
+          break
+        } else {
+          lastError = countError || new Error(`Profile visibility check failed: count=${count}`)
+          console.log(`[Integration Test] Profile visibility check failed for ${ownerId} on attempt ${i + 1}/${maxRetries}`)
+        }
+      } else {
+        lastError = error
       }
-      lastError = error
     } catch (error) {
       lastError = error
       console.log(`[Integration Test] Profile verification for pet creation attempt ${i + 1}/${maxRetries}:`, error)
     }
     
     if (i < maxRetries - 1) {
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Exponential backoff for better stability
+      const delay = Math.min(200 + (i * 100), 1000)
+      await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
   

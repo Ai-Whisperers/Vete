@@ -66,8 +66,13 @@ function createChainableMock<T>(response: {
     'delete',
     'upsert',
   ];
+  
+  // Create a fresh mock object each time to avoid state pollution
   chainMethods.forEach((method) => {
-    mockObj[method] = vi.fn().mockImplementation(() => mockObj);
+    mockObj[method] = vi.fn().mockImplementation(() => {
+      // Return a fresh chainable mock to maintain chain but avoid state issues
+      return createChainableMock(response);
+    });
   });
 
   mockObj.single = vi.fn().mockResolvedValue(response);
@@ -593,10 +598,8 @@ describe('ConsentService', () => {
   });
 
   describe('revokeDocument', () => {
-    // TODO: Fix mock setup - mockReturnValueOnce chain doesn't work correctly
-    // with chainable query mocks. The service logic is correct; this is a test infrastructure issue.
-    // Ticket: AUDIT-200
-    it.skip('revokes a signed document', async () => {
+    // Fixed: Use sequential mock setup instead of chained mockReturnValueOnce
+    it('revokes a signed document', async () => {
       const currentDoc = {
         tenant_id: 'tenant-abc',
         template: { can_be_revoked: true },
@@ -607,10 +610,19 @@ describe('ConsentService', () => {
         revoked_reason: 'Patient request',
       });
 
-      mockClient.from
-        .mockReturnValueOnce(createChainableMock({ data: currentDoc, error: null }))
-        .mockReturnValueOnce(createChainableMock({ data: revokedDoc, error: null }))
-        .mockReturnValueOnce(createChainableMock({ data: null, error: null }));
+      // Set up mocks sequentially for each call
+      let callCount = 0;
+      mockClient.from.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return createChainableMock({ data: currentDoc, error: null });
+        } else if (callCount === 2) {
+          return createChainableMock({ data: revokedDoc, error: null });
+        } else if (callCount === 3) {
+          return createChainableMock({ data: null, error: null });
+        }
+        return createChainableMock({ data: null, error: null });
+      });
 
       const result = await service.revokeDocument(
         'doc-456',

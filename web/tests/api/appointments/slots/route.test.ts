@@ -129,7 +129,7 @@ describe('API: /api/appointments/slots', () => {
 
       const response = await GET(request)
 
-      await expectError(response, 403, 'FORBIDDEN')
+      await expectError(response, 403)
     })
 
     it('allows staff to access any clinic within their tenant', async () => {

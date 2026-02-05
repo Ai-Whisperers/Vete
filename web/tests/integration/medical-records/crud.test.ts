@@ -7,7 +7,7 @@
 
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
-import { createProfile, createPet, resetSequence, pastDate } from '../../__helpers__/factories'
+import { createProfile, createPet, resetSequence } from '../../__helpers__/factories'
 import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 
 describe('Medical Records CRUD', () => {

@@ -275,7 +275,7 @@ export function PrescriptionUpload({
     if (fileType === 'image' && previewUrl) {
       return (
         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img
             src={previewUrl}
             alt={t('previewAlt')}
@@ -386,7 +386,7 @@ export function PrescriptionUpload({
             {/* Show preview during upload for images */}
             {fileType === 'image' && previewUrl ? (
               <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <img
                   src={previewUrl}
                   alt={t('previewLoading')}

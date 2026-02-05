@@ -115,7 +115,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
                 {item.image_url ? (
                   <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" />
                   </>
                 ) : item.type === 'service' ? (
@@ -243,7 +243,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-gray-100/50 bg-gray-50 sm:h-24 sm:w-24">
                           {item.image_url ? (
                             <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              { }
                               <img
                                 src={item.image_url}
                                 alt={item.name}

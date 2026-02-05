@@ -296,7 +296,7 @@ export default function RemoteSigningPage(): JSX.Element {
           owner={request.owner}
           onSubmit={handleSubmit}
           onCancel={() => {
-            // eslint-disable-next-line no-alert
+             
             if (confirm('¿Está seguro que desea cancelar? Perderá todo el progreso.')) {
               window.close()
             }

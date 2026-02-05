@@ -416,7 +416,7 @@ export default function CatalogApprovalsClient({
                         <div className="flex items-center gap-3">
                           {product.images?.[0] ? (
                             <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              { }
                               <img
                                 src={product.images[0]}
                                 alt={product.name}
@@ -555,7 +555,7 @@ export default function CatalogApprovalsClient({
               <div className="flex gap-6">
                 {selectedProduct.images?.[0] ? (
                   <div className="relative h-32 w-32 overflow-hidden rounded-xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     <img
                       src={selectedProduct.images[0]}
                       alt={selectedProduct.name}

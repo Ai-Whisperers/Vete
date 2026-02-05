@@ -451,9 +451,9 @@ describe('PetService Integration Tests', () => {
 
   describe('Edge Cases', () => {
     it('should handle concurrent reads gracefully', async () => {
-      // Fire multiple list requests simultaneously
+      // Fire multiple list requests simultaneously for the owner
       const promises = Array(10).fill(null).map(() =>
-        service.list(ownerId, tenantId)
+        service.list(ownerId, tenantId, {}, false) // Explicitly set isStaff=false
       );
 
       const results = await Promise.all(promises);
@@ -461,7 +461,14 @@ describe('PetService Integration Tests', () => {
       results.forEach(result => {
         expect(result.success).toBe(true);
         expect(result.data).toBeDefined();
-        expect(result.data!.length).toBe(2); // Max and Luna
+        // Should return only the owner's pets, regardless of how many exist in total
+        const ownerPets = result.data!.filter(pet => pet.owner_id === ownerId);
+        expect(ownerPets.length).toBeGreaterThanOrEqual(2); // At least Max and Luna
+        
+        // All returned pets should belong to this owner when isStaff=false
+        result.data!.forEach(pet => {
+          expect(pet.owner_id).toBe(ownerId);
+        });
       });
     });
 

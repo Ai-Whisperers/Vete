@@ -380,19 +380,8 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
-        rpcResult: false, // No overlap
+        rpcResult: { success: true, new_start_time: futureDate(14), new_end_time: futureDate(14) }, // Successful reschedule
       })
-
-      // Mock successful update
-      mockSupabase.from = vi.fn((table: string) => ({
-        select: vi.fn().mockReturnThis(),
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: table === 'profiles' ? USERS.OWNER_A.profile : appointment,
-          error: null,
-        }),
-      }))
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
@@ -419,6 +408,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
+        rpcResult: { success: false, message: 'No tienes permiso para reprogramar esta cita' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
@@ -475,6 +465,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
+        rpcResult: { success: false, message: 'Esta cita no puede ser reprogramada' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
@@ -503,7 +494,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
-        rpcResult: true, // Has overlap
+        rpcResult: { success: false, message: 'El horario no está disponible' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)

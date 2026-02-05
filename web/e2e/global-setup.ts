@@ -683,13 +683,19 @@ async function setupTestLoyaltyPoints(
   }
 
   // Create initial transaction (check if loyalty_transactions table exists)
-  const { error: transactionError } = await supabase.from('loyalty_transactions').insert({
-    tenant_id: E2E_TEST_TENANT,
-    client_id: userId,
-    points: initialPoints,
-    description: 'E2E Test - Puntos iniciales',
-    type: 'earned',
-  }).catch(() => ({ error: 'Table may not exist' }))
+  let transactionError: string | null = null
+  try {
+    const { error } = await supabase.from('loyalty_transactions').insert({
+      tenant_id: E2E_TEST_TENANT,
+      client_id: userId,
+      points: initialPoints,
+      description: 'E2E Test - Puntos iniciales',
+      type: 'earned',
+    })
+    if (error) transactionError = error.message
+  } catch {
+    transactionError = 'Table may not exist'
+  }
 
   if (transactionError) {
     console.warn(`[E2E Setup] Failed to create loyalty transaction (table may not exist): ${transactionError}`)

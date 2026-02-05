@@ -33,9 +33,68 @@ export * from './clinical-tools'
 // OPERATIONAL DOMAINS
 // ===========================================================================
 
-export * from './inventory'
-export * from './consent'
-export * from './store'
+export { InventoryRepository, InventoryService, createInventoryService } from './inventory'
+export type {
+  TransactionType,
+  Inventory,
+  InventoryTransaction,
+  InventoryWithProduct,
+  CreateInventoryData,
+  UpdateInventoryData,
+  StockAdjustmentData,
+  InventoryData,
+  InventoryFilters,
+  TransactionFilters,
+  InventoryStats,
+  LowStockItem,
+  ExpiryItem,
+  StockValuation,
+  TransactionSummary,
+} from './inventory'
+export { ConsentRepository, ConsentService, createConsentService } from './consent'
+export type {
+  ConsentCategory,
+  ConsentPreferenceType,
+  ConsentSource,
+  ConsentDocumentStatus,
+  ConsentAuditAction,
+  ConsentTemplate,
+  ConsentTemplateVersion,
+  ConsentDocument,
+  ConsentPreference,
+  ConsentPreferenceAudit,
+  ConsentAuditLog,
+  CreateTemplateData,
+  UpdateTemplateData,
+  CreateDocumentData,
+  SignDocumentData,
+  RevokeDocumentData,
+  UpdatePreferenceData,
+  TemplateFilters,
+  DocumentFilters,
+  ConsentAnalytics,
+} from './consent'
+export { StoreRepository, StoreService } from './store'
+export type {
+  OrderStatus,
+  CartItemType,
+  Product,
+  ProductWithStock,
+  CartItem,
+  Cart,
+  Order,
+  OrderWithItems,
+  CartItemJsonb,
+  ProductRow,
+  CheckoutInput,
+  AddToCartInput,
+  UpdateCartItemInput,
+  ProductFilters,
+  OrderFilters,
+  CartSummary,
+  OrderStats,
+  ProductAnalytics,
+} from './store'
 
 // ===========================================================================
 // COMMUNICATION DOMAINS

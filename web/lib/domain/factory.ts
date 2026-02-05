@@ -23,6 +23,7 @@ import { SafetyService } from './safety'
 import { VaccineService } from './vaccines'
 import { UserService } from './users'
 import { InventoryService } from './inventory'
+import { ConsentService } from './consent'
 
 export class DomainFactory {
   constructor(private supabase: SupabaseClient) {}
@@ -87,9 +88,9 @@ export class DomainFactory {
   //   return new StoreService(this.supabase)
   // }
 
-  // createConsentService(): ConsentService {
-  //   return new ConsentService(this.supabase)
-  // }
+  createConsentService(): ConsentService {
+    return new ConsentService(this.supabase)
+  }
 
   // ===========================================================================
   // COMMUNICATION DOMAINS

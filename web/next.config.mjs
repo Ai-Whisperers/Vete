@@ -22,7 +22,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
-img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://us-satisfyer.imb-images.com https://assets.lelo.com https://uberlube.com https://sliquid.com https://cdn.we-vibe.com https://cdn.bvibe.com;
+img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://acdn-us.mitiendanube.com https://adimax.com.br https://agropecuariaelproductor.com https://budgetvetcare.b-cdn.net https://canadapetcare.b-cdn.net https://koniglab.com https://mma.prnewswire.com https://naricitas.pet https://www.alisul.com.br https://www.ciudaddemascotas.com https://www.direct4pet.co.uk https://www.farmina.com https://www.ferplast.com https://www.msd-animal-health-hub.co.uk https://www.nutrire.ind.br https://www.pedigree.com.mx https://www.petshed.com https://www.schroedercia.com.py https://www.vetoquinolusa.com https://placehold.co;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
@@ -31,7 +31,7 @@ img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.or
     default-src 'self';
     script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
-    img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://us-satisfyer.imb-images.com https://assets.lelo.com https://uberlube.com https://sliquid.com https://cdn.we-vibe.com https://cdn.bvibe.com;
+    img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://acdn-us.mitiendanube.com https://adimax.com.br https://agropecuariaelproductor.com https://budgetvetcare.b-cdn.net https://canadapetcare.b-cdn.net https://koniglab.com https://mma.prnewswire.com https://naricitas.pet https://www.alisul.com.br https://www.ciudaddemascotas.com https://www.direct4pet.co.uk https://www.farmina.com https://www.ferplast.com https://www.msd-animal-health-hub.co.uk https://www.nutrire.ind.br https://www.pedigree.com.mx https://www.petshed.com https://www.schroedercia.com.py https://www.vetoquinolusa.com https://placehold.co;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
@@ -265,39 +265,99 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'purina.com.py',
       },
-      // Fun4Me adult store product images
+      // Additional legitimate product sources
       {
         protocol: 'https',
         hostname: 'images.pexels.com',
       },
       {
         protocol: 'https',
-        hostname: 'us-satisfyer.imb-images.com',
+        hostname: 'acdn-us.mitiendanube.com',
       },
       {
         protocol: 'https',
-        hostname: 'assets.lelo.com',
+        hostname: 'adimax.com.br',
       },
       {
         protocol: 'https',
-        hostname: 'uberlube.com',
+        hostname: 'agropecuariaelproductor.com',
       },
       {
         protocol: 'https',
-        hostname: 'sliquid.com',
+        hostname: 'budgetvetcare.b-cdn.net',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.we-vibe.com',
+        hostname: 'canadapetcare.b-cdn.net',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.bvibe.com',
+        hostname: 'koniglab.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mma.prnewswire.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'naricitas.pet',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.alisul.com.br',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ciudaddemascotas.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.direct4pet.co.uk',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.farmina.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ferplast.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.msd-animal-health-hub.co.uk',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.nutrire.ind.br',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pedigree.com.mx',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.petshed.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.schroedercia.com.py',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.vetoquinolusa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Enable lazy loading by default and add quality optimization
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days cache
+    dangerouslyAllowSVG: false, // Security: prevent SVG XSS attacks
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;", // SVG CSP if enabled
   },
 
   // Security headers

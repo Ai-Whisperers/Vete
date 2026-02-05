@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PublicPetProfile } from '@/components/public-pet-profile'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { assignTag } from '@/app/actions/assign-tag'
 
 // Server Component
@@ -129,7 +130,13 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                     />
                     <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-100">
                       {pet.photo_url ? (
-                        <img src={pet.photo_url} alt={`Foto de ${pet.name}`} className="h-full w-full object-cover" />
+                        <Image 
+                          src={pet.photo_url} 
+                          alt={`Foto de ${pet.name}`} 
+                          fill
+                          sizes="40px"
+                          className="object-cover" 
+                        />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-gray-300">
                           <Icons.PawPrint className="h-5 w-5" />

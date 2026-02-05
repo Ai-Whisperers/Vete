@@ -24,6 +24,7 @@ import {
 import type { Coupon, CouponsPagination } from '../types'
 import { CouponStatusBadge } from './CouponStatusBadge'
 import { formatDiscountValue, formatDate, copyToClipboard } from '../utils'
+import { useTranslations } from 'next-intl'
 
 interface CouponsTableProps {
   coupons: Coupon[]
@@ -46,6 +47,7 @@ export function CouponsTable({
   onPageChange,
   onCreateNew,
 }: CouponsTableProps): React.ReactElement {
+  const t = useTranslations()
   if (loading) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -242,14 +244,14 @@ function CouponRow({ coupon, onEdit, onDelete }: CouponRowProps): React.ReactEle
           <button
             onClick={() => onEdit(coupon)}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-            title="Editar"
+            title={t('common.edit')}
           >
             <Pencil className="h-4 w-4 text-gray-500" />
           </button>
           <button
             onClick={() => onDelete(coupon.id)}
             className="rounded-lg p-2 transition-colors hover:bg-red-50"
-            title="Eliminar"
+            title={t('common.delete')}
           >
             <Trash2 className="h-4 w-4 text-red-500" />
           </button>

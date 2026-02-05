@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import * as Icons from 'lucide-react'
 import { CancelButton, RescheduleDialog } from '@/components/appointments'
 import {
@@ -118,7 +119,13 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg">
               {pet.photo_url ? (
-                <img src={pet.photo_url} alt={pet.name} className="h-full w-full object-cover" />
+                <Image 
+                  src={pet.photo_url} 
+                  alt={pet.name} 
+                  fill
+                  sizes="64px"
+                  className="object-cover" 
+                />
               ) : (
                 <SpeciesIcon className="h-8 w-8 text-[var(--primary)]" />
               )}

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import * as Icons from 'lucide-react'
 
 import { ReportFoundButton } from '@/components/safety/report-found-button'
@@ -55,7 +56,13 @@ export default async function ScanPage({ params }: { params: Promise<{ id: strin
           {/* Pet Photo */}
           {pet.photo_url && (
             <div className="relative h-64 overflow-hidden bg-gray-100">
-              <img src={pet.photo_url} alt={pet.name} className="h-full w-full object-cover" />
+              <Image 
+                src={pet.photo_url} 
+                alt={pet.name} 
+                fill
+                sizes="(max-width: 768px) 100vw, 672px"
+                className="object-cover" 
+              />
             </div>
           )}
 

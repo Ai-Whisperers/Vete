@@ -276,7 +276,6 @@ describe('API: /api/medical-records', () => {
         pet_id: pet.id,
         type: 'consultation',
         title: 'Consulta General',
-        diagnosis: 'Paciente en buen estado',
         notes: 'Sin hallazgos relevantes',
       }
 
@@ -293,7 +292,7 @@ describe('API: /api/medical-records', () => {
       expect(data.type).toBe('consultation')
       expect(data.title).toBe('Consulta General')
       expect(data.tenant_id).toBe(TEST_TENANT_ID)
-      expect(data.performed_by).toBe(vetUser.userId)
+      // Note: performed_by field removed as it doesn't exist in database schema
 
       if (data.id) cleanupManager.track('medical_records', data.id)
     })

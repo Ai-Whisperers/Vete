@@ -151,7 +151,6 @@ export const POST = withApiAuth(
       .insert({
         pet_id,
         tenant_id: profile.tenant_id,
-        performed_by: user.id,
         type,
         title,
         notes: notes || null,

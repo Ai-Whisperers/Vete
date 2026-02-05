@@ -1,7 +1,18 @@
 import { requireStaff } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { getClinicData } from '@/lib/clinics'
-import LostPetDetailClient from './client'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+// Dynamic import for code splitting
+const LostPetDetailClient = dynamic(() => import('./client'), {
+  loading: () => (
+    <div className="flex justify-center items-center min-h-96">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>
+  ),
+  ssr: false
+})
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>
@@ -24,5 +35,13 @@ export default async function LostPetDetailPage({ params }: Props): Promise<Reac
     notFound()
   }
 
-  return <LostPetDetailClient clinic={clinic} reportId={id} />
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <LostPetDetailClient clinic={clinic} reportId={id} />
+    </Suspense>
+  )
 }

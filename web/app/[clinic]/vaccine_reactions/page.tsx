@@ -1,5 +1,16 @@
 // Server component wrapper for Vaccine Reactions page
-import VaccineReactionsClient from './client'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+// Dynamic import for code splitting
+const VaccineReactionsClient = dynamic(() => import('./client'), {
+  loading: () => (
+    <div className="flex justify-center items-center min-h-96">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>
+  ),
+  ssr: false
+})
 
 export const generateMetadata = async () => ({
   title: 'Reacciones Adversas a Vacunas - Herramienta Clínica',
@@ -13,5 +24,13 @@ export const generateMetadata = async () => ({
 })
 
 export default function VaccineReactionsPage() {
-  return <VaccineReactionsClient />
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <VaccineReactionsClient />
+    </Suspense>
+  )
 }

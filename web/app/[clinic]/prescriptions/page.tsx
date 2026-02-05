@@ -1,5 +1,16 @@
 // Server component wrapper for Prescriptions page
-import PrescriptionsClient from '@/app/[clinic]/prescriptions/client'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+// Dynamic import for code splitting
+const PrescriptionsClient = dynamic(() => import('./client'), {
+  loading: () => (
+    <div className="flex justify-center items-center min-h-96">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>
+  ),
+  ssr: false
+})
 
 export const generateMetadata = async () => ({
   title: 'Recetas Médicas - Sistema Veterinario',
@@ -9,5 +20,13 @@ export const generateMetadata = async () => ({
 })
 
 export default function PrescriptionsPage() {
-  return <PrescriptionsClient />
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <PrescriptionsClient />
+    </Suspense>
+  )
 }

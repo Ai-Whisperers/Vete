@@ -1,7 +1,5 @@
 import { getClinicData } from '@/lib/clinics'
 import { notFound } from 'next/navigation'
-
-// Dynamic import for code splitting
 import OrderHistoryClient from './client'
 
 export const generateMetadata = async ({ params }: { params: Promise<{ clinic: string }> }) => {
@@ -25,13 +23,5 @@ export default async function OrderHistoryPage({ params }: Props) {
     notFound()
   }
 
-  return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-96">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    }>
-      <OrderHistoryClient config={data.config} />
-    
-  )
+  return <OrderHistoryClient config={data.config} />
 }

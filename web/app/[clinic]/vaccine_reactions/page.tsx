@@ -1,6 +1,4 @@
 // Server component wrapper for Vaccine Reactions page
-
-// Dynamic import for code splitting
 import VaccineReactionsClient from './client'
 
 export const generateMetadata = async () => ({
@@ -11,17 +9,9 @@ export const generateMetadata = async () => ({
     title: 'Reacciones a Vacunas',
     description: 'Sistema de farmacovigilancia veterinaria',
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image' as const },
 })
 
 export default function VaccineReactionsPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-96">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    }>
-      <VaccineReactionsClient />
-    
-  )
+  return <VaccineReactionsClient />
 }

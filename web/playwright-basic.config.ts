@@ -29,6 +29,14 @@ export default defineConfig({
     actionTimeout: 10000,
   },
 
+  // Auto-start dev server for E2E tests
+  webServer: {
+    command: 'npm run dev -- --port 3000',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000, // 2 minutes to start
+  },
+
   projects: [
     {
       name: 'basic-chromium',

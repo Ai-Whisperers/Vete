@@ -11,7 +11,7 @@ test.describe('Basic Navigation (No Auth)', () => {
     await page.goto('/')
     
     // Check that the page loads
-    await expect(page).toHaveTitle(/TerraPet|Vete/)
+    await expect(page).toHaveTitle(/Vetic|TerraPet|Vete/)
     
     // Look for common elements that should exist
     await expect(page.locator('body')).toBeVisible()

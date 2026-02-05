@@ -173,7 +173,7 @@ describe('PetService Integration Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.error).toContain('not found');
+      expect(result.error).toContain('No tiene permisos para realizar esta operación');
     });
   });
 
@@ -333,7 +333,7 @@ describe('PetService Integration Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.error).toContain('permission');
+      expect(result.error).toContain('No tiene permisos para modificar esta mascota');
     });
   });
 
@@ -392,7 +392,7 @@ describe('PetService Integration Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.error).toContain('permission');
+      expect(result.error).toContain('No tiene permisos para eliminar esta mascota');
     });
   });
 

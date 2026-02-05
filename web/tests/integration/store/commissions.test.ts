@@ -270,6 +270,9 @@ describe('GET /api/store/commissions (Integration)', () => {
     it('should return empty array when no commissions exist', async () => {
       setAuthUser(MOCK_VET)
 
+      // Clean up any existing commissions for this tenant
+      await adminClient.from('commissions').delete().eq('tenant_id', TEST_TENANT_ID)
+
       const response = await getCommissions(createGetRequest('/api/store/commissions'))
 
       expect(response.status).toBe(200)
@@ -370,7 +373,7 @@ describe('GET /api/store/commissions/summary (Integration)', () => {
       expect(response.status).toBe(200)
       const body = await response.json()
       expect(body.totals).toBeDefined()
-      expect(typeof body.totals.total_calculated).toBe('number')
+      expect(typeof body.totals.calculated).toBe('number')
     })
   })
 })

@@ -134,8 +134,14 @@ export class PetService extends BaseService {
             deleted_at
           `
           )
-          .eq('owner_id', ownerId)
           .order('created_at', { ascending: false });
+
+        // Filter by ownership: staff can see all pets in tenant, owners only their own
+        if (isStaff) {
+          petsQuery = petsQuery.eq('tenant_id', tenantId);
+        } else {
+          petsQuery = petsQuery.eq('owner_id', ownerId);
+        }
 
         // Only include deleted if explicitly requested and user is staff
         if (!includeDeleted || !isStaff) {

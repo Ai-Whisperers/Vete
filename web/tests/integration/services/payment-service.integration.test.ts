@@ -245,7 +245,7 @@ describe('PaymentService Integration Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.error).toContain('no encontrado');
+      expect(result.error).toContain('No tiene permisos para realizar esta operación');
     });
   });
 
@@ -464,7 +464,7 @@ describe('PaymentService Integration Tests', () => {
         const result = await service.getPaymentStatus(paymentId, otherTenantId);
 
         expect(result.success).toBe(false);
-        expect(result.error).toContain('no encontrado');
+        expect(result.error).toContain('No tiene permisos para realizar esta operación');
       }
     });
   });

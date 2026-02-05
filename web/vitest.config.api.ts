@@ -34,6 +34,7 @@ export default defineConfig(() => ({
     name: 'api',
     globals: true,
     environment: 'node',
+    setupFiles: ['./vitest.api.setup.ts'],
     
     // Test file patterns - only API tests
     include: ['tests/api/**/*.test.ts', 'tests/api/**/*.test.tsx'],

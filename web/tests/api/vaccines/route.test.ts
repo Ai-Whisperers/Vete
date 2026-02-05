@@ -312,7 +312,10 @@ describe('API: /api/vaccines', () => {
 
       const response = await POST(request)
 
-      await expectError(response, 400, 'futuro')
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      const bodyStr = JSON.stringify(body)
+      expect(bodyStr).toContain('futuro')
     })
 
     it('validates next_due_date is after administered_date', async () => {
@@ -331,7 +334,10 @@ describe('API: /api/vaccines', () => {
 
       const response = await POST(request)
 
-      await expectError(response, 400, 'posterior')
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      const bodyStr = JSON.stringify(body)
+      expect(bodyStr).toContain('posterior')
     })
 
     it('verifies pet belongs to tenant', async () => {

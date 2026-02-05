@@ -67,8 +67,7 @@ export const GET = withApiAuth(
       .select(
         `
         *,
-        pet:pets!inner(id, name, species, breed),
-        vet:profiles!medical_records_performed_by_fkey(id, full_name)
+        pet:pets!inner(id, name, species, breed)
       `,
         { count: 'exact' }
       )
@@ -179,8 +178,7 @@ export const POST = withApiAuth(
       .select(
         `
         *,
-        pet:pets(id, name, species),
-        vet:profiles!medical_records_performed_by_fkey(id, full_name)
+        pet:pets(id, name, species)
       `
       )
       .single()

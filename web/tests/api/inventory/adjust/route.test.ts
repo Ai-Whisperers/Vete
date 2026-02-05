@@ -49,6 +49,9 @@ describe('API: /api/inventory/adjust', () => {
       reorder_point: 20,
     })
     testProductId = product.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -56,7 +59,7 @@ describe('API: /api/inventory/adjust', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('POST /api/inventory/adjust', () => {

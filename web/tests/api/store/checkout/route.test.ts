@@ -48,6 +48,9 @@ describe('API: /api/store/checkout', () => {
       species: 'dog',
     })
     testPetId = pet.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -55,7 +58,7 @@ describe('API: /api/store/checkout', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('POST /api/store/checkout', () => {

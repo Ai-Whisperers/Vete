@@ -28,6 +28,9 @@ describe('API: /api/appointments/waitlist', () => {
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -35,7 +38,7 @@ describe('API: /api/appointments/waitlist', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/appointments/waitlist', () => {

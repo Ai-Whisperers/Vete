@@ -18,6 +18,9 @@ describe('API: /api/cron/release-reservations', () => {
 
   beforeAll(async () => {
     supabase = await setupIntegrationTest()
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -25,7 +28,7 @@ describe('API: /api/cron/release-reservations', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   // =============================================================================

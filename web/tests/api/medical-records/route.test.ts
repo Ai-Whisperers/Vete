@@ -27,6 +27,9 @@ describe('API: /api/medical-records', () => {
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    
+    // Checkpoint shared resources created in beforeAll
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -34,7 +37,7 @@ describe('API: /api/medical-records', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/medical-records', () => {

@@ -40,6 +40,8 @@ describe('API: /api/vaccines', () => {
       species: 'dog',
     })
     testPetId = pet.id
+
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -47,7 +49,7 @@ describe('API: /api/vaccines', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/vaccines', () => {
@@ -192,7 +194,7 @@ describe('API: /api/vaccines', () => {
       const response = await GET(request)
       const body = await expectSuccess(response)
 
-      expect(body.meta).toMatchObject({
+      expect(body.pagination).toMatchObject({
         page: 1,
         limit: 5,
       })

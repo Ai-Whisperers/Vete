@@ -40,6 +40,9 @@ describe('API: /api/store/cart', () => {
       stock_quantity: 50,
     })
     testProductId = product.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -47,7 +50,7 @@ describe('API: /api/store/cart', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/store/cart', () => {

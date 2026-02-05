@@ -31,6 +31,9 @@ describe('API: /api/billing/invoices', () => {
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     ownerUser.userId = owner.userId
     ownerUser.profile.id = owner.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -38,7 +41,7 @@ describe('API: /api/billing/invoices', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/billing/invoices', () => {

@@ -47,6 +47,9 @@ describe('API: /api/billing/pay-invoice', () => {
     adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -54,7 +57,7 @@ describe('API: /api/billing/pay-invoice', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('POST /api/billing/pay-invoice', () => {

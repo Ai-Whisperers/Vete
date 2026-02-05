@@ -68,6 +68,9 @@ describe('API: /api/lab-orders', () => {
     })
     labTest3Id = test3.id
     cleanupManager.track('lab_test_catalog', test3.id)
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -75,7 +78,7 @@ describe('API: /api/lab-orders', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   // =============================================================================

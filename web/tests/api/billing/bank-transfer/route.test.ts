@@ -37,6 +37,9 @@ describe('API: /api/billing/bank-transfer', () => {
     const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     vetUserId = vetUser.userId
     vetProfileId = vetUser.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -44,7 +47,7 @@ describe('API: /api/billing/bank-transfer', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/billing/bank-transfer', () => {

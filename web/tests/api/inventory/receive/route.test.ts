@@ -36,6 +36,9 @@ describe('API: /api/inventory/receive', () => {
     const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     ownerUserId = ownerUser.userId
     ownerProfileId = ownerUser.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -43,7 +46,7 @@ describe('API: /api/inventory/receive', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   // =============================================================================

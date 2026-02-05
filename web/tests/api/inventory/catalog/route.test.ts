@@ -83,6 +83,9 @@ describe('API: /api/inventory/catalog', () => {
       globalProduct3Id = product3.id
       cleanupManager.track('store_products', product3.id)
     }
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -90,7 +93,7 @@ describe('API: /api/inventory/catalog', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   // =============================================================================

@@ -44,6 +44,9 @@ describe('API: /api/billing/payment-methods', () => {
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     vetUser.userId = vet.userId
     vetUser.profile.id = vet.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -51,7 +54,7 @@ describe('API: /api/billing/payment-methods', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
     vi.clearAllMocks()
   })
 

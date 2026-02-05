@@ -22,20 +22,22 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 describe('API: /api/appointments/slots', () => {
   let supabase: SupabaseClient
-          beforeAll(async () => {
+  let ownerUser: { userId: string; profile: { id: string }; email: string; password: string }
+  let vetUser: { userId: string; profile: { id: string }; email: string; password: string }
+
+  beforeAll(async () => {
     supabase = await setupIntegrationTest()
 
     // Create test users
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
-    ownerUser.userId = owner.userId
-    ownerUser.profile.id = owner.profile.id
+    ownerUser = owner
 
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
-    vetUser.userId = vet.userId
-    vetUser.profile.id = vet.profile.id
+    vetUser = vet
 
     // Create staff profile for vet (needed for schedules)
     await createTestStaffProfile(supabase, vetUser.profile.id, TEST_TENANT_ID)
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {

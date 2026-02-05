@@ -5,8 +5,7 @@
  * prescription verification, and idempotency
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { POST } from '@/app/api/store/checkout/route'
 import {
   setupIntegrationTest,
@@ -18,6 +17,7 @@ import {
   cleanupManager,
   createTestRequest,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 

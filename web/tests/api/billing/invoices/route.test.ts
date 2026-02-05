@@ -4,8 +4,7 @@
  * Tests authentication, authorization, tenant isolation, and platform invoice management
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { GET } from '@/app/api/billing/invoices/route'
 import {
   setupIntegrationTest,
@@ -16,6 +15,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 

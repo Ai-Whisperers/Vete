@@ -33,8 +33,6 @@ const createMedicalRecordSchema = z.object({
     message: 'Tipo de registro inválido',
   }),
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200, 'El título es muy largo'),
-  diagnosis: z.string().max(2000, 'El diagnóstico es muy largo').nullable().optional(),
-  diagnosis_code_id: z.string().uuid('ID de código diagnóstico inválido').nullable().optional(),
   notes: z.string().max(5000, 'Las notas son muy largas').nullable().optional(),
   vitals: z
     .object({
@@ -132,7 +130,7 @@ export const POST = withApiAuth(
       })
     }
 
-    const { pet_id, type, title, diagnosis, diagnosis_code_id, notes, vitals, attachments } = result.data
+    const { pet_id, type, title, notes, vitals, attachments } = result.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase.from('pets').select('id, tenant_id, owner_id').eq('id', pet_id).single()
@@ -145,20 +143,7 @@ export const POST = withApiAuth(
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
-    // Verify diagnosis code if provided
-    if (diagnosis_code_id) {
-      const { data: diagCode } = await supabase
-        .from('diagnosis_codes')
-        .select('id')
-        .eq('id', diagnosis_code_id)
-        .single()
-
-      if (!diagCode) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { errors: [{ field: 'diagnosis_code_id', message: 'Código de diagnóstico no encontrado' }] },
-        })
-      }
-    }
+    // Note: diagnosis_code_id field removed as it doesn't exist in the database schema
 
     // Create medical record
     const { data: record, error } = await supabase
@@ -169,8 +154,6 @@ export const POST = withApiAuth(
         performed_by: user.id,
         type,
         title,
-        diagnosis: diagnosis || null,
-        diagnosis_code_id: diagnosis_code_id || null,
         notes: notes || null,
         vitals: vitals || null,
         attachments: attachments || [],
@@ -190,26 +173,23 @@ export const POST = withApiAuth(
         petId: pet_id,
         recordType: type,
         error: error.message,
-        errorDetails: error,
       })
-      console.error('[DEBUG] Medical record creation error:', error)
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Log audit event - temporarily disabled for debugging
-    // await supabase.from('audit_logs').insert({
-    //   tenant_id: profile.tenant_id,
-    //   user_id: user.id,
-    //   action: 'create',
-    //   resource: 'medical_record',
-    //   resource_id: record.id,
-    //   details: {
-    //     type,
-    //     title,
-    //     pet_id,
-    //     pet_name: pet_id,
-    //   },
-    // })
+    // Log audit event
+    await supabase.from('audit_logs').insert({
+      tenant_id: profile.tenant_id,
+      user_id: user.id,
+      action: 'create',
+      resource: 'medical_record',
+      resource_id: record.id,
+      details: {
+        type,
+        title,
+        pet_id,
+      },
+    })
 
     logger.info('Medical record created', {
       tenantId: profile.tenant_id,

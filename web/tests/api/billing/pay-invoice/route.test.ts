@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,

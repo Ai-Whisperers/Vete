@@ -5,8 +5,7 @@
  * All other API tests should be updated to follow this pattern.
  */
 
-import { describe, it, expect, beforeAll, afterAll,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,

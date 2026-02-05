@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,
@@ -11,6 +10,7 @@ import {
   expectError,
   cleanupManager,
   TEST_TENANT_ID,
+  getAuthTokenFromUser,
 } from '@/tests/__helpers__/integration-setup'
 import { GET, POST, PUT, DELETE } from '@/app/api/prescriptions/route'
 

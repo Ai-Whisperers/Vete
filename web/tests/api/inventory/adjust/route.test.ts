@@ -5,8 +5,7 @@
  * This route uses PostgreSQL atomic function to prevent race conditions
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { POST } from '@/app/api/inventory/adjust/route'
 import {
   setupIntegrationTest,
@@ -18,6 +17,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 

@@ -5,8 +5,7 @@
  * Integrates with Stripe for payment method validation
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi} from 'vitest'
 import { GET, POST } from '@/app/api/billing/payment-methods/route'
 import {
   setupIntegrationTest,
@@ -17,6 +16,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 

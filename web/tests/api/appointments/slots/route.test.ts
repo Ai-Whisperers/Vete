@@ -5,8 +5,7 @@
  * This route uses the refactored service layer pattern (AppointmentService)
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach,
-  getAuthTokenFromUser,} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { GET } from '@/app/api/appointments/slots/route'
 import {
   setupIntegrationTest,

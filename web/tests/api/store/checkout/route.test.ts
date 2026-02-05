@@ -5,7 +5,8 @@
  * prescription verification, and idempotency
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach,
+  getAuthTokenFromUser,} from 'vitest'
 import { POST } from '@/app/api/store/checkout/route'
 import {
   setupIntegrationTest,

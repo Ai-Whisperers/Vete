@@ -4,7 +4,8 @@
  * Tests authentication, authorization, tenant isolation, and platform invoice management
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach,
+  getAuthTokenFromUser,} from 'vitest'
 import { GET } from '@/app/api/billing/invoices/route'
 import {
   setupIntegrationTest,

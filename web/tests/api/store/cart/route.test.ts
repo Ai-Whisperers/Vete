@@ -5,7 +5,8 @@
  * Includes feature access checks, rate limiting, and atomic operations
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach,
+  getAuthTokenFromUser,} from 'vitest'
 import { GET, PUT, DELETE, POST } from '@/app/api/store/cart/route'
 import {
   setupIntegrationTest,

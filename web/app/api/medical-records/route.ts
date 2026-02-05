@@ -190,24 +190,26 @@ export const POST = withApiAuth(
         petId: pet_id,
         recordType: type,
         error: error.message,
+        errorDetails: error,
       })
+      console.error('[DEBUG] Medical record creation error:', error)
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Log audit event
-    await supabase.from('audit_logs').insert({
-      tenant_id: profile.tenant_id,
-      user_id: user.id,
-      action: 'create',
-      resource: 'medical_record',
-      resource_id: record.id,
-      details: {
-        type,
-        title,
-        pet_id,
-        pet_name: pet_id,
-      },
-    })
+    // Log audit event - temporarily disabled for debugging
+    // await supabase.from('audit_logs').insert({
+    //   tenant_id: profile.tenant_id,
+    //   user_id: user.id,
+    //   action: 'create',
+    //   resource: 'medical_record',
+    //   resource_id: record.id,
+    //   details: {
+    //     type,
+    //     title,
+    //     pet_id,
+    //     pet_name: pet_id,
+    //   },
+    // })
 
     logger.info('Medical record created', {
       tenantId: profile.tenant_id,

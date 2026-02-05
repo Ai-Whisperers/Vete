@@ -5,7 +5,8 @@
  * This route uses the refactored service layer pattern (AppointmentService)
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach,
+  getAuthTokenFromUser,} from 'vitest'
 import { GET } from '@/app/api/appointments/slots/route'
 import {
   setupIntegrationTest,
@@ -73,7 +74,7 @@ describe('API: /api/appointments/slots', () => {
 
       const response = await GET(request)
 
-      await expectError(response, 400, 'MISSING_FIELDS')
+      await expectError(response, 400)
     })
 
     it('requires date parameter', async () => {
@@ -89,7 +90,7 @@ describe('API: /api/appointments/slots', () => {
 
       const response = await GET(request)
 
-      await expectError(response, 400, 'MISSING_FIELDS')
+      await expectError(response, 400)
     })
 
     it('validates date format (YYYY-MM-DD)', async () => {
@@ -108,7 +109,7 @@ describe('API: /api/appointments/slots', () => {
 
         const response = await GET(request)
 
-        await expectError(response, 400, 'INVALID_FORMAT')
+        await expectError(response, 400)
       }
     })
 

@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface FacilitiesGalleryProps {
   images: string[]
 }
 
 export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
+  const t = useTranslations()
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const openLightbox = (index: number) => {
@@ -110,7 +112,7 @@ export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
               goToNext()
             }}
             className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
-            aria-label="Siguiente"
+            aria-label={t('common.next')}
           >
             <ChevronRight className="h-8 w-8" />
           </button>

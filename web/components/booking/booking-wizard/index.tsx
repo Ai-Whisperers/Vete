@@ -11,6 +11,7 @@ import { Confirmation } from './Confirmation'
 import { SuccessScreen } from './SuccessScreen'
 import { BookingSummary } from './BookingSummary'
 import { ProgressStepper, type Step } from '@/components/ui/progress-stepper'
+import { ErrorBoundary } from '@/components/error/error-boundary'
 import type { ClinicData } from '@/lib/types/clinic-config'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Pet } from './types'
@@ -146,28 +147,42 @@ export default function BookingWizard({
             <div className="bg-[var(--primary)]/5 absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl"></div>
 
             {/* Step 1: Service Selection */}
-            {step === 'service' && <ServiceSelection />}
+            {step === 'service' && (
+              <ErrorBoundary>
+                <ServiceSelection />
+              </ErrorBoundary>
+            )}
 
             {/* Step 2: Pet Selection */}
-            {step === 'pet' && <PetSelection />}
+            {step === 'pet' && (
+              <ErrorBoundary>
+                <PetSelection />
+              </ErrorBoundary>
+            )}
 
             {/* Step 3: Confirmation (no datetime step - clinic will contact) */}
-            {step === 'confirm' && <Confirmation />}
+            {step === 'confirm' && (
+              <ErrorBoundary>
+                <Confirmation />
+              </ErrorBoundary>
+            )}
           </div>
 
           {/* Sidebar Summary */}
-          <BookingSummary
-            labels={{
-              summary: t('summary.title'),
-              service: t('summary.service'),
-              services: t('summary.services'),
-              patient: t('summary.patient'),
-              schedule: t('summary.schedule'),
-              notSelected: t('summary.notSelected'),
-              toDefine: t('summary.toSchedule'),
-              estimatedTotal: t('summary.estimatedTotal'),
-            }}
-          />
+          <ErrorBoundary>
+            <BookingSummary
+              labels={{
+                summary: t('summary.title'),
+                service: t('summary.service'),
+                services: t('summary.services'),
+                patient: t('summary.patient'),
+                schedule: t('summary.schedule'),
+                notSelected: t('summary.notSelected'),
+                toDefine: t('summary.toSchedule'),
+                estimatedTotal: t('summary.estimatedTotal'),
+              }}
+            />
+          </ErrorBoundary>
         </div>
       </div>
     </QueryClientProvider>

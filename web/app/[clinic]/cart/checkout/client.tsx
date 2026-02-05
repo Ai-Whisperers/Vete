@@ -19,6 +19,7 @@ import { PrescriptionUpload } from '@/components/store/prescription-upload'
 import { PetSelector, type Pet } from '@/components/store/pet-selector'
 import { PrescriptionCheckoutBanner } from '@/components/store/prescription-warning'
 import { PrintableReceipt } from '@/components/store/printable-receipt'
+import { ErrorBoundary } from '@/components/error/error-boundary'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 // FEAT-013: Prescription verification with pet selection
@@ -346,21 +347,25 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
           {prescriptionItems.length > 0 && (
             <div className="space-y-4">
               {/* Prescription status banner */}
-              <PrescriptionCheckoutBanner
-                itemCount={prescriptionItems.length}
-                hasPetSelected={hasPetSelected}
-                hasAllPrescriptions={hasAllPrescriptions}
-              />
+              <ErrorBoundary>
+                <PrescriptionCheckoutBanner
+                  itemCount={prescriptionItems.length}
+                  hasPetSelected={hasPetSelected}
+                  hasAllPrescriptions={hasAllPrescriptions}
+                />
+              </ErrorBoundary>
 
               {/* Pet selector for prescription products */}
-              <PetSelector
-                selectedPetId={selectedPetId}
-                onSelect={handlePetSelect}
-                clinic={clinic}
-                required={true}
-                label={t('petSelector.label')}
-                helpText={t('petSelector.helpText')}
-              />
+              <ErrorBoundary>
+                <PetSelector
+                  selectedPetId={selectedPetId}
+                  onSelect={handlePetSelect}
+                  clinic={clinic}
+                  required={true}
+                  label={t('petSelector.label')}
+                  helpText={t('petSelector.helpText')}
+                />
+              </ErrorBoundary>
             </div>
           )}
 
@@ -408,14 +413,16 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               {/* Prescription upload section for items that require it */}
               {item.requires_prescription && (
                 <div className="border-t border-gray-100 px-4 pb-4 pt-3">
-                  <PrescriptionUpload
-                    clinic={clinic}
-                    productId={item.id}
-                    initialUrl={prescriptions[item.id]}
-                    onUpload={(url) => handlePrescriptionUpload(item.id, url)}
-                    onRemove={() => handlePrescriptionRemove(item.id)}
-                    compact={false}
-                  />
+                  <ErrorBoundary>
+                    <PrescriptionUpload
+                      clinic={clinic}
+                      productId={item.id}
+                      initialUrl={prescriptions[item.id]}
+                      onUpload={(url) => handlePrescriptionUpload(item.id, url)}
+                      onRemove={() => handlePrescriptionRemove(item.id)}
+                      compact={false}
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
             </div>

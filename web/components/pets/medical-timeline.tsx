@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
+import { ErrorBoundary } from '@/components/error/error-boundary'
 
 interface TimelineItem {
   id: string
@@ -69,7 +70,8 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
             <p className="italic text-gray-500">{t('noRecords')}</p>
           </div>
         ) : (
-          timelineItems.map((item: TimelineItem) => (
+          <ErrorBoundary>
+            {timelineItems.map((item: TimelineItem) => (
             <div key={item.id} className="relative ml-8">
               {/* Timeline Node */}
               <div
@@ -204,7 +206,8 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
                 </div>
               </div>
             </div>
-          ))
+          ))}
+          </ErrorBoundary>
         )}
       </div>
     </div>

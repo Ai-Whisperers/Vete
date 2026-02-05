@@ -4,6 +4,7 @@ import { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { logger } from '@/lib/logger'
+import * as Sentry from '@sentry/nextjs'
 
 // Error classification based on error message/type
 type ErrorType = 'network' | 'server' | 'validation' | 'notFound' | 'unauthorized' | 'unknown'
@@ -190,6 +191,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       message: error.message,
       stack: error.stack?.slice(0, 1000),
       componentStack: errorInfo.componentStack?.slice(0, 500),
+    })
+
+    // Capture error in Sentry with context
+    Sentry.withScope((scope) => {
+      scope.setTag('errorBoundary', 'component')
+      scope.setLevel('error')
+      scope.setContext('componentStack', {
+        componentStack: errorInfo.componentStack,
+      })
+      scope.setExtra('errorInfo', errorInfo)
+      Sentry.captureException(error)
     })
 
     // Call optional callback

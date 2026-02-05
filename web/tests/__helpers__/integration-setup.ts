@@ -176,6 +176,43 @@ export async function cleanupIntegrationTest(): Promise<void> {
   tokenCache.clear()
 }
 
+/**
+ * Ensures a profile is visible to the Drizzle database connection.
+ * This prevents auth failures due to connection pool timing issues.
+ * 
+ * @param userId - User ID to check
+ */
+async function ensureProfileVisibleToDrizzle(userId: string): Promise<void> {
+  // Dynamic import to avoid circular dependencies
+  const { db } = await import('@/db')
+  const { profiles } = await import('@/db/schema')
+  const { eq } = await import('drizzle-orm')
+  
+  let attempts = 0
+  const maxAttempts = 20
+  
+  while (attempts < maxAttempts) {
+    try {
+      const result = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1)
+      if (result.length > 0) {
+        return // Profile is visible
+      }
+    } catch (error) {
+      console.warn(`[Integration Test] Drizzle visibility check failed on attempt ${attempts + 1}:`, error)
+    }
+    
+    attempts++
+    if (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    }
+  }
+  
+  throw new Error(
+    `[Integration Test] Profile ${userId} not visible to Drizzle after ${maxAttempts} attempts. ` +
+    `This indicates a database connectivity or transaction isolation issue.`
+  )
+}
+
 // =============================================================================
 // Profile Helpers
 // =============================================================================
@@ -392,6 +429,10 @@ export async function createTestAuthUser(
       `This indicates a persistent database consistency issue.`
     )
   }
+
+  // CRITICAL: Ensure profile is visible to Drizzle connection
+  // This prevents auth failures in API tests due to connection pool timing
+  await ensureProfileVisibleToDrizzle(userId)
 
   // Track for cleanup (auth user deletion will cascade)
   cleanupManager.track('profiles', userId)

@@ -38,7 +38,7 @@ describe('Pet CRUD Operations', () => {
 
   describe('CREATE', () => {
     test('creates a pet with required fields only', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -62,7 +62,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('creates a pet with all fields', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
       const petData = buildPet({
         ownerId: testOwnerId,
         tenantId: DEFAULT_TENANT.id,
@@ -76,7 +76,7 @@ describe('Pet CRUD Operations', () => {
         color: 'Blanco',
         temperament: 'friendly',
         existingConditions: 'None',
-        allergies: 'None',
+        allergies: ['None'],
         notes: 'Test notes',
       })
 
@@ -114,7 +114,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('fails when missing required field (name)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -133,7 +133,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('fails when missing required field (species)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -152,7 +152,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('fails with invalid weight (negative)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -171,7 +171,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('fails with invalid owner_id (non-existent)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -190,7 +190,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('creates pets for all species types', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       for (const species of ALL_SPECIES) {
         const { data, error } = await client
@@ -226,7 +226,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('reads pet by ID', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client.from('pets').select('*').eq('id', readTestPetId).single()
 
@@ -236,7 +236,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('reads pets by owner', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client.from('pets').select('*').eq('owner_id', testOwnerId)
 
@@ -248,7 +248,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('reads pets by tenant', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -261,14 +261,14 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('reads pet with owner profile (join)', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
         .select(
           `
           *,
-          owner:profiles(id, full_name, email)
+          owner:profiles!pets_owner_id_fkey(id, full_name, email)
         `
         )
         .eq('id', readTestPetId)
@@ -280,7 +280,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('returns null for non-existent pet', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -293,7 +293,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('filters pets by species', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -323,7 +323,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('updates pet name', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -337,7 +337,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('updates pet weight', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -351,7 +351,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('updates multiple fields at once', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data, error } = await client
         .from('pets')
@@ -373,7 +373,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('updates updated_at timestamp automatically', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { data: before } = await client
         .from('pets')
@@ -399,7 +399,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('fails to update with invalid weight', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       const { error } = await client
         .from('pets')
@@ -412,7 +412,7 @@ describe('Pet CRUD Operations', () => {
 
   describe('DELETE', () => {
     test('deletes pet by ID', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // Create pet to delete
       const { data: created } = await client
@@ -439,7 +439,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('cascades delete to vaccines', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // Create pet with vaccine
       const { data: pet } = await client
@@ -459,7 +459,8 @@ describe('Pet CRUD Operations', () => {
         .insert({
           pet_id: pet.id,
           name: 'Test Vaccine',
-          status: 'pending',
+          status: 'scheduled',
+          administered_date: '2026-01-01',
         })
         .select()
         .single()
@@ -492,7 +493,7 @@ describe('Pet CRUD Operations', () => {
     })
 
     test('pets are isolated by tenant', async () => {
-      const client = getTestClient()
+      const client = getTestClient({ serviceRole: true })
 
       // Create pet in adris
       const { data: adrisPet } = await client

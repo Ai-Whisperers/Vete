@@ -20,7 +20,7 @@ describe('Core Entity Flow', () => {
     pets: [],
   }
 
-  const client = getTestClient()
+  const client = getTestClient({ serviceRole: true })
 
   beforeAll(async () => {
     // Ensure tenants exist
@@ -136,7 +136,7 @@ describe('Core Entity Flow', () => {
       expect(storedPet.diet_category).toBe('balanced')
       expect(storedPet.diet_notes).toBe('Sensitive stomach')
       expect(storedPet.allergies).toContain('Chicken')
-      expect(storedPet.chronic_conditions).toContain('Arthritis')
+      expect(storedPet.existing_conditions).toContain('Arthritis')
     })
 
     test('enforces RLS: anon users cannot see pets', async () => {

@@ -1,0 +1,181 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - link "Vetic Logo Vetic" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Vetic Logo" [ref=e9]
+          - generic [ref=e10]: Vetic
+        - generic [ref=e11]:
+          - link "Funcionalidades" [ref=e12] [cursor=pointer]:
+            - /url: /funcionalidades
+          - link "Precios" [ref=e13] [cursor=pointer]:
+            - /url: /precios
+          - link "Red" [ref=e14] [cursor=pointer]:
+            - /url: /red
+          - link "Demo" [ref=e15] [cursor=pointer]:
+            - /url: /demo
+          - link "Embajadores" [ref=e16] [cursor=pointer]:
+            - /url: /ambassador
+          - link "FAQ" [ref=e17] [cursor=pointer]:
+            - /url: /faq
+          - link "Nosotros" [ref=e18] [cursor=pointer]:
+            - /url: /nosotros
+        - link "Contactar" [ref=e19] [cursor=pointer]:
+          - /url: https://wa.me/595981324569?text=Hola!%20Me%20interesa%20Vetic%20para%20mi%20cl%C3%ADnica
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - img [ref=e28]
+          - generic [ref=e31]: Disponible en todo Paraguay
+        - heading "Gestiona tu veterinaria sin complicaciones." [level=1] [ref=e32]
+        - paragraph [ref=e33]: Agenda, historial clínico y web propia en una sola plataforma. Diseñado específicamente para Paraguay.
+        - generic [ref=e35]:
+          - img [ref=e36]
+          - generic [ref=e38]: "Garantía: 6 clientes nuevos en 6 meses o 6 meses GRATIS"
+        - generic [ref=e39]:
+          - link "Empezar Gratis" [ref=e40] [cursor=pointer]:
+            - /url: https://wa.me/595981324569?text=Hola!%20Quiero%20empezar%20con%20Vetic%20gratis
+            - text: Empezar Gratis
+            - img [ref=e41]
+          - link "Ver Demo" [ref=e43] [cursor=pointer]:
+            - /url: "#demo"
+            - img [ref=e44]
+            - text: Ver Demo
+      - img "Veterinaria usando Vetic en tablet" [ref=e48]
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - img [ref=e56]
+        - generic [ref=e58]:
+          - paragraph [ref=e59]: Cumplimiento SET
+          - paragraph [ref=e60]: Facturación electrónica
+      - generic [ref=e61]:
+        - img [ref=e63]
+        - generic [ref=e66]:
+          - paragraph [ref=e67]: Datos Encriptados
+          - paragraph [ref=e68]: SSL 256-bit
+      - generic [ref=e69]:
+        - img [ref=e71]
+        - generic [ref=e75]:
+          - paragraph [ref=e76]: Backup Diario
+          - paragraph [ref=e77]: Tus datos seguros
+      - generic [ref=e78]:
+        - img [ref=e80]
+        - generic [ref=e84]:
+          - paragraph [ref=e85]: Optimizado Tigo/Claro
+          - paragraph [ref=e86]: Carga rápida
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - generic [ref=e90]: Planes
+        - heading "Planes que crecen con tu clínica" [level=2] [ref=e91]
+        - paragraph [ref=e92]: Sin costos ocultos, sin contratos. Empezá gratis y subí cuando lo necesites.
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - heading "Gratis" [level=3] [ref=e95]
+          - paragraph [ref=e96]: Sitio web
+          - generic [ref=e97]: Gratis
+          - generic [ref=e98]: Sin costo
+          - list [ref=e99]:
+            - listitem [ref=e100]:
+              - img [ref=e101]
+              - text: Sitio web propio
+            - listitem [ref=e103]:
+              - img [ref=e104]
+              - text: Reservas WhatsApp
+            - listitem [ref=e106]:
+              - img [ref=e107]
+              - text: Con anuncios
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - img [ref=e111]
+            - text: Popular
+          - heading "Profesional" [level=3] [ref=e113]
+          - paragraph [ref=e114]: Todo incluido
+          - generic [ref=e115]: Gs 250.000/mes
+          - generic [ref=e116]: Todo incluido
+          - list [ref=e117]:
+            - listitem [ref=e118]:
+              - img [ref=e119]
+              - text: Todo incluido
+            - listitem [ref=e121]:
+              - img [ref=e122]
+              - text: Sin anuncios
+            - listitem [ref=e124]:
+              - img [ref=e125]
+              - text: Usuarios ilimitados
+      - generic [ref=e127]:
+        - link "Ver todos los planes y comparar" [ref=e128] [cursor=pointer]:
+          - /url: /precios
+          - text: Ver todos los planes y comparar
+          - img [ref=e129]
+        - paragraph [ref=e131]: Prueba gratis por 2 meses con todas las funciones
+    - generic [ref=e138]:
+      - heading "Moderniza tu veterinaria hoy mismo." [level=2] [ref=e139]:
+        - text: Moderniza tu veterinaria
+        - text: hoy mismo.
+      - paragraph [ref=e140]: Únete a la red de veterinarias más eficiente de Paraguay. Sin contratos forzosos, cancela cuando quieras.
+      - generic [ref=e141]:
+        - link "Empezar por WhatsApp" [ref=e142] [cursor=pointer]:
+          - /url: https://wa.me/595981324569?text=Hola!%20Quiero%20empezar%20con%20Vetic
+          - img [ref=e143]
+          - text: Empezar por WhatsApp
+          - img [ref=e145]
+        - link "Ver Demo" [ref=e147] [cursor=pointer]:
+          - /url: /adris
+          - img [ref=e148]
+          - text: Ver Demo
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - img [ref=e152]
+          - generic [ref=e154]: Datos 100% Seguros
+        - generic [ref=e155]:
+          - img [ref=e156]
+          - generic [ref=e158]: Setup Rápido
+        - generic [ref=e159]:
+          - img [ref=e160]
+          - generic [ref=e163]: Soporte Local
+    - generic [ref=e166]:
+      - link "Vetic Logo Vetic" [ref=e167] [cursor=pointer]:
+        - /url: /
+        - img "Vetic Logo" [ref=e170]
+        - generic [ref=e171]: Vetic
+      - generic [ref=e172]:
+        - link "WhatsApp" [ref=e173] [cursor=pointer]:
+          - /url: https://wa.me/595981324569
+          - img [ref=e174]
+          - text: WhatsApp
+        - link "+595 981 324 569" [ref=e176] [cursor=pointer]:
+          - /url: tel:+595981324569
+          - img [ref=e177]
+          - text: +595 981 324 569
+        - generic [ref=e179]:
+          - img [ref=e180]
+          - text: Asunción, Paraguay
+      - generic [ref=e183]:
+        - link "Funcionalidades" [ref=e184] [cursor=pointer]:
+          - /url: /funcionalidades
+        - link "Precios" [ref=e185] [cursor=pointer]:
+          - /url: /precios
+        - link "Red de Clínicas" [ref=e186] [cursor=pointer]:
+          - /url: /red
+        - link "Demo" [ref=e187] [cursor=pointer]:
+          - /url: /demo
+        - link "FAQ" [ref=e188] [cursor=pointer]:
+          - /url: /faq
+        - link "Nosotros" [ref=e189] [cursor=pointer]:
+          - /url: /nosotros
+      - generic [ref=e190]:
+        - paragraph [ref=e191]: © 2026 Vetic. Todos los derechos reservados.
+        - paragraph [ref=e192]: Hecho con ❤️ en Paraguay
+        - generic [ref=e193]:
+          - link "Privacidad" [ref=e194] [cursor=pointer]:
+            - /url: /adris/privacy
+          - link "Términos" [ref=e195] [cursor=pointer]:
+            - /url: /adris/terms
+  - button "Open Next.js Dev Tools" [ref=e201] [cursor=pointer]:
+    - img [ref=e202]
+  - alert [ref=e205]
+```

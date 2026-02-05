@@ -331,27 +331,18 @@ describe('TerraPet Tenant Isolation Integration', () => {
       expect(error).toBeDefined()
     })
 
-    it.skip('can update pet within same tenant', async () => {
-      // TODO: Fix test file interference - this test fails when run in parallel with RLS tests
-      // The terrapetOwner.userId gets mixed up with adris data due to parallel execution
-      // First, get the pet to ensure we have the right one (handles test interference)
-      const { data: pet } = await terrapetOwner.client
-        .from('pets')
-        .select('id')
-        .eq('owner_id', terrapetOwner.userId)
-        .limit(1)
-        .single()
-
-      if (!pet) {
-        // Skip if no pet found (test interference)
-        console.warn('[Test Skip] No pet found for terrapet owner - possible test interference')
-        return
-      }
+    it('can update pet within same tenant', async () => {
+      // Fixed: Use specific pet ID from beforeAll setup to avoid test interference
+      // The terrapetPetId is created uniquely for this test suite
+      expect(terrapetPetId).toBeDefined()
+      
+      // Use the specific pet created in beforeAll - this avoids test interference
+      const petId = terrapetPetId
 
       const { data, error } = await terrapetOwner.client
         .from('pets')
         .update({ name: 'Updated TerraPet Dog' })
-        .eq('id', pet.id)
+        .eq('id', petId)
         .select()
         .single()
 

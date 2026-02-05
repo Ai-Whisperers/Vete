@@ -33,8 +33,8 @@ export default defineConfig({
     globals: true,
     environment: 'node', // Node environment for real database operations
     
-    // NO setup files - avoid global mocks
-    setupFiles: [],
+    // Minimal setup - only essential Next.js mocks to prevent cookies() errors
+    setupFiles: ['./vitest.integration.minimal.setup.ts'],
     
     // Longer timeout for database operations
     testTimeout: 30000,

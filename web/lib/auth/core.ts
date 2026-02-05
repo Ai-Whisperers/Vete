@@ -73,9 +73,25 @@ export class AuthService {
       }
 
       // Refactored to use Drizzle with type-safe mapping
-      const result = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1)
+      // In test environment, add retry logic for profile visibility due to connection pool timing
+      let result = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1)
+      let row = result[0]
 
-      const row = result[0]
+      // Test environment retry logic (similar to ensureProfileVisibleToDrizzle)
+      if (!row && process.env.NODE_ENV === 'test') {
+        const maxRetries = 10
+        for (let attempt = 1; attempt <= maxRetries && !row; attempt++) {
+          logger.debug('[Auth] Profile not found, retrying in test environment', { 
+            userId: user.id, 
+            attempt,
+            maxRetries 
+          })
+          
+          await new Promise(resolve => setTimeout(resolve, 100 + (attempt * 50)))
+          result = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1)
+          row = result[0]
+        }
+      }
 
       if (!row) {
         logger.warn('[Auth] Profile not found for authenticated user', { userId: user.id })

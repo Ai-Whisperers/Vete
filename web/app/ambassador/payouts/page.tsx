@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Banknote,
@@ -51,11 +51,7 @@ export default function AmbassadorPayoutsPage() {
   const [bankAccount, setBankAccount] = useState('')
   const [bankHolderName, setBankHolderName] = useState('')
 
-  useEffect(() => {
-    fetchPayouts()
-  }, [])
-
-  const fetchPayouts = async () => {
+  const fetchPayouts = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await fetch('/api/ambassador/payouts')
@@ -86,7 +82,11 @@ export default function AmbassadorPayoutsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    fetchPayouts()
+  }, [fetchPayouts])
 
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault()

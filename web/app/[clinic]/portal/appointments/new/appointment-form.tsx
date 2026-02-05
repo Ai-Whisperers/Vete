@@ -38,7 +38,7 @@ export default function AppointmentForm({
               <div className="peer-checked:bg-[var(--primary)]/5 flex items-center gap-3 rounded-xl border-2 border-gray-100 p-3 transition-all hover:border-gray-200 peer-checked:border-[var(--primary)]">
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100">
                   {pet.photo_url ? (
-                    <img src={pet.photo_url} className="h-full w-full object-cover" />
+                    <img src={pet.photo_url} alt={`Foto de ${pet.name}`} className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-gray-400">
                       <Icons.PawPrint className="h-5 w-5" />

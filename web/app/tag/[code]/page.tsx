@@ -129,7 +129,7 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                     />
                     <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-100">
                       {pet.photo_url ? (
-                        <img src={pet.photo_url} className="h-full w-full object-cover" />
+                        <img src={pet.photo_url} alt={`Foto de ${pet.name}`} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-gray-300">
                           <Icons.PawPrint className="h-5 w-5" />

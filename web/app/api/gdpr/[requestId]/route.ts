@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
+import { logger } from '@/lib/utils/logger'
 
 interface RouteParams {
   params: Promise<{ requestId: string }>
@@ -71,7 +72,7 @@ export async function GET(
       logs: logs || [],
     })
   } catch (error) {
-    console.error('Error in GET /api/gdpr/[requestId]:', error)
+    logger.error('Error in GET /api/gdpr/[requestId]:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -147,7 +148,7 @@ export async function PATCH(
       .single()
 
     if (updateError) {
-      console.error('Error updating GDPR request:', updateError)
+      logger.error('Error updating GDPR request:', updateError)
       return NextResponse.json(
         { error: 'Error al actualizar solicitud' },
         { status: 500 }
@@ -156,7 +157,7 @@ export async function PATCH(
 
     return NextResponse.json({ request: updated })
   } catch (error) {
-    console.error('Error in PATCH /api/gdpr/[requestId]:', error)
+    logger.error('Error in PATCH /api/gdpr/[requestId]:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -219,7 +220,7 @@ export async function DELETE(
       .eq('id', requestId)
 
     if (updateError) {
-      console.error('Error cancelling GDPR request:', updateError)
+      logger.error('Error cancelling GDPR request:', updateError)
       return NextResponse.json(
         { error: 'Error al cancelar solicitud' },
         { status: 500 }
@@ -242,7 +243,7 @@ export async function DELETE(
       message: 'Solicitud cancelada exitosamente',
     })
   } catch (error) {
-    console.error('Error in DELETE /api/gdpr/[requestId]:', error)
+    logger.error('Error in DELETE /api/gdpr/[requestId]:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

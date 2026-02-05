@@ -1,6 +1,0 @@
-Lines to fix in app/[clinic]/portal/prescriptions/new/client.tsx:
-
-1. Remove line 9 (duplicate useRouter import)
-2. Remove line 5 (non-existent useToast import)
-3. Keep line 15 (working useToast import from Toast component)
-4. Comment out or verify line 6 (generatePrescriptionPDF import)

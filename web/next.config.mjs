@@ -43,7 +43,7 @@ img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.or
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
-    value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
+    value: ContentSecurityPolicy.replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim(),
   },
   {
     key: 'X-DNS-Prefetch-Control',

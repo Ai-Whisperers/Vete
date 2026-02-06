@@ -10,11 +10,9 @@ import {
   createScreenshotHelper,
   waitForPageReady,
   waitForToast,
-  parseGuaranies,
-  getPriceFromElement,
 } from '../helpers/screenshot-helper'
 
-const E2E_TENANT = 'adris'
+const E2E_TENANT = 'terrapet'
 const STORE_URL = `/${E2E_TENANT}/store`
 const CART_URL = `/${E2E_TENANT}/portal/cart`
 const ORDERS_URL = `/${E2E_TENANT}/portal/orders`

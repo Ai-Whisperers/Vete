@@ -38,14 +38,14 @@ import { OwnerFactory, createPredefinedOwners } from '@/lib/test-utils/factories
 
 // Single owner with specific persona
 const owner = await OwnerFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .withPersona('vip')
   .withName('Carlos Benítez')
   .withAddress()
   .build()
 
 // All 10 predefined owners (idempotent)
-const owners = await createPredefinedOwners('adris')
+const owners = await createPredefinedOwners('terrapet')
 ```
 
 **Personas**: `vip`, `budget`, `new`, `frequent`, `breeder`, `senior`, `emergency`, `loyal`, `inactive`, `standard`
@@ -59,7 +59,7 @@ import { PetFactory, createPetsForOwner } from '@/lib/test-utils/factories'
 
 // Single pet
 const { pet, vaccines } = await PetFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forOwner(ownerId)
   .asDog('Labrador Retriever')
   .withProfile('healthy')
@@ -68,7 +68,7 @@ const { pet, vaccines } = await PetFactory.create()
   .build()
 
 // Multiple pets for an owner
-const pets = await createPetsForOwner(ownerId, 5, 'adris')
+const pets = await createPetsForOwner(ownerId, 5, 'terrapet')
 ```
 
 **Profiles**: `healthy`, `chronic`, `senior`, `puppy`, `exotic`, `rescue`, `show`, `reactive`, `overweight`, `standard`
@@ -82,7 +82,7 @@ import { AppointmentFactory, createAppointmentHistory } from '@/lib/test-utils/f
 
 // Single appointment
 const { appointment, medicalRecord } = await AppointmentFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forPet(petId)
   .createdBy(ownerId)
   .withScenario('routine')
@@ -93,7 +93,7 @@ const { appointment, medicalRecord } = await AppointmentFactory.create()
   .build()
 
 // Appointment history (past + future)
-const history = await createAppointmentHistory(petId, ownerId, vetId, 'adris', {
+const history = await createAppointmentHistory(petId, ownerId, vetId, 'terrapet', {
   past: 5,
   future: 2,
   includeRecords: true,
@@ -111,7 +111,7 @@ import { InvoiceFactory, createInvoiceHistory } from '@/lib/test-utils/factories
 
 // Single invoice
 const { invoice, items, payments } = await InvoiceFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forClient(clientId)
   .forPet(petId)
   .addService('Consulta general', 80000)
@@ -121,7 +121,7 @@ const { invoice, items, payments } = await InvoiceFactory.create()
   .build()
 
 // Invoice history
-const invoices = await createInvoiceHistory(clientId, petId, 'adris', {
+const invoices = await createInvoiceHistory(clientId, petId, 'terrapet', {
   count: 5,
   includeUnpaid: true,
 })
@@ -136,7 +136,7 @@ import { LoyaltyFactory, createLoyaltyForPersona } from '@/lib/test-utils/factor
 
 // Custom loyalty data
 const { points, transactions } = await LoyaltyFactory.forUser(userId)
-  .forTenant('adris')
+  .forTenant('terrapet')
   .earnFromPurchase(500000, invoiceId)
   .earnFromAppointment(appointmentId)
   .earnFromReferral()
@@ -144,7 +144,7 @@ const { points, transactions } = await LoyaltyFactory.forUser(userId)
   .build()
 
 // Based on persona
-const loyalty = await createLoyaltyForPersona(userId, 'vip', 'adris')
+const loyalty = await createLoyaltyForPersona(userId, 'vip', 'terrapet')
 ```
 
 **Tiers**: Bronze (0-499), Silver (500-1999), Gold (2000-4999), Platinum (5000+)
@@ -162,7 +162,7 @@ import {
 
 // Single order
 const { order, items } = await StoreOrderFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forCustomer(customerId)
   .withScenario('prescription')
   .addRandomProducts(3, true)
@@ -174,13 +174,13 @@ const { order, items } = await StoreOrderFactory.create()
   .build()
 
 // Order history
-const orders = await createOrderHistory(customerId, 'adris', {
+const orders = await createOrderHistory(customerId, 'terrapet', {
   count: 5,
   scenarios: ['simple', 'prescription', 'coupon'],
 })
 
 // Abandoned carts
-const carts = await createAbandonedCarts([customer1, customer2], 'adris')
+const carts = await createAbandonedCarts([customer1, customer2], 'terrapet')
 ```
 
 **Scenarios**: `simple`, `prescription`, `abandoned`, `coupon`, `bulk`, `mixed`
@@ -190,13 +190,13 @@ const carts = await createAbandonedCarts([customer1, customer2], 'adris')
 Run the full seed for Adris clinic:
 
 ```bash
-npx tsx web/db/seeds/scripts/seed-adris-demo.ts
+npx tsx web/db/seeds/scripts/seed-terrapet-demo.ts
 ```
 
 With test mode (tracks for cleanup):
 
 ```bash
-npx tsx web/db/seeds/scripts/seed-adris-demo.ts --test
+npx tsx web/db/seeds/scripts/seed-terrapet-demo.ts --test
 ```
 
 ## Testing

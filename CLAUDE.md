@@ -205,6 +205,11 @@ return NextResponse.json({ error: "No autorizado" });
 2. Edit `config.json` (name, contact, modules)
 3. Edit `theme.json` (colors, fonts)
 4. Add record to `tenants` table in Supabase
+5. (Optional) Add custom domain:
+   ```bash
+   node scripts/domains.mjs add clinic.com [slug] --type primary
+   node scripts/domains.mjs sync-vercel  # If using Vercel
+   ```
 
 ### Add New Page
 ```typescript
@@ -319,6 +324,27 @@ npm run build        # Production build
 npm run lint         # ESLint
 npm run test:unit    # Vitest
 npm run test:e2e     # Playwright
+
+# Domain Management
+npm run domains              # Show help
+npm run domains:list         # List all domains
+npm run domains:validate     # Validate configuration
+npm run domains:sync         # Sync with Vercel API
+npm run domains:cloudflare   # Generate Cloudflare tunnel config
+```
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker
+docker build -t vete .
+docker run -p 3000:3000 --env-file ./web/.env.local vete
+
+# With Docker Compose
+docker-compose up
+
+# With Cloudflare tunnel
+docker-compose --profile tunnel up
 ```
 
 ### Slash Commands
@@ -361,21 +387,24 @@ Reference implementations in `.claude/exemplars/`:
 | Supabase client (server) | `web/lib/supabase/server.ts` |
 | Supabase client (browser) | `web/lib/supabase/client.ts` |
 | Clinic data loader | `web/lib/clinics.ts` |
+| Domain resolver | `web/lib/domains.ts` |
 | Theme provider | `web/app/[clinic]/layout.tsx` |
 | Custom hooks | `web/lib/hooks/index.ts` |
 | Type definitions | `web/lib/types/` |
 | Constants | `web/lib/constants/` |
+| Domain registry | `web/.content_data/domains.json` |
 | Environment variables | `docs/ENV_COMPLETE_REFERENCE.md` (77 variables) |
 
 ### Documentation
 
 | Topic | Location |
 |-------|----------|
-| Full architecture | `documentation/architecture/overview.md` |
-| Database schema | `documentation/database/schema-reference.md` |
-| RLS policies | `documentation/database/rls-policies.md` |
-| API reference | `documentation/api/overview.md` |
-| Git workflow | `documentation/GIT_WORKFLOW.md` |
+| Full architecture | `docs/ARCHITECTURE.md` |
+| Domain management | `docs/DOMAIN_MANAGEMENT.md` |
+| Docker deployment | `docs/DOCKER_DEPLOYMENT.md` |
+| Cloudflare tunnels | `docs/CLOUDFLARE_TUNNELS.md` |
+| Environment variables | `docs/ENV_COMPLETE_REFERENCE.md` |
+| Security guidelines | `docs/SECURITY_GUIDELINES.md` |
 | Security audit | `.claude/SUPABASE_AUDIT.md` |
 | Refactoring plan | `REFACTORING_TICKETS.md` |
 

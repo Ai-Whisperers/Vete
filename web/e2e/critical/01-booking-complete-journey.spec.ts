@@ -19,7 +19,7 @@
 
 import { test, expect, Page } from '@playwright/test'
 import { DEFAULT_TENANT } from '../fixtures/tenants'
-import { TEST_USERS, TEST_URLS } from '../fixtures/test-users'
+import { TEST_USERS } from '../fixtures/test-users'
 
 const BOOKING_URL = `/${DEFAULT_TENANT.slug}/book`
 const LOGIN_URL = `/${DEFAULT_TENANT.slug}/portal/login`

@@ -584,7 +584,7 @@ describe('API Request Validation', () => {
   it('should pass for valid request', () => {
     const req: CouponValidationRequest = {
       code: 'DESCUENTO10',
-      clinic: 'adris',
+      clinic: 'terrapet',
       cart_total: 100000,
     }
 
@@ -593,7 +593,7 @@ describe('API Request Validation', () => {
 
   it('should fail for missing code', () => {
     const req = {
-      clinic: 'adris',
+      clinic: 'terrapet',
       cart_total: 100000,
     }
 
@@ -612,7 +612,7 @@ describe('API Request Validation', () => {
   it('should fail for missing cart_total', () => {
     const req = {
       code: 'DESCUENTO10',
-      clinic: 'adris',
+      clinic: 'terrapet',
     }
 
     expect(validateRequest(req)).toContain('cart_total')
@@ -621,7 +621,7 @@ describe('API Request Validation', () => {
   it('should allow zero cart_total', () => {
     const req: CouponValidationRequest = {
       code: 'DESCUENTO10',
-      clinic: 'adris',
+      clinic: 'terrapet',
       cart_total: 0,
     }
 

@@ -4,7 +4,7 @@
  */
 
 import { ErrorService } from './core'
-import type { ErrorCode, ErrorContext } from './types'
+import type { ErrorContext } from './types'
 
 // Quick error creators
 export const createError = ErrorService.create.bind(ErrorService)

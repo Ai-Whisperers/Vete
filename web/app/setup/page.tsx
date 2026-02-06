@@ -97,7 +97,7 @@ export default function SetupPage() {
             <CardDescription>Your database is fully configured and ready to use.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button onClick={() => router.push('/adris/portal/dashboard')} className="w-full">
+            <Button onClick={() => router.push('/terrapet/portal/dashboard')} className="w-full">
               Go to Dashboard
             </Button>
           </CardContent>
@@ -209,7 +209,7 @@ export default function SetupPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
-                onClick={() => runSetup('clinic', 'adris')}
+                onClick={() => runSetup('clinic', 'terrapet')}
                 disabled={loading}
                 className="w-full"
                 variant="outline"

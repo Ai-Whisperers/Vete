@@ -33,7 +33,7 @@ export interface Pet {
   breed: string | null
   birth_date: string | null
   weight_kg: number | null
-  microchip_id: string | null
+  microchip_number: string | null
   photo_url: string | null
   sex: PetSex | null
   color: string | null

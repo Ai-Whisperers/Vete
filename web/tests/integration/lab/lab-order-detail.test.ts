@@ -24,7 +24,7 @@
  */
 
 // IMPORTANT: Unmock @supabase/supabase-js to use real client for integration tests
-import { vi, describe, it, expect, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
+import { vi, describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
 vi.unmock('@supabase/supabase-js')
 

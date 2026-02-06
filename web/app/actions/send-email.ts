@@ -1,6 +1,6 @@
 'use server'
 
-import { withActionAuth, type ActionResult } from '@/lib/actions/with-action-auth'
+import { withActionAuth } from '@/lib/actions/with-action-auth'
 import { actionSuccess, actionError } from '@/lib/actions/result'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'

@@ -16,7 +16,7 @@ logger.warn('Slow query', { duration: 1200, table: 'pets' })
 logger.error('Failed to save', { error, userId })
 
 // Request-scoped logging (in API routes)
-const log = createRequestLogger(request, { tenant: 'adris' })
+const log = createRequestLogger(request, { tenant: 'terrapet' })
 log.info('Processing request')
 log.error('Request failed', { error })
 
@@ -82,7 +82,7 @@ The logger automatically enriches logs with context when available:
 | Field | Description | Example |
 |-------|-------------|---------|
 | `requestId` | Unique request identifier | `uuid` |
-| `tenant` | Multi-tenant identifier | `adris`, `petlife` |
+| `tenant` | Multi-tenant identifier | `terrapet`, `petlife` |
 | `userId` | Current user ID | `uuid` |
 | `userRole` | User's role | `owner`, `vet`, `admin` |
 | `action` | Operation being performed | `pet.create`, `appointment.book` |
@@ -98,7 +98,7 @@ import { createRequestLogger } from '@/lib/logger'
 
 export async function POST(request: Request) {
   const log = createRequestLogger(request, { 
-    tenant: 'adris',
+    tenant: 'terrapet',
     action: 'pet.create'
   })
   
@@ -196,7 +196,7 @@ SLOW_REQUEST_THRESHOLD_MS=1000
 ### Pretty Format (Development)
 
 ```
-14:32:15 INFO  Pet created [req=a1b2c3d4 | tenant=adris | user=e5f6g7h8 | 125ms]
+14:32:15 INFO  Pet created [req=a1b2c3d4 | tenant=terrapet | user=e5f6g7h8 | 125ms]
   {"petId": "uuid-here", "species": "dog"}
 ```
 
@@ -209,7 +209,7 @@ SLOW_REQUEST_THRESHOLD_MS=1000
   "message": "Pet created",
   "context": {
     "requestId": "a1b2c3d4-...",
-    "tenant": "adris",
+    "tenant": "terrapet",
     "userId": "e5f6g7h8-...",
     "petId": "uuid-here",
     "species": "dog",

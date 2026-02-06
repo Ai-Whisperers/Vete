@@ -14,7 +14,7 @@ export { E2E_TEST_TENANT }
 
 /**
  * Test user credentials
- * All users belong to the E2E_TEST_TENANT (adris)
+ * All users belong to the E2E_TEST_TENANT (terrapet)
  */
 export const TEST_USERS = {
   /** Pet owner - can book appointments, manage pets, shop */

@@ -17,7 +17,6 @@ import type {
   PolicyComparison,
   PolicyChange,
 } from './types'
-import { compareVersions } from './types'
 
 /**
  * Get the current published privacy policy for a tenant

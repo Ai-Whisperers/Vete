@@ -31,7 +31,6 @@ import {
 import type {
   StoreProductWithDetails,
   ReviewSummary,
-  StoreProductQuestion,
 } from '@/lib/types/store'
 import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'

@@ -29,7 +29,6 @@ import {
   getSubmitButtonState,
   formatInvoiceError,
   type InvoiceFormData,
-  type LineItem,
   type LineItemWithTotal,
   type Service,
   type Pet,

@@ -10,7 +10,7 @@
  * - Error handling
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getClinicData } from '@/lib/clinics'
 import { TENANT_IDS } from '@/lib/constants/tenants'
 
@@ -158,54 +158,54 @@ describe('TerraPet Clinic API - Data Loading', () => {
   })
 
   describe('GET clinic data - Tenant Isolation', () => {
-    it('terrapet data is isolated from adris', async () => {
+    it('terrapet data is isolated from terrapet', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
       expect(terrapetData?.config.tenant_id).toBe('terrapet')
-      expect(adrisData?.config.tenant_id).toBe(TENANT_IDS.ADRIS)
+      expect(terrapetData?.config.tenant_id).toBe(TENANT_IDS.ADRIS)
 
       // Verify they have different content
-      expect(terrapetData?.config.name).not.toBe(adrisData?.config.name)
-      expect(terrapetData?.theme.colors.primary).not.toBe(adrisData?.theme.colors.primary)
+      expect(terrapetData?.config.name).not.toBe(terrapetData?.config.name)
+      expect(terrapetData?.theme.colors.primary).not.toBe(terrapetData?.theme.colors.primary)
     })
 
-    it('terrapet services are distinct from adris services', async () => {
+    it('terrapet services are distinct from terrapet services', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
       // TerraPet has 9 services, Adris may have different count
       expect(terrapetData?.services.list.length).toBe(9)
       
       // Services should have different IDs or names
       const terrapetServiceNames = terrapetData?.services.list.map(s => s.name) || []
-      const adrisServiceNames = adrisData?.services.list.map(s => s.name) || []
+      const terrapetServiceNames = terrapetData?.services.list.map(s => s.name) || []
 
       // At least some services should be different (home visits unique to TerraPet)
-      const hasDifferences = terrapetServiceNames.some(name => !adrisServiceNames.includes(name))
+      const hasDifferences = terrapetServiceNames.some(name => !terrapetServiceNames.includes(name))
       expect(hasDifferences).toBe(true)
     })
 
-    it('terrapet contact info differs from adris', async () => {
+    it('terrapet contact info differs from terrapet', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
       // Different phone numbers
-      expect(terrapetData?.config.contact.phone).not.toBe(adrisData?.config.contact.phone)
+      expect(terrapetData?.config.contact.phone).not.toBe(terrapetData?.config.contact.phone)
 
       // Different addresses
-      expect(terrapetData?.config.contact.address).not.toBe(adrisData?.config.contact.address)
+      expect(terrapetData?.config.contact.address).not.toBe(terrapetData?.config.contact.address)
     })
 
     it('each clinic has unique theme colors', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
       // TerraPet: Earth tones (#78866B, #C19A6B, #E8A87C)
       expect(terrapetData?.theme.colors.primary).toBe('#78866B')
 
       // Adris: Different color scheme
-      expect(adrisData?.theme.colors.primary).not.toBe('#78866B')
+      expect(terrapetData?.theme.colors.primary).not.toBe('#78866B')
     })
   })
 })

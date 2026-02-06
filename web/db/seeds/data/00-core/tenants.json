@@ -2,7 +2,7 @@
   "$schema": "../_schemas/core.schema.json",
   "tenants": [
     {
-      "id": "adris",
+      "id": "terrapet",
       "name": "Veterinaria Adris",
       "legal_name": "Veterinaria Adris S.R.L.",
       "ruc": "80012345-6",
@@ -11,8 +11,8 @@
       "address": "Av. Mariscal Lopez 1234, Barrio Villa Morra",
       "phone": "+595 21 600 123",
       "whatsapp": "+595 981 234 567",
-      "email": "info@veterinaria-adris.com.py",
-      "website_url": "https://veterinaria-adris.com.py",
+      "email": "info@veterinaria-terrapet.com.py",
+      "website_url": "https://veterinaria-terrapet.com.py",
       "settings": {
         "timezone": "America/Asuncion",
         "currency": "PYG",

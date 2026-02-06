@@ -30,7 +30,7 @@ vi.mock('@/app/actions/create-booking-request', () => ({
 
 const mockClinic: any = {
   config: {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Adris Vet',
   },
   services: [
@@ -44,7 +44,7 @@ const mockClinic: any = {
 
 const mockClinicMultiService: any = {
   config: {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Adris Vet',
   },
   services: [
@@ -111,7 +111,7 @@ describe('useBookingStore', () => {
     useBookingStore.getState().initialize(mockClinic, mockPets)
 
     const state = useBookingStore.getState()
-    expect(state.clinicId).toBe('adris')
+    expect(state.clinicId).toBe('terrapet')
     expect(state.pets).toHaveLength(1)
     expect(state.services).toHaveLength(1)
     // Since there is only 1 pet, it should be auto-selected

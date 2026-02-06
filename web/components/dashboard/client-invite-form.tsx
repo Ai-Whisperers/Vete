@@ -136,7 +136,7 @@ export function ClientInviteForm({
       setTimeout(() => {
         onSuccess?.()
       }, 1500)
-    } catch (err) {
+    } catch (_err) {
       // Error is handled by useMutation
     }
   })

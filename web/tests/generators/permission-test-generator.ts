@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { UserFixture, DEFAULT_OWNER, DEFAULT_VET, DEFAULT_ADMIN } from '../../../__fixtures__/users'
 import { createMockAuthState } from '../../__mocks__/auth-state'
-import { makeAuthenticatedRequest, makeRequest } from '../../__helpers__/api-request'
+import { makeAuthenticatedRequest } from '../../__helpers__/api-request'
 import { factories } from '../../../__fixtures__'
 
 export interface EndpointSpec {

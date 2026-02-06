@@ -58,21 +58,21 @@ const DEMO_USERS: DemoUser[] = [
     password: 'password123',
     name: 'Admin Adris',
     role: 'admin',
-    tenant: 'adris',
+    tenant: 'terrapet',
   },
   {
     email: 'vet@demo.com',
     password: 'password123',
     name: 'Dr. House',
     role: 'vet',
-    tenant: 'adris',
+    tenant: 'terrapet',
   },
   {
     email: 'owner@demo.com',
     password: 'password123',
     name: 'Juan Perez',
     role: 'owner',
-    tenant: 'adris',
+    tenant: 'terrapet',
     phone: '+595981234567',
   },
   {
@@ -80,7 +80,7 @@ const DEMO_USERS: DemoUser[] = [
     password: 'password123',
     name: 'Maria Gonzalez',
     role: 'owner',
-    tenant: 'adris',
+    tenant: 'terrapet',
     phone: '+595987654321',
   },
   {
@@ -372,7 +372,7 @@ class DatabaseSetup {
     console.log('  vet@demo.com / password123    (Veterinarian)')
     console.log('  admin@demo.com / password123  (Admin)')
     console.log('\nURLs:')
-    console.log('  http://localhost:3000/adris   (Veterinaria Adris)')
+    console.log('  http://localhost:3000/terrapet   (Veterinaria Adris)')
     console.log('  http://localhost:3000/petlife (PetLife Center)')
     console.log()
   }

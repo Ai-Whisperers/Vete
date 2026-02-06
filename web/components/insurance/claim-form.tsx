@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/Toast'
-import { Plus, Trash2, FileText, AlertCircle, Loader2 } from 'lucide-react'
+import { Plus, Trash2, AlertCircle, Loader2 } from 'lucide-react'
 
 interface ClaimFormProps {
   petId?: string

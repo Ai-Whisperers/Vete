@@ -5,7 +5,7 @@
  * Integrates with Stripe for payment method validation
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi} from 'vitest'
 import { GET, POST } from '@/app/api/billing/payment-methods/route'
 import {
   setupIntegrationTest,
@@ -16,6 +16,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -44,6 +45,9 @@ describe('API: /api/billing/payment-methods', () => {
     const vet = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     vetUser.userId = vet.userId
     vetUser.profile.id = vet.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -51,7 +55,7 @@ describe('API: /api/billing/payment-methods', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
     vi.clearAllMocks()
   })
 

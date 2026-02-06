@@ -1,6 +1,6 @@
 'use client'
 
-import { Dog, Cat, Syringe, FileCheck, AlertTriangle, UserPlus, Rabbit } from 'lucide-react'
+import { Dog, Cat, Syringe, FileCheck, AlertTriangle, UserPlus } from 'lucide-react'
 import type { InsightsData, FilterOptions } from './types'
 
 interface InsightsBarProps {

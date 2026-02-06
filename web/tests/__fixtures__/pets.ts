@@ -36,7 +36,7 @@ export const PETS: Record<string, PetFixture> = {
   maxDog: {
     id: '00000000-0000-0000-0001-000000000001',
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Max',
     species: 'dog',
     breed: 'Golden Retriever',
@@ -50,7 +50,7 @@ export const PETS: Record<string, PetFixture> = {
   lunaDog: {
     id: '00000000-0000-0000-0001-000000000002',
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Luna',
     species: 'dog',
     breed: 'Labrador',
@@ -66,7 +66,7 @@ export const PETS: Record<string, PetFixture> = {
   mishiCat: {
     id: '00000000-0000-0000-0001-000000000003',
     ownerId: '00000000-0000-0000-0000-000000000002',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Mishi',
     species: 'cat',
     breed: 'Persa',
@@ -81,7 +81,7 @@ export const PETS: Record<string, PetFixture> = {
   simbacat: {
     id: '00000000-0000-0000-0001-000000000004',
     ownerId: '00000000-0000-0000-0000-000000000002',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Simba',
     species: 'cat',
     breed: 'Mestizo',
@@ -97,7 +97,7 @@ export const PETS: Record<string, PetFixture> = {
   conejito: {
     id: '00000000-0000-0000-0001-000000000005',
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Copito',
     species: 'rabbit',
     breed: 'Holland Lop',
@@ -164,7 +164,7 @@ export function generatePetData(overrides: Partial<PetFixture> = {}): Omit<PetFi
   const random = Math.random().toString(36).substring(7)
   return {
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: `TestPet-${random}`,
     species: 'dog',
     breed: 'Test Breed',
@@ -182,20 +182,20 @@ export function generatePetData(overrides: Partial<PetFixture> = {}): Omit<PetFi
 export const INVALID_PET_DATA = {
   missingName: {
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     species: 'dog',
     // name is missing
   },
   invalidWeight: {
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Invalid',
     species: 'dog',
     weightKg: -5, // Invalid negative weight
   },
   invalidSpecies: {
     ownerId: '00000000-0000-0000-0000-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     name: 'Invalid',
     species: 'unicorn', // Invalid species
   },

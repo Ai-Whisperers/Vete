@@ -80,10 +80,10 @@ npm run dev
 
 | URL | Description |
 |-----|-------------|
-| http://localhost:3000/adris | Veterinaria Adris (demo clinic) |
+| http://localhost:3000/terrapet | Veterinaria Adris (demo clinic) |
 | http://localhost:3000/petlife | PetLife Center (demo clinic) |
-| http://localhost:3000/adris/portal | Pet owner portal |
-| http://localhost:3000/adris/dashboard | Staff dashboard |
+| http://localhost:3000/terrapet/portal | Pet owner portal |
+| http://localhost:3000/terrapet/dashboard | Staff dashboard |
 
 ## Project Structure
 
@@ -122,7 +122,7 @@ Vete/
 │   │
 │   ├── .content_data/             # JSON-CMS content per clinic
 │   │   ├── _TEMPLATE/             # Template for new clinics
-│   │   ├── adris/                 # Veterinaria Adris content
+│   │   ├── terrapet/                 # Veterinaria Adris content
 │   │   └── petlife/               # PetLife Center content
 │   │
 │   ├── tests/                     # Test suites

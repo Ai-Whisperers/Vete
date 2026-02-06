@@ -15,7 +15,6 @@ import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/conversations/route'
 import {
   mockState,
-  TENANTS,
   USERS,
   PETS,
   resetAllMocks,

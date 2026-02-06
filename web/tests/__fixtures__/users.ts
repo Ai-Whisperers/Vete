@@ -30,7 +30,7 @@ export const USERS: Record<string, UserFixture> = {
     fullName: 'Juan Propietario',
     phone: '+595981123456',
     role: 'owner',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     clientCode: 'ADR-001',
   },
   owner2: {
@@ -40,7 +40,7 @@ export const USERS: Record<string, UserFixture> = {
     fullName: 'Maria Cliente',
     phone: '+595981234567',
     role: 'owner',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     clientCode: 'ADR-002',
   },
   ownerPetlife: {
@@ -62,7 +62,7 @@ export const USERS: Record<string, UserFixture> = {
     fullName: 'Dr. Roberto Veterinario',
     phone: '+595981456789',
     role: 'vet',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
   vet2: {
     id: '00000000-0000-0000-0000-000000000011',
@@ -71,7 +71,7 @@ export const USERS: Record<string, UserFixture> = {
     fullName: 'Dra. Ana Veterinaria',
     phone: '+595981567890',
     role: 'vet',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
 
   // Administrators
@@ -82,7 +82,7 @@ export const USERS: Record<string, UserFixture> = {
     fullName: 'Admin Principal',
     phone: '+595981678901',
     role: 'admin',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
   adminPetlife: {
     id: '00000000-0000-0000-0000-000000000021',

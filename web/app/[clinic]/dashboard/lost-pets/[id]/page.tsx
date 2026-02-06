@@ -8,16 +8,12 @@ interface Props {
 }
 
 export async function generateStaticParams(): Promise<Array<{ clinic: string; id: string }>> {
-  // Dynamic pages - no static params needed
   return []
 }
 
 export default async function LostPetDetailPage({ params }: Props): Promise<React.ReactElement> {
   const { clinic, id } = await params
-
-  // SEC-006: Require staff authentication with tenant verification
   await requireStaff(clinic)
-
   const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {

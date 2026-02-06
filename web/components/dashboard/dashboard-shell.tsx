@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 import { usePathname } from 'next/navigation'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { BottomNavigation } from './bottom-navigation'

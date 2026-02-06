@@ -92,7 +92,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris');
+      const result = await service.list('terrapet');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -108,7 +108,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris', { status: 'pending' });
+      const result = await service.list('terrapet', { status: 'pending' });
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('status', 'pending');
@@ -120,7 +120,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris', { pet_id: 'pet-1' });
+      const result = await service.list('terrapet', { pet_id: 'pet-1' });
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('pet_id', 'pet-1');
@@ -132,7 +132,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris', {
+      const result = await service.list('terrapet', {
         start_date: '2026-01-01',
         end_date: '2026-12-31',
       });
@@ -147,7 +147,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris');
+      const result = await service.list('terrapet');
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.is).toHaveBeenCalledWith('deleted_at', null);
@@ -159,7 +159,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.list('adris', { include_deleted: true });
+      const result = await service.list('terrapet', { include_deleted: true });
 
       expect(result.success).toBe(true);
       // Should not call .is('deleted_at', null)
@@ -173,7 +173,7 @@ describe('AppointmentService', () => {
         error: new Error('DB error'),
       });
 
-      const result = await service.list('adris');
+      const result = await service.list('terrapet');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -195,7 +195,7 @@ describe('AppointmentService', () => {
         error: null,
       });
 
-      const result = await service.getById('apt-1', 'adris');
+      const result = await service.getById('apt-1', 'terrapet');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -210,7 +210,7 @@ describe('AppointmentService', () => {
         then: vi.fn((cb) => cb({ data: null, error: new Error('Not found') })),
       });
 
-      const result = await service.getById('apt-999', 'adris');
+      const result = await service.getById('apt-999', 'terrapet');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -320,7 +320,7 @@ describe('AppointmentService', () => {
           then: vi.fn((cb) => cb({ data: { ...mockAppointment, notes: 'Updated' }, error: null })),
         });
 
-      const result = await service.update('apt-1', 'adris', { notes: 'Updated' });
+      const result = await service.update('apt-1', 'terrapet', { notes: 'Updated' });
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -335,7 +335,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.update('apt-1', 'adris', { notes: 'Updated' });
+      const result = await service.update('apt-1', 'terrapet', { notes: 'Updated' });
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -350,7 +350,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.update('apt-1', 'adris', { notes: 'Updated' });
+      const result = await service.update('apt-1', 'terrapet', { notes: 'Updated' });
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -365,7 +365,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.update('apt-1', 'adris', { notes: 'Updated' });
+      const result = await service.update('apt-1', 'terrapet', { notes: 'Updated' });
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -392,7 +392,7 @@ describe('AppointmentService', () => {
           ),
         });
 
-      const result = await service.checkIn('apt-1', 'adris', 'vet-1');
+      const result = await service.checkIn('apt-1', 'terrapet', 'vet-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -413,7 +413,7 @@ describe('AppointmentService', () => {
           ),
         });
 
-      const result = await service.checkIn('apt-1', 'adris', 'vet-1');
+      const result = await service.checkIn('apt-1', 'terrapet', 'vet-1');
 
       expect(result.success).toBe(true);
     });
@@ -425,7 +425,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.checkIn('apt-1', 'adris', 'vet-1');
+      const result = await service.checkIn('apt-1', 'terrapet', 'vet-1');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -452,7 +452,7 @@ describe('AppointmentService', () => {
           ),
         });
 
-      const result = await service.complete('apt-1', 'adris', 'vet-1', 'Consulta realizada');
+      const result = await service.complete('apt-1', 'terrapet', 'vet-1', 'Consulta realizada');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -474,7 +474,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      await service.complete('apt-1', 'adris', 'vet-1', 'Consulta realizada');
+      await service.complete('apt-1', 'terrapet', 'vet-1', 'Consulta realizada');
 
       // Verify update was called with notes
       expect(mockSupabase._mocks.update).toHaveBeenCalled();
@@ -487,7 +487,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.complete('apt-1', 'adris', 'vet-1');
+      const result = await service.complete('apt-1', 'terrapet', 'vet-1');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -514,7 +514,7 @@ describe('AppointmentService', () => {
           ),
         });
 
-      const result = await service.cancel('apt-1', 'adris', 'user-1', 'Cliente canceló');
+      const result = await service.cancel('apt-1', 'terrapet', 'user-1', 'Cliente canceló');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -529,7 +529,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.cancel('apt-1', 'adris', 'user-1');
+      const result = await service.cancel('apt-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -544,7 +544,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.cancel('apt-1', 'adris', 'user-1');
+      const result = await service.cancel('apt-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(false);
     });
@@ -568,7 +568,7 @@ describe('AppointmentService', () => {
         }
       );
 
-      const result = await service.getAvailableSlots('adris', {
+      const result = await service.getAvailableSlots('terrapet', {
         date: '2026-02-01',
       });
 
@@ -587,7 +587,7 @@ describe('AppointmentService', () => {
         { data: [], error: null }
       );
 
-      const result = await service.getAvailableSlots('adris', {
+      const result = await service.getAvailableSlots('terrapet', {
         date: '2026-02-01',
         service_id: 'service-1',
       });
@@ -607,7 +607,7 @@ describe('AppointmentService', () => {
         { data: [], error: null }
       );
 
-      const result = await service.getAvailableSlots('adris', {
+      const result = await service.getAvailableSlots('terrapet', {
         date: '2026-02-01',
         service_id: 'service-999',
       });
@@ -643,7 +643,7 @@ describe('AppointmentService', () => {
         ),
       });
 
-      const result = await service.getAnalytics('adris', 'month');
+      const result = await service.getAnalytics('terrapet', 'month');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -666,7 +666,7 @@ describe('AppointmentService', () => {
         }
       );
 
-      const result = await service.getAnalytics('adris', 'month');
+      const result = await service.getAnalytics('terrapet', 'month');
 
       expect(result.success).toBe(true);
       if (result.success) {

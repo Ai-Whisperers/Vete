@@ -18,7 +18,6 @@ import {
   AlertTriangle,
   Settings,
   BarChart2,
-  RefreshCw,
   ExternalLink,
 } from 'lucide-react'
 
@@ -46,7 +45,7 @@ interface Props {
   userPhone: string | null
 }
 
-export default function SmsSettings({ clinic, userPhone }: Props) {
+export default function SmsSettings({ clinic: _clinic, userPhone }: Props) {
   const queryClient = useQueryClient()
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
   const [activeTab, setActiveTab] = useState<'config' | 'stats'>('config')

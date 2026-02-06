@@ -46,7 +46,7 @@ A **tenant** represents a single veterinary clinic or practice. It's the top-lev
 
 Each tenant has:
 
-- A unique identifier (slug) like "adris" or "petlife"
+- A unique identifier (slug) like "terrapet" or "petlife"
 - Business information (name, address, contact details)
 - Branding settings (stored separately in JSON files, not in the database)
 - Configuration for which features are enabled

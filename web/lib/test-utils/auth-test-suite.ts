@@ -28,7 +28,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { mockState, AuthScenario } from './mock-presets'
-import type { ApiHandlerContext, ApiHandlerContextWithParams } from '@/lib/auth'
 
 // =============================================================================
 // Types

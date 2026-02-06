@@ -9,7 +9,7 @@
  * (create_appointment_atomic, update_appointment_status_atomic)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth';
 import { apiError, apiSuccess, API_ERRORS } from '@/lib/api/errors';
 import {

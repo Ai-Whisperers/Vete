@@ -20,7 +20,6 @@ import {
   canSendInvoice,
   formatCurrency,
   type InvoiceItem,
-  type InvoiceStatus,
 } from '@/lib/types/invoicing'
 
 describe('Currency Utilities', () => {

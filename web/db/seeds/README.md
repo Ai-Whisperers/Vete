@@ -11,7 +11,7 @@ seeds/
 │   ├── 00-core/            # Core system data (tenants, demo accounts)
 │   ├── 01-reference/       # Reference data (diagnoses, drugs, etc.)
 │   ├── 02-clinic/          # Clinic-specific operational data (per tenant)
-│   │   ├── adris/          # Veterinaria Adris data
+│   │   ├── terrapet/          # Veterinaria Adris data
 │   │   └── petlife/        # PetLife Center data
 │   ├── 02-templates/       # Shared templates (consent, message, time-off)
 │   ├── 02-users/           # Global profiles, pets, vaccines

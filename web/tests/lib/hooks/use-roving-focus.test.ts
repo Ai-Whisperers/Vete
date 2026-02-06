@@ -9,7 +9,6 @@ import { renderHook, act } from '@testing-library/react'
 import {
   useRovingFocus,
   getGroupProps,
-  type UseRovingFocusOptions,
 } from '../../../lib/hooks/use-roving-focus'
 
 describe('useRovingFocus', () => {

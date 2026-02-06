@@ -7,7 +7,7 @@
 
 import { test, expect } from '@playwright/test'
 
-const CLINICS = ['adris', 'petlife']
+const CLINICS = ['terrapet', 'petlife']
 
 test.describe('Public Homepage', () => {
   for (const clinic of CLINICS) {
@@ -107,9 +107,9 @@ test.describe('Public Homepage', () => {
     })
 
     test('each clinic has unique branding', async ({ page }) => {
-      // Visit adris
-      await page.goto('/adris')
-      const adrisTitle = await page.title()
+      // Visit terrapet
+      await page.goto('/terrapet')
+      const terrapetTitle = await page.title()
 
       // Visit petlife
       await page.goto('/petlife')

@@ -1,74 +1,74 @@
 [
   {
-    "id": "appointment",
-    "category": "citas",
-    "question": "¿Cómo puedo agendar una cita?",
-    "answer": "Puedes agendar una cita a través de nuestro portal web haciendo clic en 'Agendar Cita', llamándonos al +595 992 152 465, o enviándonos un mensaje por WhatsApp al mismo número."
+    "id": "emergency-hours",
+    "category": "urgencias",
+    "question": "¿Atienden urgencias de madrugada?",
+    "answer": "Sí, contamos con veterinario de guardia las 24 horas, los 365 días del año. Para urgencias nocturnas, llama a nuestro número de WhatsApp (+595 981 123 456) o presiona el botón de 'Emergencia' en la web. Un veterinario te responderá en menos de 10 minutos."
   },
   {
-    "id": "animals",
-    "category": "servicios",
-    "question": "¿Qué tipos de animales atienden?",
-    "answer": "Somos especialistas en el cuidado de perros. Nuestro equipo está enfocado en brindar el mejor servicio veterinario para tu peludo."
+    "id": "digital-card",
+    "category": "carnet-digital",
+    "question": "¿Cómo funciona el Carnet Digital?",
+    "answer": "Es automático y gratuito. Cada vacuna que aplicamos en Veterinaria Adris se sube instantáneamente a tu perfil online. Puedes acceder desde cualquier dispositivo, descargar PDF para viajes y recibir recordatorios automáticos. Si tienes vacunas de otros lugares, puedes subir una foto y nosotros la verificamos para agregarla a tu historial."
+  },
+  {
+    "id": "delivery",
+    "category": "tienda",
+    "question": "¿Hacen envíos de alimentos y productos?",
+    "answer": "Sí, hacemos delivery sin costo en Asunción para compras superiores a 150.000 Gs. Zonas habilitadas: Santa Teresa, Villa Morra, Carmelitas, Manorá y alrededores. El pedido se entrega en 24-48 horas hábiles. Para zonas fuera del radio, consultá por costo de envío."
+  },
+  {
+    "id": "insurance",
+    "category": "pagos",
+    "question": "¿Aceptan seguros de mascotas?",
+    "answer": "Trabajamos con 'Mascota Segura' y 'PetPlan Paraguay'. Presentando tu credencial de asegurado tienes cobertura directa sin adelantar dinero (según tu plan). También aceptamos todas las tarjetas de crédito/débito y transferencias bancarias."
+  },
+  {
+    "id": "appointment",
+    "category": "citas",
+    "question": "¿Necesito cita para atenderme?",
+    "answer": "Para consultas generales y vacunación recomendamos agendar cita para evitar esperas, pero también atendemos sin turno. Para grooming, cirugías y especialidades es obligatorio reservar con anticipación. Puedes agendar online 24/7 desde nuestra web o por WhatsApp."
   },
   {
     "id": "payment-methods",
     "category": "pagos",
     "question": "¿Qué formas de pago aceptan?",
-    "answer": "Aceptamos efectivo, tarjetas de débito y crédito, y transferencias bancarias. Ofrecemos precios accesibles para que todos puedan acceder a servicios veterinarios de calidad."
+    "answer": "Aceptamos efectivo, todas las tarjetas de crédito y débito (Visa, MasterCard, Cabal), transferencias bancarias, Tigo Money, Personal Pay y billeteras digitales. Para cirugías y tratamientos prolongados ofrecemos planes de pago en cuotas."
   },
   {
-    "id": "vaccines",
+    "id": "vaccination-certificate",
     "category": "vacunas",
-    "question": "¿Qué vacunas necesita mi perro?",
-    "answer": "El esquema de vacunación depende de la edad y estilo de vida de tu perro. Ofrecemos vacunas antirrábicas, polivalentes y otras necesarias. Nuestro veterinario te dará un plan personalizado."
+    "question": "¿Emiten certificado de vacunación para viajes?",
+    "answer": "Sí, emitimos el certificado oficial de SENACSA requerido para viajes nacionales e internacionales. El certificado tiene validez de 30 días para vuelos. Necesitas traer la mascota, su carnet de vacunas actualizado y tu cédula. El trámite demora aproximadamente 20 minutos."
   },
   {
-    "id": "hours",
-    "category": "horarios",
-    "question": "¿Cuál es el horario de atención?",
-    "answer": "Nuestro horario de atención es de lunes a domingo de 9:00 a 18:00. ¡Abierto todos los días para el cuidado de tu peludo!"
+    "id": "exotic-pets",
+    "category": "mascotas",
+    "question": "¿Atienden animales exóticos?",
+    "answer": "Sí, contamos con especialista en animales exóticos para atender aves, conejos, hamsters, reptiles y otros. Las consultas de exóticos requieren cita previa y tienen un costo diferenciado. Llámanos para coordinar disponibilidad del especialista."
   },
   {
-    "id": "home-visits",
-    "category": "servicios",
-    "question": "¿Hacen consultas a domicilio?",
-    "answer": "Sí, ofrecemos servicio de consultas a domicilio para mayor comodidad. Contáctanos para coordinar una visita."
+    "id": "neutering-age",
+    "category": "cirugia",
+    "question": "¿A qué edad puedo castrar a mi mascota?",
+    "answer": "En general, recomendamos castrar perros y gatos a partir de los 6 meses de edad. Sin embargo, cada caso es individual y el veterinario evaluará el estado de salud, peso y desarrollo de tu mascota para determinar el momento óptimo. Agenda una consulta pre-quirúrgica gratuita para evaluación."
   },
   {
-    "id": "first-visit",
-    "category": "citas",
-    "question": "¿Qué debo traer en la primera visita?",
-    "answer": "Para la primera visita, por favor trae el carnet de vacunas de tu perro (si tiene), cualquier historial médico anterior, y una lista de cualquier medicamento que esté tomando actualmente."
+    "id": "grooming-frequency",
+    "category": "grooming",
+    "question": "¿Cada cuánto debo bañar a mi perro?",
+    "answer": "Depende de la raza, tipo de pelo y estilo de vida. En general: perros de pelo corto cada 4-6 semanas, pelo largo cada 2-4 semanas. Perros con problemas de piel pueden requerir baños medicados más frecuentes. Nuestras estilistas te asesorarán sobre la frecuencia ideal para tu mascota."
   },
   {
-    "id": "grooming-schedule",
-    "category": "peluqueria",
-    "question": "¿Con qué frecuencia debo traer a mi perro a peluquería?",
-    "answer": "Recomendamos un baño cada 3-4 semanas para mantener la higiene y salud de tu perro. La frecuencia del corte depende de la raza y tus preferencias."
+    "id": "loyalty-program",
+    "category": "beneficios",
+    "question": "¿Cómo funciona el programa de fidelidad?",
+    "answer": "Por cada compra acumulás puntos: 1 punto por cada 10.000 Gs gastados. Los puntos se pueden canjear por descuentos en servicios y productos. Además, accedes a promociones exclusivas, sorteos mensuales y precios especiales en vacunación anual. El registro es automático al crear tu cuenta."
   },
   {
-    "id": "microchip",
-    "category": "identificacion",
-    "question": "¿Por qué es importante el microchip?",
-    "answer": "El microchip es una identificación permanente que ayuda a recuperar a tu perro si se pierde. Es un procedimiento simple y seguro que brinda tranquilidad."
-  },
-  {
-    "id": "certificates",
-    "category": "documentos",
-    "question": "¿Emiten certificados de salud y viaje?",
-    "answer": "Sí, emitimos certificados de salud para trámites generales y certificados de viaje para viajes nacionales e internacionales. Agenda una cita para la evaluación."
-  },
-  {
-    "id": "products",
-    "category": "tienda",
-    "question": "¿Venden productos para perros?",
-    "answer": "Sí, contamos con alimentos balanceados de calidad y otros productos para el cuidado de tu perro. Consulta nuestra tienda online o visítanos."
-  },
-  {
-    "id": "why-terrapet",
-    "category": "nosotros",
-    "question": "¿Qué hace diferente a TerraPet?",
-    "answer": "Nos destacamos por el buen trato y la atención tanto para dueños como para pacientes. Ofrecemos servicios de calidad con precios accesibles, porque creemos que todos merecen el mejor cuidado para sus peludos."
+    "id": "medical-records",
+    "category": "historial",
+    "question": "¿Puedo acceder al historial médico de mi mascota?",
+    "answer": "Sí, todo el historial médico está disponible en tu portal de cliente: consultas, diagnósticos, tratamientos, vacunas, cirugías, resultados de laboratorio e imágenes. Puedes descargarlo en PDF o compartirlo con otro veterinario si lo necesitas."
   }
 ]

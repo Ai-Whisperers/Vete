@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, ThumbsUp, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react'
+import { Star, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react'
 import type { StoreProductWithDetails, ReviewSummary } from '@/lib/types/store'
 import {
   SPECIES_LABELS,
@@ -33,7 +33,7 @@ export default function ProductTabs({
   product,
   reviewSummary,
   questions,
-  clinic,
+  clinic: _clinic,
   currencySymbol,
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('description')

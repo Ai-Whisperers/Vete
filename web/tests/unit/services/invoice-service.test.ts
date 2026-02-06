@@ -148,7 +148,7 @@ describe('InvoiceService', () => {
         count: 1,
       });
 
-      const result = await service.list('adris', {}, 'user-1', true);
+      const result = await service.list('terrapet', {}, 'user-1', true);
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -166,7 +166,7 @@ describe('InvoiceService', () => {
         { data: [mockInvoiceWithDetails], error: null, count: 1 }
       );
 
-      const result = await service.list('adris', {}, 'owner-1', false);
+      const result = await service.list('terrapet', {}, 'owner-1', false);
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -180,7 +180,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.list('adris', {}, 'owner-1', false);
+      const result = await service.list('terrapet', {}, 'owner-1', false);
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -196,7 +196,7 @@ describe('InvoiceService', () => {
         count: 1,
       });
 
-      await service.list('adris', { status: 'paid' }, 'user-1', true);
+      await service.list('terrapet', { status: 'paid' }, 'user-1', true);
 
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('status', 'paid');
     });
@@ -208,7 +208,7 @@ describe('InvoiceService', () => {
         count: 1,
       });
 
-      await service.list('adris', { petId: 'pet-1' }, 'user-1', true);
+      await service.list('terrapet', { petId: 'pet-1' }, 'user-1', true);
 
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('pet_id', 'pet-1');
     });
@@ -220,7 +220,7 @@ describe('InvoiceService', () => {
         count: 50,
       });
 
-      const result = await service.list('adris', { page: 2, limit: 10 }, 'user-1', true);
+      const result = await service.list('terrapet', { page: 2, limit: 10 }, 'user-1', true);
 
       expect(mockSupabase._mocks.range).toHaveBeenCalledWith(10, 19);
       if (result.success) {
@@ -235,7 +235,7 @@ describe('InvoiceService', () => {
         error: { message: 'Database error', code: '42P01' },
       });
 
-      const result = await service.list('adris', {}, 'user-1', true);
+      const result = await service.list('terrapet', {}, 'user-1', true);
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -256,7 +256,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getById('inv-1', 'adris', 'user-1', true);
+      const result = await service.getById('inv-1', 'terrapet', 'user-1', true);
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -272,7 +272,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getById('inv-1', 'adris', 'owner-1', false);
+      const result = await service.getById('inv-1', 'terrapet', 'owner-1', false);
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -286,7 +286,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getById('inv-1', 'adris', 'user-1', true);
+      const result = await service.getById('inv-1', 'terrapet', 'user-1', true);
 
       expect(result.success).toBe(true);
     });
@@ -297,7 +297,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getById('inv-999', 'adris', 'user-1', true);
+      const result = await service.getById('inv-999', 'terrapet', 'user-1', true);
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -327,7 +327,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: 'pet-1',
         items: [
           {
@@ -353,7 +353,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: 'pet-1',
         items: [{ description: 'Test', quantity: 1, unit_price: 100000 }],
         idempotency_key: 'unique-key-123',
@@ -366,7 +366,7 @@ describe('InvoiceService', () => {
     });
 
     it('should validate required fields', async () => {
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: '',
         items: [],
          
@@ -379,7 +379,7 @@ describe('InvoiceService', () => {
     });
 
     it('should require at least one item', async () => {
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: 'pet-1',
         items: [],
       });
@@ -396,7 +396,7 @@ describe('InvoiceService', () => {
         error: { message: 'Not found' },
       });
 
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: 'pet-999',
         items: [{ description: 'Test', quantity: 1, unit_price: 100000 }],
       });
@@ -432,7 +432,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.create('adris', 'user-1', {
+      const result = await service.create('terrapet', 'user-1', {
         pet_id: 'pet-1',
         items: [
           {
@@ -472,7 +472,7 @@ describe('InvoiceService', () => {
         { data: null, error: null }
       );
 
-      const result = await service.update('inv-1', 'adris', 'user-1', {
+      const result = await service.update('inv-1', 'terrapet', 'user-1', {
         items: [{ description: 'Updated item', quantity: 2, unit_price: 200000 }],
         tax_rate: 10,
       });
@@ -491,7 +491,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.update('inv-1', 'adris', 'user-1', {
+      const result = await service.update('inv-1', 'terrapet', 'user-1', {
         status: 'paid',
         notes: 'Payment received',
       });
@@ -505,7 +505,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.update('inv-1', 'adris', 'user-1', {
+      const result = await service.update('inv-1', 'terrapet', 'user-1', {
         items: [{ description: 'Trying to change items', quantity: 1, unit_price: 100000 }],
       });
 
@@ -521,7 +521,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.update('inv-1', 'adris', 'user-1', {
+      const result = await service.update('inv-1', 'terrapet', 'user-1', {
         notes: 'Update attempt',
       });
 
@@ -545,7 +545,7 @@ describe('InvoiceService', () => {
         { data: null, error: null }
       );
 
-      const result = await service.delete('inv-1', 'adris', 'user-1');
+      const result = await service.delete('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -561,7 +561,7 @@ describe('InvoiceService', () => {
         { data: null, error: null }
       );
 
-      const result = await service.delete('inv-1', 'adris', 'user-1');
+      const result = await service.delete('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -594,7 +594,7 @@ describe('InvoiceService', () => {
         { data: null, error: null }
       );
 
-      const result = await service.recordPayment('adris', 'user-1', {
+      const result = await service.recordPayment('terrapet', 'user-1', {
         invoice_id: 'inv-1',
         amount: 165000,
         payment_method: 'cash',
@@ -607,7 +607,7 @@ describe('InvoiceService', () => {
     });
 
     it('should validate payment amount', async () => {
-      const result = await service.recordPayment('adris', 'user-1', {
+      const result = await service.recordPayment('terrapet', 'user-1', {
         invoice_id: 'inv-1',
         amount: 0,
         payment_method: 'cash',
@@ -632,7 +632,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.recordPayment('adris', 'user-1', {
+      const result = await service.recordPayment('terrapet', 'user-1', {
         invoice_id: 'inv-1',
         amount: 100000,
         payment_method: 'cash',
@@ -652,7 +652,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getPayments('inv-1', 'adris');
+      const result = await service.getPayments('inv-1', 'terrapet');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -682,7 +682,7 @@ describe('InvoiceService', () => {
       );
 
       const result = await service.refundPayment(
-        'adris',
+        'terrapet',
         'user-1',
         'pay-1',
         50000,
@@ -696,7 +696,7 @@ describe('InvoiceService', () => {
     });
 
     it('should validate refund amount', async () => {
-      const result = await service.refundPayment('adris', 'user-1', 'pay-1', 0, 'Test');
+      const result = await service.refundPayment('terrapet', 'user-1', 'pay-1', 0, 'Test');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -716,7 +716,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.refundPayment('adris', 'user-1', 'pay-1', 100000, 'Test');
+      const result = await service.refundPayment('terrapet', 'user-1', 'pay-1', 100000, 'Test');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -736,7 +736,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.sendInvoice('inv-1', 'adris', 'user-1');
+      const result = await service.sendInvoice('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -750,7 +750,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.sendInvoice('inv-1', 'adris', 'user-1');
+      const result = await service.sendInvoice('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -771,7 +771,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.markAsPaid('inv-1', 'adris', 'user-1');
+      const result = await service.markAsPaid('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -787,7 +787,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.voidInvoice('inv-1', 'adris', 'user-1');
+      const result = await service.voidInvoice('inv-1', 'terrapet', 'user-1');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -807,7 +807,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getOverdueInvoices('adris');
+      const result = await service.getOverdueInvoices('terrapet');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -832,7 +832,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getRevenueSummary('adris', '2026-01-01', '2026-01-31');
+      const result = await service.getRevenueSummary('terrapet', '2026-01-01', '2026-01-31');
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -850,7 +850,7 @@ describe('InvoiceService', () => {
         error: null,
       });
 
-      const result = await service.getRevenueSummary('adris', '2026-01-01', '2026-01-31');
+      const result = await service.getRevenueSummary('terrapet', '2026-01-01', '2026-01-31');
 
       expect(result.success).toBe(true);
       if (result.success) {

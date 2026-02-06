@@ -21,7 +21,6 @@ import {
   type StaffScheduleEntry,
   type StaffAvailabilityOverride,
   type TimeOffRequest,
-  type CalendarView,
 } from '@/lib/types/calendar'
 
 // =============================================================================

@@ -4,7 +4,7 @@ import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
-  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+  async ({ request, user: _user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
     const species = searchParams.get('species')
     const search = searchParams.get('q')

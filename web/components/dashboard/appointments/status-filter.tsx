@@ -19,7 +19,7 @@ const statusOptions = [
   { value: 'cancelled', label: 'Canceladas' },
 ]
 
-export function StatusFilter({ currentStatus, clinic, currentDate }: StatusFilterProps) {
+export function StatusFilter({ currentStatus, clinic: _clinic, currentDate }: StatusFilterProps) {
   const router = useRouter()
 
   const handleStatusChange = (status: string) => {

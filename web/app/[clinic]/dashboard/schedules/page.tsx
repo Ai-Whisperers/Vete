@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
-  DAY_NAMES,
   getDayName,
   type DayOfWeek,
   type StaffScheduleEntry,

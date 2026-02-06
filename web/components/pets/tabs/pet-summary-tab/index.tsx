@@ -10,7 +10,7 @@
  * <PetSummaryTab
  *   pet={petData}
  *   weightHistory={weightHistory}
- *   clinic="adris"
+ *   clinic="terrapet"
  *   onWeightUpdated={handleRefresh}
  * />
  * ```

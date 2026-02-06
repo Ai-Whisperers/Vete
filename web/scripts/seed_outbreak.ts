@@ -42,7 +42,7 @@ async function seedOutbreak() {
                 INSERT INTO disease_reports (
                     tenant_id, diagnosis_code_id, species, reported_date, location_zone, severity, age_months, is_vaccinated
                 ) VALUES (
-                    'adris', $1, 'dog', CURRENT_DATE - $2::INTEGER, $3, $4, 12, false
+                    'terrapet', $1, 'dog', CURRENT_DATE - $2::INTEGER, $3, $4, 12, false
                 );
             `,
         [diagnosisId, daysAgo, loc, sev]

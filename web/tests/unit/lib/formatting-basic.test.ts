@@ -9,7 +9,6 @@ import { describe, it, expect } from 'vitest'
 // Currency formatting
 import {
   formatPrice,
-  formatCurrency,
   formatPriceGs,
   parseCurrency,
   formatPriceRange,
@@ -110,7 +109,7 @@ describe('Text Utilities', () => {
   })
 
   it('creates slugs', () => {
-    expect(slugify('Veterinaria Adris')).toBe('veterinaria-adris')
+    expect(slugify('TerraPet')).toBe('terrapet')
     expect(slugify('Café & Té')).toBe('cafe-te')
   })
 

@@ -48,7 +48,6 @@ export {
 
 import { SupabaseClient } from '@supabase/supabase-js';
 import { UserService } from './service';
-import { UserRepository } from './repository';
 
 /**
  * Create a new UserService instance with proper dependency injection

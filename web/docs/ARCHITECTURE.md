@@ -274,7 +274,7 @@ web/
 │
 ├── .content_data/                          # JSON-CMS content
 │   ├── _TEMPLATE/                          # Template for new clinics
-│   ├── adris/                              # Veterinaria Adris
+│   ├── terrapet/                              # Veterinaria Adris
 │   │   ├── config.json                     # Clinic settings
 │   │   ├── theme.json                      # Colors & branding
 │   │   ├── content.json                    # Page content
@@ -320,7 +320,7 @@ web/
 ```typescript
 // app/[clinic]/page.tsx
 export async function generateStaticParams() {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: 'terrapet' }, { clinic: 'petlife' }]
 }
 
 export default async function ClinicPage({ params }: Props) {

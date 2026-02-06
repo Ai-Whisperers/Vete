@@ -37,7 +37,7 @@ const mockPet: Pet = {
   breed: 'Labrador',
   birth_date: '2020-01-15',
   weight_kg: 25.5,
-  microchip_id: 'CHIP123456',
+  microchip_number: 'CHIP123456',
   photo_url: 'https://example.com/pets/max.jpg',
   sex: 'male',
   color: 'Golden',
@@ -699,7 +699,7 @@ describe('PetService', () => {
       const petsWithOwners = [mockPetWithOwner];
       mockSupabase._mocks.setMockData({ data: petsWithOwners, error: null });
 
-      const result = await petService.listWithOwners('adris', {});
+      const result = await petService.listWithOwners('terrapet', {});
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(petsWithOwners);
@@ -711,7 +711,7 @@ describe('PetService', () => {
       const dogPets = [{ ...mockPetWithOwner, species: 'dog' }];
       mockSupabase._mocks.setMockData({ data: dogPets, error: null });
 
-      const result = await petService.listWithOwners('adris', { species: 'dog' });
+      const result = await petService.listWithOwners('terrapet', { species: 'dog' });
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.eq).toHaveBeenCalledWith('species', 'dog');
@@ -721,7 +721,7 @@ describe('PetService', () => {
       const searchResults = [mockPetWithOwner];
       mockSupabase._mocks.setMockData({ data: searchResults, error: null });
 
-      const result = await petService.listWithOwners('adris', { query: 'Max' });
+      const result = await petService.listWithOwners('terrapet', { query: 'Max' });
 
       expect(result.success).toBe(true);
       expect(mockSupabase._mocks.ilike).toHaveBeenCalledWith('name', '%Max%');
@@ -731,7 +731,7 @@ describe('PetService', () => {
       const activePets = [mockPetWithOwner];
       mockSupabase._mocks.setMockData({ data: activePets, error: null });
 
-      await petService.listWithOwners('adris', {});
+      await petService.listWithOwners('terrapet', {});
 
       expect(mockSupabase._mocks.is).toHaveBeenCalledWith('deleted_at', null);
     });
@@ -742,7 +742,7 @@ describe('PetService', () => {
         error: { message: 'Query timeout' },
       });
 
-      const result = await petService.listWithOwners('adris', {});
+      const result = await petService.listWithOwners('terrapet', {});
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();

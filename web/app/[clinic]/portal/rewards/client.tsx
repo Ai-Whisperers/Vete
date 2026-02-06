@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Gift, Star, Check, X, AlertCircle, Sparkles, Clock, Package } from 'lucide-react'
+import { Gift, Star, Check, AlertCircle, Sparkles, Clock, Package } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
 interface Reward {
@@ -50,7 +50,7 @@ const CATEGORY_ICONS = {
   general: Gift,
 }
 
-export function RewardsClient({ clinic, rewards, userPoints, categories }: RewardsClientProps) {
+export function RewardsClient({ clinic: _clinic, rewards, userPoints, categories }: RewardsClientProps) {
   const { toast } = useToast()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [redeemingId, setRedeemingId] = useState<string | null>(null)

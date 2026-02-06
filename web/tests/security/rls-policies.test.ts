@@ -8,7 +8,7 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
 import { createProfile, createPet, resetSequence } from '../__helpers__/factories'
-import { DEFAULT_TENANT, TENANTS } from '../__fixtures__/tenants'
+import { DEFAULT_TENANT } from '../__fixtures__/tenants'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
 describe('RLS Policies - Data Access Control', () => {
@@ -188,13 +188,13 @@ describe('RLS Policies - Data Access Control', () => {
       ctx.track('pets', petlifePet.id)
 
       // Query Adris records - should not see petlife pets
-      const { data: adrisRecords } = await serviceClient
+      const { data: terrapetRecords } = await serviceClient
         .from('medical_records')
         .select('*, pet:pets(tenant_id)')
         .eq('tenant_id', TENANT_IDS.ADRIS)
 
-      expect(adrisRecords).not.toBeNull()
-      const hasPetlifePet = adrisRecords!.some(
+      expect(terrapetRecords).not.toBeNull()
+      const hasPetlifePet = terrapetRecords!.some(
         (r: { pet: { tenant_id: string } }) => r.pet?.tenant_id === 'petlife'
       )
       expect(hasPetlifePet).toBe(false)
@@ -247,8 +247,8 @@ describe('RLS Policies - Data Access Control', () => {
 
   describe('EXPENSES - Access Control', () => {
     test('expenses are tenant-scoped', async () => {
-      // Create expense in adris
-      const { data: adrisExpense } = await serviceClient
+      // Create expense in terrapet
+      const { data: terrapetExpense } = await serviceClient
         .from('expenses')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
@@ -259,7 +259,7 @@ describe('RLS Policies - Data Access Control', () => {
         })
         .select()
         .single()
-      ctx.track('expenses', adrisExpense.id)
+      ctx.track('expenses', terrapetExpense.id)
 
       // Query petlife expenses
       const { data: petlifeExpenses } = await serviceClient
@@ -269,7 +269,7 @@ describe('RLS Policies - Data Access Control', () => {
 
       // Adris expense should not appear in petlife query
       expect(petlifeExpenses).not.toBeNull()
-      expect(petlifeExpenses!.some((e: { id: string }) => e.id === adrisExpense.id)).toBe(false)
+      expect(petlifeExpenses!.some((e: { id: string }) => e.id === terrapetExpense.id)).toBe(false)
     })
 
     test('only staff can manage expenses', async () => {
@@ -290,7 +290,7 @@ describe('RLS Policies - Data Access Control', () => {
 
   describe('PRODUCTS - Access Control', () => {
     test('products are tenant-scoped', async () => {
-      const { data: adrisProduct } = await serviceClient
+      const { data: terrapetProduct } = await serviceClient
         .from('products')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
@@ -301,7 +301,7 @@ describe('RLS Policies - Data Access Control', () => {
         })
         .select()
         .single()
-      ctx.track('products', adrisProduct.id)
+      ctx.track('products', terrapetProduct.id)
 
       // Query petlife products
       const { data: petlifeProducts } = await serviceClient
@@ -310,7 +310,7 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       expect(petlifeProducts).not.toBeNull()
-      expect(petlifeProducts!.some((p: { id: string }) => p.id === adrisProduct.id)).toBe(false)
+      expect(petlifeProducts!.some((p: { id: string }) => p.id === terrapetProduct.id)).toBe(false)
     })
   })
 
@@ -470,14 +470,14 @@ describe('RLS Policies - Role-Based Access', () => {
       })
       ctx.track('profiles', petlifeProfile.id)
 
-      // Query adris profiles
-      const { data: adrisProfiles } = await serviceClient
+      // Query terrapet profiles
+      const { data: terrapetProfiles } = await serviceClient
         .from('profiles')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
 
-      expect(adrisProfiles).not.toBeNull()
-      expect(adrisProfiles!.some((p: { id: string }) => p.id === petlifeProfile.id)).toBe(false)
+      expect(terrapetProfiles).not.toBeNull()
+      expect(terrapetProfiles!.some((p: { id: string }) => p.id === petlifeProfile.id)).toBe(false)
     })
   })
 })

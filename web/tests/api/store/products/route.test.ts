@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,
@@ -27,6 +27,9 @@ describe('API: /api/store/products', () => {
     adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -34,7 +37,7 @@ describe('API: /api/store/products', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/store/products', () => {

@@ -232,6 +232,7 @@ export default async function ClinicLayout({
   const tier: TierId = (tenantData?.subscription_tier as TierId) || 'gratis'
   const tierConfig = getTierById(tier)
   const gratisTier = getTierById('gratis')
+  // Gratis tier always exists, but provide complete fallback for type safety
   const tierFeatures = tierConfig?.features || gratisTier?.features || {
     website: true,
     petPortal: true,
@@ -240,6 +241,19 @@ export default async function ClinicLayout({
     vaccineTracking: true,
     clinicalTools: true,
     adFree: false,
+    ecommerce: false,
+    qrTags: false,
+    bulkOrdering: false,
+    analyticsBasic: false,
+    analyticsAdvanced: false,
+    analyticsAI: false,
+    whatsappApi: false,
+    hospitalization: false,
+    laboratory: false,
+    multiLocation: false,
+    apiAccess: false,
+    slaGuarantee: false,
+    dedicatedSupport: false,
   }
   const isOnTrial = tenantData?.is_trial || false
   const trialEndsAt = tenantData?.trial_end_date || null

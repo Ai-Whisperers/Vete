@@ -191,64 +191,15 @@ export class AppointmentRepository {
    * Get appointment statistics
    */
   async getStats(tenant_id: string): Promise<AppointmentStats> {
-    const now = new Date()
-    const today = now.toISOString().split('T')[0]
-    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split('T')[0]
-
-    // Get all appointments for stats
-    const { data: appointments, error } = await this.supabase
-      .from('appointments')
-      .select('status, start_time')
-      .eq('tenant_id', tenant_id)
-      .gte('start_time', `${today}T00:00:00`)
+    // Use optimized database function instead of fetching all records
+    const { data, error } = await this.supabase.rpc('get_appointment_stats_optimized', {
+      p_tenant_id: tenant_id
+    })
 
     if (error) throw error
 
-    const stats: AppointmentStats = {
-      total: appointments.length,
-      pending: 0,
-      confirmed: 0,
-      completed: 0,
-      cancelled: 0,
-      no_show: 0,
-      today_count: 0,
-      this_week_count: 0,
-    }
-
-    appointments.forEach((apt) => {
-      // Count by status
-      switch (apt.status) {
-        case 'pending':
-          stats.pending++
-          break
-        case 'confirmed':
-          stats.confirmed++
-          break
-        case 'completed':
-          stats.completed++
-          break
-        case 'cancelled':
-          stats.cancelled++
-          break
-        case 'no_show':
-          stats.no_show++
-          break
-      }
-
-      // Count today's appointments
-      if (apt.start_time.startsWith(today)) {
-        stats.today_count++
-      }
-
-      // Count this week's appointments
-      if (apt.start_time.split('T')[0] <= weekFromNow) {
-        stats.this_week_count++
-      }
-    })
-
-    return stats
+    // The function returns a JSON object with the stats
+    return data as AppointmentStats
   }
 
   /**

@@ -62,7 +62,7 @@ interface DataTableProps<T> {
 export function DataTable<T extends Record<string, unknown>>({
   data,
   columns,
-  keyExtractor = (item, index) => item.id || index.toString(),
+  keyExtractor = (item, index) => String(item.id ?? index),
   onRowClick,
   emptyMessage,
   emptyIcon,
@@ -186,7 +186,7 @@ export function DataTable<T extends Record<string, unknown>>({
                       key={column.key}
                       className={`px-6 py-4 text-[var(--text-primary)] ${column.className || ''}`}
                     >
-                      {column.render ? column.render(item, index) : item[column.key]}
+                      {column.render ? column.render(item, index) : String(item[column.key] ?? '')}
                     </td>
                   ))}
                 </tr>
@@ -216,7 +216,7 @@ export function DataTable<T extends Record<string, unknown>>({
                       {column.label}:
                     </span>
                     <span className="text-right text-sm text-[var(--text-primary)]">
-                      {column.render ? column.render(item, index) : item[column.key]}
+                      {column.render ? column.render(item, index) : String(item[column.key] ?? '')}
                     </span>
                   </div>
                 ))}

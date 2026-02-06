@@ -68,7 +68,7 @@ export default async function PatientsPage({
   if (searchQuery) {
     const { data, error: err } = await supabase.rpc('search_pets_global', {
       search_query: searchQuery,
-      requesting_clinic_id: clinic, // assumes clinic param matches tenant_id (e.g. 'adris')
+      requesting_clinic_id: clinic, // assumes clinic param matches tenant_id (e.g. 'terrapet')
     })
     if (err) error = err
     else pets = data || []

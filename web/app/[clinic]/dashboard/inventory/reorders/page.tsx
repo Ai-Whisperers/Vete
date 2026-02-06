@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'

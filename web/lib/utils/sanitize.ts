@@ -8,7 +8,7 @@
  * @see SEC-012: Missing HTML Sanitization
  */
 
-import DOMPurify from 'dompurify'
+import DOMPurify, { Config as DOMPurifyConfig } from 'dompurify'
 
 /**
  * Sanitization presets for different content contexts
@@ -176,11 +176,11 @@ export type SanitizePreset = keyof typeof SANITIZE_PRESETS
  */
 export function sanitizeHtml(
   html: string | null | undefined,
-  preset: SanitizePreset | DOMPurify.Config = 'richText'
+  preset: SanitizePreset | DOMPurifyConfig = 'richText'
 ): string {
   if (!html) return ''
 
-  const config = typeof preset === 'string' ? SANITIZE_PRESETS[preset] : preset
+  const config = typeof preset === 'string' ? SANITIZE_PRESETS[preset as SanitizePreset] : preset
 
   // @ts-expect-error DOMPurify type mismatch between versions
   return DOMPurify.sanitize(html, config)
@@ -198,7 +198,7 @@ export function sanitizeHtml(
  */
 export function createSanitizedHtml(
   html: string | null | undefined,
-  preset: SanitizePreset | DOMPurify.Config = 'richText'
+  preset: SanitizePreset | DOMPurifyConfig = 'richText'
 ): { __html: string } {
   return { __html: sanitizeHtml(html, preset) }
 }

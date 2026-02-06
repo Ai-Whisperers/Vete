@@ -10,7 +10,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: 'terrapet' }, { clinic: 'petlife' }]
 }
 
 export default async function InviteClientPage({ params }: Props) {

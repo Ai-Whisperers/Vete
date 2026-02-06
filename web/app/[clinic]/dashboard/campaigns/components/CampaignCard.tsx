@@ -22,6 +22,7 @@ import type { Campaign } from '../types'
 import { CampaignStatusBadge } from './CampaignStatusBadge'
 import { formatDiscountValue, formatDateShort, getCampaignTypeInfo } from '../utils'
 import { COLOR_CLASSES } from '../constants'
+import { useTranslations } from 'next-intl'
 
 interface CampaignCardProps {
   campaign: Campaign
@@ -42,6 +43,7 @@ export function CampaignCard({
   onEdit,
   onDelete,
 }: CampaignCardProps): React.ReactElement {
+  const t = useTranslations()
   const typeInfo = getCampaignTypeInfo(campaign.campaign_type)
   const TypeIcon = iconMap[typeInfo.iconName]
   const colorClasses = COLOR_CLASSES[typeInfo.color]
@@ -103,14 +105,14 @@ export function CampaignCard({
         <button
           onClick={() => onEdit(campaign)}
           className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-          title="Editar"
+          title={t('common.edit')}
         >
           <Pencil className="h-4 w-4 text-gray-500" />
         </button>
         <button
           onClick={() => onDelete(campaign.id)}
           className="rounded-lg p-2 transition-colors hover:bg-red-50"
-          title="Eliminar"
+          title={t('common.delete')}
         >
           <Trash2 className="h-4 w-4 text-red-500" />
         </button>

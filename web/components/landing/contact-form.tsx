@@ -11,7 +11,7 @@ import {
   Loader2,
   ArrowRight,
 } from 'lucide-react'
-import { getWhatsAppUrl, supportMessages } from '@/lib/whatsapp'
+import { getWhatsAppUrl } from '@/lib/whatsapp'
 
 interface FormData {
   clinicName: string

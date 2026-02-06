@@ -8,7 +8,7 @@ interface DateFilterProps {
   clinic: string
 }
 
-export function DateFilter({ currentDate, clinic }: DateFilterProps) {
+export function DateFilter({ currentDate, clinic: _clinic }: DateFilterProps) {
   const router = useRouter()
 
   const handleDateChange = (date: string) => {

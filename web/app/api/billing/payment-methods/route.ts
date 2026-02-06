@@ -24,7 +24,7 @@ import type { PaymentMethodType } from '@/lib/billing/types'
 // GET - List payment methods
 // =============================================================================
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
 
   // 1. Auth check

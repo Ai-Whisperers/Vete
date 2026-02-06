@@ -7,7 +7,7 @@ import { Page, expect } from '@playwright/test';
  * across different roles and clinics in the multi-tenant veterinary platform.
  */
 
-export type Clinic = 'adris' | 'petlife';
+export type Clinic = 'terrapet' | 'petlife';
 export type Role = 'admin' | 'vet' | 'owner';
 
 interface Credentials {
@@ -20,10 +20,10 @@ interface Credentials {
  * Located in: web/db/seeds/data/00-core/demo-accounts.json
  */
 const DEMO_CREDENTIALS: Record<Clinic, Record<Role, Credentials>> = {
-  adris: {
-    admin: { email: 'admin@adris.demo', password: 'demo123' },
-    vet: { email: 'vet@adris.demo', password: 'demo123' },
-    owner: { email: 'owner@adris.demo', password: 'demo123' },
+  terrapet: {
+    admin: { email: 'admin@terrapet.demo', password: 'demo123' },
+    vet: { email: 'vet@terrapet.demo', password: 'demo123' },
+    owner: { email: 'owner@terrapet.demo', password: 'demo123' },
   },
   petlife: {
     admin: { email: 'admin@petlife.demo', password: 'demo123' },
@@ -45,12 +45,12 @@ const ROLE_HOME_PATHS: Record<Role, string> = {
  * Log in as a specific role at a specific clinic
  * 
  * @param page - Playwright page object
- * @param clinic - Clinic slug ('adris' or 'petlife')
+ * @param clinic - Clinic slug ('terrapet' or 'petlife')
  * @param role - User role ('admin', 'vet', or 'owner')
  * @param options - Optional settings for login behavior
  * 
  * @example
- * await loginAs(page, 'adris', 'owner');
+ * await loginAs(page, 'terrapet', 'owner');
  * await loginAs(page, 'petlife', 'vet', { waitForRedirect: false });
  */
 export async function loginAs(
@@ -195,8 +195,8 @@ export async function logout(
  * @param expectedRedirect - Expected redirect pattern (default: login page)
  * 
  * @example
- * await verifyUnauthorizedAccess(page, '/adris/dashboard');
- * await verifyUnauthorizedAccess(page, '/adris/admin', '/adris/dashboard');
+ * await verifyUnauthorizedAccess(page, '/terrapet/dashboard');
+ * await verifyUnauthorizedAccess(page, '/terrapet/admin', '/terrapet/dashboard');
  */
 export async function verifyUnauthorizedAccess(
   page: Page,

@@ -158,7 +158,7 @@ class Logger {
       this.logToConsole(entry)
     }
 
-    // TODO: Send to external logging service (e.g., DataDog, LogRocket, etc.)
+    // Send to external monitoring services (implemented)
     this.sendToExternalService(entry)
   }
 
@@ -189,23 +189,163 @@ class Logger {
   }
 
   private sendToExternalService(entry: LogEntry): void {
-    // TODO: Implement external logging service integration
-    // Examples:
-    // - Send to DataDog
-    // - Send to LogRocket
-    // - Send to Sentry
-    // - Send to custom logging API
-
-    // For now, just store in memory for development
+    // DEPRECATED: This logger is deprecated, use @/lib/logger instead
+    // But implementing basic external service integration for backward compatibility
+    
+    // Skip in development
     if (process.env.NODE_ENV === 'development') {
-      // Could store in a global array for debugging
+      // Store in memory for debugging
       interface GlobalWithLogs {
         __logs?: LogEntry[]
       }
       const globalWithLogs = globalThis as GlobalWithLogs
       globalWithLogs.__logs = globalWithLogs.__logs || []
       globalWithLogs.__logs.push(entry)
+      return
     }
+
+    try {
+      // Send to DataDog if configured (simplified version)
+      if (process.env.DATADOG_API_KEY && process.env.DATADOG_SITE) {
+        this.sendToDataDog(entry)
+      }
+
+      // Send to Sentry for errors
+      if (entry.level === 'error' || entry.level === 'critical') {
+        this.sendToSentry(entry)
+      }
+
+      // Send to custom monitoring webhook if configured
+      if (process.env.MONITORING_WEBHOOK_URL) {
+        this.sendToWebhook(entry)
+      }
+    } catch (_error: unknown) {
+      // External service failures shouldn't break logging
+    }
+  }
+
+  /**
+   * Send to DataDog (simplified version for deprecated logger)
+   */
+  private sendToDataDog(entry: LogEntry): void {
+    if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_SITE) return
+
+    const ddData = {
+      timestamp: new Date(entry.timestamp).getTime(),
+      level: entry.level,
+      message: entry.message,
+      service: 'vete-monitoring-deprecated',
+      hostname: process.env.HOSTNAME || 'vete-server',
+      ddtags: [
+        `env:${process.env.NODE_ENV || 'production'}`,
+        'logger:deprecated',
+        ...(entry.context?.tenantId ? [`tenant:${entry.context.tenantId}`] : []),
+        ...(entry.context?.operation ? [`operation:${entry.context.operation}`] : []),
+      ].join(','),
+      ...entry.context,
+    }
+
+    if (entry.error) {
+      ddData.error = entry.error
+    }
+
+    fetch(`https://http-intake.logs.${process.env.DATADOG_SITE}/v1/input/${process.env.DATADOG_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'DD-API-KEY': process.env.DATADOG_API_KEY,
+      },
+      body: JSON.stringify(ddData),
+    }).catch(() => {
+      // Ignore DataDog send errors
+    })
+  }
+
+  /**
+   * Send to Sentry (simplified version for deprecated logger)
+   */
+  private sendToSentry(entry: LogEntry): void {
+    // Use a simple fetch to Sentry's ingest API if DSN is available
+    const sentryDsn = process.env.SENTRY_DSN
+    if (!sentryDsn) return
+
+    const sentryData: Record<string, unknown> = {
+      timestamp: entry.timestamp,
+      level: entry.level === 'critical' ? 'fatal' : entry.level,
+      logger: 'deprecated-monitoring-logger',
+      message: {
+        formatted: entry.message,
+      },
+      extra: entry.context,
+      tags: {
+        logger: 'deprecated',
+        tenant: entry.context?.tenantId,
+        operation: entry.context?.operation,
+      },
+    }
+
+    if (entry.error) {
+      sentryData.exception = {
+        values: [{
+          type: entry.error.name,
+          value: entry.error.message,
+          stacktrace: entry.error.stack ? { frames: [] } : undefined,
+        }],
+      }
+    }
+
+    // Extract project ID from DSN for Sentry Store API
+    try {
+      const url = new URL(sentryDsn)
+      const projectId = url.pathname.split('/').pop()
+      const key = url.username
+      
+      if (projectId && key) {
+        fetch(`https://${url.hostname}/api/${projectId}/store/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Sentry-Auth': `Sentry sentry_version=7, sentry_client=deprecated-logger/1.0, sentry_key=${key}`,
+          },
+          body: JSON.stringify(sentryData),
+        }).catch(() => {
+          // Ignore Sentry send errors
+        })
+      }
+    } catch (_error: unknown) {
+      // Sentry URL parsing failed - ignore
+    }
+  }
+
+  /**
+   * Send to custom monitoring webhook
+   */
+  private sendToWebhook(entry: LogEntry): void {
+    if (!process.env.MONITORING_WEBHOOK_URL) return
+
+    const webhookData = {
+      timestamp: entry.timestamp,
+      level: entry.level,
+      message: entry.message,
+      service: 'vete-monitoring',
+      logger: 'deprecated',
+      context: entry.context,
+      error: entry.error,
+      environment: process.env.NODE_ENV,
+    }
+
+    fetch(process.env.MONITORING_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(process.env.MONITORING_WEBHOOK_SECRET && {
+          'Authorization': `Bearer ${process.env.MONITORING_WEBHOOK_SECRET}`,
+        }),
+      },
+      body: JSON.stringify(webhookData),
+    }).catch(() => {
+      // Ignore webhook send errors
+    })
   }
 }
 

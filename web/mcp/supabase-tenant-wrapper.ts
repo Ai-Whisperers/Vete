@@ -81,7 +81,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             tenant_id: {
               type: 'string',
-              description: 'Tenant ID (clinic slug like "adris" or "petlife")',
+              description: 'Tenant ID (clinic slug like "terrapet" or "petlife")',
             },
             columns: {
               type: 'string',

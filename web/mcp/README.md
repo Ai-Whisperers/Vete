@@ -116,12 +116,12 @@ npm run watch
 **Example**:
 
 ```typescript
-// Query pets for tenant "adris"
+// Query pets for tenant "terrapet"
 {
   "tool": "query_with_tenant",
   "arguments": {
     "table": "pets",
-    "tenant_id": "adris",
+    "tenant_id": "terrapet",
     "columns": "id, name, species",
     "limit": 10
   }
@@ -157,7 +157,7 @@ npm run watch
   "tool": "obtener_historial_medico",
   "arguments": {
     "pet_id": "abc-123-def",
-    "tenant_id": "adris"
+    "tenant_id": "terrapet"
   }
 }
 ```

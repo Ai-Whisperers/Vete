@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { verifyEmailToken, verifyPassword } from '@/lib/gdpr'
 import { rateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * Password verification schema
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(new URL(redirectUrl, request.url))
   } catch (error) {
-    console.error('Error in GET /api/gdpr/verify:', error)
+    logger.error('Error in GET /api/gdpr/verify:', error)
     return NextResponse.redirect(
       new URL('/portal/settings?error=verification_error', request.url)
     )
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
       requestId,
     })
   } catch (error) {
-    console.error('Error in POST /api/gdpr/verify:', error)
+    logger.error('Error in POST /api/gdpr/verify:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

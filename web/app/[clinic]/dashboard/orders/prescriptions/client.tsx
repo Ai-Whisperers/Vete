@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+
 import {
   FileText,
   Check,
   X,
-  ExternalLink,
   Loader2,
   AlertCircle,
   Calendar,
@@ -16,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  Search,
   Eye,
 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
@@ -68,7 +66,7 @@ interface Props {
   config: ClinicConfig
 }
 
-export default function PrescriptionOrdersClient({ clinic, config }: Props) {
+export default function PrescriptionOrdersClient({ clinic: _clinic, config }: Props) {
   const [orders, setOrders] = useState<PendingOrder[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [isLoading, setIsLoading] = useState(true)

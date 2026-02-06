@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, CheckCircle, Package, Pill, Heart } from 'lucide-react'
+import { Plus, CheckCircle, Package, Pill } from 'lucide-react'
 import Image from 'next/image'
 
 interface CatalogProduct {

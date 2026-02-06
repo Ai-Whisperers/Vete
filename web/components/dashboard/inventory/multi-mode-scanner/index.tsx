@@ -11,7 +11,7 @@
  * <MultiModeScanner
  *   isOpen={isOpen}
  *   onClose={() => setIsOpen(false)}
- *   clinic="adris"
+ *   clinic="terrapet"
  *   onActionComplete={(action) => console.log(action)}
  * />
  * ```

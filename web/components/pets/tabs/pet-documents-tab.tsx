@@ -14,8 +14,6 @@ import {
   Plus,
   X,
   Loader2,
-  CheckCircle2,
-  AlertCircle,
   FileImage,
   FileSpreadsheet,
 } from 'lucide-react'

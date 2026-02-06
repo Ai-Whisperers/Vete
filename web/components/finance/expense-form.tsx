@@ -40,7 +40,7 @@ export default function ExpenseForm({ onSuccess, clinicId }: ExpenseFormProps) {
       } else {
         throw new Error('Failed to log expense')
       }
-    } catch (e) {
+    } catch (_e) {
       showToast('Error saving expense')
     } finally {
       setIsSubmitting(false)

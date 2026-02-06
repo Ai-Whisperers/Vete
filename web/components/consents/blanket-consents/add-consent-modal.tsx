@@ -160,7 +160,7 @@ export default function AddConsentModal({
       setSignatureText('')
       clearSignature()
       onClose()
-    } catch (error) {
+    } catch (_error) {
       // BUG-009: Replace alert with toast notification
       showToast({
         title: 'Error al crear el consentimiento permanente',

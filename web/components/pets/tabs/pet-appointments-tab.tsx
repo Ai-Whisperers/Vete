@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  MapPin,
   User,
   Plus,
   ChevronRight,

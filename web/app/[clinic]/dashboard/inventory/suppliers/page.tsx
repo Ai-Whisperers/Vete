@@ -77,7 +77,7 @@ export default function SuppliersPage(): React.ReactElement {
 
       setDeletingSupplier(null)
       setRefreshKey(k => k + 1)
-    } catch (error) {
+    } catch (_error) {
       showToast('Error: No se pudo eliminar el proveedor')
     }
   }

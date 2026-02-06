@@ -108,33 +108,15 @@ export class PetRepository {
   }
 
   async getStats(tenantId: string): Promise<PetStats> {
-    const { data: pets, error } = await this.supabase
-      .from('pets')
-      .select('species, is_active')
-      .eq('tenant_id', tenantId)
+    // Use optimized database function instead of fetching all records
+    const { data, error } = await this.supabase.rpc('get_pet_stats_optimized', {
+      p_tenant_id: tenantId
+    })
 
     if (error) throw error
 
-    const stats: PetStats = {
-      total: pets.length,
-      by_species: { dog: 0, cat: 0, bird: 0, rabbit: 0, other: 0 },
-      active: 0,
-      inactive: 0,
-    }
-
-    pets.forEach((pet) => {
-      const species = (pet.species as PetSpecies) || 'other'
-      if (species in stats.by_species) {
-        stats.by_species[species]++
-      }
-      if (pet.is_active) {
-        stats.active++
-      } else {
-        stats.inactive++
-      }
-    })
-
-    return stats
+    // The function returns a JSON object with the stats
+    return data as PetStats
   }
 
   private transformPet(data: Record<string, unknown>): Pet {

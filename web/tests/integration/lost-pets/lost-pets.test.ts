@@ -14,7 +14,6 @@ import { NextRequest } from 'next/server'
 import { GET, PATCH } from '@/app/api/lost-pets/route'
 import {
   mockState,
-  TENANTS,
   USERS,
   PETS,
   resetAllMocks,

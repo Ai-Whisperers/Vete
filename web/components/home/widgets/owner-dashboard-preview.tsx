@@ -78,7 +78,7 @@ function PetMiniCard({ pet, clinic }: { pet: Pet; clinic: string }): React.React
   )
 }
 
-function AppointmentMiniCard({ appointment, clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
+function AppointmentMiniCard({ appointment, clinic: _clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
   const date = new Date(appointment.start_time)
   const formattedDate = date.toLocaleDateString('es-PY', {
     weekday: 'short',

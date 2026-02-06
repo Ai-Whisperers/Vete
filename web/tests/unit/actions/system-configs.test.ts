@@ -50,7 +50,7 @@ describe('System Config Actions', () => {
   })
 
   it('should successfully set a new config', async () => {
-    const result = await setSystemConfig('adris', 'test_key', 'test_value')
+    const result = await setSystemConfig('terrapet', 'test_key', 'test_value')
     expect(result.success).toBe(true)
   })
 })

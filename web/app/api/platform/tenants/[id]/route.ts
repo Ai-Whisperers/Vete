@@ -73,7 +73,7 @@ export const GET = withApiAuthParams<Params>(
 
 // PUT /api/platform/tenants/[id]
 export const PUT = withApiAuthParams<Params>(
-  async ({ profile, supabase, request, user, params }: ApiHandlerContextWithParams<Params>) => {
+  async ({ profile, supabase, request, user: _user, params }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     if (!profile.is_platform_admin) {
@@ -157,7 +157,7 @@ export const PUT = withApiAuthParams<Params>(
 
 // DELETE /api/platform/tenants/[id] - Soft delete (set is_active = false)
 export const DELETE = withApiAuthParams<Params>(
-  async ({ profile, supabase, user, params }: ApiHandlerContextWithParams<Params>) => {
+  async ({ profile, supabase, user: _user, params }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     if (!profile.is_platform_admin) {

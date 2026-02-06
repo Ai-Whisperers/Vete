@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/Toast'
 import { queryKeys } from '@/lib/queries'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
 import { STATUS_TIMELINE } from './types'
-import type { PurchaseOrder, OrderStatus, TimelineStatus } from './types'
+import type { PurchaseOrder, TimelineStatus } from './types'
 
 interface UseOrderDetailDataOptions {
   orderId: string

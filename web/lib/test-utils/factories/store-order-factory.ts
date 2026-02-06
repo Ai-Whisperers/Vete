@@ -4,7 +4,7 @@
 
 import { apiClient } from '../api-client'
 import { testContext } from '../context'
-import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
+import { generateId, pick } from './base'
 import { OrderScenario, PaymentMethod } from './types'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
@@ -598,7 +598,7 @@ export class CartFactory {
  */
 export async function createOrderHistory(
   customerId: string,
-  tenantId: string = 'adris',
+  tenantId: string = 'terrapet',
   options: { count?: number; scenarios?: OrderScenario[] } = {}
 ): Promise<Array<{ order: StoreOrderData; items: StoreOrderItemData[] }>> {
   const { count = 3, scenarios = ['simple', 'simple', 'coupon'] } = options
@@ -633,7 +633,7 @@ export async function createOrderHistory(
  */
 export async function createAbandonedCarts(
   customerIds: string[],
-  tenantId: string = 'adris'
+  tenantId: string = 'terrapet'
 ): Promise<StoreCartData[]> {
   const carts: StoreCartData[] = []
 

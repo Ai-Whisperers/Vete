@@ -81,7 +81,7 @@ const typeLabels = {
   vaccine: 'Vacuna',
 }
 
-function FocusItemCard({ item, clinic }: { item: FocusItem; clinic: string }) {
+function FocusItemCard({ item, clinic: _clinic }: { item: FocusItem; clinic: string }) {
   const Icon = typeIcons[item.type]
 
   return (

@@ -17,7 +17,7 @@
  * @example
  * ```typescript
  * const service = new PetService(supabase);
- * const result = await service.create('owner-123', 'adris', {
+ * const result = await service.create('owner-123', 'terrapet', {
  *   name: 'Max',
  *   species: 'dog',
  *   breed: 'Labrador'
@@ -26,12 +26,9 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   Pet,
   PetWithOwner,
-  CreatePetInput,
-  UpdatePetInput,
 } from '@/lib/types/entities/pet';
 import {
   mapPetsWithOwner,
@@ -121,7 +118,7 @@ export class PetService extends BaseService {
             breed,
             birth_date,
             weight_kg,
-            microchip_id,
+            microchip_number,
             photo_url,
             sex,
             color,
@@ -137,8 +134,14 @@ export class PetService extends BaseService {
             deleted_at
           `
           )
-          .eq('owner_id', ownerId)
           .order('created_at', { ascending: false });
+
+        // Filter by ownership: staff can see all pets in tenant, owners only their own
+        if (isStaff) {
+          petsQuery = petsQuery.eq('tenant_id', tenantId);
+        } else {
+          petsQuery = petsQuery.eq('owner_id', ownerId);
+        }
 
         // Only include deleted if explicitly requested and user is staff
         if (!includeDeleted || !isStaff) {

@@ -14,7 +14,7 @@
  * @ticket TEST-002
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -133,14 +133,14 @@ describe('ReorderSuggestions', () => {
         () => new Promise(() => {})
       )
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       expect(screen.getByTestId('icon-loader')).toBeInTheDocument()
       expect(screen.getByText('Analizando inventario...')).toBeInTheDocument()
     })
 
     it('hides loading after data loads', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.queryByTestId('icon-loader')).not.toBeInTheDocument()
@@ -152,7 +152,7 @@ describe('ReorderSuggestions', () => {
     it('shows error message on fetch failure', async () => {
       ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'))
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Error al cargar las sugerencias de reorden')).toBeInTheDocument()
@@ -165,7 +165,7 @@ describe('ReorderSuggestions', () => {
         json: async () => ({ error: 'Server error' }),
       })
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText(/error/i)).toBeInTheDocument()
@@ -175,7 +175,7 @@ describe('ReorderSuggestions', () => {
     it('shows retry button on error', async () => {
       ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'))
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Reintentar')).toBeInTheDocument()
@@ -190,7 +190,7 @@ describe('ReorderSuggestions', () => {
           json: async () => mockData,
         })
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Reintentar')).toBeInTheDocument()
@@ -211,7 +211,7 @@ describe('ReorderSuggestions', () => {
         json: async () => ({ grouped: [], summary: null }),
       })
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('¡Inventario en orden!')).toBeInTheDocument()
@@ -222,7 +222,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Summary Cards', () => {
     it('displays total products count', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('3')).toBeInTheDocument()
@@ -231,7 +231,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays critical count', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Críticos')).toBeInTheDocument()
@@ -241,7 +241,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays low stock count', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Stock Bajo')).toBeInTheDocument()
@@ -249,7 +249,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays estimated cost in PYG format', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         // Should format as PYG currency
@@ -261,7 +261,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Supplier Groups', () => {
     it('displays supplier group headers', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('VetPharm S.A.')).toBeInTheDocument()
@@ -270,7 +270,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('shows product count per supplier', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText(/2 productos/)).toBeInTheDocument()
@@ -279,7 +279,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('auto-expands first group', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         // First group should be expanded, showing products
@@ -288,7 +288,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('toggles group expansion on click', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -307,12 +307,12 @@ describe('ReorderSuggestions', () => {
     })
 
     it('shows "Crear Orden" button for suppliers with ID', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         const orderLinks = screen.getAllByText('Crear Orden')
         expect(orderLinks.length).toBe(1) // Only for VetPharm, not "Sin proveedor"
-        expect(orderLinks[0]).toHaveAttribute('href', '/adris/dashboard/procurement/orders/new?supplier=sup-1')
+        expect(orderLinks[0]).toHaveAttribute('href', '/terrapet/dashboard/procurement/orders/new?supplier=sup-1')
       })
     })
 
@@ -325,7 +325,7 @@ describe('ReorderSuggestions', () => {
         }),
       })
 
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Sin proveedor')).toBeInTheDocument()
@@ -337,7 +337,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Product Display', () => {
     it('displays product name', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -345,7 +345,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays SKU when available', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('SKU: VAC-001')).toBeInTheDocument()
@@ -353,7 +353,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays category when available', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacunas')).toBeInTheDocument()
@@ -361,7 +361,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays stock levels (actual / minimum)', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('0 / 10')).toBeInTheDocument()
@@ -370,7 +370,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays suggested reorder quantity', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('+20')).toBeInTheDocument()
@@ -379,7 +379,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('displays estimated cost when WAC available', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         // 20 * 25000 = 500000
@@ -388,7 +388,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('shows product image when available', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         const img = screen.getByAltText('Antibiótico XYZ')
@@ -399,7 +399,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Urgency Badges', () => {
     it('shows "Sin Stock" badge for critical urgency', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Sin Stock')).toBeInTheDocument()
@@ -407,7 +407,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('shows "Stock Bajo" badge for low urgency', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         const badges = screen.getAllByText('Stock Bajo')
@@ -416,7 +416,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('shows "Reordenar" badge for reorder urgency', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       // Expand the second group to see the reorder product
       await waitFor(() => {
@@ -432,7 +432,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Refresh Functionality', () => {
     it('shows refresh button', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Actualizar')).toBeInTheDocument()
@@ -440,7 +440,7 @@ describe('ReorderSuggestions', () => {
     })
 
     it('refreshes data when button clicked', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledTimes(1)
@@ -457,7 +457,7 @@ describe('ReorderSuggestions', () => {
 
   describe('Links', () => {
     it('renders product link to inventory search', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         const links = screen.getAllByTestId('icon-external')
@@ -468,7 +468,7 @@ describe('ReorderSuggestions', () => {
 
   describe('API Call', () => {
     it('fetches with groupBySupplier parameter', async () => {
-      render(<ReorderSuggestions clinic="adris" />)
+      render(<ReorderSuggestions clinic="terrapet" />)
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith('/api/inventory/reorder-suggestions?groupBySupplier=true')

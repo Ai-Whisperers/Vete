@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Users,
@@ -44,11 +44,7 @@ export default function AmbassadorReferralsPage() {
   const [page, setPage] = useState(0)
   const limit = 10
 
-  useEffect(() => {
-    fetchReferrals()
-  }, [statusFilter, page])
-
-  const fetchReferrals = async () => {
+  const fetchReferrals = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -80,7 +76,11 @@ export default function AmbassadorReferralsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [limit, page, statusFilter, router])
+
+  useEffect(() => {
+    fetchReferrals()
+  }, [fetchReferrals])
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('es-PY', {

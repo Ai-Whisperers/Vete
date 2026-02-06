@@ -29,7 +29,6 @@ import {
   formatBookingPrice,
   getLoadingMessage,
   getErrorMessage,
-  STEP_ORDER,
   INITIAL_SELECTION,
   type BookingSelection,
   type Pet,

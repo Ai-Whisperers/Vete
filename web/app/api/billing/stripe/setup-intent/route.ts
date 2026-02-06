@@ -24,7 +24,7 @@ import {
   getStripePublishableKey,
 } from '@/lib/billing/stripe'
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(_request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
 
   // 1. Auth check

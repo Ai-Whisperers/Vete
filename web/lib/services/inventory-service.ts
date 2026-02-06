@@ -12,7 +12,7 @@
  * @example
  * ```typescript
  * const service = new InventoryService(supabase);
- * const result = await service.adjustStock('product-123', 'adris', 50, 'purchase');
+ * const result = await service.adjustStock('product-123', 'terrapet', 50, 'purchase');
  * ```
  */
 

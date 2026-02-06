@@ -80,14 +80,14 @@ describe('InventoryAlerts', () => {
         () => new Promise(() => {}) // Never resolves
       )
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       // Should show animated skeleton
       expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
     })
 
     it('hides loading skeleton after data loads', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
@@ -97,17 +97,17 @@ describe('InventoryAlerts', () => {
 
   describe('Data Fetching', () => {
     it('fetches alerts with correct clinic parameter', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/dashboard/inventory-alerts?clinic=adris')
+        expect(global.fetch).toHaveBeenCalledWith('/api/dashboard/inventory-alerts?clinic=terrapet')
       })
     })
 
     it('handles fetch error gracefully', async () => {
       ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'))
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
@@ -121,7 +121,7 @@ describe('InventoryAlerts', () => {
         json: async () => ({ error: 'Server error' }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
@@ -131,7 +131,7 @@ describe('InventoryAlerts', () => {
 
   describe('Header and Title', () => {
     it('displays title', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Alertas de Inventario')).toBeInTheDocument()
@@ -139,7 +139,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('shows total alert count badge', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         // 1 low_stock + 1 expiring + 1 out_of_stock = 3
@@ -153,7 +153,7 @@ describe('InventoryAlerts', () => {
         json: async () => ({ low_stock: [], expiring_soon: [], out_of_stock: [] }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('No hay alertas de inventario')).toBeInTheDocument()
@@ -163,7 +163,7 @@ describe('InventoryAlerts', () => {
 
   describe('Tab Navigation', () => {
     it('renders all tabs', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Todas')).toBeInTheDocument()
@@ -173,7 +173,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('shows correct count on tabs', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         // Stock bajo should have (2) - low_stock + out_of_stock
@@ -184,7 +184,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('filters to low stock when tab clicked', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -201,7 +201,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('filters to expiring when tab clicked', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -216,7 +216,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('shows all alerts when "Todas" tab clicked', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -235,7 +235,7 @@ describe('InventoryAlerts', () => {
 
   describe('Alert Display', () => {
     it('displays alert product name and SKU', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -244,7 +244,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('displays stock quantity for low stock alerts', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('5 / 10')).toBeInTheDocument()
@@ -252,7 +252,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('displays "Sin stock" for out of stock alerts', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Sin stock')).toBeInTheDocument()
@@ -260,7 +260,7 @@ describe('InventoryAlerts', () => {
     })
 
     it('displays relative expiry date for expiring alerts', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText(/Vence en 7 días/i)).toBeInTheDocument()
@@ -285,7 +285,7 @@ describe('InventoryAlerts', () => {
         }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vencido')).toBeInTheDocument()
@@ -308,7 +308,7 @@ describe('InventoryAlerts', () => {
         }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vence hoy')).toBeInTheDocument()
@@ -331,7 +331,7 @@ describe('InventoryAlerts', () => {
         }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vence mañana')).toBeInTheDocument()
@@ -346,7 +346,7 @@ describe('InventoryAlerts', () => {
         json: async () => ({ low_stock: [], expiring_soon: [], out_of_stock: [] }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('No hay alertas de inventario')).toBeInTheDocument()
@@ -363,7 +363,7 @@ describe('InventoryAlerts', () => {
         }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByText('Vacuna Antirrábica')).toBeInTheDocument()
@@ -378,7 +378,7 @@ describe('InventoryAlerts', () => {
 
   describe('Icons', () => {
     it('renders alert triangle icon in header', async () => {
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getAllByTestId('icon-alert-triangle').length).toBeGreaterThan(0)
@@ -391,7 +391,7 @@ describe('InventoryAlerts', () => {
         json: async () => ({ low_stock: [], expiring_soon: [], out_of_stock: [] }),
       })
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         expect(screen.getByTestId('icon-package')).toBeInTheDocument()
@@ -403,7 +403,7 @@ describe('InventoryAlerts', () => {
     it('sets up refresh interval on mount', async () => {
       vi.spyOn(global, 'setInterval')
 
-      render(<InventoryAlerts clinic="adris" />)
+      render(<InventoryAlerts clinic="terrapet" />)
 
       await waitFor(() => {
         // Should set up a 10-minute interval

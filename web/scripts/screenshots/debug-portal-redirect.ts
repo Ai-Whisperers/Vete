@@ -6,7 +6,7 @@ import { chromium } from 'playwright'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
 }
 
 async function main(): Promise<void> {
@@ -20,10 +20,10 @@ async function main(): Promise<void> {
 
   try {
     // 1. Login
-    console.log('\n1. Logging in as owner@adris.demo...')
+    console.log('\n1. Logging in as owner@terrapet.demo...')
     await page.goto(`${CONFIG.baseUrl}/${CONFIG.tenant}/portal/login`, { waitUntil: 'networkidle' })
     await page.waitForSelector('input#email', { timeout: 10000 })
-    await page.fill('input#email', 'owner@adris.demo')
+    await page.fill('input#email', 'owner@terrapet.demo')
     await page.fill('input#password', 'demo123')
     await page.click('button:has-text("Iniciar Sesión")')
     await page.waitForTimeout(8000)

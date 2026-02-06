@@ -27,7 +27,7 @@ const updatePetSchema = z.object({
  * Get pets for the current user (pet owner) with enhanced data
  */
 export const getOwnerPets = withActionAuth(
-  async ({ user, profile, supabase }, clinicSlug: string, query?: string) => {
+  async ({ user, profile: _profile, supabase }, clinicSlug: string, query?: string) => {
     // Fetch pets with vaccines
     let supabaseQuery = supabase
       .from('pets')

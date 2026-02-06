@@ -33,8 +33,6 @@ const createMedicalRecordSchema = z.object({
     message: 'Tipo de registro inválido',
   }),
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200, 'El título es muy largo'),
-  diagnosis: z.string().max(2000, 'El diagnóstico es muy largo').nullable().optional(),
-  diagnosis_code_id: z.string().uuid('ID de código diagnóstico inválido').nullable().optional(),
   notes: z.string().max(5000, 'Las notas son muy largas').nullable().optional(),
   vitals: z
     .object({
@@ -67,8 +65,7 @@ export const GET = withApiAuth(
       .select(
         `
         *,
-        pet:pets!inner(id, name, species, breed),
-        vet:profiles!medical_records_performed_by_fkey(id, full_name)
+        pet:pets!inner(id, name, species, breed)
       `,
         { count: 'exact' }
       )
@@ -133,7 +130,7 @@ export const POST = withApiAuth(
       })
     }
 
-    const { pet_id, type, title, diagnosis, diagnosis_code_id, notes, vitals, attachments } = result.data
+    const { pet_id, type, title, notes, vitals, attachments } = result.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase.from('pets').select('id, tenant_id, owner_id').eq('id', pet_id).single()
@@ -146,20 +143,7 @@ export const POST = withApiAuth(
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
-    // Verify diagnosis code if provided
-    if (diagnosis_code_id) {
-      const { data: diagCode } = await supabase
-        .from('diagnosis_codes')
-        .select('id')
-        .eq('id', diagnosis_code_id)
-        .single()
-
-      if (!diagCode) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { errors: [{ field: 'diagnosis_code_id', message: 'Código de diagnóstico no encontrado' }] },
-        })
-      }
-    }
+    // Note: diagnosis_code_id field removed as it doesn't exist in the database schema
 
     // Create medical record
     const { data: record, error } = await supabase
@@ -167,11 +151,8 @@ export const POST = withApiAuth(
       .insert({
         pet_id,
         tenant_id: profile.tenant_id,
-        performed_by: user.id,
         type,
         title,
-        diagnosis: diagnosis || null,
-        diagnosis_code_id: diagnosis_code_id || null,
         notes: notes || null,
         vitals: vitals || null,
         attachments: attachments || [],
@@ -179,8 +160,7 @@ export const POST = withApiAuth(
       .select(
         `
         *,
-        pet:pets(id, name, species),
-        vet:profiles!medical_records_performed_by_fkey(id, full_name)
+        pet:pets(id, name, species)
       `
       )
       .single()
@@ -207,7 +187,6 @@ export const POST = withApiAuth(
         type,
         title,
         pet_id,
-        pet_name: pet_id,
       },
     })
 

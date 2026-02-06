@@ -107,8 +107,8 @@ Remove or modify the failing setup code in `e2e/global-setup.ts`:
 
 ### 3. Login Route Mismatch
 
-**Issue**: Global setup trying to access `/adris/portal/login`  
-**Expected**: Should be `/adris/login` based on routing structure
+**Issue**: Global setup trying to access `/terrapet/portal/login`  
+**Expected**: Should be `/terrapet/login` based on routing structure
 
 **Error Location**: `e2e/global-setup.ts:716`
 
@@ -248,8 +248,8 @@ Running `npx playwright test --list` shows existing tests:
    - Actual may be: Different attribute or structure
 
 2. Redirect expectations may not match
-   - Expecting: `/adris/portal`
-   - Actual may be: `/adris/portal/dashboard` or different
+   - Expecting: `/terrapet/portal`
+   - Actual may be: `/terrapet/portal/dashboard` or different
 
 3. Success indicators may not exist
    - Looking for: `[data-testid="user-menu"]`
@@ -302,7 +302,7 @@ Running `npx playwright test --list` shows existing tests:
    - Will cause immediate test failure
 
 2. **Database queries in test setup**
-   - `getOwnerPets('owner@adris.demo')` may return empty
+   - `getOwnerPets('owner@terrapet.demo')` may return empty
    - Depends on seed data being loaded
 
 3. **Heading text may differ**
@@ -424,9 +424,9 @@ Running `npx playwright test --list` shows existing tests:
    ```bash
    npm run seed:demo
    # Verify accounts exist:
-   # - owner@adris.demo
-   # - vet@adris.demo
-   # - admin@adris.demo
+   # - owner@terrapet.demo
+   # - vet@terrapet.demo
+   # - admin@terrapet.demo
    ```
 
 ### Low Priority (Refinement)
@@ -471,7 +471,7 @@ Running `npx playwright test --list` shows existing tests:
 
 4. **Verify server responds**
    ```bash
-   curl http://localhost:3000/adris
+   curl http://localhost:3000/terrapet
    # Should return HTML
    ```
 

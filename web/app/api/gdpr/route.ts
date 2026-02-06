@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import type { GDPRRequestType, GDPRRequestResponse } from '@/lib/gdpr/types'
 import { checkRateLimit, sendVerificationEmail } from '@/lib/gdpr'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * Request schema for creating GDPR request
@@ -25,7 +26,7 @@ const createRequestSchema = z.object({
  * GET /api/gdpr
  * List user's GDPR requests
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient()
 
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching GDPR requests:', error)
+      logger.error('Error fetching GDPR requests:', error)
       return NextResponse.json(
         { error: 'Error al obtener solicitudes' },
         { status: 500 }
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       requests: requests || [],
     })
   } catch (error) {
-    console.error('Error in GET /api/gdpr:', error)
+    logger.error('Error in GET /api/gdpr:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (createError) {
-      console.error('Error creating GDPR request:', createError)
+      logger.error('Error creating GDPR request:', createError)
       return NextResponse.json(
         { error: 'Error al crear solicitud' },
         { status: 500 }
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
       try {
         await sendVerificationEmail(user.id, gdprRequest.id, requestType)
       } catch (emailError) {
-        console.error('Error sending verification email:', emailError)
+        logger.error('Error sending verification email:', emailError)
         // Don't fail the request, just note that email couldn't be sent
       }
     }
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 201 })
   } catch (error) {
-    console.error('Error in POST /api/gdpr:', error)
+    logger.error('Error in POST /api/gdpr:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

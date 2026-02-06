@@ -43,9 +43,9 @@ interface DemoUser {
 
 const DEMO_USERS: DemoUser[] = [
   // Adris Clinic
-  { email: 'admin@adris.demo', password: 'demo123', full_name: 'Maria Garcia (Admin)' },
-  { email: 'vet@adris.demo', password: 'demo123', full_name: 'Dr. Carlos Rodriguez' },
-  { email: 'owner@adris.demo', password: 'demo123', full_name: 'Juan Perez (Cliente)' },
+  { email: 'admin@terrapet.demo', password: 'demo123', full_name: 'Maria Garcia (Admin)' },
+  { email: 'vet@terrapet.demo', password: 'demo123', full_name: 'Dr. Carlos Rodriguez' },
+  { email: 'owner@terrapet.demo', password: 'demo123', full_name: 'Juan Perez (Cliente)' },
   // PetLife Clinic
   { email: 'admin@petlife.demo', password: 'demo123', full_name: 'Ana Martinez (Admin)' },
   { email: 'vet@petlife.demo', password: 'demo123', full_name: 'Dra. Laura Gonzalez' },
@@ -86,7 +86,7 @@ async function seedDemoUsers(): Promise<void> {
 
   console.log('\n✅ Demo users seeded successfully!')
   console.log('\nYou can now log in with:')
-  console.log('  Email: owner@adris.demo')
+  console.log('  Email: owner@terrapet.demo')
   console.log('  Password: demo123')
 }
 

@@ -37,17 +37,17 @@ describe('TerraPet Services API - Service Data Loading', () => {
       expect(allVisible).toBe(true)
     })
 
-    it('does NOT return adris services', async () => {
+    it('does NOT return terrapet services', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
       // Ensure we're getting different service sets
       const terrapetServices = terrapetData?.services.list.map((s) => s.id) || []
-      const adrisServices = adrisData?.services.list.map((s) => s.id) || []
+      const terrapetServices = terrapetData?.services.list.map((s) => s.id) || []
 
       // Services should be isolated (may have overlapping IDs but different content)
       expect(terrapetServices.length).toBeGreaterThan(0)
-      expect(adrisServices.length).toBeGreaterThan(0)
+      expect(terrapetServices.length).toBeGreaterThan(0)
     })
 
     it('includes service variants (14 total)', async () => {
@@ -210,17 +210,17 @@ describe('TerraPet Services API - Service Data Loading', () => {
       expect(invalidService).toBeUndefined()
     })
 
-    it('returns 404 for adris service ID in terrapet context', async () => {
+    it('returns 404 for terrapet service ID in terrapet context', async () => {
       const terrapetData = await getClinicData('terrapet')
-      const adrisData = await getClinicData('adris')
+      const terrapetData = await getClinicData('terrapet')
 
-      // Verify tenant isolation - terrapet can't access adris services
+      // Verify tenant isolation - terrapet can't access terrapet services
       const terrapetServiceIds = terrapetData?.services.list.map((s) => s.id) || []
-      const adrisServiceIds = adrisData?.services.list.map((s) => s.id) || []
+      const terrapetServiceIds = terrapetData?.services.list.map((s) => s.id) || []
 
       // Even if IDs overlap, the content should be different
       expect(terrapetServiceIds.length).toBeGreaterThan(0)
-      expect(adrisServiceIds.length).toBeGreaterThan(0)
+      expect(terrapetServiceIds.length).toBeGreaterThan(0)
     })
 
     it('includes related data (variants, booking)', async () => {

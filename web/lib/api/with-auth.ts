@@ -10,13 +10,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { apiError, ApiErrorResponse } from './errors'
+import { apiError } from './errors'
 import { logger } from '@/lib/logger'
 import { rateLimit, RateLimitType } from '@/lib/rate-limit'
 import { scopedQueries, ScopedQueries } from '@/lib/supabase/scoped'
 import type { User } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { UserProfile as BaseUserProfile, UserRole } from '@/lib/auth/types'
+import type { UserProfile as BaseUserProfile } from '@/lib/auth/types'
 
 /**
  * User profile from the profiles table

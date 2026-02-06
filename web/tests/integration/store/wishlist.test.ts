@@ -16,8 +16,6 @@ import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from '@/app/api/store/wishlist/route'
 import {
   mockState,
-  TENANTS,
-  USERS,
   PRODUCTS,
   resetAllMocks,
   createStatefulSupabaseMock,

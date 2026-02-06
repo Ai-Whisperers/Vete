@@ -126,7 +126,8 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
   try {
     const rawConfig = readJson<unknown>('config.json')
     if (rawConfig) {
-      config = validateConfig(rawConfig) // Validates and throws if invalid
+      // Zod schema validates and returns ZodClinicConfig, cast to manual ClinicConfig
+      config = validateConfig(rawConfig) as unknown as ClinicConfig
     }
   } catch (error) {
     console.error(`❌ [${slug}] config.json validation failed:`, error)

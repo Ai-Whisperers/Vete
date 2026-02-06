@@ -10,7 +10,7 @@ This document defines the comprehensive end-to-end testing strategy for the Vete
 
 - Playwright configuration (multi-browser, auth persistence, visual validation)
 - Seeded data verification test (database integrity)
-- Demo accounts for 2 clinics (adris, petlife) with 3 roles each
+- Demo accounts for 2 clinics (terrapet, petlife) with 3 roles each
 
 **❌ Missing**:
 
@@ -51,11 +51,11 @@ DATABASE_URL=postgresql://...
 
 ### Test Credentials
 
-**Clinic: Adris** (`http://localhost:3000/adris`)
+**Clinic: Adris** (`http://localhost:3000/terrapet`)
 
-- Admin: `admin@adris.demo` / `demo123`
-- Vet: `vet@adris.demo` / `demo123`
-- Owner: `owner@adris.demo` / `demo123`
+- Admin: `admin@terrapet.demo` / `demo123`
+- Vet: `vet@terrapet.demo` / `demo123`
+- Owner: `owner@terrapet.demo` / `demo123`
 
 **Clinic: PetLife** (`http://localhost:3000/petlife`)
 
@@ -249,7 +249,7 @@ tests/e2e/
 
 ### Seed Data Needed
 
-- ✅ 2 clinics (adris, petlife)
+- ✅ 2 clinics (terrapet, petlife)
 - ✅ 6 demo accounts (3 per clinic, 3 roles each)
 - ✅ 18+ pets with medical histories
 - ✅ 20+ appointments across statuses
@@ -283,7 +283,7 @@ npm run test:e2e:ui
 npx playwright test tests/e2e/auth/login.spec.ts
 
 # Specific clinic
-npx playwright test --grep @adris
+npx playwright test --grep @terrapet
 
 # Specific role
 npx playwright test --grep @owner

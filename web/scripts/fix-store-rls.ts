@@ -45,8 +45,9 @@ async function main() {
       try {
         await client.query(`ALTER TABLE public.${table} DISABLE ROW LEVEL SECURITY;`)
         console.log(`✅ RLS disabled for ${table}`)
-      } catch (e: any) {
-        console.log(`⚠️  Could not disable RLS for ${table}: ${e.message}`)
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e)
+        console.log(`⚠️  Could not disable RLS for ${table}: ${message}`)
       }
     }
   } catch (err) {

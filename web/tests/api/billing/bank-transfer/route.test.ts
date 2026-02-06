@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,
@@ -9,6 +9,7 @@ import {
   expectError,
   cleanupManager,
   TEST_TENANT_ID,
+  getAuthTokenFromUser,
 } from '@/tests/__helpers__/integration-setup'
 import { GET } from '@/app/api/billing/bank-transfer/route'
 import { TENANT_IDS } from '@/lib/constants/tenants';
@@ -37,6 +38,9 @@ describe('API: /api/billing/bank-transfer', () => {
     const vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     vetUserId = vetUser.userId
     vetProfileId = vetUser.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -44,7 +48,7 @@ describe('API: /api/billing/bank-transfer', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/billing/bank-transfer', () => {

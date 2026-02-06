@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Modal, ModalFooter } from '@/components/ui/modal'
+import { useTranslations } from 'next-intl'
 import { PetSelector } from './pet-selector'
 import { useCart } from '@/context/cart-context'
 import { ShoppingBag, Loader2, Check, Calculator } from 'lucide-react'
@@ -41,6 +42,7 @@ export function AddServiceModal({
   onSuccess,
 }: AddServiceModalProps) {
   const { addItem } = useCart()
+  const t = useTranslations()
   const [selectedPet, setSelectedPet] = useState<PetForService | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [justAdded, setJustAdded] = useState(false)
@@ -108,7 +110,7 @@ export function AddServiceModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Agregar Servicio"
+      title={`${t('common.add')} ${t('services.service')}`}
       description={`${service.title} - ${variant.name}`}
       size="lg"
       closeOnBackdrop={!isAdding}

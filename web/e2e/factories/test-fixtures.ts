@@ -9,7 +9,7 @@
  * import { test, expect } from './factories/test-fixtures'
  *
  * test('shows pets list', async ({ page, testData }) => {
- *   await page.goto('/adris/portal/pets')
+ *   await page.goto('/terrapet/portal/pets')
  *   // testData.pets contains the pre-created pets
  *   for (const pet of testData.pets) {
  *     await expect(page.getByText(pet.name)).toBeVisible()
@@ -51,7 +51,7 @@ export interface TestFixtures {
 // Constants
 // =============================================================================
 
-export const E2E_TENANT = 'adris'
+export const E2E_TENANT = 'terrapet'
 
 export const E2E_OWNER = {
   email: 'e2e-owner@test.local',

@@ -40,7 +40,7 @@ interface StaffDashboardPreviewProps {
   clinic: string
 }
 
-function AppointmentRow({ appointment, clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
+function AppointmentRow({ appointment, clinic: _clinic }: { appointment: Appointment; clinic: string }): React.ReactElement {
   const startTime = new Date(appointment.start_time)
   const formattedTime = startTime.toLocaleTimeString('es-PY', {
     hour: '2-digit',

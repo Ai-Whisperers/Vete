@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, Check, Star } from 'lucide-react'
 import {
-  pricingTiers,
-  formatTierPrice,
   getTierById,
   trialConfig,
   type TierId,

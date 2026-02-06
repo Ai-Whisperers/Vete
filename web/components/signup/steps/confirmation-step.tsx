@@ -6,8 +6,7 @@
  * Shows summary of all entered data and terms acceptance
  */
 
-import { useState } from 'react'
-import { CheckCircle2, Building2, Mail, Phone, User, Palette, AlertCircle } from 'lucide-react'
+import { CheckCircle2, Building2, Phone, User, Palette, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
 import type { SignupFormData } from '@/lib/signup/types'
 

@@ -11,10 +11,13 @@ on:
 jobs:
   claude:
     runs-on: ubuntu-latest
+    # Don't block PR merges if claude fails (workflow changes require merge to main first)
+    continue-on-error: true
     permissions:
       contents: write
       pull-requests: write
       issues: write
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       

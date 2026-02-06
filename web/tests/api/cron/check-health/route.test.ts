@@ -1,9 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import {
   setupIntegrationTest,
   cleanupIntegrationTest,
   createTestRequest,
-  expectSuccess,
   expectError,
 } from '@/tests/__helpers__/integration-setup'
 import { GET } from '@/app/api/cron/check-health/route'

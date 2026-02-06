@@ -10,7 +10,6 @@ import {
   classifyPetSize,
   SIZE_SHORT_LABELS,
   getSizeBadgeColor,
-  type PetSizeCategory,
 } from '@/lib/utils/pet-size'
 import type { PetForService } from '@/lib/types/services'
 

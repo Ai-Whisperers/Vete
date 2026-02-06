@@ -5,7 +5,7 @@
     {
       "id": "e0000001-0001-0001-0001-000000000001",
       "staff_id": "a0000001-0001-0001-0001-000000000001",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "type_code": "VAC",
       "start_date": "{{daysFromNow(14)}}",
       "end_date": "{{daysFromNow(21)}}",
@@ -17,7 +17,7 @@
     {
       "id": "e0000001-0001-0001-0001-000000000002",
       "staff_id": "a0000001-0001-0001-0001-000000000002",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "type_code": "SICK",
       "start_date": "{{daysAgo(5)}}",
       "end_date": "{{daysAgo(5)}}",
@@ -30,7 +30,7 @@
     {
       "id": "e0000001-0001-0001-0001-000000000003",
       "staff_id": "a0000001-0001-0001-0001-000000000002",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "type_code": "PERS",
       "start_date": "{{daysFromNow(30)}}",
       "end_date": "{{daysFromNow(31)}}",

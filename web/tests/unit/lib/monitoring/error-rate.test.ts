@@ -7,7 +7,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   ErrorRateTracker,
-  type ErrorRateConfig,
   recordApiError,
   getErrorRateSummary,
   isEndpointHealthy,

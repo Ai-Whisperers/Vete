@@ -15,7 +15,7 @@ Tailwind CSS v4 introduces a new content scanning engine that breaks our current
 1. **JSON Color Values Misinterpreted**
 
    ```
-   .content_data/adris/theme.json
+   .content_data/terrapet/theme.json
    {
      "colors": {
        "primary": "#3B82F6",    // ← Scanner thinks this is class "primary"
@@ -62,7 +62,7 @@ Vete/
 Vete/
 ├── content/                # ← Solution: outside web/
 │   ├── _TEMPLATE/
-│   ├── adris/
+│   ├── terrapet/
 │   └── petlife/
 ├── web/
 │   ├── app/
@@ -125,7 +125,7 @@ Verify that moving `.content_data/` doesn't break theme loading:
 npm run dev
 
 # Visit each clinic
-http://localhost:3000/adris
+http://localhost:3000/terrapet
 http://localhost:3000/petlife
 
 # Check browser console for errors

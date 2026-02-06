@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { collectUserData, generateExportJson, isIdentityVerified } from '@/lib/gdpr'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * GET /api/gdpr/export
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in GET /api/gdpr/export:', error)
+    logger.error('Error in GET /api/gdpr/export:', error)
     return NextResponse.json(
       { error: 'Error al exportar datos' },
       { status: 500 }

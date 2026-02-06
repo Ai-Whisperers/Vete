@@ -146,7 +146,7 @@ export function InvoiceForm({
       } else {
         router.push(`/${clinic}/dashboard/invoices`)
       }
-    } catch (e) {
+    } catch (_e) {
       setError(t('errorSavingInvoice'))
       setLoading(false)
     }

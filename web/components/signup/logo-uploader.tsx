@@ -11,6 +11,7 @@ import { useState, useCallback, useRef } from 'react'
 import { Upload, X, Loader2, ImageIcon, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
 import type { UploadLogoResponse } from '@/lib/signup/types'
+import { useTranslations } from 'next-intl'
 
 interface LogoUploaderProps {
   value: string | null
@@ -23,6 +24,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']
 
 export function LogoUploader({ value, slug, onChange, disabled }: LogoUploaderProps) {
+  const t = useTranslations()
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -148,7 +150,7 @@ export function LogoUploader({ value, slug, onChange, disabled }: LogoUploaderPr
             onClick={handleRemove}
             disabled={disabled}
             className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Eliminar logo"
+            aria-label={`${t('common.delete')} logo`}
           >
             <X className="h-4 w-4" />
           </button>

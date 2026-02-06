@@ -18,8 +18,6 @@ import {
   AlertCircle,
   Check,
 } from 'lucide-react'
-import { formatInTimeZone } from 'date-fns-tz'
-import { es } from 'date-fns/locale'
 
 interface PlatformSetting {
   key: string

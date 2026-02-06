@@ -17,10 +17,10 @@ import { verifyUrl } from '../helpers/navigation';
 
 test.describe('Authentication - Logout and Session Management', () => {
   test.describe('Logout Functionality', () => {
-    test('should logout owner successfully @owner @adris', async ({ page }) => {
+    test('should logout owner successfully @owner @terrapet', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
-      await verifyUrl(page, /\/adris\/portal/);
+      await loginAs(page, 'terrapet', 'owner');
+      await verifyUrl(page, /\/terrapet\/portal/);
 
       // Verify logged in
       let loggedIn = await isLoggedIn(page);
@@ -41,10 +41,10 @@ test.describe('Authentication - Logout and Session Management', () => {
       await expect(page.locator('input[type="password"]')).toBeVisible();
     });
 
-    test('should logout vet successfully @vet @adris', async ({ page }) => {
+    test('should logout vet successfully @vet @terrapet', async ({ page }) => {
       // Arrange: Login as vet
-      await loginAs(page, 'adris', 'vet');
-      await verifyUrl(page, /\/adris\/dashboard/);
+      await loginAs(page, 'terrapet', 'vet');
+      await verifyUrl(page, /\/terrapet\/dashboard/);
 
       // Act: Logout
       await logout(page);
@@ -56,9 +56,9 @@ test.describe('Authentication - Logout and Session Management', () => {
       await expect(page.locator('input[type="email"]')).toBeVisible();
     });
 
-    test('should logout admin successfully @admin @adris', async ({ page }) => {
+    test('should logout admin successfully @admin @terrapet', async ({ page }) => {
       // Arrange: Login as admin
-      await loginAs(page, 'adris', 'admin');
+      await loginAs(page, 'terrapet', 'admin');
 
       // Act: Logout
       await logout(page);
@@ -72,13 +72,13 @@ test.describe('Authentication - Logout and Session Management', () => {
   });
 
   test.describe('Session Termination', () => {
-    test('should prevent access to portal after logout @owner @adris @security', async ({ page }) => {
+    test('should prevent access to portal after logout @owner @terrapet @security', async ({ page }) => {
       // Arrange: Login and then logout
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
       await logout(page);
 
       // Act: Try to access portal
-      await page.goto('/adris/portal');
+      await page.goto('/terrapet/portal');
 
       // Assert: Should redirect to login
       await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
@@ -88,13 +88,13 @@ test.describe('Authentication - Logout and Session Management', () => {
       await expect(portalContent).not.toBeVisible();
     });
 
-    test('should prevent access to dashboard after logout @vet @adris @security', async ({ page }) => {
+    test('should prevent access to dashboard after logout @vet @terrapet @security', async ({ page }) => {
       // Arrange: Login and then logout
-      await loginAs(page, 'adris', 'vet');
+      await loginAs(page, 'terrapet', 'vet');
       await logout(page);
 
       // Act: Try to access dashboard
-      await page.goto('/adris/dashboard');
+      await page.goto('/terrapet/dashboard');
 
       // Assert: Should redirect to login
       await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
@@ -104,9 +104,9 @@ test.describe('Authentication - Logout and Session Management', () => {
       await expect(dashboardContent).not.toBeVisible();
     });
 
-    test('should prevent API calls after logout @owner @adris @security', async ({ page }) => {
+    test('should prevent API calls after logout @owner @terrapet @security', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Setup API response listener
       const apiCalls: string[] = [];
@@ -128,10 +128,10 @@ test.describe('Authentication - Logout and Session Management', () => {
   });
 
   test.describe('Logout from Different Pages', () => {
-    test('should logout from portal home page @owner @adris', async ({ page }) => {
+    test('should logout from portal home page @owner @terrapet', async ({ page }) => {
       // Arrange: Login and stay on portal home
-      await loginAs(page, 'adris', 'owner');
-      await page.goto('/adris/portal');
+      await loginAs(page, 'terrapet', 'owner');
+      await page.goto('/terrapet/portal');
 
       // Act: Logout
       await logout(page);
@@ -140,11 +140,11 @@ test.describe('Authentication - Logout and Session Management', () => {
       await verifyUrl(page, /\/login/);
     });
 
-    test('should logout from nested portal page @owner @adris', async ({ page }) => {
+    test('should logout from nested portal page @owner @terrapet', async ({ page }) => {
       // Arrange: Login and navigate to nested page
-      await loginAs(page, 'adris', 'owner');
-      await page.goto('/adris/portal/pets');
-      await expect(page).toHaveURL(/\/adris\/portal\/pets/, { timeout: 10000 });
+      await loginAs(page, 'terrapet', 'owner');
+      await page.goto('/terrapet/portal/pets');
+      await expect(page).toHaveURL(/\/terrapet\/portal\/pets/, { timeout: 10000 });
 
       // Act: Logout
       await logout(page);
@@ -153,11 +153,11 @@ test.describe('Authentication - Logout and Session Management', () => {
       await verifyUrl(page, /\/login/);
     });
 
-    test('should logout from dashboard page @vet @adris', async ({ page }) => {
+    test('should logout from dashboard page @vet @terrapet', async ({ page }) => {
       // Arrange: Login and navigate to dashboard
-      await loginAs(page, 'adris', 'vet');
-      await page.goto('/adris/dashboard/patients');
-      await expect(page).toHaveURL(/\/adris\/dashboard\/patients/, { timeout: 10000 });
+      await loginAs(page, 'terrapet', 'vet');
+      await page.goto('/terrapet/dashboard/patients');
+      await expect(page).toHaveURL(/\/terrapet\/dashboard\/patients/, { timeout: 10000 });
 
       // Act: Logout
       await logout(page);
@@ -168,37 +168,37 @@ test.describe('Authentication - Logout and Session Management', () => {
   });
 
   test.describe('Session Persistence', () => {
-    test('should maintain session across page refreshes @owner @adris', async ({ page }) => {
+    test('should maintain session across page refreshes @owner @terrapet', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
-      await verifyUrl(page, /\/adris\/portal/);
+      await loginAs(page, 'terrapet', 'owner');
+      await verifyUrl(page, /\/terrapet\/portal/);
 
       // Act: Refresh page
       await page.reload({ waitUntil: 'networkidle' });
 
       // Assert: Still logged in
-      await verifyUrl(page, /\/adris\/portal/);
+      await verifyUrl(page, /\/terrapet\/portal/);
       const loggedIn = await isLoggedIn(page);
       expect(loggedIn).toBe(true);
     });
 
-    test('should maintain session across navigation @owner @adris', async ({ page }) => {
+    test('should maintain session across navigation @owner @terrapet', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Act: Navigate to different portal pages
-      await page.goto('/adris/portal/pets');
-      await page.goto('/adris/portal/appointments');
-      await page.goto('/adris/portal');
+      await page.goto('/terrapet/portal/pets');
+      await page.goto('/terrapet/portal/appointments');
+      await page.goto('/terrapet/portal');
 
       // Assert: Still logged in on all pages
       const loggedIn = await isLoggedIn(page);
       expect(loggedIn).toBe(true);
     });
 
-    test('should not persist session after logout and refresh @owner @adris', async ({ page }) => {
+    test('should not persist session after logout and refresh @owner @terrapet', async ({ page }) => {
       // Arrange: Login and logout
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
       await logout(page);
 
       // Act: Refresh page
@@ -216,8 +216,8 @@ test.describe('Authentication - Logout and Session Management', () => {
   test.describe('Multi-Tenant Logout', () => {
     test('should logout from one clinic and login to another @owner @multi-tenant', async ({ page }) => {
       // Arrange: Login to Adris
-      await loginAs(page, 'adris', 'owner');
-      await verifyUrl(page, /\/adris\/portal/);
+      await loginAs(page, 'terrapet', 'owner');
+      await verifyUrl(page, /\/terrapet\/portal/);
 
       // Act: Logout from Adris
       await logout(page);
@@ -233,7 +233,7 @@ test.describe('Authentication - Logout and Session Management', () => {
 
     test('should not have cross-tenant session @owner @multi-tenant @security', async ({ page }) => {
       // Arrange: Login to Adris
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Act: Try to access PetLife portal (without logging in there)
       await page.goto('/petlife/portal');

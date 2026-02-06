@@ -8,7 +8,7 @@
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
-import { DEFAULT_TENANT, TENANT_ROUTES } from '../../__fixtures__/tenants'
+import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 import { generateTestEmail, generateTestPhone } from '../../__fixtures__/users'
 
 describe('UAT: Owner Registration and Pet Management', () => {

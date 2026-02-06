@@ -342,7 +342,7 @@ export const GET = withApiAuth(async ({ supabase }) => {
 })
 
 // 3. Use hardcoded tenant values
-.eq('tenant_id', 'adris') // ❌ Bypasses RLS
+.eq('tenant_id', 'terrapet') // ❌ Bypasses RLS
 ```
 
 ---

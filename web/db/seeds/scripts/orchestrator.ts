@@ -91,7 +91,7 @@ export class SeedOrchestrator {
       dryRun: false,
       verbose: false,
       clear: false,
-      tenants: ['adris'],
+      tenants: ['terrapet'],
       ...options,
     }
 
@@ -309,7 +309,7 @@ Usage:
 
 Options:
   --variant, -v <name>   Seed variant (basic, integration, e2e, demo, reset)
-  --tenant, -t <id>      Tenant ID to seed (default: adris)
+  --tenant, -t <id>      Tenant ID to seed (default: terrapet)
   --tenants <ids>        Comma-separated tenant IDs
   --clear                Clear existing data before seeding
   --dry-run              Validate without inserting

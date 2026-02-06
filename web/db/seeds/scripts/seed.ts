@@ -1464,7 +1464,7 @@ async function main(): Promise<void> {
 
   const config: SeedConfig = {
     type: 'demo',
-    tenants: ['adris'],
+    tenants: ['terrapet'],
     clearFirst: false,
     verbose: false,
   }
@@ -1510,14 +1510,14 @@ Usage:
 
 Options:
   --type, -t <type>     Seed type: basic, reference, full, demo (default: demo)
-  --tenant <id>         Tenant ID to seed (default: adris)
+  --tenant <id>         Tenant ID to seed (default: terrapet)
   --tenants <ids>       Comma-separated tenant IDs
   --clear               Clear existing tenant data first
   --verbose, -v         Verbose output
   --help, -h            Show this help
 
 Examples:
-  npx tsx db/seeds/scripts/seed.ts                      # Full demo seed for adris
+  npx tsx db/seeds/scripts/seed.ts                      # Full demo seed for terrapet
   npx tsx db/seeds/scripts/seed.ts --type basic         # Basic clinic setup
   npx tsx db/seeds/scripts/seed.ts --tenant petlife     # Seed petlife tenant
   npx tsx db/seeds/scripts/seed.ts --clear --type full  # Clear and reseed

@@ -1,7 +1,9 @@
 'use client'
 import { useParams } from 'next/navigation'
 import { useCart } from '@/context/cart-context'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   ShoppingBag,
   X,
@@ -32,6 +34,7 @@ interface CartPageClientProps {
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string }
   const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart()
+  const t = useTranslations()
   const [_user, setUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [quantityWarning, setQuantityWarning] = useState<string | null>(null)
@@ -115,8 +118,14 @@ export default function CartPageClient({ config }: CartPageClientProps) {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
                 {item.image_url ? (
                   <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" />
+                    { }
+                    <Image 
+                      src={item.image_url} 
+                      alt={item.name} 
+                      width={32}
+                      height={32}
+                      className="object-contain" 
+                    />
                   </>
                 ) : item.type === 'service' ? (
                   <DynamicIcon name={item.service_icon} className="h-5 w-5 text-[var(--primary)]" />
@@ -243,7 +252,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-gray-100/50 bg-gray-50 sm:h-24 sm:w-24">
                           {item.image_url ? (
                             <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              { }
                               <img
                                 src={item.image_url}
                                 alt={item.name}
@@ -317,7 +326,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                         <button
                           onClick={() => removeItem(item.id)}
                           className="rounded-full p-2 text-gray-200 transition-all hover:bg-red-50 hover:text-red-400 group-hover:text-gray-300"
-                          aria-label="Eliminar"
+                          aria-label={t('common.delete')}
                         >
                           <X className="h-5 w-5 text-current" strokeWidth={3} />
                         </button>

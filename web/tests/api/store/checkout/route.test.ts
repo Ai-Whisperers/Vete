@@ -5,7 +5,7 @@
  * prescription verification, and idempotency
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { POST } from '@/app/api/store/checkout/route'
 import {
   setupIntegrationTest,
@@ -16,8 +16,8 @@ import {
   TEST_TENANT_ID,
   cleanupManager,
   createTestRequest,
-  expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -49,6 +49,9 @@ describe('API: /api/store/checkout', () => {
       species: 'dog',
     })
     testPetId = pet.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -56,7 +59,7 @@ describe('API: /api/store/checkout', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('POST /api/store/checkout', () => {

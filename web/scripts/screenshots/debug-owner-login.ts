@@ -5,7 +5,7 @@ import { chromium } from 'playwright'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
 }
 
 async function main(): Promise<void> {
@@ -13,14 +13,14 @@ async function main(): Promise<void> {
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
   const page = await context.newPage()
 
-  console.log('Testing owner@adris.demo login...\n')
+  console.log('Testing owner@terrapet.demo login...\n')
 
   try {
     await page.goto(`${CONFIG.baseUrl}/${CONFIG.tenant}/portal/login`, { waitUntil: 'domcontentloaded' })
     console.log(`URL: ${page.url()}`)
 
     await page.waitForSelector('input#email', { timeout: 10000 })
-    await page.fill('input#email', 'owner@adris.demo')
+    await page.fill('input#email', 'owner@terrapet.demo')
     await page.fill('input#password', 'demo123')
 
     console.log('Clicking submit...')

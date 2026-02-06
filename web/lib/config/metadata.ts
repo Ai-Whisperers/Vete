@@ -53,8 +53,8 @@ export function getSiteUrl(path = ''): string {
  * @returns Full canonical URL
  *
  * @example
- * getCanonicalUrl('adris') // 'https://vetic.app/adris'
- * getCanonicalUrl('adris', '/services') // 'https://vetic.app/adris/services'
+ * getCanonicalUrl('terrapet') // 'https://vetic.app/terrapet'
+ * getCanonicalUrl('terrapet', '/services') // 'https://vetic.app/terrapet/services'
  */
 export function getCanonicalUrl(clinic: string, path = ''): string {
   return getSiteUrl(`/${clinic}${path}`)

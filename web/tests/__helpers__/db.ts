@@ -116,7 +116,7 @@ export async function seedTenants(): Promise<void> {
   const client = getTestClient({ serviceRole: true })
 
   const { error } = await client.from('tenants').upsert([
-    { id: 'adris', name: 'Veterinaria Adris' },
+    { id: 'terrapet', name: 'Veterinaria Adris' },
     { id: 'petlife', name: 'PetLife Center' },
   ])
 

@@ -16,7 +16,7 @@
 
  
 import { test, expect, Page } from '@playwright/test'
-import { TEST_USERS, TEST_URLS, E2E_TEST_TENANT } from '../fixtures/test-users'
+import { TEST_USERS, TEST_URLS } from '../fixtures/test-users'
 
 // Cart item structure matching the app
 interface CartItem {

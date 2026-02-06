@@ -20,7 +20,7 @@ describe('Core Entity Flow', () => {
     pets: [],
   }
 
-  const client = getTestClient()
+  const client = getTestClient({ serviceRole: true })
 
   beforeAll(async () => {
     // Ensure tenants exist
@@ -32,7 +32,7 @@ describe('Core Entity Flow', () => {
   })
 
   describe('Clinic Setup', () => {
-    test('verifies default clinic (adris) exists', async () => {
+    test('verifies default clinic (terrapet) exists', async () => {
       // Use service role to verify data existence regardless of RLS
       const adminClient = getTestClient({ serviceRole: true })
       const { data, error } = await adminClient
@@ -61,7 +61,7 @@ describe('Core Entity Flow', () => {
       cleanupIds.profiles.push(profile.id)
 
       expect(profile.id).toBeDefined()
-      expect(profile.tenantId).toBe('adris')
+      expect(profile.tenantId).toBe('terrapet')
       expect(profile.role).toBe('owner')
       expect(profile.fullName).toBe(profileData.fullName)
 
@@ -110,7 +110,7 @@ describe('Core Entity Flow', () => {
       // 4. Verify Object Return
       expect(pet.id).toBeDefined()
       expect(pet.ownerId).toBe(owner.id)
-      expect(pet.tenantId).toBe('adris')
+      expect(pet.tenantId).toBe('terrapet')
       expect(pet.microchipId).toBe('CHIP-123456789')
 
       // 5. Verify Persistence & Field Mapping (Using Admin Client)
@@ -136,7 +136,7 @@ describe('Core Entity Flow', () => {
       expect(storedPet.diet_category).toBe('balanced')
       expect(storedPet.diet_notes).toBe('Sensitive stomach')
       expect(storedPet.allergies).toContain('Chicken')
-      expect(storedPet.chronic_conditions).toContain('Arthritis')
+      expect(storedPet.existing_conditions).toContain('Arthritis')
     })
 
     test('enforces RLS: anon users cannot see pets', async () => {

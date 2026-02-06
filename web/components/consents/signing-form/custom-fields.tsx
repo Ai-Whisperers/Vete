@@ -5,7 +5,7 @@ import type { TemplateField } from './types'
 
 interface CustomFieldsProps {
   fields: TemplateField[]
-  values: Record<string, unknown>
+  values: Record<string, string | number | boolean | null | undefined>
   onChange: (fieldName: string, value: string | number | boolean | null) => void
 }
 
@@ -30,7 +30,7 @@ export default function CustomFields({ fields, values, onChange }: CustomFieldsP
             {field.field_type === 'text' && (
               <input
                 type="text"
-                value={values[field.field_name] || ''}
+                value={String(values[field.field_name] ?? '')}
                 onChange={(e) => onChange(field.field_name, e.target.value)}
                 required={field.is_required}
                 className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -39,7 +39,7 @@ export default function CustomFields({ fields, values, onChange }: CustomFieldsP
 
             {field.field_type === 'textarea' && (
               <textarea
-                value={values[field.field_name] || ''}
+                value={String(values[field.field_name] ?? '')}
                 onChange={(e) => onChange(field.field_name, e.target.value)}
                 required={field.is_required}
                 rows={4}
@@ -49,7 +49,7 @@ export default function CustomFields({ fields, values, onChange }: CustomFieldsP
 
             {field.field_type === 'select' && field.field_options && (
               <select
-                value={values[field.field_name] || ''}
+                value={String(values[field.field_name] ?? '')}
                 onChange={(e) => onChange(field.field_name, e.target.value)}
                 required={field.is_required}
                 className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -66,7 +66,7 @@ export default function CustomFields({ fields, values, onChange }: CustomFieldsP
             {field.field_type === 'date' && (
               <input
                 type="date"
-                value={values[field.field_name] || ''}
+                value={String(values[field.field_name] ?? '')}
                 onChange={(e) => onChange(field.field_name, e.target.value)}
                 required={field.is_required}
                 className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -76,7 +76,7 @@ export default function CustomFields({ fields, values, onChange }: CustomFieldsP
             {field.field_type === 'number' && (
               <input
                 type="number"
-                value={values[field.field_name] || ''}
+                value={String(values[field.field_name] ?? '')}
                 onChange={(e) => onChange(field.field_name, e.target.value)}
                 required={field.is_required}
                 className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"

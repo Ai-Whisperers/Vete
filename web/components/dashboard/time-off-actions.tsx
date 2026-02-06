@@ -10,7 +10,7 @@ interface TimeOffActionsProps {
   clinic: string
 }
 
-export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): React.ReactElement {
+export function TimeOffActions({ requestId, clinic: _clinic }: TimeOffActionsProps): React.ReactElement {
   const [isLoading, setIsLoading] = useState<'approve' | 'reject' | null>(null)
   const router = useRouter()
   const { showToast } = useToast()

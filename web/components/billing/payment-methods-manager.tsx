@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/Toast'
-import { CreditCard, Plus, Building2, Loader2, AlertCircle } from 'lucide-react'
+import { CreditCard, Plus, Building2, AlertCircle } from 'lucide-react'
 import { PaymentMethodCard, PaymentMethodCardSkeleton } from './payment-method-card'
 import type { TenantPaymentMethod } from '@/lib/billing/types'
 

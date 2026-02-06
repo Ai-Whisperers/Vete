@@ -263,7 +263,7 @@ const pets = await db.select().from(petsTable).where(eq(petsTable.tenantId, tena
 
 ### 3. Hardcoded Tenant IDs
 
-**Pattern**: Strings like `'adris'` or `'petlife'` instead of `TENANT_IDS` constant
+**Pattern**: Strings like `'terrapet'` or `'petlife'` instead of `TENANT_IDS` constant
 
 **Files Affected**: ~9 remaining files (191 already migrated in Phase 2)
 

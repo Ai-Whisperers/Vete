@@ -9,7 +9,7 @@ import {
 } from './auth-helpers'
 
 test.describe('Authentication Flow', () => {
-  const clinic = 'adris'
+  const clinic = 'terrapet'
 
   // Use a unique email for each test run to avoid "already registered" errors
   // since we don't have an easy way to delete users from E2E yet.

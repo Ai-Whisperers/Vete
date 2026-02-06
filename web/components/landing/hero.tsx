@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowRight, Play, MapPin, Shield } from 'lucide-react'
-import Link from 'next/link'
+
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'

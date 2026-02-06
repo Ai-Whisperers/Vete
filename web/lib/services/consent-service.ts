@@ -666,7 +666,7 @@ export class ConsentService extends BaseService {
 
       if (fetchError) throw fetchError;
 
-      const template = (current.template as { can_be_revoked: boolean }[] | null)?.[0]
+      const template = (current.template as { can_be_revoked: boolean }[] | null)?.[0];
       if (!template?.can_be_revoked) {
         throw new Error('Este consentimiento no puede ser revocado');
       }

@@ -12,7 +12,6 @@ import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/cron/generate-recurring/route'
 import {
   mockState,
-  TENANTS,
   CRON_SECRETS,
   resetAllMocks,
   createStatefulSupabaseMock,

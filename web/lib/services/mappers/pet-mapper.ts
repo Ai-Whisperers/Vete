@@ -29,7 +29,7 @@ export interface RawPetWithOwner {
   breed: string | null
   birth_date: string | null
   weight_kg: number | null
-  microchip_id: string | null
+  microchip_number: string | null
   photo_url: string | null
   sex: string | null
   color: string | null
@@ -77,7 +77,7 @@ export function mapPetWithOwner(raw: RawPetWithOwner): PetWithOwner {
     breed: raw.breed,
     birth_date: raw.birth_date,
     weight_kg: raw.weight_kg,
-    microchip_id: raw.microchip_id,
+    microchip_number: raw.microchip_number,
     photo_url: raw.photo_url,
     sex: raw.sex as Pet['sex'],
     color: raw.color,

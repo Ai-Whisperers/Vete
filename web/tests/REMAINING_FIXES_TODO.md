@@ -135,7 +135,7 @@ Tests must check for **mapped** field names, not raw database fields.
 it('should create invoice with items successfully', async () => {
   // Queue responses: 1) pet lookup, 2) RPC invoice number, 3) invoice insert, 4) items insert, 5) audit log
   mockSupabase._mocks.queueMockData(
-    { data: { id: 'pet-1', tenant_id: 'adris', owner_id: 'owner-1' }, error: null },
+    { data: { id: 'pet-1', tenant_id: 'terrapet', owner_id: 'owner-1' }, error: null },
     { data: 'INV-2026-001', error: null },
     { data: mockInvoice, error: null },
     { data: null, error: null },
@@ -148,7 +148,7 @@ it('should create invoice with items successfully', async () => {
     error: null,
   })
 
-  const result = await service.create('adris', 'user-1', {
+  const result = await service.create('terrapet', 'user-1', {
     pet_id: 'pet-1',
     items: [{ description: 'Consulta', quantity: 1, unit_price: 150000 }],
     tax_rate: 10,

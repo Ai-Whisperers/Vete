@@ -31,7 +31,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
-import { ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/i18n/errors';
+import { ERROR_MESSAGES } from '@/lib/i18n/errors';
 
 // =============================================================================
 // SERVICE RESULT TYPES
@@ -129,8 +129,16 @@ export abstract class BaseService {
       const data = await operation();
       return { success: true, data };
     } catch (error: unknown) {
-      // Extract specific error message
-      const specificError = error instanceof Error ? error.message : String(error);
+      // Extract specific error message, handling Supabase error objects
+      let specificError: string;
+      if (error instanceof Error) {
+        specificError = error.message;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        // Handle Supabase/PostgreSQL error objects { message: string, code?: string }
+        specificError = (error as { message: string }).message;
+      } else {
+        specificError = String(error);
+      }
       
       // Log error with context
       logger.error(errorMessage, {

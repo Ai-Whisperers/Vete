@@ -17,7 +17,6 @@ import { GET } from '@/app/api/vaccines/recommendations/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   resetAllMocks,
   createStatefulSupabaseMock,
 } from '@/lib/test-utils'

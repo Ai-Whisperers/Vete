@@ -5,7 +5,7 @@
  * and prevent unauthorized cross-tenant data access.
  *
  * Test Approach:
- * 1. Create two tenants: 'terrapet' and 'adris'
+ * 1. Create two tenants: 'terrapet' and 'terrapet'
  * 2. Create users for each tenant with different roles
  * 3. Verify that users can only access data from their own tenant
  * 4. Verify that service role can access all data
@@ -33,14 +33,14 @@ describe('TerraPet RLS Policy Enforcement', () => {
   let tracker: RLSTestDataTracker
   let terrapetOwner: TestUserContext
   let terrapetVet: TestUserContext
-  let adrisOwner: TestUserContext
-  let adrisVet: TestUserContext
+  let terrapetOwner: TestUserContext
+  let terrapetVet: TestUserContext
   let terrapetPetId: string
-  let adrisPetId: string
+  let terrapetPetId: string
   let terrapetAppointmentId: string
-  let adrisAppointmentId: string
+  let terrapetAppointmentId: string
   let terrapetMedicalRecordId: string
-  let adrisMedicalRecordId: string
+  let terrapetMedicalRecordId: string
 
   beforeAll(async () => {
     // Clean up any leftover data from previous test runs
@@ -50,7 +50,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
 
     // Create tenants
     await createTestTenant('terrapet', 'TerraPet', tracker)
-    await createTestTenant('adris', 'Veterinaria Adris', tracker)
+    await createTestTenant('terrapet', 'Veterinaria Adris', tracker)
 
     // Create users for each tenant with unique emails (timestamp-based)
     const timestamp = Date.now()
@@ -71,18 +71,18 @@ describe('TerraPet RLS Policy Enforcement', () => {
       tracker
     )
 
-    adrisOwner = await createTestUser(
-      'adris',
+    terrapetOwner = await createTestUser(
+      'terrapet',
       'owner',
-      `adris-owner-${timestamp}@test.com`,
+      `terrapet-owner-${timestamp}@test.com`,
       'testpass123',
       tracker
     )
 
-    adrisVet = await createTestUser(
-      'adris',
+    terrapetVet = await createTestUser(
+      'terrapet',
       'vet',
-      `adris-vet-${timestamp}@test.com`,
+      `terrapet-vet-${timestamp}@test.com`,
       'testpass123',
       tracker
     )
@@ -95,7 +95,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       tracker
     )
 
-    adrisPetId = await createTestPet('adris', adrisOwner.userId, 'Adris Dog', tracker)
+    terrapetPetId = await createTestPet('terrapet', terrapetOwner.userId, 'Adris Dog', tracker)
 
     // Create appointments
     terrapetAppointmentId = await createTestAppointment(
@@ -105,10 +105,10 @@ describe('TerraPet RLS Policy Enforcement', () => {
       tracker
     )
 
-    adrisAppointmentId = await createTestAppointment(
-      'adris',
-      adrisPetId,
-      adrisOwner.userId,
+    terrapetAppointmentId = await createTestAppointment(
+      'terrapet',
+      terrapetPetId,
+      terrapetOwner.userId,
       tracker
     )
 
@@ -120,10 +120,10 @@ describe('TerraPet RLS Policy Enforcement', () => {
       tracker
     )
 
-    adrisMedicalRecordId = await createTestMedicalRecord(
-      'adris',
-      adrisPetId,
-      adrisVet.userId,
+    terrapetMedicalRecordId = await createTestMedicalRecord(
+      'terrapet',
+      terrapetPetId,
+      terrapetVet.userId,
       tracker
     )
   }, 60000) // 60s timeout for setup
@@ -146,19 +146,19 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(data?.tenant_id).toBe('terrapet')
     })
 
-    it('terrapet user CANNOT query adris pets', async () => {
+    it('terrapet user CANNOT query terrapet pets', async () => {
       const { data, error } = await terrapetOwner.client
         .from('pets')
         .select('*')
-        .eq('id', adrisPetId)
+        .eq('id', terrapetPetId)
         .single()
 
       // RLS should return no data (not an error, just empty)
       expect(data).toBeNull()
     })
 
-    it('adris user CANNOT query terrapet pets', async () => {
-      const { data, error } = await adrisOwner.client
+    it('terrapet user CANNOT query terrapet pets', async () => {
+      const { data, error } = await terrapetOwner.client
         .from('pets')
         .select('*')
         .eq('id', terrapetPetId)
@@ -194,15 +194,15 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(terrapetData).toBeDefined()
       expect(terrapetData?.id).toBe(terrapetPetId)
 
-      // Should be able to query adris pet
-      const { data: adrisData } = await serviceClient
+      // Should be able to query terrapet pet
+      const { data: terrapetData } = await serviceClient
         .from('pets')
         .select('*')
-        .eq('id', adrisPetId)
+        .eq('id', terrapetPetId)
         .single()
 
-      expect(adrisData).toBeDefined()
-      expect(adrisData?.id).toBe(adrisPetId)
+      expect(terrapetData).toBeDefined()
+      expect(terrapetData?.id).toBe(terrapetPetId)
     })
 
     it('queries automatically filter by tenant_id', async () => {
@@ -230,11 +230,11 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(data?.tenant_id).toBe('terrapet')
     })
 
-    it('terrapet user CANNOT query adris appointments', async () => {
+    it('terrapet user CANNOT query terrapet appointments', async () => {
       const { data } = await terrapetOwner.client
         .from('appointments')
         .select('*')
-        .eq('id', adrisAppointmentId)
+        .eq('id', terrapetAppointmentId)
         .single()
 
       expect(data).toBeNull()
@@ -269,7 +269,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       }
     })
 
-    it('terrapet user CANNOT CREATE appointment for adris', async () => {
+    it('terrapet user CANNOT CREATE appointment for terrapet', async () => {
       const startTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
       startTime.setHours(14, 0, 0, 0)
       const endTime = new Date(startTime.getTime() + 30 * 60 * 1000)
@@ -278,7 +278,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.ADRIS, // Trying to create for different tenant
-          pet_id: adrisPetId,
+          pet_id: terrapetPetId,
           start_time: startTime.toISOString(),
           end_time: endTime.toISOString(),
           duration_minutes: 30,
@@ -309,7 +309,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       const { data } = await serviceClient
         .from('appointments')
         .select('*')
-        .in('id', [terrapetAppointmentId, adrisAppointmentId])
+        .in('id', [terrapetAppointmentId, terrapetAppointmentId])
 
       expect(data).toBeDefined()
       expect(data?.length).toBe(2)
@@ -344,11 +344,11 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(data).toBeNull()
     })
 
-    it('terrapet user CANNOT query adris profiles', async () => {
+    it('terrapet user CANNOT query terrapet profiles', async () => {
       const { data } = await terrapetOwner.client
         .from('profiles')
         .select('*')
-        .eq('id', adrisOwner.userId)
+        .eq('id', terrapetOwner.userId)
         .single()
 
       expect(data).toBeNull()
@@ -379,7 +379,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       const { data } = await serviceClient
         .from('profiles')
         .select('*')
-        .in('id', [terrapetOwner.userId, adrisOwner.userId])
+        .in('id', [terrapetOwner.userId, terrapetOwner.userId])
 
       expect(data).toBeDefined()
       expect(data?.length).toBe(2)
@@ -405,7 +405,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       expect(true).toBe(true)
     })
 
-    it('terrapet staff CANNOT manage adris services (placeholder)', () => {
+    it('terrapet staff CANNOT manage terrapet services (placeholder)', () => {
       expect(true).toBe(true)
     })
 
@@ -431,7 +431,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       const { data } = await terrapetOwner.client
         .from('medical_records')
         .select('*')
-        .eq('id', adrisMedicalRecordId)
+        .eq('id', terrapetMedicalRecordId)
         .single()
 
       expect(data).toBeNull()
@@ -450,11 +450,11 @@ describe('TerraPet RLS Policy Enforcement', () => {
       }
     })
 
-    it('vet CANNOT view adris records', async () => {
+    it('vet CANNOT view terrapet records', async () => {
       const { data } = await terrapetVet.client
         .from('medical_records')
         .select('*')
-        .eq('id', adrisMedicalRecordId)
+        .eq('id', terrapetMedicalRecordId)
         .single()
 
       expect(data).toBeNull()
@@ -478,7 +478,7 @@ describe('TerraPet RLS Policy Enforcement', () => {
       const { data } = await serviceClient
         .from('medical_records')
         .select('*')
-        .in('id', [terrapetMedicalRecordId, adrisMedicalRecordId])
+        .in('id', [terrapetMedicalRecordId, terrapetMedicalRecordId])
 
       expect(data).toBeDefined()
       expect(data?.length).toBe(2)

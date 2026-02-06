@@ -12,7 +12,7 @@
  * @epic EPIC-17
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TENANT_IDS } from '@/lib/constants/tenants'
 
 // Mock dependencies before imports - ORDER MATTERS!
@@ -24,7 +24,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 // Mock the entire auth module to prevent database imports
 vi.mock('@/lib/auth', () => ({
-  withActionAuth: (handler: Function) => {
+  withActionAuth: (handler: (...args: unknown[]) => unknown) => {
     return async (...args: unknown[]) => {
       const { createClient } = await import('@/lib/supabase/server')
       const supabase = await createClient()
@@ -165,7 +165,7 @@ import {
 // =============================================================================
 
 const TENANTS = {
-  ADRIS: { id: 'adris', name: 'Veterinaria Adris' },
+  ADRIS: { id: 'terrapet', name: 'Veterinaria Adris' },
   PETLIFE: { id: 'petlife', name: 'PetLife Center' },
 }
 
@@ -380,19 +380,8 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
-        rpcResult: false, // No overlap
+        rpcResult: { success: true, new_start_time: futureDate(14), new_end_time: futureDate(14) }, // Successful reschedule
       })
-
-      // Mock successful update
-      mockSupabase.from = vi.fn((table: string) => ({
-        select: vi.fn().mockReturnThis(),
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: table === 'profiles' ? USERS.OWNER_A.profile : appointment,
-          error: null,
-        }),
-      }))
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
@@ -419,6 +408,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
+        rpcResult: { success: false, message: 'No tienes permiso para reprogramar esta cita' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
@@ -475,6 +465,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
+        rpcResult: { success: false, message: 'Esta cita no puede ser reprogramada' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
@@ -503,7 +494,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         user: { id: USERS.OWNER_A.id, email: USERS.OWNER_A.email },
         profile: USERS.OWNER_A.profile,
         appointments: appointment,
-        rpcResult: true, // Has overlap
+        rpcResult: { success: false, message: 'El horario no está disponible' },
       })
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
@@ -593,7 +584,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
       if (result.data) {
@@ -627,7 +618,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
     })
@@ -644,7 +635,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         chain.eq = vi.fn((field: string, value: unknown) => {
           // Verify tenant_id filter is applied
           if (field === 'tenant_id') {
-            expect(value).toBe('adris')
+            expect(value).toBe('terrapet')
           }
           return chain
         })
@@ -661,7 +652,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      await getOwnerAppointments('adris')
+      await getOwnerAppointments('terrapet')
     })
 
     it('should return empty arrays when no appointments exist', async () => {
@@ -685,7 +676,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
       if (result.data) {
@@ -715,7 +706,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(false)
       expect(result.error).toContain('Error')
@@ -761,7 +752,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(false)
     })

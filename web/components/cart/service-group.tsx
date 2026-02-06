@@ -2,6 +2,7 @@
 
 import { Minus, Plus, Trash2, PawPrint, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useCart } from '@/context/cart-context'
@@ -73,10 +74,12 @@ export function ServiceGroup({
         <div className="mb-2 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-subtle)]">
             {image_url ? (
-              <img
+              <Image
                 src={image_url}
                 alt={service_name}
-                className="h-full w-full rounded-lg object-cover"
+                width={40}
+                height={40}
+                className="rounded-lg object-cover"
               />
             ) : (
               <DynamicIcon name={service_icon} className="h-5 w-5 text-[var(--primary)]" />
@@ -127,7 +130,13 @@ export function ServiceGroup({
       <div className="flex items-center gap-4 border-b border-gray-100 bg-[var(--bg-subtle)] p-4">
         <div className="shrink-0">
           {image_url ? (
-            <img src={image_url} alt={service_name} className="h-14 w-14 rounded-xl object-cover" />
+            <Image 
+              src={image_url} 
+              alt={service_name} 
+              width={56}
+              height={56}
+              className="rounded-xl object-cover" 
+            />
           ) : (
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white shadow-sm">
               <DynamicIcon name={service_icon} className="h-7 w-7 text-[var(--primary)]" />

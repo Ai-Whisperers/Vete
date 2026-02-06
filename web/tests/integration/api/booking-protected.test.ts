@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST } from '@/app/api/booking/route';
 import { createMockApiContext } from '@/tests/__helpers__/api-test-helper';
 import { createMockSupabase } from '@/tests/__helpers__/mocks';

@@ -86,8 +86,9 @@ async function runSQL(client: Client, sql: string, fileName: string): Promise<bo
     await client.query(sql)
     console.log(`  ✅ ${fileName}`)
     return true
-  } catch (error: any) {
-    console.error(`  ❌ ${fileName}: ${error.message}`)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(`  ❌ ${fileName}: ${message}`)
     return false
   }
 }
@@ -217,12 +218,13 @@ async function main() {
       console.log('   admin@demo.com  - Clinic admin')
       console.log('')
       console.log('🌐 Access the app at:')
-      console.log('   http://localhost:3000/adris')
+      console.log('   http://localhost:3000/terrapet')
       console.log('   http://localhost:3000/petlife')
     }
     console.log('')
-  } catch (error: any) {
-    console.error(`\n❌ Connection error: ${error.message}\n`)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(`\n❌ Connection error: ${message}\n`)
     process.exit(1)
   } finally {
     await client.end()

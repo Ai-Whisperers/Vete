@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { sanitizeHtml, createSanitizedHtml, SANITIZE_PRESETS } from '@/lib/utils/sanitize';
+import { sanitizeHtml, createSanitizedHtml } from '@/lib/utils/sanitize';
 
 describe('XSS Prevention - HTML Sanitization', () => {
   describe('Script Tag Injection', () => {

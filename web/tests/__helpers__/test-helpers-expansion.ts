@@ -8,7 +8,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { factories } from '../__fixtures__/factories'
 import { UserFixture } from '../__fixtures__/users'
-import { createMockAuthState } from '../__mocks__/auth-state'
 
 // Database client for test setup
 let testDb: ReturnType<typeof createClient> | null = null
@@ -464,7 +463,7 @@ export class TestTimeTravel {
     
     // Override new Date() for tests
     const RealDate = Date
-    // @ts-ignore
+    // @ts-expect-error - Overriding global Date constructor for testing
     global.Date = function(...args) {
       if (args.length === 0) {
         return this.currentTime
@@ -475,7 +474,7 @@ export class TestTimeTravel {
 
   restore() {
     Date.now = this.originalNow
-    // @ts-ignore
+    // @ts-expect-error - Restoring original global Date constructor
     global.Date = Date
   }
 
@@ -504,7 +503,7 @@ export const testNotificationCapture = {
 
   capture() {
     // Mock notification system
-    // @ts-ignore
+    // @ts-expect-error - Mocking global Notification API for testing
     global.Notification = class MockNotification {
       static permission = 'granted'
       
@@ -526,11 +525,11 @@ export const testNotificationCapture = {
 
   reset() {
     testNotificationCapture.capturedNotifications = []
-    // @ts-ignore
+    // @ts-expect-error - Checking if global Notification is our mock
     if (global.Notification?.prototype?.constructor?.name === 'MockNotification') {
       return
     }
-    // @ts-ignore
+    // @ts-expect-error - Deleting mocked global Notification
     delete global.Notification
   },
 

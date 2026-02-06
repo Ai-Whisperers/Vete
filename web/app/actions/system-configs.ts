@@ -9,7 +9,7 @@ import { withActionAuth } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 
 export const getSystemConfigs = withActionAuth(
-  async ({ profile }, clinicSlug: string) => {
+  async ({ profile: _profile }, clinicSlug: string) => {
     try {
       const configs = await db
         .select()

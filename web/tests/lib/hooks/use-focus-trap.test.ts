@@ -6,11 +6,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useRef } from 'react'
 import {
   getFocusableElements,
   useFocusTrap,
-  type UseFocusTrapOptions,
 } from '../../../lib/hooks/use-focus-trap'
 
 // Mock DOM setup

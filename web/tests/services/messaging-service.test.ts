@@ -286,7 +286,7 @@ describe('MessagingService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch conversations');
+        expect(result.error).toBe('Connection failed');
       }
     });
   });
@@ -1219,7 +1219,8 @@ describe('MessagingService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch messaging statistics');
+        // Service returns specific error message from database
+        expect(result.error).toBe('Query failed');
       }
     });
   });

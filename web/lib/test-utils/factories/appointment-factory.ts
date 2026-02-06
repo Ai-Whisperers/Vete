@@ -4,8 +4,8 @@
 
 import { apiClient } from '../api-client'
 import { testContext } from '../context'
-import { generateId, pick, randomBusinessDate, randomPastDate, randomFutureDate } from './base'
-import { AppointmentScenario, TimeRange, DEFAULT_BUSINESS_HOURS } from './types'
+import { generateId, pick, randomPastDate, randomFutureDate } from './base'
+import { AppointmentScenario, DEFAULT_BUSINESS_HOURS } from './types'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
 interface AppointmentData {
@@ -474,7 +474,7 @@ export async function createAppointmentHistory(
   petId: string,
   ownerId: string,
   vetId: string | null,
-  tenantId: string = 'adris',
+  tenantId: string = 'terrapet',
   options: { past?: number; future?: number; includeRecords?: boolean } = {}
 ): Promise<Array<{ appointment: AppointmentData; medicalRecord: MedicalRecordData | null }>> {
   const { past = 5, future = 2, includeRecords = true } = options

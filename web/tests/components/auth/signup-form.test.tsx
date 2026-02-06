@@ -10,7 +10,7 @@
  *
  * @ticket TEST-002
  */
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest'
 
 // Mock modules before component import
@@ -72,8 +72,8 @@ import { SignupForm } from '@/components/auth/signup-form'
 
 describe('SignupForm', () => {
   const defaultProps = {
-    clinic: 'adris',
-    redirectTo: '/adris/portal/dashboard',
+    clinic: 'terrapet',
+    redirectTo: '/terrapet/portal/dashboard',
   }
 
   beforeEach(() => {
@@ -129,8 +129,8 @@ describe('SignupForm', () => {
       const clinicInput = document.querySelector('input[name="clinic"]')
       const redirectInput = document.querySelector('input[name="redirect"]')
 
-      expect(clinicInput).toHaveValue('adris')
-      expect(redirectInput).toHaveValue('/adris/portal/dashboard')
+      expect(clinicInput).toHaveValue('terrapet')
+      expect(redirectInput).toHaveValue('/terrapet/portal/dashboard')
     })
   })
 
@@ -147,7 +147,7 @@ describe('SignupForm', () => {
       expect(screen.getByText(/revisa tu bandeja/i)).toBeInTheDocument()
 
       // Check back to login link
-      expect(screen.getByText(/volver al login/i)).toHaveAttribute('href', '/adris/portal/login')
+      expect(screen.getByText(/volver al login/i)).toHaveAttribute('href', '/terrapet/portal/login')
     })
 
     it('shows success icon', () => {
@@ -212,11 +212,11 @@ describe('SignupForm', () => {
       render(<SignupForm {...defaultProps} />)
 
       const loginLink = screen.getByText(/inicia sesión/i)
-      expect(loginLink).toHaveAttribute('href', '/adris/portal/login')
+      expect(loginLink).toHaveAttribute('href', '/terrapet/portal/login')
     })
 
     it('includes redirect param in login link when redirectTo is not default', () => {
-      render(<SignupForm clinic="adris" redirectTo="/adris/portal/pets/123" />)
+      render(<SignupForm clinic="terrapet" redirectTo="/terrapet/portal/pets/123" />)
 
       const loginLink = screen.getByText(/inicia sesión/i)
       expect(loginLink.getAttribute('href')).toContain('redirect')

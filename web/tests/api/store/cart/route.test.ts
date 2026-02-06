@@ -5,7 +5,7 @@
  * Includes feature access checks, rate limiting, and atomic operations
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { GET, PUT, DELETE, POST } from '@/app/api/store/cart/route'
 import {
   setupIntegrationTest,
@@ -17,6 +17,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -40,6 +41,9 @@ describe('API: /api/store/cart', () => {
       stock_quantity: 50,
     })
     testProductId = product.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -47,7 +51,7 @@ describe('API: /api/store/cart', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/store/cart', () => {

@@ -29,7 +29,7 @@ const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { persistSession: false },
 })
 
-const TENANT_ID = 'adris'
+const TENANT_ID = 'terrapet'
 
 // =============================================================================
 // HELPERS
@@ -388,7 +388,7 @@ async function main(): Promise<void> {
     await seedLowStockAlerts()
 
     console.log('\n✅ Dashboard test data seeding complete!')
-    console.log('\nRefresh http://localhost:3000/adris/dashboard to see the data.')
+    console.log('\nRefresh http://localhost:3000/terrapet/dashboard to see the data.')
   } catch (error) {
     console.error('\n❌ Error during seeding:', error)
     process.exit(1)

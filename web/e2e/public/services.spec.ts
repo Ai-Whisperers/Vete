@@ -9,11 +9,11 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Services Page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/adris/services')
+    await page.goto('/terrapet/services')
   })
 
   test('displays services page', async ({ page }) => {
-    await expect(page).toHaveURL(/\/adris\/services/)
+    await expect(page).toHaveURL(/\/terrapet\/services/)
 
     // Should have main heading
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -62,11 +62,11 @@ test.describe('Services Page', () => {
 
   test('navigates back to homepage', async ({ page }) => {
     // Click on logo or home link
-    const homeLink = page.locator('a[href="/adris"], a[href="/adris/"]').first()
+    const homeLink = page.locator('a[href="/terrapet"], a[href="/terrapet/"]').first()
 
     if (await homeLink.isVisible()) {
       await homeLink.click()
-      await expect(page).toHaveURL(/\/adris\/?$/)
+      await expect(page).toHaveURL(/\/terrapet\/?$/)
     }
   })
 

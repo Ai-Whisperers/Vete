@@ -422,67 +422,67 @@ describe('TerraPet Data Loading Integration', () => {
 
 describe('Multi-Tenant Isolation Integration', () => {
   let terraData: ClinicData | null
-  let adrisData: ClinicData | null
+  let terrapetData: ClinicData | null
 
   beforeAll(async () => {
     terraData = await getClinicData('terrapet')
-    adrisData = await getClinicData('adris')
+    terrapetData = await getClinicData('terrapet')
   })
 
   it('should load different data for different clinics', () => {
     expect(terraData).not.toBeNull()
-    expect(adrisData).not.toBeNull()
+    expect(terrapetData).not.toBeNull()
     
     // Should be different objects
-    expect(terraData).not.toBe(adrisData)
+    expect(terraData).not.toBe(terrapetData)
   })
 
   it('should have different clinic IDs', () => {
     expect(terraData?.config.id).toBe('terrapet')
-    expect(adrisData?.config.id).toBe('adris')
-    expect(terraData?.config.id).not.toBe(adrisData?.config.id)
+    expect(terrapetData?.config.id).toBe('terrapet')
+    expect(terraData?.config.id).not.toBe(terrapetData?.config.id)
   })
 
   it('should have different business names', () => {
     expect(terraData?.config.name).toBe('TerraPet')
-    expect(adrisData?.config.name).not.toBe('TerraPet')
-    expect(terraData?.config.name).not.toBe(adrisData?.config.name)
+    expect(terrapetData?.config.name).not.toBe('TerraPet')
+    expect(terraData?.config.name).not.toBe(terrapetData?.config.name)
   })
 
   it('should have different contact information', () => {
     expect(terraData?.config.contact.email).toBe('terrapetanimal@gmail.com')
-    expect(adrisData?.config.contact.email).not.toBe('terrapetanimal@gmail.com')
-    expect(terraData?.config.contact.phone_display).not.toBe(adrisData?.config.contact.phone_display)
+    expect(terrapetData?.config.contact.email).not.toBe('terrapetanimal@gmail.com')
+    expect(terraData?.config.contact.phone_display).not.toBe(terrapetData?.config.contact.phone_display)
   })
 
   it('should have different theme colors', () => {
     // TerraPet uses earth tones, Adris might use different colors
-    expect(terraData?.theme?.colors?.primary?.main).not.toBe(adrisData?.theme?.colors?.primary?.main)
+    expect(terraData?.theme?.colors?.primary?.main).not.toBe(terrapetData?.theme?.colors?.primary?.main)
   })
 
   it('should have different number of services', () => {
     const terraServices = terraData?.services?.services?.length
-    const adrisServices = adrisData?.services?.services?.length
+    const terrapetServices = terrapetData?.services?.services?.length
     
     // TerraPet has 9 services, should be different from Adris
     expect(terraServices).toBe(9)
     // May or may not be different, but should have some services
-    expect(adrisServices).toBeGreaterThan(0)
+    expect(terrapetServices).toBeGreaterThan(0)
   })
 
   it('should have different team members', () => {
     const terraVet = terraData?.about?.team?.[0]?.name
-    const adrisVet = adrisData?.about?.team?.[0]?.name
+    const terrapetVet = terrapetData?.about?.team?.[0]?.name
     
     expect(terraVet).toBe('Dr. Adrián Alexander Gill Sánchez')
-    expect(terraVet).not.toBe(adrisVet)
+    expect(terraVet).not.toBe(terrapetVet)
   })
 
   it('should have different hero content', () => {
     const terraHeadline = terraData?.home?.hero?.headline
-    const adrisHeadline = adrisData?.home?.hero?.headline
+    const terrapetHeadline = terrapetData?.home?.hero?.headline
     
-    expect(terraHeadline).not.toBe(adrisHeadline)
+    expect(terraHeadline).not.toBe(terrapetHeadline)
   })
 })
 
@@ -499,9 +499,9 @@ describe('Clinic Discovery Integration', () => {
     expect(clinics).toContain('terrapet')
   })
 
-  it('should include adris in clinic list', async () => {
+  it('should include terrapet in clinic list', async () => {
     const clinics = await getAllClinics()
-    expect(clinics).toContain('adris')
+    expect(clinics).toContain('terrapet')
   })
 
   it('should not include template folders', async () => {

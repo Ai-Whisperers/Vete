@@ -34,6 +34,7 @@ export default defineConfig(() => ({
     name: 'api',
     globals: true,
     environment: 'node',
+    setupFiles: ['./vitest.api.setup.ts'],
     
     // Test file patterns - only API tests
     include: ['tests/api/**/*.test.ts', 'tests/api/**/*.test.tsx'],
@@ -75,12 +76,10 @@ export default defineConfig(() => ({
     // Reporter configuration
     reporters: ['verbose'],
     
-    // Parallel execution settings
+    // Parallel execution settings (Vitest 4 flat config)
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: false, // Allow parallel execution
-      },
+    forks: {
+      singleFork: false, // Allow parallel execution
     },
     isolate: true,
     maxConcurrency: 4, // Run up to 4 tests in parallel

@@ -77,7 +77,7 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
         notes,
         signature_hash: mockHash,
         signature_data: signatureDataUrl, // We'll store it in the DB
-        qr_code_url: `https://adris.app/verify/${mockHash}`,
+        qr_code_url: `https://terrapet.app/verify/${mockHash}`,
       }
 
       const res = await fetch('/api/prescriptions', {

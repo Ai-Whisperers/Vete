@@ -14,7 +14,6 @@ import { POST } from '@/app/api/store/coupons/validate/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   resetAllMocks,
   createStatefulSupabaseMock,
 } from '@/lib/test-utils'

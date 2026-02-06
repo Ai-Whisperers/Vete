@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth/api-wrapper'
+import { withApiAuthParams } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 type Params = { id: string }

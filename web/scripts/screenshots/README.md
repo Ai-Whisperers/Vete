@@ -91,7 +91,7 @@ Screenshots are saved to `./screenshots/<date>/<tenant>/<viewport>/<role>/`:
 ```
 screenshots/
 └── 2026-01-04/
-    └── adris/
+    └── terrapet/
         ├── desktop/
         │   ├── public/
         │   │   ├── homepage.png

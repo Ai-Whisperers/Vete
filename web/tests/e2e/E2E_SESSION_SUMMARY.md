@@ -173,7 +173,7 @@ The login form uses Supabase Auth with Next.js client-side navigation:
 ### Short-Term
 
 3. **Fix Remaining Test Assertions**
-   - Use demo credentials (`owner@adris.demo / demo123`) instead of E2E test users
+   - Use demo credentials (`owner@terrapet.demo / demo123`) instead of E2E test users
    - Update selectors to match actual UI (not just navigation elements)
    - Add proper wait conditions for dynamic content
 
@@ -250,9 +250,9 @@ E2E Test Users (created by global-setup):
 - e2e-admin@test.local / E2ETestPassword123!
 
 Demo Users (already in database):
-- owner@adris.demo / demo123
-- vet@adris.demo / demo123
-- admin@adris.demo / demo123
+- owner@terrapet.demo / demo123
+- vet@terrapet.demo / demo123
+- admin@terrapet.demo / demo123
 ```
 
 ### Key Routes
@@ -307,10 +307,10 @@ Admin: /[clinic]/admin
 
 ```typescript
 // Login and verify redirect
-await loginAs(page, 'adris', 'owner')
+await loginAs(page, 'terrapet', 'owner')
 
 // Login without waiting for redirect
-await loginAs(page, 'adris', 'vet', { waitForRedirect: false })
+await loginAs(page, 'terrapet', 'vet', { waitForRedirect: false })
 
 // Check if logged in
 const isLoggedIn = await isLoggedIn(page)
@@ -353,7 +353,7 @@ page.locator('nav') // Matches 3+ nav elements
    - Permanent fix: Use production build or optimize dev server
 
 2. **Some tests use wrong login route** (MEDIUM PRIORITY)
-   - Using `/adris/login` instead of `/adris/portal/login`
+   - Using `/terrapet/login` instead of `/terrapet/portal/login`
    - Affects: Invalid credentials tests, unauthenticated access tests
 
 3. **Missing schema columns** (LOW PRIORITY - tests work without them)

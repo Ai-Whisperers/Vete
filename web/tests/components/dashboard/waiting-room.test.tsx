@@ -2,7 +2,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WaitingRoom } from '@/components/dashboard/waiting-room'
-import * as nextRouter from 'next/navigation'
 
 // Mock the server action
 vi.mock('@/app/actions/update-appointment-status', () => ({

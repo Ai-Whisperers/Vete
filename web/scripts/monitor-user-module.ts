@@ -29,7 +29,7 @@ interface MonitorResults {
   };
 }
 
-export async function monitorUserModule(tenantId: string = 'adris'): Promise<MonitorResults> {
+export async function monitorUserModule(tenantId: string = 'terrapet'): Promise<MonitorResults> {
   const startTime = Date.now();
   const results: MonitorResults = {
     timestamp: new Date().toISOString(),
@@ -182,7 +182,7 @@ export async function monitorUserModule(tenantId: string = 'adris'): Promise<Mon
 
 // CLI usage
 if (require.main === module) {
-  const tenantId = process.argv[2] || 'adris';
+  const tenantId = process.argv[2] || 'terrapet';
   
   console.log(`🔍 Running User Module Health Check for tenant: ${tenantId}\n`);
   

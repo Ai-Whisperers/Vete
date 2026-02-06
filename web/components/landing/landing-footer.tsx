@@ -70,10 +70,10 @@ export function LandingFooter(): React.ReactElement {
             <p>© {currentYear} Vetic. Todos los derechos reservados.</p>
             <p>Hecho con ❤️ en Paraguay</p>
             <div className="flex gap-6 text-xs">
-              <Link href="/adris/privacy" className="transition-colors hover:text-[var(--landing-text-secondary)]">
+              <Link href="/terrapet/privacy" className="transition-colors hover:text-[var(--landing-text-secondary)]">
                 Privacidad
               </Link>
-              <Link href="/adris/terms" className="transition-colors hover:text-[var(--landing-text-secondary)]">
+              <Link href="/terrapet/terms" className="transition-colors hover:text-[var(--landing-text-secondary)]">
                 Términos
               </Link>
             </div>

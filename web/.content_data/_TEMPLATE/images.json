@@ -1,5 +1,5 @@
 {
-  "$comment": "Replace CLINIC_SLUG with your clinic's slug (e.g., 'adris', 'petlife')",
+  "$comment": "Replace CLINIC_SLUG with your clinic's slug (e.g., 'terrapet', 'petlife')",
   "version": "1.0",
   "basePath": "/branding/CLINIC_SLUG/images",
   "images": {

@@ -16,7 +16,6 @@ import {
   type LabTest,
   type LabPanel,
   type LabOrder,
-  type LabOrderItem,
   type LabResult,
   type LabAttachment,
   type LabComment,
@@ -281,7 +280,7 @@ describe('LabService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch lab tests');
+        expect(result.error).toBe('Connection failed');
       }
     });
   });

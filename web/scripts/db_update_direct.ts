@@ -54,12 +54,12 @@ async function runUpdate() {
         
           IF p_firulais IS NOT NULL AND vet_house IS NOT NULL THEN
             INSERT INTO appointments (tenant_id, pet_id, vet_id, start_time, end_time, status, reason, created_by) VALUES
-            ('adris', p_firulais, vet_house, (now() + interval '1 day'), (now() + interval '1 day 1 hour'), 'confirmed', 'Vacunación Anual', owner_juan);
+            ('terrapet', p_firulais, vet_house, (now() + interval '1 day'), (now() + interval '1 day 1 hour'), 'confirmed', 'Vacunación Anual', owner_juan);
           END IF;
         
           IF p_mishi IS NOT NULL AND owner_juan IS NOT NULL THEN
             INSERT INTO appointments (tenant_id, pet_id, vet_id, start_time, end_time, status, reason, created_by) VALUES
-            ('adris', p_mishi, null, (now() + interval '2 days'), (now() + interval '2 days 30 minutes'), 'pending', 'Revisión General', owner_juan);
+            ('terrapet', p_mishi, null, (now() + interval '2 days'), (now() + interval '2 days 30 minutes'), 'pending', 'Revisión General', owner_juan);
           END IF;
         END $$;
         `

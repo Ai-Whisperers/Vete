@@ -16,9 +16,9 @@ describe('Multi-Tenant Isolation', () => {
   let client: ReturnType<typeof getTestClient>
 
   // Adris tenant entities
-  let adrisOwnerId: string
-  let adrisPetId: string
-  let adrisVetId: string
+  let terrapetOwnerId: string
+  let terrapetPetId: string
+  let terrapetVetId: string
 
   // PetLife tenant entities
   let petlifeOwnerId: string
@@ -30,29 +30,29 @@ describe('Multi-Tenant Isolation', () => {
     client = getTestClient()
 
     // Setup Adris tenant
-    const adrisOwner = await createProfile({
-      tenantId: 'adris',
+    const terrapetOwner = await createProfile({
+      tenantId: 'terrapet',
       role: 'owner',
       fullName: 'Adris Owner',
     })
-    adrisOwnerId = adrisOwner.id
-    ctx.track('profiles', adrisOwnerId)
+    terrapetOwnerId = terrapetOwner.id
+    ctx.track('profiles', terrapetOwnerId)
 
-    const adrisVet = await createProfile({
-      tenantId: 'adris',
+    const terrapetVet = await createProfile({
+      tenantId: 'terrapet',
       role: 'vet',
       fullName: 'Dr. Adris',
     })
-    adrisVetId = adrisVet.id
-    ctx.track('profiles', adrisVetId)
+    terrapetVetId = terrapetVet.id
+    ctx.track('profiles', terrapetVetId)
 
-    const adrisPet = await createPet({
-      ownerId: adrisOwnerId,
-      tenantId: 'adris',
+    const terrapetPet = await createPet({
+      ownerId: terrapetOwnerId,
+      tenantId: 'terrapet',
       name: 'Adris Pet',
     })
-    adrisPetId = adrisPet.id
-    ctx.track('pets', adrisPetId)
+    terrapetPetId = terrapetPet.id
+    ctx.track('pets', terrapetPetId)
 
     // Setup PetLife tenant
     const petlifeOwner = await createProfile({
@@ -86,7 +86,7 @@ describe('Multi-Tenant Isolation', () => {
 
   describe('Profile Isolation', () => {
     test('profiles are separated by tenant', async () => {
-      const { data: adrisProfiles } = await client
+      const { data: terrapetProfiles } = await client
         .from('profiles')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -97,56 +97,56 @@ describe('Multi-Tenant Isolation', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Adris profiles should not include PetLife users
-      expect(adrisProfiles).not.toBeNull()
-      const adrisIds = adrisProfiles!.map((p: { id: string }) => p.id)
-      expect(adrisIds).toContain(adrisOwnerId)
-      expect(adrisIds).toContain(adrisVetId)
-      expect(adrisIds).not.toContain(petlifeOwnerId)
-      expect(adrisIds).not.toContain(petlifeVetId)
+      expect(terrapetProfiles).not.toBeNull()
+      const terrapetIds = terrapetProfiles!.map((p: { id: string }) => p.id)
+      expect(terrapetIds).toContain(terrapetOwnerId)
+      expect(terrapetIds).toContain(terrapetVetId)
+      expect(terrapetIds).not.toContain(petlifeOwnerId)
+      expect(terrapetIds).not.toContain(petlifeVetId)
 
       // PetLife profiles should not include Adris users
       expect(petlifeProfiles).not.toBeNull()
       const petlifeIds = petlifeProfiles!.map((p: { id: string }) => p.id)
       expect(petlifeIds).toContain(petlifeOwnerId)
       expect(petlifeIds).toContain(petlifeVetId)
-      expect(petlifeIds).not.toContain(adrisOwnerId)
-      expect(petlifeIds).not.toContain(adrisVetId)
+      expect(petlifeIds).not.toContain(terrapetOwnerId)
+      expect(petlifeIds).not.toContain(terrapetVetId)
     })
   })
 
   describe('Pet Isolation', () => {
     test('pets are separated by tenant', async () => {
-      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
+      const { data: terrapetPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
 
       const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
-      expect(adrisPets).not.toBeNull()
+      expect(terrapetPets).not.toBeNull()
       expect(petlifePets).not.toBeNull()
-      const adrisPetIds = adrisPets!.map((p: { id: string }) => p.id)
+      const terrapetPetIds = terrapetPets!.map((p: { id: string }) => p.id)
       const petlifePetIds = petlifePets!.map((p: { id: string }) => p.id)
 
-      expect(adrisPetIds).toContain(adrisPetId)
-      expect(adrisPetIds).not.toContain(petlifePetId)
+      expect(terrapetPetIds).toContain(terrapetPetId)
+      expect(terrapetPetIds).not.toContain(petlifePetId)
 
       expect(petlifePetIds).toContain(petlifePetId)
-      expect(petlifePetIds).not.toContain(adrisPetId)
+      expect(petlifePetIds).not.toContain(terrapetPetId)
     })
   })
 
   describe('Appointment Isolation', () => {
-    let adrisAppointmentId: string
+    let terrapetAppointmentId: string
     let petlifeAppointmentId: string
 
     beforeAll(async () => {
       // Create appointments in each tenant
-      const { data: adrisAppt } = await client
+      const { data: terrapetAppt } = await client
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
-          pet_id: adrisPetId,
-          owner_id: adrisOwnerId,
-          vet_id: adrisVetId,
+          pet_id: terrapetPetId,
+          owner_id: terrapetOwnerId,
+          vet_id: terrapetVetId,
           type: 'consultation',
           date: futureDate(7),
           time: '10:00',
@@ -154,8 +154,8 @@ describe('Multi-Tenant Isolation', () => {
         })
         .select()
         .single()
-      adrisAppointmentId = adrisAppt.id
-      ctx.track('appointments', adrisAppointmentId)
+      terrapetAppointmentId = terrapetAppt.id
+      ctx.track('appointments', terrapetAppointmentId)
 
       const { data: petlifeAppt } = await client
         .from('appointments')
@@ -176,7 +176,7 @@ describe('Multi-Tenant Isolation', () => {
     })
 
     test('appointments are separated by tenant', async () => {
-      const { data: adrisAppts } = await client
+      const { data: terrapetAppts } = await client
         .from('appointments')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -186,38 +186,38 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
-      expect(adrisAppts).not.toBeNull()
+      expect(terrapetAppts).not.toBeNull()
       expect(petlifeAppts).not.toBeNull()
-      const adrisIds = adrisAppts!.map((a: { id: string }) => a.id)
+      const terrapetIds = terrapetAppts!.map((a: { id: string }) => a.id)
       const petlifeIds = petlifeAppts!.map((a: { id: string }) => a.id)
 
-      expect(adrisIds).toContain(adrisAppointmentId)
-      expect(adrisIds).not.toContain(petlifeAppointmentId)
+      expect(terrapetIds).toContain(terrapetAppointmentId)
+      expect(terrapetIds).not.toContain(petlifeAppointmentId)
 
       expect(petlifeIds).toContain(petlifeAppointmentId)
-      expect(petlifeIds).not.toContain(adrisAppointmentId)
+      expect(petlifeIds).not.toContain(terrapetAppointmentId)
     })
   })
 
   describe('Medical Records Isolation', () => {
-    let adrisRecordId: string
+    let terrapetRecordId: string
     let petlifeRecordId: string
 
     beforeAll(async () => {
       // Create medical records in each tenant
-      const { data: adrisRecord } = await client
+      const { data: terrapetRecord } = await client
         .from('medical_records')
         .insert({
-          pet_id: adrisPetId,
+          pet_id: terrapetPetId,
           tenant_id: TENANT_IDS.ADRIS,
-          performed_by: adrisVetId,
+          performed_by: terrapetVetId,
           type: 'consultation',
           title: 'Adris Consultation',
         })
         .select()
         .single()
-      adrisRecordId = adrisRecord.id
-      ctx.track('medical_records', adrisRecordId)
+      terrapetRecordId = terrapetRecord.id
+      ctx.track('medical_records', terrapetRecordId)
 
       const { data: petlifeRecord } = await client
         .from('medical_records')
@@ -235,7 +235,7 @@ describe('Multi-Tenant Isolation', () => {
     })
 
     test('medical records are separated by tenant', async () => {
-      const { data: adrisRecords } = await client
+      const { data: terrapetRecords } = await client
         .from('medical_records')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -245,26 +245,26 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
-      expect(adrisRecords).not.toBeNull()
+      expect(terrapetRecords).not.toBeNull()
       expect(petlifeRecords).not.toBeNull()
-      const adrisIds = adrisRecords!.map((r: { id: string }) => r.id)
+      const terrapetIds = terrapetRecords!.map((r: { id: string }) => r.id)
       const petlifeIds = petlifeRecords!.map((r: { id: string }) => r.id)
 
-      expect(adrisIds).toContain(adrisRecordId)
-      expect(adrisIds).not.toContain(petlifeRecordId)
+      expect(terrapetIds).toContain(terrapetRecordId)
+      expect(terrapetIds).not.toContain(petlifeRecordId)
 
       expect(petlifeIds).toContain(petlifeRecordId)
-      expect(petlifeIds).not.toContain(adrisRecordId)
+      expect(petlifeIds).not.toContain(terrapetRecordId)
     })
   })
 
   describe('Product Isolation', () => {
-    let adrisProductId: string
+    let terrapetProductId: string
     let petlifeProductId: string
 
     beforeAll(async () => {
       // Create products in each tenant
-      const { data: adrisProduct } = await client
+      const { data: terrapetProduct } = await client
         .from('products')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
@@ -275,8 +275,8 @@ describe('Multi-Tenant Isolation', () => {
         })
         .select()
         .single()
-      adrisProductId = adrisProduct.id
-      ctx.track('products', adrisProductId)
+      terrapetProductId = terrapetProduct.id
+      ctx.track('products', terrapetProductId)
 
       const { data: petlifeProduct } = await client
         .from('products')
@@ -294,7 +294,7 @@ describe('Multi-Tenant Isolation', () => {
     })
 
     test('products are separated by tenant', async () => {
-      const { data: adrisProducts } = await client
+      const { data: terrapetProducts } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -304,16 +304,16 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
-      expect(adrisProducts).not.toBeNull()
+      expect(terrapetProducts).not.toBeNull()
       expect(petlifeProducts).not.toBeNull()
-      const adrisIds = adrisProducts!.map((p: { id: string }) => p.id)
+      const terrapetIds = terrapetProducts!.map((p: { id: string }) => p.id)
       const petlifeIds = petlifeProducts!.map((p: { id: string }) => p.id)
 
-      expect(adrisIds).toContain(adrisProductId)
-      expect(adrisIds).not.toContain(petlifeProductId)
+      expect(terrapetIds).toContain(terrapetProductId)
+      expect(terrapetIds).not.toContain(petlifeProductId)
 
       expect(petlifeIds).toContain(petlifeProductId)
-      expect(petlifeIds).not.toContain(adrisProductId)
+      expect(petlifeIds).not.toContain(terrapetProductId)
     })
   })
 
@@ -321,7 +321,7 @@ describe('Multi-Tenant Isolation', () => {
     test('cannot create pet for user in different tenant', async () => {
       // Try to create pet with mismatched owner/tenant
       const { error } = await client.from('pets').insert({
-        owner_id: adrisOwnerId, // Adris owner
+        owner_id: terrapetOwnerId, // Adris owner
         tenant_id: TENANT_IDS.PETLIFE, // PetLife tenant - mismatch!
         name: 'Cross-Tenant Pet',
         species: 'dog',
@@ -340,8 +340,8 @@ describe('Multi-Tenant Isolation', () => {
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
-          pet_id: adrisPetId,
-          owner_id: adrisOwnerId,
+          pet_id: terrapetPetId,
+          owner_id: terrapetOwnerId,
           vet_id: petlifeVetId, // Wrong tenant vet!
           type: 'consultation',
           date: futureDate(14),
@@ -362,7 +362,7 @@ describe('Multi-Tenant Isolation', () => {
 
   describe('Tenant Statistics Isolation', () => {
     test('pet counts are correct per tenant', async () => {
-      const { count: adrisCount } = await client
+      const { count: terrapetCount } = await client
         .from('pets')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -373,12 +373,12 @@ describe('Multi-Tenant Isolation', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Each tenant should have at least 1 pet (the ones we created)
-      expect(adrisCount).toBeGreaterThanOrEqual(1)
+      expect(terrapetCount).toBeGreaterThanOrEqual(1)
       expect(petlifeCount).toBeGreaterThanOrEqual(1)
     })
 
     test('appointment counts are correct per tenant', async () => {
-      const { count: adrisCount } = await client
+      const { count: terrapetCount } = await client
         .from('appointments')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -389,7 +389,7 @@ describe('Multi-Tenant Isolation', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Each tenant should have at least 1 appointment
-      expect(adrisCount).toBeGreaterThanOrEqual(1)
+      expect(terrapetCount).toBeGreaterThanOrEqual(1)
       expect(petlifeCount).toBeGreaterThanOrEqual(1)
     })
   })

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Package, Globe, Store, History, Edit2, Trash2, ShoppingCart } from 'lucide-react'
 import type { InventoryProduct } from './types'
+import { useTranslations } from 'next-intl'
 
 interface InventoryTableRowProps {
   product: InventoryProduct
@@ -33,6 +34,7 @@ export function InventoryTableRow({
   onAddToPO,
   showSourceBadge,
 }: InventoryTableRowProps) {
+  const t = useTranslations()
   const stock = product.inventory?.stock_quantity ?? 0
   const minStock = product.inventory?.min_stock_level ?? 5
   const displayPrice = product.sale_price || product.assignment?.sale_price || product.base_price
@@ -128,7 +130,7 @@ export function InventoryTableRow({
             <button
               onClick={onAddToPO}
               className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-[var(--status-info-bg)] hover:text-[var(--status-info)]"
-              title="Agregar a Orden de Compra"
+              title={`${t('common.add')} a Orden de Compra`}
             >
               <ShoppingCart className="h-4 w-4" />
             </button>
@@ -143,14 +145,14 @@ export function InventoryTableRow({
           <button
             onClick={onEdit}
             className="hover:bg-[var(--primary)]/5 rounded-lg p-2 text-[var(--text-muted)] transition hover:text-[var(--primary)]"
-            title="Editar"
+            title={t('common.edit')}
           >
             <Edit2 className="h-4 w-4" />
           </button>
           <button
             onClick={onDelete}
             className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
-            title="Eliminar"
+            title={t('common.delete')}
           >
             <Trash2 className="h-4 w-4" />
           </button>

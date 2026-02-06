@@ -22,10 +22,10 @@ interface MockResponse {
 
 // Mock users with different roles
 const mockAdminUser = { id: 'admin-123', email: 'admin@clinic.com' }
-const mockAdminProfile = { tenant_id: 'tenant-adris', role: 'admin', full_name: 'Admin User' }
+const mockAdminProfile = { tenant_id: 'tenant-terrapet', role: 'admin', full_name: 'Admin User' }
 
 const mockVetUser = { id: 'vet-123', email: 'vet@clinic.com' }
-const mockVetProfile = { tenant_id: 'tenant-adris', role: 'vet', full_name: 'Dr. Vet' }
+const mockVetProfile = { tenant_id: 'tenant-terrapet', role: 'vet', full_name: 'Dr. Vet' }
 
 // Mock Supabase client with RPC support
 const mockRpcFn = vi.fn()
@@ -51,7 +51,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/auth', () => ({
-  withApiAuthParams: (handler: Function, options?: { roles: string[] }) => {
+  withApiAuthParams: (handler: (...args: unknown[]) => unknown, options?: { roles: string[] }) => {
     return async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
       // Check role restriction
       if (options?.roles && !options.roles.includes(currentProfile.role)) {
@@ -372,7 +372,7 @@ describe('Refund Workflow API', () => {
 
         expect(mockRpcFn).toHaveBeenCalledWith('process_invoice_refund', {
           p_invoice_id: invoiceId,
-          p_tenant_id: 'tenant-adris',
+          p_tenant_id: 'tenant-terrapet',
           p_amount: 50000,
           p_reason: 'Razón del reembolso',
           p_payment_id: 'pay-specific',

@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound, redirect } from 'next/navigation'
 import { PublicPetProfile } from '@/components/public-pet-profile'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { assignTag } from '@/app/actions/assign-tag'
 
 // Server Component
@@ -20,7 +20,7 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
     .eq('code', code)
     .single()
 
-  const clinicSlug = tagData?.tenant_id || 'adris' // Fallback to adris if no tenant
+  const clinicSlug = tagData?.tenant_id || 'terrapet' // Fallback to terrapet if no tenant
 
   if (error || !tagInfo || tagInfo.status === 'not_found') {
     // Tag doesn't exist. Redirect to home or show 404.
@@ -109,7 +109,7 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
             </div>
           ) : (
             <form
-              // @ts-expect-error Server action returns ActionResult
+              // @ts-expect-error - Server action returns ActionResult which conflicts with form action types
               action={assignTag} className="space-y-4">
               <input type="hidden" name="tagCode" value={code} />
               <label className="block text-sm font-bold uppercase tracking-wider text-gray-400">
@@ -130,7 +130,13 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                     />
                     <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-100">
                       {pet.photo_url ? (
-                        <img src={pet.photo_url} className="h-full w-full object-cover" />
+                        <Image 
+                          src={pet.photo_url} 
+                          alt={`Foto de ${pet.name}`} 
+                          fill
+                          sizes="40px"
+                          className="object-cover" 
+                        />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-gray-300">
                           <Icons.PawPrint className="h-5 w-5" />

@@ -21,7 +21,7 @@ export function getClinicSlugs(): string[] {
     return clinicSlugsCache
   } catch (_error: unknown) {
     // Fallback to known clinics
-    return ['adris', 'petlife']
+    return ['terrapet', 'petlife']
   }
 }
 

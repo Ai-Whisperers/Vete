@@ -9,7 +9,6 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
-import { createClient } from '@/lib/supabase/server'
 
 // GET /api/lost-found - List lost pet reports
 export const GET = withApiAuth(

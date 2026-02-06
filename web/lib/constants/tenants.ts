@@ -2,21 +2,21 @@
  * Centralized Tenant Constants
  * 
  * Single source of truth for all tenant IDs across the application.
- * Use these constants instead of hardcoding 'adris' or 'petlife' strings.
+ * Use these constants instead of hardcoding tenant strings.
  * 
  * Usage:
  *   import { TENANT_IDS } from '@/lib/constants/tenants';
- *   const result = await supabase.from('pets').eq('tenant_id', TENANT_IDS.ADRIS);
+ *   const result = await supabase.from('pets').eq('tenant_id', TENANT_IDS.TERRAPET);
  */
 
 /**
  * All tenant IDs in the system
  */
 export const TENANT_IDS = {
-  ADRIS: 'adris',
+  TERRAPET: 'terrapet',
   PETLIFE: 'petlife',
-  TERRAPET: 'adris', // Alias: Terra Pet is branded as 'adris' in config
-  // Add new tenants here
+  // Legacy alias for backwards compatibility during migration
+  ADRIS: 'terrapet',
 } as const;
 
 /**
@@ -34,7 +34,7 @@ export const ALL_TENANT_IDS = Object.values(TENANT_IDS).filter(
 /**
  * Default tenant for tests and development
  */
-export const DEFAULT_TEST_TENANT: TenantId = TENANT_IDS.ADRIS;
+export const DEFAULT_TEST_TENANT: TenantId = TENANT_IDS.TERRAPET;
 
 /**
  * Get tenant ID from environment or use default
@@ -69,7 +69,7 @@ export function assertValidTenantId(tenantId: string): asserts tenantId is Tenan
  */
 export function getTenantDisplayName(tenantId: TenantId): string {
   const names: Record<string, string> = {
-    [TENANT_IDS.ADRIS]: 'Terra Pet',
+    [TENANT_IDS.TERRAPET]: 'TerraPet',
     [TENANT_IDS.PETLIFE]: 'PetLife Center',
   };
   return names[tenantId] || tenantId;
@@ -79,9 +79,9 @@ export function getTenantDisplayName(tenantId: TenantId): string {
  * Configuration per tenant (if needed)
  */
 export const TENANT_CONFIG: Record<TenantId, { name: string; slug: string; demo: boolean }> = {
-  [TENANT_IDS.ADRIS]: {
-    name: 'Terra Pet',
-    slug: 'adris',
+  [TENANT_IDS.TERRAPET]: {
+    name: 'TerraPet',
+    slug: 'terrapet',
     demo: true,
   },
   [TENANT_IDS.PETLIFE]: {

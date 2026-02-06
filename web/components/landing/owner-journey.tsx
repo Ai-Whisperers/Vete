@@ -1,14 +1,10 @@
 'use client'
-
-import Link from 'next/link'
 import {
   Search,
   UserPlus,
   Smartphone,
   Calendar,
-  Heart,
   PawPrint,
-  Shield,
   Bell,
   QrCode,
   FileText,

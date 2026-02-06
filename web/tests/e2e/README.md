@@ -120,11 +120,11 @@ npx playwright test --grep @owner
 # Run only security tests
 npx playwright test --grep @security
 
-# Run only adris clinic tests
-npx playwright test --grep @adris
+# Run only terrapet clinic tests
+npx playwright test --grep @terrapet
 
 # Multiple tags
-npx playwright test --grep "@owner.*@adris"
+npx playwright test --grep "@owner.*@terrapet"
 ```
 
 ### Generate Report
@@ -146,7 +146,7 @@ Tests are tagged for easy filtering:
 
 ### By Clinic
 
-- `@adris` - Veterinaria Adris
+- `@terrapet` - Veterinaria Adris
 - `@petlife` - PetLife Center
 
 ### By Feature
@@ -168,8 +168,8 @@ Tests are tagged for easy filtering:
 ### Examples
 
 ```bash
-# Run all owner tests for adris
-npx playwright test --grep "@owner.*@adris"
+# Run all owner tests for terrapet
+npx playwright test --grep "@owner.*@terrapet"
 
 # Run all security tests
 npx playwright test --grep @security
@@ -182,12 +182,12 @@ npx playwright test --grep @pets
 
 ### Demo Accounts
 
-**Clinic: Adris** (`/adris`)
+**Clinic: Adris** (`/terrapet`)
 
 ```
-admin@adris.demo / demo123
-vet@adris.demo / demo123
-owner@adris.demo / demo123
+admin@terrapet.demo / demo123
+vet@terrapet.demo / demo123
+owner@terrapet.demo / demo123
 ```
 
 **Clinic: PetLife** (`/petlife`)
@@ -202,7 +202,7 @@ owner@petlife.demo / demo123
 
 Tests expect the following seed data:
 
-- 2 clinics configured (adris, petlife)
+- 2 clinics configured (terrapet, petlife)
 - 6 demo user accounts (3 per clinic)
 - 18+ pets with medical histories
 - 20+ appointments
@@ -230,15 +230,15 @@ npm run test:e2e tests/e2e/seeded-data-verification.test.ts
 import { loginAs, logout } from '../helpers/auth'
 
 // Login as specific role at specific clinic
-await loginAs(page, 'adris', 'owner')
+await loginAs(page, 'terrapet', 'owner')
 await loginAs(page, 'petlife', 'vet')
-await loginAs(page, 'adris', 'admin')
+await loginAs(page, 'terrapet', 'admin')
 
 // Logout
 await logout(page)
 
 // Verify unauthorized access
-await verifyUnauthorizedAccess(page, '/adris/dashboard')
+await verifyUnauthorizedAccess(page, '/terrapet/dashboard')
 
 // Check if logged in
 const loggedIn = await isLoggedIn(page)
@@ -250,7 +250,7 @@ const loggedIn = await isLoggedIn(page)
 import { navigateTo, ROUTES, clickNavLink } from '../helpers/navigation'
 
 // Navigate to routes
-await navigateTo(page, ROUTES.myPets('adris'))
+await navigateTo(page, ROUTES.myPets('terrapet'))
 await navigateTo(page, ROUTES.dashboard('petlife'))
 
 // Click navigation links
@@ -258,7 +258,7 @@ await clickNavLink(page, 'Mis Mascotas')
 await clickButton(page, 'Guardar')
 
 // Verify navigation
-await verifyUrl(page, /\/adris\/portal/)
+await verifyUrl(page, /\/terrapet\/portal/)
 await waitForHeading(page, 'Mis Mascotas')
 ```
 
@@ -268,21 +268,21 @@ await waitForHeading(page, 'Mis Mascotas')
 import { getOwnerPets, getUpcomingAppointments } from '../helpers/database'
 
 // Get test data
-const pets = await getOwnerPets('owner@adris.demo')
-const appointments = await getUpcomingAppointments('adris')
-const products = await getStoreProducts('adris', 20)
+const pets = await getOwnerPets('owner@terrapet.demo')
+const appointments = await getUpcomingAppointments('terrapet')
+const products = await getStoreProducts('terrapet', 20)
 
 // Verify seed data
-const verification = await verifySeededData('adris')
+const verification = await verifySeededData('terrapet')
 if (!verification.valid) {
   console.error('Seed data missing:', verification.errors)
 }
 
 // Count records
-const petCount = await countRecords('pets', 'adris')
+const petCount = await countRecords('pets', 'terrapet')
 
 // Verify tenant isolation
-await verifyTenantIsolation('adris', 'petlife')
+await verifyTenantIsolation('terrapet', 'petlife')
 ```
 
 ## Writing New Tests
@@ -297,18 +297,18 @@ import { navigateTo, ROUTES } from '../helpers/navigation'
 test.describe('Feature Name', () => {
   test.beforeEach(async ({ page }) => {
     // Setup: Login as appropriate role
-    await loginAs(page, 'adris', 'owner')
+    await loginAs(page, 'terrapet', 'owner')
   })
 
-  test('should do something @owner @adris @feature', async ({ page }) => {
+  test('should do something @owner @terrapet @feature', async ({ page }) => {
     // Arrange: Setup test data/state
-    await navigateTo(page, ROUTES.myPets('adris'))
+    await navigateTo(page, ROUTES.myPets('terrapet'))
 
     // Act: Perform action
     await page.click('[data-testid="pet-card"]')
 
     // Assert: Verify outcome
-    await expect(page).toHaveURL(/\/adris\/portal\/pets\/[a-f0-9-]+/)
+    await expect(page).toHaveURL(/\/terrapet\/portal\/pets\/[a-f0-9-]+/)
   })
 })
 ```

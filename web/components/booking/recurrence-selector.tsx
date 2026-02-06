@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { RefreshCw, Calendar, ChevronDown } from 'lucide-react'
+import { RefreshCw, ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface RecurrencePattern {

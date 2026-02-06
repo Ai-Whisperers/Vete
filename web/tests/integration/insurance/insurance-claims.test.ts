@@ -15,7 +15,6 @@ import { GET, POST } from '@/app/api/insurance/claims/route'
 import {
   mockState,
   TENANTS,
-  USERS,
   PETS,
   resetAllMocks,
   createStatefulSupabaseMock,

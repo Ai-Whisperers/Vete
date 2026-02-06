@@ -23,21 +23,21 @@ interface MockResponse {
 
 // Mock users with different roles
 const mockVetUser = { id: 'vet-123', email: 'vet@clinic.com' }
-const mockVetProfile = { tenant_id: 'tenant-adris', role: 'vet', full_name: 'Dr. Veterinario' }
+const mockVetProfile = { tenant_id: 'tenant-terrapet', role: 'vet', full_name: 'Dr. Veterinario' }
 
 const mockAdminUser = { id: 'admin-123', email: 'admin@clinic.com' }
-const mockAdminProfile = { tenant_id: 'tenant-adris', role: 'admin', full_name: 'Admin User' }
+const mockAdminProfile = { tenant_id: 'tenant-terrapet', role: 'admin', full_name: 'Admin User' }
 
 const mockOwnerUser = { id: 'owner-123', email: 'owner@clinic.com' }
-const mockOwnerProfile = { tenant_id: 'tenant-adris', role: 'owner', full_name: 'Pet Owner' }
+const mockOwnerProfile = { tenant_id: 'tenant-terrapet', role: 'owner', full_name: 'Pet Owner' }
 
 // Track current user and profile for tests
 let currentUser = mockVetUser
 let currentProfile = mockVetProfile
 
 // Mock database responses
-const mockPet = { id: 'pet-123', tenant_id: 'tenant-adris', name: 'Max' }
-const mockKennel = { id: 'kennel-123', tenant_id: 'tenant-adris', kennel_status: 'available' }
+const mockPet = { id: 'pet-123', tenant_id: 'tenant-terrapet', name: 'Max' }
+const mockKennel = { id: 'kennel-123', tenant_id: 'tenant-terrapet', kennel_status: 'available' }
 const mockHospitalization = {
   id: 'hosp-123',
   hospitalization_number: 'H-2024-0001',
@@ -76,7 +76,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/auth', () => ({
-  withApiAuth: (handler: Function, options?: { roles: string[] }) => {
+  withApiAuth: (handler: (...args: unknown[]) => unknown, options?: { roles: string[] }) => {
     return async (request: NextRequest) => {
       // Check role restriction
       if (options?.roles && !options.roles.includes(currentProfile.role)) {
@@ -521,7 +521,7 @@ describe('Hospitalization Admission API', () => {
     it('should update treatment plan', async () => {
       mockSingleFn
         .mockResolvedValueOnce({
-          data: { id: 'hosp-123', kennel_id: 'kennel-123', pet: { tenant_id: 'tenant-adris' } },
+          data: { id: 'hosp-123', kennel_id: 'kennel-123', pet: { tenant_id: 'tenant-terrapet' } },
           error: null,
         })
         .mockResolvedValueOnce({ data: mockHospitalization, error: null })
@@ -539,7 +539,7 @@ describe('Hospitalization Admission API', () => {
     it('should discharge patient and free kennel', async () => {
       mockSingleFn
         .mockResolvedValueOnce({
-          data: { id: 'hosp-123', kennel_id: 'kennel-123', pet: { tenant_id: 'tenant-adris' } },
+          data: { id: 'hosp-123', kennel_id: 'kennel-123', pet: { tenant_id: 'tenant-terrapet' } },
           error: null,
         })
         .mockResolvedValueOnce({

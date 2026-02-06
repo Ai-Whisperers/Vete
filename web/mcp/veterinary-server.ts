@@ -103,7 +103,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: 'object',
           properties: {
             pet_id: { type: 'string', description: 'ID de la mascota' },
-            tenant_id: { type: 'string', description: 'ID del tenant (ej: "adris")' },
+            tenant_id: { type: 'string', description: 'ID del tenant (ej: "terrapet")' },
           },
           required: ['pet_id', 'tenant_id'],
         },

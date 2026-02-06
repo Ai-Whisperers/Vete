@@ -40,7 +40,7 @@ async function main() {
     const { data: assignments, error: assignError } = await supabase
       .from('clinic_product_assignments')
       .select('catalog_product_id')
-      .eq('tenant_id', 'adris')
+      .eq('tenant_id', 'terrapet')
       .eq('is_active', true)
       .limit(5)
 

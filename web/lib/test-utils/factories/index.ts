@@ -28,13 +28,13 @@
  *
  * // Create an owner with VIP persona
  * const owner = await OwnerFactory.create()
- *   .forTenant('adris')
+ *   .forTenant('terrapet')
  *   .withPersona('vip')
  *   .build();
  *
  * // Create a pet with vaccines
  * const { pet, vaccines } = await PetFactory.create()
- *   .forTenant('adris')
+ *   .forTenant('terrapet')
  *   .forOwner(owner.id)
  *   .asDog('Labrador')
  *   .withVaccines()

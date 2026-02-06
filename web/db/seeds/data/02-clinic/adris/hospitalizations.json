@@ -3,8 +3,8 @@
   "_comment": "Hospitalizations demonstrate the full hospitalization workflow with vitals, medications, and feeding tracking",
   "hospitalizations": [
     {
-      "id": "hosp-001-adris",
-      "tenant_id": "adris",
+      "id": "hosp-001-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "kennel_id": "1",
       "admitted_at": "2024-11-15T17:00:00Z",
@@ -17,8 +17,8 @@
       "vet_id": "550e8400-e29b-41d4-a716-446655440005"
     },
     {
-      "id": "hosp-002-adris",
-      "tenant_id": "adris",
+      "id": "hosp-002-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "kennel_id": "2",
       "admitted_at": "2024-05-20T14:00:00Z",
@@ -31,8 +31,8 @@
       "vet_id": "550e8400-e29b-41d4-a716-446655440004"
     },
     {
-      "id": "hosp-003-adris",
-      "tenant_id": "adris",
+      "id": "hosp-003-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "kennel_id": "3",
       "admitted_at": "2024-12-15T08:00:00Z",
@@ -42,8 +42,8 @@
       "vet_id": "550e8400-e29b-41d4-a716-446655440004"
     },
     {
-      "id": "hosp-004-adris",
-      "tenant_id": "adris",
+      "id": "hosp-004-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
       "kennel_id": "KG1",
       "admitted_at": "2024-12-20T13:00:00Z",
@@ -55,8 +55,8 @@
   ],
   "hospitalization_vitals": [
     {
-      "id": "hosp-vitals-001-adris",
-      "hospitalization_id": "hosp-001-adris",
+      "id": "hosp-vitals-001-terrapet",
+      "hospitalization_id": "hosp-001-terrapet",
       "recorded_at": "2024-11-15T18:00:00Z",
       "temperature": 39.1,
       "heart_rate": 120,
@@ -65,8 +65,8 @@
       "recorded_by": "550e8400-e29b-41d4-a716-446655440005"
     },
     {
-      "id": "hosp-vitals-002-adris",
-      "hospitalization_id": "hosp-001-adris",
+      "id": "hosp-vitals-002-terrapet",
+      "hospitalization_id": "hosp-001-terrapet",
       "recorded_at": "2024-11-15T22:00:00Z",
       "temperature": 38.8,
       "heart_rate": 95,
@@ -75,8 +75,8 @@
       "recorded_by": "550e8400-e29b-41d4-a716-446655440005"
     },
     {
-      "id": "hosp-vitals-003-adris",
-      "hospitalization_id": "hosp-003-adris",
+      "id": "hosp-vitals-003-terrapet",
+      "hospitalization_id": "hosp-003-terrapet",
       "recorded_at": "2024-12-15T10:00:00Z",
       "temperature": 38.4,
       "heart_rate": 180,
@@ -86,8 +86,8 @@
       "recorded_by": "550e8400-e29b-41d4-a716-446655440004"
     },
     {
-      "id": "hosp-vitals-004-adris",
-      "hospitalization_id": "hosp-004-adris",
+      "id": "hosp-vitals-004-terrapet",
+      "hospitalization_id": "hosp-004-terrapet",
       "recorded_at": "2024-12-20T15:00:00Z",
       "temperature": 38.2,
       "heart_rate": 85,
@@ -98,8 +98,8 @@
   ],
   "hospitalization_medications": [
     {
-      "id": "hosp-med-001-adris",
-      "hospitalization_id": "hosp-001-adris",
+      "id": "hosp-med-001-terrapet",
+      "hospitalization_id": "hosp-001-terrapet",
       "medication_name": "Dexametasona",
       "dose": "0.5mg/kg",
       "route": "IV",
@@ -108,8 +108,8 @@
       "administered_by": "550e8400-e29b-41d4-a716-446655440005"
     },
     {
-      "id": "hosp-med-002-adris",
-      "hospitalization_id": "hosp-001-adris",
+      "id": "hosp-med-002-terrapet",
+      "hospitalization_id": "hosp-001-terrapet",
       "medication_name": "Acepromazina",
       "dose": "0.02mg/kg",
       "route": "IM",
@@ -118,8 +118,8 @@
       "administered_by": "550e8400-e29b-41d4-a716-446655440005"
     },
     {
-      "id": "hosp-med-003-adris",
-      "hospitalization_id": "hosp-003-adris",
+      "id": "hosp-med-003-terrapet",
+      "hospitalization_id": "hosp-003-terrapet",
       "medication_name": "Metoclopramida",
       "dose": "0.2mg/kg",
       "route": "SC",
@@ -128,8 +128,8 @@
       "administered_by": "550e8400-e29b-41d4-a716-446655440004"
     },
     {
-      "id": "hosp-med-004-adris",
-      "hospitalization_id": "hosp-003-adris",
+      "id": "hosp-med-004-terrapet",
+      "hospitalization_id": "hosp-003-terrapet",
       "medication_name": "Fluidoterapia",
       "dose": "50ml/kg/día",
       "route": "SC",
@@ -140,8 +140,8 @@
   ],
   "hospitalization_feedings": [
     {
-      "id": "hosp-feed-001-adris",
-      "hospitalization_id": "hosp-003-adris",
+      "id": "hosp-feed-001-terrapet",
+      "hospitalization_id": "hosp-003-terrapet",
       "food_type": "Dieta blanda veterinaria",
       "amount": "50g",
       "fed_at": "2024-12-15T12:00:00Z",
@@ -149,8 +149,8 @@
       "notes": "Comió completo"
     },
     {
-      "id": "hosp-feed-002-adris",
-      "hospitalization_id": "hosp-003-adris",
+      "id": "hosp-feed-002-terrapet",
+      "hospitalization_id": "hosp-003-terrapet",
       "food_type": "Dieta blanda veterinaria",
       "amount": "30g",
       "fed_at": "2024-12-15T18:00:00Z",

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Public Website', () => {
   test('store page loads and displays categories', async ({ page }) => {
-    await page.goto('/adris/store')
+    await page.goto('/terrapet/store')
 
     // Check for correct header
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

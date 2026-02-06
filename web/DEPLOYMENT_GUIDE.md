@@ -36,5 +36,5 @@ Cuando ejecutes el comando, te preguntará varias cosas. Responde así:
 Una vez desplegado, tendrás una URL como `https://veterinaria-app.vercel.app`.
 Prueba las siguientes rutas:
 
-- **Adris:** `https://.../adris`
+- **Adris:** `https://.../terrapet`
 - **Petlife:** `https://.../petlife`

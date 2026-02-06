@@ -56,7 +56,7 @@ Each clinic has its own theme:
 
 ```
 web/.content_data/
-  ├── adris/
+  ├── terrapet/
   │   └── theme.json        # Adris theme
   ├── petlife/
   │   └── theme.json        # PetLife theme
@@ -479,7 +479,7 @@ Add to `theme.json`:
 
 ### Visual Testing
 
-1. **Switch between clinics**: `/adris` vs `/petlife`
+1. **Switch between clinics**: `/terrapet` vs `/petlife`
 2. **Check all states**: Hover, focus, active, disabled
 3. **Verify contrast**: Text should be readable on all backgrounds
 4. **Test components**: Buttons, forms, cards, tables, modals

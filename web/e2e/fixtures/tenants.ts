@@ -5,15 +5,15 @@
  */
 
 export const DEFAULT_TENANT = {
-  id: 'adris',
-  slug: 'adris',
+  id: 'terrapet',
+  slug: 'terrapet',
   name: 'Veterinaria Adris',
 }
 
 export const TENANTS = {
-  adris: {
-    id: 'adris',
-    slug: 'adris',
+  terrapet: {
+    id: 'terrapet',
+    slug: 'terrapet',
     name: 'Veterinaria Adris',
   },
   petlife: {

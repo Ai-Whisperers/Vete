@@ -4,7 +4,7 @@
 
 import { apiClient } from '../api-client'
 import { testContext } from '../context'
-import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
+import { generateId, pick, randomAmount } from './base'
 import { PaymentMethod } from './types'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
@@ -490,7 +490,7 @@ export class InvoiceFactory {
 export async function createInvoiceHistory(
   clientId: string,
   petId: string | null,
-  tenantId: string = 'adris',
+  tenantId: string = 'terrapet',
   options: { count?: number; includeUnpaid?: boolean } = {}
 ): Promise<Array<{ invoice: InvoiceData; items: InvoiceItemData[]; payments: PaymentData[] }>> {
   const { count = 5, includeUnpaid = true } = options

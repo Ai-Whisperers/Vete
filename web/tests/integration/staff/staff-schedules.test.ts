@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // API FIXED: Tests can now run with correct column names
 describe('Staff Schedules API - Integration Tests', () => {

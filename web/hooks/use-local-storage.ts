@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { logger } from '@/lib/utils/logger'
 
 export function useLocalStorage<T>(
   key: string,
@@ -14,7 +15,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
     } catch (error: unknown) {
-      console.warn(`Error reading localStorage key "${key}":`, error)
+      logger.warn(`Error reading localStorage key "${key}":`, error)
       return initialValue
     }
   })
@@ -34,7 +35,7 @@ export function useLocalStorage<T>(
           window.localStorage.setItem(key, JSON.stringify(valueToStore))
         }
       } catch (error: unknown) {
-        console.warn(`Error setting localStorage key "${key}":`, error)
+        logger.warn(`Error setting localStorage key "${key}":`, error)
       }
     },
     [key, storedValue]
@@ -48,7 +49,7 @@ export function useLocalStorage<T>(
         window.localStorage.removeItem(key)
       }
     } catch (error: unknown) {
-      console.warn(`Error removing localStorage key "${key}":`, error)
+      logger.warn(`Error removing localStorage key "${key}":`, error)
     }
   }, [key, initialValue])
 
@@ -72,7 +73,7 @@ export function useTypedLocalStorage<T>(
   // Validate stored value if validator provided
   useEffect(() => {
     if (validator && !validator(storedValue)) {
-      console.warn(`Invalid value in localStorage for key "${key}", resetting to initial value`)
+      logger.warn(`Invalid value in localStorage for key "${key}", resetting to initial value`)
       setValue(initialValue)
     }
   }, [storedValue, validator, initialValue, setValue, key])

@@ -123,7 +123,7 @@ export class OwnerFactory {
   }
 
   /**
-   * Set tenant ID (defaults to 'adris')
+   * Set tenant ID (defaults to 'terrapet')
    */
   forTenant(tenantId: string): OwnerFactory {
     this.data.tenant_id = tenantId
@@ -247,7 +247,7 @@ export class OwnerFactory {
 /**
  * Create owners with all distinct personas for Adris clinic
  */
-export async function createDistinctOwners(tenantId: string = 'adris'): Promise<OwnerData[]> {
+export async function createDistinctOwners(tenantId: string = 'terrapet'): Promise<OwnerData[]> {
   const personas: OwnerPersona[] = [
     'vip',
     'budget',
@@ -286,23 +286,23 @@ export const PREDEFINED_OWNERS: Array<{
   name: string
   email: string
 }> = [
-  { persona: 'vip', name: 'Carlos Benítez', email: 'carlos.benitez.demo@adris.com' },
-  { persona: 'budget', name: 'María López', email: 'maria.lopez.demo@adris.com' },
-  { persona: 'new', name: 'Ana Fernández', email: 'ana.fernandez.demo@adris.com' },
-  { persona: 'frequent', name: 'Pedro Sánchez', email: 'pedro.sanchez.demo@adris.com' },
-  { persona: 'breeder', name: 'Roberto Acosta', email: 'roberto.acosta.demo@adris.com' },
-  { persona: 'senior', name: 'Rosa Villalba', email: 'rosa.villalba.demo@adris.com' },
-  { persona: 'emergency', name: 'Diego Ramírez', email: 'diego.ramirez.demo@adris.com' },
-  { persona: 'loyal', name: 'Lucía Giménez', email: 'lucia.gimenez.demo@adris.com' },
-  { persona: 'inactive', name: 'José Torres', email: 'jose.torres.demo@adris.com' },
-  { persona: 'standard', name: 'Sofía Romero', email: 'sofia.romero.demo@adris.com' },
+  { persona: 'vip', name: 'Carlos Benítez', email: 'carlos.benitez.demo@terrapet.com' },
+  { persona: 'budget', name: 'María López', email: 'maria.lopez.demo@terrapet.com' },
+  { persona: 'new', name: 'Ana Fernández', email: 'ana.fernandez.demo@terrapet.com' },
+  { persona: 'frequent', name: 'Pedro Sánchez', email: 'pedro.sanchez.demo@terrapet.com' },
+  { persona: 'breeder', name: 'Roberto Acosta', email: 'roberto.acosta.demo@terrapet.com' },
+  { persona: 'senior', name: 'Rosa Villalba', email: 'rosa.villalba.demo@terrapet.com' },
+  { persona: 'emergency', name: 'Diego Ramírez', email: 'diego.ramirez.demo@terrapet.com' },
+  { persona: 'loyal', name: 'Lucía Giménez', email: 'lucia.gimenez.demo@terrapet.com' },
+  { persona: 'inactive', name: 'José Torres', email: 'jose.torres.demo@terrapet.com' },
+  { persona: 'standard', name: 'Sofía Romero', email: 'sofia.romero.demo@terrapet.com' },
 ]
 
 /**
  * Create all predefined owners (idempotent)
  * Checks by email to avoid duplicates
  */
-export async function createPredefinedOwners(tenantId: string = 'adris'): Promise<OwnerData[]> {
+export async function createPredefinedOwners(tenantId: string = 'terrapet'): Promise<OwnerData[]> {
   const owners: OwnerData[] = []
 
   for (const preset of PREDEFINED_OWNERS) {

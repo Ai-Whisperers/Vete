@@ -40,7 +40,7 @@ interface ProgressState {
 const PRODUCTS_DIR = 'db/seeds/data/03-store/products'
 const MAPPING_FILE = 'scripts/image-urls.json'
 const PROGRESS_FILE = 'scripts/.image-sync-progress.json'
-const TENANT_ID = 'adris'
+const TENANT_ID = 'terrapet'
 
 async function downloadImage(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {

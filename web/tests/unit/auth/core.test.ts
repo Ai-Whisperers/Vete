@@ -11,7 +11,7 @@ vi.mock('@/db', () => ({
               {
                 id: 'user-123',
                 role: 'admin',
-                tenantId: 'adris',
+                tenantId: 'terrapet',
                 fullName: 'Test User',
                 email: 'test@example.com',
                 phone: null,

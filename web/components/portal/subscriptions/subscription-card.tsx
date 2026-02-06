@@ -11,13 +11,13 @@ import {
   Trash2,
   Edit2,
   SkipForward,
-  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { IconButton } from '@/components/ui/icon-button'
 import { Modal, ModalFooter } from '@/components/ui/modal'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/Toast'
+import { useTranslations } from 'next-intl'
 
 export interface Subscription {
   id: string
@@ -77,10 +77,11 @@ function getFrequencyLabel(days: number): string {
 
 export function SubscriptionCard({
   subscription,
-  clinic,
+  clinic: _clinic,
   onUpdate,
 }: SubscriptionCardProps): React.ReactElement {
   const { toast } = useToast()
+  const t = useTranslations()
   const [isLoading, setIsLoading] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -296,7 +297,7 @@ export function SubscriptionCard({
 
             <IconButton
               icon={<Trash2 className="h-4 w-4" />}
-              aria-label="Cancelar suscripción"
+              aria-label={`${t('common.cancel')} suscripción`}
               variant="destructive"
               size="sm"
               onClick={() => setShowCancelModal(true)}
@@ -310,7 +311,7 @@ export function SubscriptionCard({
       <Modal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
-        title="Cancelar Suscripción"
+        title={`${t('common.cancel')} Suscripción`}
         size="sm"
       >
         <p className="text-gray-600">
@@ -337,7 +338,7 @@ export function SubscriptionCard({
       <Modal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        title="Editar Suscripción"
+        title={`${t('common.edit')} Suscripción`}
         size="sm"
       >
         <div className="space-y-4">

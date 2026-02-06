@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/utils/logger'
 
 export interface FilterOption {
   id: string
@@ -50,7 +51,7 @@ export function useFilterData(clinic: string): UseFilterDataResult {
       setBrands(brandsData.brands || [])
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred')
-      console.error('Error fetching filters:', err)
+      logger.error('Error fetching filters:', err)
     } finally {
       setIsLoading(false)
     }

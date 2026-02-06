@@ -4,7 +4,7 @@
  * A11Y-003: Tests for accessible form field component
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { FormField, FormFieldGroup, RequiredIndicator } from '../../../components/forms/form-field'
 

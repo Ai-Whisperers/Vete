@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,
@@ -27,6 +27,9 @@ describe('API: /api/medical-records', () => {
     vetUser = await createTestAuthUser(supabase, 'vet', TEST_TENANT_ID)
     adminUser = await createTestAuthUser(supabase, 'admin', TEST_TENANT_ID)
     ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
+    
+    // Checkpoint shared resources created in beforeAll
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -34,7 +37,7 @@ describe('API: /api/medical-records', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/medical-records', () => {
@@ -273,7 +276,6 @@ describe('API: /api/medical-records', () => {
         pet_id: pet.id,
         type: 'consultation',
         title: 'Consulta General',
-        diagnosis: 'Paciente en buen estado',
         notes: 'Sin hallazgos relevantes',
       }
 
@@ -290,7 +292,7 @@ describe('API: /api/medical-records', () => {
       expect(data.type).toBe('consultation')
       expect(data.title).toBe('Consulta General')
       expect(data.tenant_id).toBe(TEST_TENANT_ID)
-      expect(data.performed_by).toBe(vetUser.userId)
+      // Note: performed_by field removed as it doesn't exist in database schema
 
       if (data.id) cleanupManager.track('medical_records', data.id)
     })

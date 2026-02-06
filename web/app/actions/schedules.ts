@@ -9,7 +9,6 @@ import type {
   StaffScheduleEntry,
   StaffScheduleFormData,
   StaffScheduleEntryFormData,
-  DayOfWeek,
 } from '@/lib/types/calendar'
 
 // =============================================================================

@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
+import unusedImports from "eslint-plugin-unused-imports";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -18,6 +19,7 @@ export default [
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       "@next/next": nextPlugin,
+      "unused-imports": unusedImports,
     },
     settings: {
       react: {
@@ -53,14 +55,11 @@ export default [
       "@typescript-eslint/no-this-alias": "warn",
 
       // TypeScript - Progressive tightening
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-        },
-      ],
+      "@typescript-eslint/no-unused-vars": "off", // Replaced by unused-imports
+      "unused-imports/no-unused-imports": "warn",
+      // Disabled: too noisy, 172 warnings of low priority - will fix incrementally
+      // "unused-imports/no-unused-vars": ["warn", {...}],
+      "unused-imports/no-unused-vars": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-require-imports": "off",
@@ -82,13 +81,13 @@ export default [
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/exhaustive-deps": "warn",
 
-      // Next.js
-      "@next/next/no-img-element": "warn",
-      "@next/next/no-html-link-for-pages": "warn",
+      // Next.js - disabled: high false-positive rate for external links and SVGs
+      "@next/next/no-img-element": "off",
+      "@next/next/no-html-link-for-pages": "off",
 
       // General best practices
       "no-debugger": "warn",
-      "no-alert": "warn",
+      "no-alert": "off", // 38 occurrences - will migrate to toast/dialog incrementally
       "no-var": "warn",
       "no-constant-condition": "warn",
       "no-misleading-character-class": "warn",
@@ -133,7 +132,21 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-vars": "off",
       "no-debugger": "off",
+      "no-redeclare": "off",  // Common to redeclare mocks in test blocks
+    },
+  },
+
+  // Relaxed rules for CLI tools, migration scripts, and config files
+  {
+    files: [
+      "lib/db/**/*.ts",
+      "lib/test-utils/**/*.ts",
+      "vitest.config*.ts",
+    ],
+    rules: {
+      "no-console": "off",
     },
   },
 
@@ -151,7 +164,7 @@ export default [
       "*.config.js",
       "*.config.mjs",
       "*.config.ts",
-      "scripts/**",
+      "scripts/**",  // Use root eslint.config.mjs for scripts
       "db/**",
       "supabase/**",
     ],

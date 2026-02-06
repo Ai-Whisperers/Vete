@@ -43,6 +43,13 @@ interface GeneratedClinic {
   files: Record<string, object>
 }
 
+interface ServiceTemplate {
+  name: string
+  price: number
+  duration: number
+  description: string
+}
+
 // Theme presets by clinic type
 const THEME_PRESETS: Record<string, object> = {
   general: {
@@ -78,7 +85,7 @@ const THEME_PRESETS: Record<string, object> = {
 }
 
 // Service templates by clinic type
-const SERVICE_TEMPLATES: Record<string, object[]> = {
+const SERVICE_TEMPLATES: Record<string, ServiceTemplate[]> = {
   general: [
     { name: 'Consulta General', price: 100000, duration: 30, description: 'Evaluación completa de salud' },
     { name: 'Vacunación', price: 150000, duration: 20, description: 'Vacunas certificadas SENACSA' },
@@ -286,7 +293,7 @@ function generateServices(lead: ClinicLead): object {
       {
         id: 'all',
         name: 'Todos los Servicios',
-        services: services.map((s: any, i: number) => ({
+        services: services.map((s: ServiceTemplate, i: number) => ({
           id: `service-${i + 1}`,
           ...s,
           bookable_online: true,

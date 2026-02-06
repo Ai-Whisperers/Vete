@@ -20,7 +20,6 @@ import {
   XCircle,
   Clock,
   ChevronDown,
-  ChevronRight,
   AlertCircle,
   Loader2,
   ShoppingBag,
@@ -30,7 +29,6 @@ import {
   RotateCcw,
   RefreshCw,
   Plus,
-  FileText,
 } from 'lucide-react'
 import { OrderInvoicePDFButton } from '@/components/store/order-invoice-pdf'
 import { clsx } from 'clsx'

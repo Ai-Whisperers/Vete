@@ -25,8 +25,8 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       expect(primaryColor).toContain('78866B')
     })
 
-    test('adris shows different colors', async ({ page }) => {
-      await page.goto('/adris')
+    test('terrapet shows different colors', async ({ page }) => {
+      await page.goto('/terrapet')
       
       // Check primary color
       const primaryColor = await page.evaluate(() => {
@@ -45,17 +45,17 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       await expect(terrapetHeading.first()).toBeVisible()
       
       // Verify NO Adris branding
-      const adrisHeading = page.locator('text=/^adris$/i')
-      const count = await adrisHeading.count()
+      const terrapetHeading = page.locator('text=/^terrapet$/i')
+      const count = await terrapetHeading.count()
       expect(count).toBe(0)
     })
 
-    test('adris shows Adris branding', async ({ page }) => {
-      await page.goto('/adris')
+    test('terrapet shows Adris branding', async ({ page }) => {
+      await page.goto('/terrapet')
       
       // Verify Adris name appears
-      const adrisHeading = page.locator('h1, h2, .logo').filter({ hasText: /adris/i })
-      await expect(adrisHeading.first()).toBeVisible()
+      const terrapetHeading = page.locator('h1, h2, .logo').filter({ hasText: /terrapet/i })
+      await expect(terrapetHeading.first()).toBeVisible()
       
       // Verify NO TerraPet branding
       const terrapetHeading = page.locator('text=/^terrapet$/i')
@@ -70,12 +70,12 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       expect(terrapetContent).toBeTruthy()
       
       // Check Adris
-      await page.goto('/adris')
-      const adrisContent = await page.textContent('body')
-      expect(adrisContent).toBeTruthy()
+      await page.goto('/terrapet')
+      const terrapetContent = await page.textContent('body')
+      expect(terrapetContent).toBeTruthy()
       
       // Content should be different
-      expect(terrapetContent).not.toBe(adrisContent)
+      expect(terrapetContent).not.toBe(terrapetContent)
     })
   })
 
@@ -95,14 +95,14 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       expect(count).toBeLessThanOrEqual(15)
     })
 
-    test('adris shows different service count or offerings', async ({ page }) => {
-      await page.goto('/adris/services')
+    test('terrapet shows different service count or offerings', async ({ page }) => {
+      await page.goto('/terrapet/services')
       
       // Wait for services
       await page.waitForSelector('text=/servicio|consulta/i', { timeout: 10000 })
       
       // Get service list
-      const adrisServices = await page.textContent('body')
+      const terrapetServices = await page.textContent('body')
       
       // Now check TerraPet
       await page.goto('/terrapet/services')
@@ -111,7 +111,7 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       const terrapetServices = await page.textContent('body')
       
       // Services content should differ
-      expect(terrapetServices).not.toBe(adrisServices)
+      expect(terrapetServices).not.toBe(terrapetServices)
     })
 
     test('services unique to terrapet visible', async ({ page }) => {
@@ -133,12 +133,12 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       expect(terrapetCount).toBeGreaterThan(0)
       
       // Check if Adris has it (may or may not)
-      await page.goto('/adris/services')
-      const adrisHomeVisit = page.locator('text=/domicilio|casa/i')
-      const adrisCount = await adrisHomeVisit.count()
+      await page.goto('/terrapet/services')
+      const terrapetHomeVisit = page.locator('text=/domicilio|casa/i')
+      const terrapetCount = await terrapetHomeVisit.count()
       
       // TerraPet should have at least as many mentions
-      expect(terrapetCount).toBeGreaterThanOrEqual(adrisCount)
+      expect(terrapetCount).toBeGreaterThanOrEqual(terrapetCount)
     })
 
     test('booking creates for correct tenant', async ({ page }) => {
@@ -148,7 +148,7 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       // URL should contain terrapet
       const url = page.url()
       expect(url).toContain('terrapet')
-      expect(url).not.toContain('adris')
+      expect(url).not.toContain('terrapet')
     })
   })
 
@@ -165,18 +165,18 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       expect(bodyText).toBeTruthy()
     })
 
-    test('adris shows different contact information', async ({ page }) => {
-      await page.goto('/adris')
+    test('terrapet shows different contact information', async ({ page }) => {
+      await page.goto('/terrapet')
       
       // Get Adris contact info
-      const adrisContact = await page.textContent('footer, [data-testid="contact"]')
+      const terrapetContact = await page.textContent('footer, [data-testid="contact"]')
       
       // Get TerraPet contact info
       await page.goto('/terrapet')
       const terrapetContact = await page.textContent('footer, [data-testid="contact"]')
       
       // Contact info should be different
-      expect(terrapetContact).not.toBe(adrisContact)
+      expect(terrapetContact).not.toBe(terrapetContact)
     })
   })
 
@@ -190,36 +190,36 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       // URL should still be under /terrapet/
       const url = page.url()
       expect(url).toMatch(/\/terrapet\//i)
-      expect(url).not.toContain('/adris/')
+      expect(url).not.toContain('/terrapet/')
     })
 
-    test('adris navigation stays within /adris/*', async ({ page }) => {
-      await page.goto('/adris')
+    test('terrapet navigation stays within /terrapet/*', async ({ page }) => {
+      await page.goto('/terrapet')
       
       // Click on any internal link
-      const internalLink = page.locator('a[href^="/adris"]').first()
+      const internalLink = page.locator('a[href^="/terrapet"]').first()
       
       if (await internalLink.isVisible()) {
         await internalLink.click()
         
-        // URL should still be under /adris/
+        // URL should still be under /terrapet/
         const url = page.url()
-        expect(url).toMatch(/\/adris\//i)
+        expect(url).toMatch(/\/terrapet\//i)
         expect(url).not.toContain('/terrapet/')
       }
     })
 
-    test('cannot access terrapet portal from adris context', async ({ page }) => {
+    test('cannot access terrapet portal from terrapet context', async ({ page }) => {
       // Try to navigate to TerraPet portal from Adris
-      await page.goto('/adris')
+      await page.goto('/terrapet')
       
       // Directly navigate to terrapet portal
       await page.goto('/terrapet/portal')
       
-      // URL should be /terrapet/portal, not /adris/
+      // URL should be /terrapet/portal, not /terrapet/
       const url = page.url()
       expect(url).toContain('terrapet')
-      expect(url).not.toContain('adris')
+      expect(url).not.toContain('terrapet')
     })
   })
 
@@ -252,13 +252,13 @@ test.describe('TerraPet Multi-Tenant Isolation (E2E)', () => {
       })
       
       // Get Adris theme
-      await page.goto('/adris')
-      const adrisPrimary = await page.evaluate(() => {
+      await page.goto('/terrapet')
+      const terrapetPrimary = await page.evaluate(() => {
         return getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
       })
       
       // Themes should be different
-      expect(terrapetPrimary).not.toBe(adrisPrimary)
+      expect(terrapetPrimary).not.toBe(terrapetPrimary)
     })
   })
 

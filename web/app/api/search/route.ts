@@ -14,7 +14,7 @@ interface SearchResult {
 }
 
 // GET /api/search?q=query&clinic=clinic_slug
-export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
+export const GET = withApiAuth(async ({ request, user: _user, profile, supabase }) => {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q')?.trim()
   const clinic = searchParams.get('clinic')

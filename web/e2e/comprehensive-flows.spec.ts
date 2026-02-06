@@ -22,7 +22,7 @@ import { loginAs, logout, isLoggedIn } from './helpers/auth';
 
 test.describe('Public Pages', () => {
   test('Homepage loads and displays content @public @smoke', async ({ page }) => {
-    await page.goto('/adris', { waitUntil: 'domcontentloaded' });
+    await page.goto('/terrapet', { waitUntil: 'domcontentloaded' });
     
     // Should have page title
     await expect(page).toHaveTitle(/Veterinaria Adris/i);
@@ -37,10 +37,10 @@ test.describe('Public Pages', () => {
   });
 
   test('Services page loads @public', async ({ page }) => {
-    await page.goto('/adris/services', { waitUntil: 'domcontentloaded' });
+    await page.goto('/terrapet/services', { waitUntil: 'domcontentloaded' });
     
     // Page should load
-    await expect(page).toHaveURL(/\/adris\/services/);
+    await expect(page).toHaveURL(/\/terrapet\/services/);
     
     // Should have some content
     const mainContent = page.locator('main, [role="main"]');
@@ -48,10 +48,10 @@ test.describe('Public Pages', () => {
   });
 
   test('Store page loads @public @store', async ({ page }) => {
-    await page.goto('/adris/store', { waitUntil: 'domcontentloaded' });
+    await page.goto('/terrapet/store', { waitUntil: 'domcontentloaded' });
     
     // Page should load
-    await expect(page).toHaveURL(/\/adris\/store/);
+    await expect(page).toHaveURL(/\/terrapet\/store/);
     
     // Should have main content
     const mainContent = page.locator('main, [role="main"]');
@@ -59,7 +59,7 @@ test.describe('Public Pages', () => {
   });
 
   test('Booking page is accessible @public', async ({ page }) => {
-    await page.goto('/adris/book', { waitUntil: 'domcontentloaded' });
+    await page.goto('/terrapet/book', { waitUntil: 'domcontentloaded' });
     
     // Should load (may redirect to login for unauthenticated users)
     const currentUrl = page.url();
@@ -74,10 +74,10 @@ test.describe('Public Pages', () => {
 test.describe('Authentication', () => {
   test('Owner can login and access portal @auth @owner @smoke', async ({ page }) => {
     // Login
-    await loginAs(page, 'adris', 'owner');
+    await loginAs(page, 'terrapet', 'owner');
     
     // Should be on portal page
-    await expect(page).toHaveURL(/\/adris\/portal/);
+    await expect(page).toHaveURL(/\/terrapet\/portal/);
     
     // Should see portal content (greeting or portal actions)
     const portalContent = page.getByRole('heading', { name: /good (morning|afternoon|evening)/i }).or(
@@ -92,8 +92,8 @@ test.describe('Authentication', () => {
 
   test('Owner can logout @auth @owner', async ({ page }) => {
     // Login first
-    await loginAs(page, 'adris', 'owner');
-    await expect(page).toHaveURL(/\/adris\/portal/);
+    await loginAs(page, 'terrapet', 'owner');
+    await expect(page).toHaveURL(/\/terrapet\/portal/);
     
     // Logout
     await logout(page);
@@ -104,10 +104,10 @@ test.describe('Authentication', () => {
   });
 
   test('Vet can login and access dashboard @auth @vet', async ({ page }) => {
-    await loginAs(page, 'adris', 'vet');
+    await loginAs(page, 'terrapet', 'vet');
     
     // Should be on dashboard
-    await expect(page).toHaveURL(/\/adris\/dashboard/);
+    await expect(page).toHaveURL(/\/terrapet\/dashboard/);
     
     // Should see dashboard content
     const dashboardContent = page.locator('main, [role="main"]');
@@ -115,11 +115,11 @@ test.describe('Authentication', () => {
   });
 
   test('Admin can login and access dashboard @auth @admin', async ({ page }) => {
-    await loginAs(page, 'adris', 'admin');
+    await loginAs(page, 'terrapet', 'admin');
     
     // Should be on dashboard or admin area
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(dashboard|admin)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(dashboard|admin)/);
     
     // Should see admin/dashboard content
     const mainContent = page.locator('main, [role="main"]');
@@ -133,7 +133,7 @@ test.describe('Authentication', () => {
 
 test.describe('Owner Portal', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAs(page, 'adris', 'owner');
+    await loginAs(page, 'terrapet', 'owner');
   });
 
   test('Can access pets section @owner @pets @smoke', async ({ page }) => {
@@ -142,11 +142,11 @@ test.describe('Owner Portal', () => {
     if (await petsLink.isVisible()) {
       await petsLink.click();
     } else {
-      await page.goto('/adris/portal/pets');
+      await page.goto('/terrapet/portal/pets');
     }
     
     // Should be on pets page
-    await expect(page).toHaveURL(/\/adris\/portal(\/pets)?/);
+    await expect(page).toHaveURL(/\/terrapet\/portal(\/pets)?/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -155,11 +155,11 @@ test.describe('Owner Portal', () => {
 
   test('Can access appointments section @owner @appointments', async ({ page }) => {
     // Try to navigate to appointments
-    await page.goto('/adris/portal/appointments');
+    await page.goto('/terrapet/portal/appointments');
     
     // Should be on appointments page or portal home
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/portal/);
+    expect(currentUrl).toMatch(/\/terrapet\/portal/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -168,11 +168,11 @@ test.describe('Owner Portal', () => {
 
   test('Can access profile settings @owner @profile', async ({ page }) => {
     // Try to navigate to profile
-    await page.goto('/adris/portal/profile');
+    await page.goto('/terrapet/portal/profile');
     
     // Should be on profile page or settings
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/portal/);
+    expect(currentUrl).toMatch(/\/terrapet\/portal/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -180,11 +180,11 @@ test.describe('Owner Portal', () => {
   });
 
   test('Can access invoices @owner @invoices', async ({ page }) => {
-    await page.goto('/adris/portal/invoices');
+    await page.goto('/terrapet/portal/invoices');
     
     // Should be on invoices page
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/portal/);
+    expect(currentUrl).toMatch(/\/terrapet\/portal/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -192,11 +192,11 @@ test.describe('Owner Portal', () => {
   });
 
   test('Can access messages @owner @messages', async ({ page }) => {
-    await page.goto('/adris/portal/messages');
+    await page.goto('/terrapet/portal/messages');
     
     // Should be on messages page
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/portal/);
+    expect(currentUrl).toMatch(/\/terrapet\/portal/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -210,12 +210,12 @@ test.describe('Owner Portal', () => {
 
 test.describe('Staff Dashboard', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAs(page, 'adris', 'vet');
+    await loginAs(page, 'terrapet', 'vet');
   });
 
   test('Can access dashboard @vet @dashboard @smoke', async ({ page }) => {
     // Should be on dashboard
-    await expect(page).toHaveURL(/\/adris\/dashboard/);
+    await expect(page).toHaveURL(/\/terrapet\/dashboard/);
     
     // Should see dashboard content
     const mainContent = page.locator('main, [role="main"]');
@@ -223,11 +223,11 @@ test.describe('Staff Dashboard', () => {
   });
 
   test('Can access patients section @vet @patients', async ({ page }) => {
-    await page.goto('/adris/dashboard/patients');
+    await page.goto('/terrapet/dashboard/patients');
     
     // Should be on patients page or dashboard
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/dashboard/);
+    expect(currentUrl).toMatch(/\/terrapet\/dashboard/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -235,11 +235,11 @@ test.describe('Staff Dashboard', () => {
   });
 
   test('Can access appointments/schedule @vet @appointments', async ({ page }) => {
-    await page.goto('/adris/dashboard/appointments');
+    await page.goto('/terrapet/dashboard/appointments');
     
     // Should be on appointments page
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/dashboard/);
+    expect(currentUrl).toMatch(/\/terrapet\/dashboard/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -247,11 +247,11 @@ test.describe('Staff Dashboard', () => {
   });
 
   test('Can access inventory @vet @inventory', async ({ page }) => {
-    await page.goto('/adris/dashboard/inventory');
+    await page.goto('/terrapet/dashboard/inventory');
     
     // Should be on inventory page
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/dashboard/);
+    expect(currentUrl).toMatch(/\/terrapet\/dashboard/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -265,10 +265,10 @@ test.describe('Staff Dashboard', () => {
 
 test.describe('Store & E-Commerce', () => {
   test('Can browse store as guest @store @public', async ({ page }) => {
-    await page.goto('/adris/store');
+    await page.goto('/terrapet/store');
     
     // Store page should load
-    await expect(page).toHaveURL(/\/adris\/store/);
+    await expect(page).toHaveURL(/\/terrapet\/store/);
     
     // Should see main content
     const mainContent = page.locator('main, [role="main"]');
@@ -276,7 +276,7 @@ test.describe('Store & E-Commerce', () => {
   });
 
   test('Can view product details @store @public', async ({ page }) => {
-    await page.goto('/adris/store');
+    await page.goto('/terrapet/store');
     
     // Look for any product links or cards
     const productLinks = page.locator('a[href*="/store/products/"], [data-testid*="product"]');
@@ -297,11 +297,11 @@ test.describe('Store & E-Commerce', () => {
   });
 
   test('Can access cart @store', async ({ page }) => {
-    await page.goto('/adris/cart');
+    await page.goto('/terrapet/cart');
     
     // Cart page should load
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(cart|store)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(cart|store)/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -315,15 +315,15 @@ test.describe('Store & E-Commerce', () => {
 
 test.describe('Admin Panel', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAs(page, 'adris', 'admin');
+    await loginAs(page, 'terrapet', 'admin');
   });
 
   test('Can access admin panel @admin @smoke', async ({ page }) => {
-    await page.goto('/adris/admin');
+    await page.goto('/terrapet/admin');
     
     // Should be on admin page or dashboard (admins may redirect)
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(admin|dashboard)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(admin|dashboard)/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -331,11 +331,11 @@ test.describe('Admin Panel', () => {
   });
 
   test('Can access settings @admin @settings', async ({ page }) => {
-    await page.goto('/adris/admin/settings');
+    await page.goto('/terrapet/admin/settings');
     
     // Should be on settings or admin area
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(admin|dashboard)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(admin|dashboard)/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -343,11 +343,11 @@ test.describe('Admin Panel', () => {
   });
 
   test('Can access team management @admin @team', async ({ page }) => {
-    await page.goto('/adris/admin/team');
+    await page.goto('/terrapet/admin/team');
     
     // Should be on team page or admin area
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(admin|dashboard)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(admin|dashboard)/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"]');
@@ -361,11 +361,11 @@ test.describe('Admin Panel', () => {
 
 test.describe('Appointment Booking', () => {
   test('Unauthenticated user can access booking page @booking @public', async ({ page }) => {
-    await page.goto('/adris/book');
+    await page.goto('/terrapet/book');
     
     // Should load booking page or redirect to login
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/adris\/(book|portal\/login)/);
+    expect(currentUrl).toMatch(/\/terrapet\/(book|portal\/login)/);
     
     // Page should load
     const mainContent = page.locator('main, [role="main"], form');
@@ -373,11 +373,11 @@ test.describe('Appointment Booking', () => {
   });
 
   test('Authenticated owner can access booking @booking @owner', async ({ page }) => {
-    await loginAs(page, 'adris', 'owner');
-    await page.goto('/adris/book');
+    await loginAs(page, 'terrapet', 'owner');
+    await page.goto('/terrapet/book');
     
     // Should be on booking page
-    await expect(page).toHaveURL(/\/adris\/book/);
+    await expect(page).toHaveURL(/\/terrapet\/book/);
     
     // Should see booking form or wizard
     const bookingContent = page.locator('main, [role="main"], form');
@@ -391,10 +391,10 @@ test.describe('Appointment Booking', () => {
 
 test.describe('Multi-Tenant Isolation', () => {
   test('Each clinic has separate data @multi-tenant @security', async ({ page }) => {
-    // Login to adris
-    await loginAs(page, 'adris', 'owner');
-    const adrisUrl = page.url();
-    expect(adrisUrl).toContain('/adris/');
+    // Login to terrapet
+    await loginAs(page, 'terrapet', 'owner');
+    const terrapetUrl = page.url();
+    expect(terrapetUrl).toContain('/terrapet/');
     
     // Logout
     await logout(page);
@@ -403,15 +403,15 @@ test.describe('Multi-Tenant Isolation', () => {
     await page.goto('/petlife');
     await expect(page).toHaveURL(/\/petlife/);
     
-    // Should see petlife branding (not adris)
+    // Should see petlife branding (not terrapet)
     const pageContent = await page.content();
     // Different clinics should have different branding
     expect(pageContent).toBeTruthy();
   });
 
   test('Cannot access other clinic portal with wrong tenant @multi-tenant @security', async ({ page }) => {
-    // Login to adris
-    await loginAs(page, 'adris', 'owner');
+    // Login to terrapet
+    await loginAs(page, 'terrapet', 'owner');
     
     // Try to manually navigate to petlife portal
     await page.goto('/petlife/portal');
@@ -430,7 +430,7 @@ test.describe('Multi-Tenant Isolation', () => {
 
 test.describe('Navigation & UI', () => {
   test('All pages have consistent header @ui @smoke', async ({ page }) => {
-    const pages = ['/adris', '/adris/services', '/adris/store', '/adris/about'];
+    const pages = ['/terrapet', '/terrapet/services', '/terrapet/store', '/terrapet/about'];
     
     for (const pagePath of pages) {
       await page.goto(pagePath, { waitUntil: 'domcontentloaded' });
@@ -442,7 +442,7 @@ test.describe('Navigation & UI', () => {
   });
 
   test('All pages have consistent footer @ui', async ({ page }) => {
-    const pages = ['/adris', '/adris/services', '/adris/store'];
+    const pages = ['/terrapet', '/terrapet/services', '/terrapet/store'];
     
     for (const pagePath of pages) {
       await page.goto(pagePath, { waitUntil: 'domcontentloaded' });

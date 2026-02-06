@@ -5,7 +5,7 @@
  * This file is auto-generated - DO NOT EDIT.
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest'
 import { generatePermissionTests, generateCoverageReport } from '../generators/permission-test-generator'
 import { setTestIds } from '../generators/specs/portal-endpoints'
 import { createMockAuthState, resetMockAuthState } from '../__mocks__/auth-state'

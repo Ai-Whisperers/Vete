@@ -5,7 +5,7 @@
  * This route uses PostgreSQL atomic function to prevent race conditions
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { POST } from '@/app/api/inventory/adjust/route'
 import {
   setupIntegrationTest,
@@ -17,6 +17,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -49,6 +50,9 @@ describe('API: /api/inventory/adjust', () => {
       reorder_point: 20,
     })
     testProductId = product.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -56,7 +60,7 @@ describe('API: /api/inventory/adjust', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('POST /api/inventory/adjust', () => {

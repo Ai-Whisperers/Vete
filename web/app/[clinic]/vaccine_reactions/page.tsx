@@ -9,7 +9,7 @@ export const generateMetadata = async () => ({
     title: 'Reacciones a Vacunas',
     description: 'Sistema de farmacovigilancia veterinaria',
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image' as const },
 })
 
 export default function VaccineReactionsPage() {

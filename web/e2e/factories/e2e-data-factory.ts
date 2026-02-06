@@ -30,7 +30,7 @@ config({ path: resolve(process.cwd(), '.env') })
 // Constants
 // =============================================================================
 
-export const E2E_TENANT = 'adris'
+export const E2E_TENANT = 'terrapet'
 
 // =============================================================================
 // Factory Class

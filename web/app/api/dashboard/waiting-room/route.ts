@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuth } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 

@@ -4,10 +4,9 @@
  * A11Y-001: Tests for WCAG 2.1 AA compliance utilities
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   WCAG_CRITERIA,
-  type AccessibilityIssue,
   type PageAuditResult,
   type WCAGCriterionId,
   DEFAULT_AUDIT_CONFIG,

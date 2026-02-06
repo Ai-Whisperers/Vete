@@ -12,7 +12,7 @@
  * import { renderWithProviders, mockRouter, mockFormAction } from '@/lib/test-utils/component-test-helpers';
  *
  * test('renders login form', () => {
- *   renderWithProviders(<LoginForm clinic="adris" redirectTo="/portal" />);
+ *   renderWithProviders(<LoginForm clinic="terrapet" redirectTo="/portal" />);
  *   expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
  * });
  * ```
@@ -98,7 +98,7 @@ export function createMockRouter(options: MockRouterOptions = {}) {
 
 /**
  * Mock module factory for next/navigation
- * Usage: vi.mock('next/navigation', () => mockNextNavigation({ clinic: 'adris' }))
+ * Usage: vi.mock('next/navigation', () => mockNextNavigation({ clinic: 'terrapet' }))
  */
 export function mockNextNavigation(params: Record<string, string> = {}, searchParams: Record<string, string> = {}) {
   const router = createMockRouter({ params, searchParams })

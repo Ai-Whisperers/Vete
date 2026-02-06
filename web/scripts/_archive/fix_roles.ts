@@ -45,7 +45,7 @@ async function runSeed() {
 
   const { error } = await supabase
     .from('profiles')
-    .update({ role: 'admin', tenant_id: 'adris' })
+    .update({ role: 'admin', tenant_id: 'terrapet' })
     .eq('email', 'admin@demo.com')
 
   if (error) {
@@ -57,7 +57,7 @@ async function runSeed() {
   // Also fix vet
   await supabase
     .from('profiles')
-    .update({ role: 'vet', tenant_id: 'adris' })
+    .update({ role: 'vet', tenant_id: 'terrapet' })
     .eq('email', 'vet@demo.com')
   console.log('✅ Updated vet@demo.com to vet role')
 }

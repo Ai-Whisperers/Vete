@@ -94,7 +94,7 @@ function ProgressBar({
   )
 }
 
-function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
+function StatCard({ card, clinic: _clinic }: { card: StatCardConfig; clinic: string }) {
   const Icon = card.icon
 
   return (

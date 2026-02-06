@@ -8,7 +8,6 @@
  */
 
 import { test, expect, portalUrl, waitForLoadingComplete, getFirstPet } from '../factories/test-fixtures'
-import { E2EDataFactory } from '../factories/e2e-data-factory'
 
 // =============================================================================
 // Pet Data Persistence
@@ -99,7 +98,7 @@ test.describe('Data Persistence - Pets', () => {
 test.describe('Data Persistence - Store', () => {
   test('cart items persist to database', async ({ page, testData, factory }) => {
     // Navigate to store
-    await page.goto(`/${testData.products?.[0] ? 'adris' : ''}/store`)
+    await page.goto(`/${testData.products?.[0] ? 'terrapet' : ''}/store`)
     await waitForLoadingComplete(page)
 
     // Add to cart via UI
@@ -120,7 +119,7 @@ test.describe('Data Persistence - Store', () => {
   })
 
   test('wishlist items persist to database', async ({ page, testData, factory }) => {
-    await page.goto(`/adris/store`)
+    await page.goto(`/terrapet/store`)
     await waitForLoadingComplete(page)
 
     const wishlistButton = page.locator('[data-testid="add-to-wishlist"]')

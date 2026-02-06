@@ -43,7 +43,7 @@ describe('NewConversationDialog', () => {
   const mockOnClose = vi.fn()
 
   const defaultProps = {
-    clinic: 'adris',
+    clinic: 'terrapet',
     onClose: mockOnClose,
     isOpen: true,
     isStaff: false,
@@ -377,7 +377,7 @@ describe('NewConversationDialog', () => {
       fireEvent.click(submitButton)
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/adris/portal/messages/conv-123')
+        expect(mockPush).toHaveBeenCalledWith('/terrapet/portal/messages/conv-123')
         expect(mockOnClose).toHaveBeenCalled()
       })
     })

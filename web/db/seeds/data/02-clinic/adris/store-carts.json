@@ -3,8 +3,8 @@
   "_comment": "Shopping carts with items for testing cart abandonment and persistence",
   "store_carts": [
     {
-      "id": "cart-001-adris",
-      "tenant_id": "adris",
+      "id": "cart-001-terrapet",
+      "tenant_id": "terrapet",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "items": [
         {
@@ -27,8 +27,8 @@
       "updated_at": "{{hoursAgo(2)}}"
     },
     {
-      "id": "cart-002-adris",
-      "tenant_id": "adris",
+      "id": "cart-002-terrapet",
+      "tenant_id": "terrapet",
       "customer_id": "550e8400-e29b-41d4-a716-446655440006",
       "items": [
         {
@@ -43,8 +43,8 @@
       "updated_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "cart-003-adris",
-      "tenant_id": "adris",
+      "id": "cart-003-terrapet",
+      "tenant_id": "terrapet",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "items": [
         {

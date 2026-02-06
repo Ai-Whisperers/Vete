@@ -8,11 +8,11 @@ import { chromium } from 'playwright'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
 }
 
 const CREDENTIALS = {
-  email: 'admin@adris.demo',
+  email: 'admin@terrapet.demo',
   password: 'demo123',
 }
 

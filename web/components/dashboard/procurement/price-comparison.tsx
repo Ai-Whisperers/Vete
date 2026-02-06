@@ -20,7 +20,6 @@ import {
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { queryKeys } from '@/lib/queries'
 import { staleTimes, gcTimes } from '@/lib/queries/utils'
 
 interface ComparisonSupplier {

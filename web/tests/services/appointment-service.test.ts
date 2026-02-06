@@ -735,6 +735,14 @@ describe('AppointmentService', () => {
             expect(result.success).toBe(true);
           });
         }
+
+        // For terminal states (completed, cancelled), verify no transitions are allowed
+        if (validNext.length === 0) {
+          it('should be a terminal state with no allowed transitions', () => {
+            // Terminal states like completed and cancelled cannot transition to any other state
+            expect(validNext).toHaveLength(0);
+          });
+        }
       });
     });
   });

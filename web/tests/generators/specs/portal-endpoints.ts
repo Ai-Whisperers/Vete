@@ -6,7 +6,6 @@
  */
 
 import { EndpointSpec } from '../permission-test-generator'
-import { factories } from '../../../__fixtures__'
 
 // Dynamic test IDs that will be resolved at runtime
 let testPetId = 'test-pet-id'

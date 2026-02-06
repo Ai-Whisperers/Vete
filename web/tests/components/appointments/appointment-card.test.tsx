@@ -12,7 +12,7 @@
  * @ticket TEST-002
  */
 import { render, screen } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
 import { createMockAppointment } from '@/lib/test-utils/component-test-helpers'
 
 // Mock next/link
@@ -123,45 +123,45 @@ describe('AppointmentCard', () => {
   describe('Rendering', () => {
     it('renders appointment card with pet name', () => {
       const appointment = createMockAppointment()
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByText(appointment.pets.name)).toBeInTheDocument()
     })
 
     it('renders appointment reason', () => {
       const appointment = createMockAppointment({ reason: 'Vacunación' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByText('Vacunación')).toBeInTheDocument()
     })
 
     it('renders status badge', () => {
       const appointment = createMockAppointment({ status: 'pending' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByText('Pendiente')).toBeInTheDocument()
     })
 
     it('renders correct status badge for confirmed', () => {
       const appointment = createMockAppointment({ status: 'confirmed' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByText('Confirmado')).toBeInTheDocument()
     })
 
     it('renders calendar icon', () => {
       const appointment = createMockAppointment()
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByTestId('icon-calendar')).toBeInTheDocument()
     })
 
     it('renders details link with correct href', () => {
       const appointment = createMockAppointment({ id: 'apt-123' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       const link = screen.getByText(/ver detalles/i)
-      expect(link).toHaveAttribute('href', '/adris/portal/appointments/apt-123')
+      expect(link).toHaveAttribute('href', '/terrapet/portal/appointments/apt-123')
     })
   })
 
@@ -170,7 +170,7 @@ describe('AppointmentCard', () => {
       const appointment = createMockAppointment({
         pets: { id: 'pet-1', name: 'Max', species: 'dog', photo_url: null },
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByTestId('icon-dog')).toBeInTheDocument()
     })
@@ -179,7 +179,7 @@ describe('AppointmentCard', () => {
       const appointment = createMockAppointment({
         pets: { id: 'pet-1', name: 'Luna', species: 'cat', photo_url: null },
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByTestId('icon-cat')).toBeInTheDocument()
     })
@@ -188,7 +188,7 @@ describe('AppointmentCard', () => {
       const appointment = createMockAppointment({
         pets: { id: 'pet-1', name: 'Pet', species: 'hamster', photo_url: null },
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByTestId('icon-pawprint')).toBeInTheDocument()
     })
@@ -197,7 +197,7 @@ describe('AppointmentCard', () => {
       const appointment = createMockAppointment({
         pets: { id: 'pet-1', name: 'Max', species: 'dog', photo_url: 'https://example.com/photo.jpg' },
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       const img = screen.getByAltText('Max')
       expect(img).toBeInTheDocument()
@@ -212,7 +212,7 @@ describe('AppointmentCard', () => {
         status: 'pending',
         start_time: futureDate.toISOString(),
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" onUpdate={mockOnUpdate} />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" onUpdate={mockOnUpdate} />)
 
       expect(screen.getByTestId('cancel-button')).toBeInTheDocument()
     })
@@ -223,21 +223,21 @@ describe('AppointmentCard', () => {
         status: 'pending',
         start_time: futureDate.toISOString(),
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" onUpdate={mockOnUpdate} />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" onUpdate={mockOnUpdate} />)
 
       expect(screen.getByTestId('reschedule-button')).toBeInTheDocument()
     })
 
     it('does not show cancel button for completed appointment', () => {
       const appointment = createMockAppointment({ status: 'completed' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.queryByTestId('cancel-button')).not.toBeInTheDocument()
     })
 
     it('does not show reschedule button for confirmed appointment', () => {
       const appointment = createMockAppointment({ status: 'confirmed' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.queryByTestId('reschedule-button')).not.toBeInTheDocument()
     })
@@ -248,7 +248,7 @@ describe('AppointmentCard', () => {
         status: 'pending',
         start_time: futureDate.toISOString(),
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" showActions={false} />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" showActions={false} />)
 
       expect(screen.queryByTestId('cancel-button')).not.toBeInTheDocument()
       expect(screen.queryByTestId('reschedule-button')).not.toBeInTheDocument()
@@ -259,21 +259,21 @@ describe('AppointmentCard', () => {
   describe('Notes Display', () => {
     it('shows notes when present', () => {
       const appointment = createMockAppointment({ notes: 'Traer libreta de vacunas' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByText('Traer libreta de vacunas')).toBeInTheDocument()
     })
 
     it('does not show cancelled note prefix', () => {
       const appointment = createMockAppointment({ notes: '[Cancelado] Razón de cancelación' })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.queryByText('[Cancelado]')).not.toBeInTheDocument()
     })
 
     it('does not show notes section when notes is null', () => {
       const appointment = createMockAppointment({ notes: null })
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       // Check that there's no extra paragraph with notes
       const container = screen.getByText(appointment.pets.name).closest('div')
@@ -284,7 +284,7 @@ describe('AppointmentCard', () => {
   describe('Status Styling', () => {
     it('applies cancelled styling for cancelled appointments', () => {
       const appointment = createMockAppointment({ status: 'cancelled' })
-      const { container } = render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      const { container } = render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       const card = container.firstChild as HTMLElement
       expect(card.className).toContain('border-[var(--status-error-border)]')
@@ -297,7 +297,7 @@ describe('AppointmentCard', () => {
         end_time: new Date(pastDate.getTime() + 30 * 60000).toISOString(),
         status: 'completed',
       })
-      const { container } = render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      const { container } = render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       const card = container.firstChild as HTMLElement
       expect(card.className).toContain('opacity-75')
@@ -310,7 +310,7 @@ describe('AppointmentCard', () => {
     statuses.forEach((status) => {
       it(`renders correctly for ${status} status`, () => {
         const appointment = createMockAppointment({ status })
-        render(<AppointmentCard appointment={appointment} clinic="adris" />)
+        render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
         // Card should render without crashing
         expect(screen.getByText(appointment.pets.name)).toBeInTheDocument()
@@ -325,7 +325,7 @@ describe('AppointmentCard', () => {
         status: 'pending',
         start_time: futureDate.toISOString(),
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" onUpdate={mockOnUpdate} />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" onUpdate={mockOnUpdate} />)
 
       const cancelButton = screen.getByTestId('cancel-button')
       expect(cancelButton).toBeInTheDocument()
@@ -337,7 +337,7 @@ describe('AppointmentCard', () => {
         status: 'pending',
         start_time: futureDate.toISOString(),
       })
-      render(<AppointmentCard appointment={appointment} clinic="adris" onUpdate={mockOnUpdate} />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" onUpdate={mockOnUpdate} />)
 
       const rescheduleButton = screen.getByTestId('reschedule-button')
       expect(rescheduleButton).toBeInTheDocument()
@@ -347,7 +347,7 @@ describe('AppointmentCard', () => {
   describe('Accessibility', () => {
     it('renders semantic HTML structure', () => {
       const appointment = createMockAppointment()
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       // Check for heading-level element for pet name
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(appointment.pets.name)
@@ -355,7 +355,7 @@ describe('AppointmentCard', () => {
 
     it('link has descriptive text', () => {
       const appointment = createMockAppointment()
-      render(<AppointmentCard appointment={appointment} clinic="adris" />)
+      render(<AppointmentCard appointment={appointment} clinic="terrapet" />)
 
       expect(screen.getByRole('link', { name: /ver detalles/i })).toBeInTheDocument()
     })

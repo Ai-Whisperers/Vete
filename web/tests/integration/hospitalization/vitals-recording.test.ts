@@ -23,7 +23,6 @@ import {
   isVitalsOverdue,
   isValidTemperature,
   isValidHeartRate,
-  isValidRespiratoryRate,
   isValidPainScore,
   canRecordVitals,
   isIncreasingTrend,

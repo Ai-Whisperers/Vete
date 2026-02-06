@@ -8,8 +8,6 @@ import {
   Search,
   Calendar,
   Users,
-  PawPrint,
-  FileText,
   Settings,
   Plus,
 } from 'lucide-react'

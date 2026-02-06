@@ -3,8 +3,8 @@
   "_comment": "Promotional campaigns: sales, BOGO, bundles, flash sales, seasonal",
   "store_campaigns": [
     {
-      "id": "camp-001-adris",
-      "tenant_id": "adris",
+      "id": "camp-001-terrapet",
+      "tenant_id": "terrapet",
       "name": "Descuento de Verano",
       "description": "Promoción especial de verano en alimentos y accesorios para mascotas",
       "campaign_type": "sale",
@@ -16,8 +16,8 @@
       "created_at": "{{daysAgo(20)}}"
     },
     {
-      "id": "camp-002-adris",
-      "tenant_id": "adris",
+      "id": "camp-002-terrapet",
+      "tenant_id": "terrapet",
       "name": "2x1 en Antiparasitarios",
       "description": "Compra un antiparasitario y lleva el segundo gratis",
       "campaign_type": "bogo",
@@ -29,8 +29,8 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "camp-003-adris",
-      "tenant_id": "adris",
+      "id": "camp-003-terrapet",
+      "tenant_id": "terrapet",
       "name": "Flash Sale - Solo Hoy",
       "description": "Descuento especial de 24 horas en productos seleccionados",
       "campaign_type": "flash",
@@ -42,8 +42,8 @@
       "created_at": "{{hoursAgo(12)}}"
     },
     {
-      "id": "camp-004-adris",
-      "tenant_id": "adris",
+      "id": "camp-004-terrapet",
+      "tenant_id": "terrapet",
       "name": "Bundle Cachorro Feliz",
       "description": "Pack completo para cachorros: alimento + juguete + collar con 20% de descuento",
       "campaign_type": "bundle",
@@ -55,8 +55,8 @@
       "created_at": "{{daysAgo(35)}}"
     },
     {
-      "id": "camp-005-adris",
-      "tenant_id": "adris",
+      "id": "camp-005-terrapet",
+      "tenant_id": "terrapet",
       "name": "Navidad para Mascotas",
       "description": "Promoción navideña en juguetes y premios",
       "campaign_type": "seasonal",
@@ -68,8 +68,8 @@
       "created_at": "{{daysAgo(65)}}"
     },
     {
-      "id": "camp-006-adris",
-      "tenant_id": "adris",
+      "id": "camp-006-terrapet",
+      "tenant_id": "terrapet",
       "name": "Semana del Gato",
       "description": "Descuentos especiales en productos para gatos",
       "campaign_type": "sale",

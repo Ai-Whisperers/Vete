@@ -18,6 +18,7 @@ import {
   isIdentityVerified,
   sendVerificationEmail,
 } from '@/lib/gdpr'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * Request schema for deletion
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (createError) {
-      console.error('Error creating deletion request:', createError)
+      logger.error('Error creating deletion request:', createError)
       return NextResponse.json(
         { error: 'Error al crear solicitud de eliminación' },
         { status: 500 }
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendVerificationEmail(user.id, gdprRequest.id, 'erasure')
     } catch (emailError) {
-      console.error('Error sending verification email:', emailError)
+      logger.error('Error sending verification email:', emailError)
     }
 
     return NextResponse.json({
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
       estimatedCompletionDays: 30,
     })
   } catch (error) {
-    console.error('Error in POST /api/gdpr/delete:', error)
+    logger.error('Error in POST /api/gdpr/delete:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -276,7 +277,7 @@ export async function DELETE(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in DELETE /api/gdpr/delete:', error)
+    logger.error('Error in DELETE /api/gdpr/delete:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

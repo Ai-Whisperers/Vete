@@ -1,6 +1,6 @@
 {
   "$schema": "../../_schemas/store.schema.json#/definitions/TenantProductsFile",
-  "tenant_id": "adris",
+  "tenant_id": "terrapet",
   "description": "Real inventory from Veterinaria Adris - Updated from Excel January 2026",
   "products": [
     {

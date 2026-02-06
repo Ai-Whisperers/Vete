@@ -60,10 +60,13 @@ jobs:
       
       - name: Build custom tools
         run: |
-          cd .opencode/tool
-          # Tools are TypeScript, may need compilation
-          # For now, we'll use them directly
-          echo "Custom tools ready"
+          # Skip if .opencode/tool doesn't exist
+          if [ -d ".opencode/tool" ]; then
+            cd .opencode/tool
+            echo "Custom tools ready"
+          else
+            echo "No custom tools directory found, skipping"
+          fi
       
       - name: Get changed files
         id: changed-files

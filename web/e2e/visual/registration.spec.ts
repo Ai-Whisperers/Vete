@@ -8,7 +8,7 @@
 import { test, expect } from '@playwright/test'
 import { createScreenshotHelper, waitForPageReady, waitForToast } from '../helpers/screenshot-helper'
 
-const E2E_TENANT = 'adris'
+const E2E_TENANT = 'terrapet'
 const SIGNUP_URL = `/${E2E_TENANT}/portal/signup`
 
 // =============================================================================

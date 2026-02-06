@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Toxic Food Checker', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/adris/tools/toxic-food')
+    await page.goto('/terrapet/tools/toxic-food')
   })
 
   test('displays toxic food checker page', async ({ page }) => {

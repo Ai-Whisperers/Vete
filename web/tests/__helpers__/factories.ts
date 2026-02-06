@@ -97,7 +97,7 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
 
   return {
     ownerId: overrides.ownerId || '00000000-0000-0000-0000-000000000001',
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     name: overrides.name || `TestPet-${seq}`,
     species,
     breed: overrides.breed || randomItem(breeds[species] || breeds.other),
@@ -146,10 +146,11 @@ export async function createPet(overrides: Partial<PetFixture> = {}): Promise<Pe
   if (data.microchipId) insertData.microchip_number = data.microchipId
   if (data.notes) insertData.notes = data.notes
   if (data.photoUrl) insertData.photo_url = data.photoUrl
-
-  // NOTE: Skipping fields that may cause schema cache errors:
-  // - temperament, diet_category, diet_notes (may not be in all test DB versions)
-  // - allergies, chronic_conditions (array types can be problematic)
+  if (data.temperament) insertData.temperament = data.temperament
+  if (data.dietCategory) insertData.diet_category = data.dietCategory
+  if (data.dietNotes) insertData.diet_notes = data.dietNotes
+  if (data.allergies) insertData.allergies = Array.isArray(data.allergies) ? data.allergies : [data.allergies]
+  if (data.existingConditions) insertData.existing_conditions = data.existingConditions
 
   const { data: pet, error } = await client
     .from('pets')
@@ -249,7 +250,7 @@ export function buildAppointment(
   const seq = nextSequence()
 
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     petId: overrides.petId || '00000000-0000-0000-0001-000000000001',
     ownerId: overrides.ownerId || '00000000-0000-0000-0000-000000000001',
     type: overrides.type || randomItem<AppointmentType>(['consultation', 'vaccination', 'checkup']),
@@ -275,15 +276,17 @@ export async function createAppointment(
   const startDate = new Date(`${data.date}T${data.time}:00`)
   const endDate = new Date(startDate.getTime() + (data.duration || 30) * 60000)
 
+  const durationMinutes = data.duration || 30
+
   const { data: appointment, error } = await client
     .from('appointments')
     .insert({
       tenant_id: data.tenantId,
       pet_id: data.petId,
       vet_id: data.vetId,
-      created_by: data.vetId || '00000000-0000-0000-0000-000000000001', // Required by schema
       start_time: startDate.toISOString(),
       end_time: endDate.toISOString(),
+      duration_minutes: durationMinutes,
       status: data.status,
       reason: data.reason,
       notes: data.notes,
@@ -319,7 +322,7 @@ export function buildProfile(overrides: Partial<ProfileData> = {}): ProfileData 
   const seq = nextSequence()
 
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     fullName: overrides.fullName || `Test User ${seq}`,
     email: overrides.email || `test-${seq}-${Date.now()}@test.local`,
     phone: overrides.phone || `+595981${String(seq).padStart(6, '0')}`,
@@ -390,7 +393,7 @@ export function buildMedicalRecord(
 
   return {
     petId,
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     type: overrides.type || 'consultation',
     title: overrides.title || `Medical Record ${seq}`,
     diagnosis: overrides.diagnosis || 'Test diagnosis',
@@ -425,7 +428,7 @@ export async function createCompleteTestScenario(
   vaccines: VaccineFixture[]
   appointments: AppointmentFixture[]
 }> {
-  const { tenantId = 'adris', petCount = 2, vaccinesPerPet = 2, appointmentsPerPet = 1 } = options
+  const { tenantId = 'terrapet', petCount = 2, vaccinesPerPet = 2, appointmentsPerPet = 1 } = options
 
   // Create owner profile
   const profile = await createProfile({ tenantId, role: 'owner' })
@@ -480,9 +483,15 @@ export async function createMedicalRecord(
     .insert({
       pet_id: data.petId,
       tenant_id: data.tenantId,
-      created_by: data.performedBy || '00000000-0000-0000-0000-000000000001',
-      notes: `${data.type ? `Type: ${data.type}. ` : ''}${data.title ? `Title: ${data.title}. ` : ''}${data.diagnosis ? `Diagnosis: ${data.diagnosis}. ` : ''}${data.notes || ''}`,
-      vital_signs: data.vitals,
+      vet_id: data.performedBy,
+      record_type: data.type || 'consultation',
+      chief_complaint: data.title || 'General consultation',
+      diagnosis_text: data.diagnosis,
+      clinical_notes: data.notes,
+      weight_kg: data.vitals?.weight,
+      temperature_celsius: data.vitals?.temp,
+      heart_rate_bpm: data.vitals?.hr,
+      respiratory_rate_rpm: data.vitals?.rr,
     })
     .select()
     .single()
@@ -509,7 +518,7 @@ export interface InvoiceData {
 
 export function buildInvoice(overrides: Partial<InvoiceData> = {}): InvoiceData {
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     clientId: overrides.clientId || '00000000-0000-0000-0000-000000000001',
     status: overrides.status || 'draft',
     ...overrides,

@@ -31,7 +31,7 @@ import { setupDataSet, cleanupAllTestData, DATA_SETS } from './data-fixtures'
 
 const CONFIG = {
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
   outputDir: './screenshots',
   roles: ['public', 'owner', 'vet', 'admin'] as UserRole[],
   viewports: ['desktop', 'tablet', 'mobile'] as const,

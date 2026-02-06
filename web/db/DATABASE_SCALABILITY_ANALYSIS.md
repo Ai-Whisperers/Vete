@@ -43,7 +43,7 @@ At 5M tenants with 10 staff each = 50M profile rows. This function:
 
 ```sql
 -- Set at session start after auth
-SET app.current_tenant_id = 'adris';
+SET app.current_tenant_id = 'terrapet';
 SET app.current_user_role = 'vet';
 
 -- RLS policy becomes simple equality
@@ -140,7 +140,7 @@ ALTER TABLE medical_records_new RENAME TO medical_records;
 
 ### 1.3 Tenant ID Type Migration (MEDIUM PRIORITY)
 
-**Current**: `tenant_id TEXT` (e.g., "adris", "petlife")
+**Current**: `tenant_id TEXT` (e.g., "terrapet", "petlife")
 **Problem**: TEXT comparisons are slower than INTEGER/BIGINT
 
 **Trade-offs**:
@@ -329,7 +329,7 @@ SELECT cron.schedule('archive-old-records', '0 3 1 * *', 'SELECT archive_old_rec
 ├── products/           # GLOBAL catalog (tenant_id = NULL)
 │   └── *.json
 └── tenant-products/    # Clinic assignments (which products they carry)
-    ├── adris.json      # SKUs + pricing for Adris
+    ├── terrapet.json      # SKUs + pricing for Adris
     └── petlife.json    # SKUs + pricing for PetLife
 ```
 
@@ -381,7 +381,7 @@ AND indexname NOT LIKE '%_pkey';
 
 -- RLS policy cost
 EXPLAIN (ANALYZE, COSTS, VERBOSE)
-SELECT * FROM medical_records WHERE tenant_id = 'adris' LIMIT 10;
+SELECT * FROM medical_records WHERE tenant_id = 'terrapet' LIMIT 10;
 ```
 
 ---

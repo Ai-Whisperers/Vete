@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Gift, Users, TrendingUp, AlertCircle } from 'lucide-react'
+import { ArrowRight, Gift, AlertCircle } from 'lucide-react'
 
 interface ReferralStats {
   total_referrals: number

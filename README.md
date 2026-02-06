@@ -71,6 +71,7 @@ Vete/
 │   ├── features/                # Feature documentation
 │   ├── guides/                  # How-to guides
 │   ├── history/                 # Historical implementation notes
+│   ├── infrastructure/          # GCP/VM hosting guides
 │   └── tickets/                 # Feature/bug tickets
 └── scripts/                     # Utility scripts (Python)
 ```
@@ -151,7 +152,36 @@ npm run test:coverage:html
 
 ## 🚢 Deployment
 
-See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for detailed deployment procedures.
+### Hosting Options
+
+| Platform | Best For | Cost |
+|----------|----------|------|
+| **Vercel** | Quick deploys, auto-scaling | Free - $20/mo |
+| **GCP VM** | Full control, LatAm compliance | $0 - $35/mo |
+
+### Production URLs
+
+| Environment | URL | Hosting |
+|-------------|-----|---------|
+| Production (Vercel) | https://vetepy.vercel.app | Vercel |
+| Production (GCP) | http://34.151.201.27 | GCP e2-medium |
+
+### Deployment Guides
+
+- **Vercel**: Auto-deploys on push to `main` via [GitHub Actions](./.github/workflows/deploy.yml)
+- **GCP VMs**: See [GCP Hosting Guide](./documentation/infrastructure/GCP_HOSTING.md)
+
+### GCP Free Tier Quick Start
+
+```bash
+# New GCP accounts get $300 USD credits for 90 days
+# Post-trial: e2-micro (1GB RAM) is always free
+
+# Stack: Node.js 22 + PM2 + nginx + Certbot
+# Regions: southamerica-east1 (São Paulo) recommended for LatAm
+```
+
+See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for detailed procedures.
 
 ## 📞 Support
 

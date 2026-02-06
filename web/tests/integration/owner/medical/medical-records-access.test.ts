@@ -53,15 +53,12 @@ vi.mock('@/lib/api/errors', () => ({
 
 // Import routes AFTER mocks
 import { GET as GetMedicalRecords } from '@/app/api/medical-records/route'
-import { GET as GetMedicalRecordDetail } from '@/app/api/medical-records/[id]/route'
 import { GET as GetPrescriptions } from '@/app/api/prescriptions/route'
 import { GET as GetVaccines } from '@/app/api/vaccines/route'
 
 import {
   mockState,
   TENANTS,
-  USERS,
-  PETS,
   resetAllMocks,
   DEFAULT_OWNER,
   DEFAULT_VET,

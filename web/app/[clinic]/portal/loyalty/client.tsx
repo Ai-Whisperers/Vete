@@ -52,7 +52,7 @@ const TYPE_CONFIG = {
   bonus: { label: 'Bonus', icon: Gift, color: 'text-purple-600' },
 }
 
-export function LoyaltyClient({ clinic, transactions, redemptions }: LoyaltyClientProps) {
+export function LoyaltyClient({ clinic: _clinic, transactions, redemptions }: LoyaltyClientProps) {
   const [activeTab, setActiveTab] = useState<'transactions' | 'redemptions'>('transactions')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 

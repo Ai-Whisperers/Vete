@@ -73,7 +73,7 @@ describe('Business Logic', () => {
 
 ```typescript
 // Tenants
-TENANTS.ADRIS     // { id: 'adris', name: 'Veterinaria Adris', slug: 'adris' }
+TENANTS.ADRIS     // { id: 'terrapet', name: 'Veterinaria Adris', slug: 'terrapet' }
 TENANTS.PETLIFE   // { id: 'petlife', ... }
 TENANTS.TEST      // { id: 'test-tenant', ... }
 
@@ -169,14 +169,14 @@ testAuthorizationScenarios({
 ```typescript
 // Pet
 const pet = PetFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forOwner('owner-123')
   .asDog('Labrador')
   .build();
 
 // Appointment
 const appointment = AppointmentFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forPet('pet-123')
   .withVet('vet-456')
   .withStatus('confirmed')
@@ -184,7 +184,7 @@ const appointment = AppointmentFactory.create()
 
 // Invoice
 const invoice = InvoiceFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forClient('client-123')
   .withStatus('sent')
   .withAmount(150000)

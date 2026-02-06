@@ -9,7 +9,7 @@
  * Uses factory-created services and pets.
  */
 
-import { test, expect, portalUrl, getFirstPet, getFirstService, waitForLoadingComplete } from '../factories/test-fixtures'
+import { test, expect, portalUrl, getFirstPet, waitForLoadingComplete } from '../factories/test-fixtures'
 
 const APPOINTMENTS_URL = portalUrl('appointments')
 const BOOK_URL = portalUrl('appointments/new')

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import {
-  DAY_NAMES,
   getDayName,
   type DayOfWeek,
   type StaffScheduleEntry,

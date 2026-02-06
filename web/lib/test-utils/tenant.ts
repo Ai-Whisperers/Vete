@@ -50,7 +50,7 @@ export function createTenantContext(
  * Create multiple tenant contexts (for cross-tenant isolation tests)
  * 
  * @example
- * const [adrisVet, petlifeVet] = createMultiTenantContexts([
+ * const [terrapetVet, petlifeVet] = createMultiTenantContexts([
  *   [TENANT_IDS.ADRIS, 'vet'],
  *   [TENANT_IDS.PETLIFE, 'vet'],
  * ]);

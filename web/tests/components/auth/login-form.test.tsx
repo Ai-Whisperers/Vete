@@ -10,7 +10,7 @@
  *
  * @ticket TEST-002
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest'
 
 // Mock modules before component import
@@ -78,8 +78,8 @@ import { LoginForm } from '@/components/auth/login-form'
 
 describe('LoginForm', () => {
   const defaultProps = {
-    clinic: 'adris',
-    redirectTo: '/adris/portal/dashboard',
+    clinic: 'terrapet',
+    redirectTo: '/terrapet/portal/dashboard',
   }
 
   beforeEach(() => {
@@ -127,8 +127,8 @@ describe('LoginForm', () => {
       const clinicInput = document.querySelector('input[name="clinic"]')
       const redirectInput = document.querySelector('input[name="redirect"]')
 
-      expect(clinicInput).toHaveValue('adris')
-      expect(redirectInput).toHaveValue('/adris/portal/dashboard')
+      expect(clinicInput).toHaveValue('terrapet')
+      expect(redirectInput).toHaveValue('/terrapet/portal/dashboard')
     })
   })
 
@@ -137,18 +137,18 @@ describe('LoginForm', () => {
       render(<LoginForm {...defaultProps} />)
 
       const forgotLink = screen.getByText(/olvidaste tu contraseña/i)
-      expect(forgotLink).toHaveAttribute('href', '/adris/portal/forgot-password')
+      expect(forgotLink).toHaveAttribute('href', '/terrapet/portal/forgot-password')
     })
 
     it('renders signup link with correct href', () => {
       render(<LoginForm {...defaultProps} />)
 
       const signupLink = screen.getByText(/regístrate/i)
-      expect(signupLink).toHaveAttribute('href', '/adris/portal/signup')
+      expect(signupLink).toHaveAttribute('href', '/terrapet/portal/signup')
     })
 
     it('includes redirect param in signup link when redirectTo is not default', () => {
-      render(<LoginForm clinic="adris" redirectTo="/adris/portal/pets/123" />)
+      render(<LoginForm clinic="terrapet" redirectTo="/terrapet/portal/pets/123" />)
 
       const signupLink = screen.getByText(/regístrate/i)
       expect(signupLink.getAttribute('href')).toContain('redirect')

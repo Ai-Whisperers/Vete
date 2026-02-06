@@ -35,19 +35,19 @@ export const DEFAULT_MOCK_USER: MockUser = {
 }
 
 export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
-  tenant_id: 'tenant-adris',
+  tenant_id: 'tenant-terrapet',
   role: 'vet',
   full_name: 'Dr. Test',
 }
 
 export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
-  tenant_id: 'tenant-adris',
+  tenant_id: 'tenant-terrapet',
   role: 'admin',
   full_name: 'Admin User',
 }
 
 export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
-  tenant_id: 'tenant-adris',
+  tenant_id: 'tenant-terrapet',
   role: 'owner',
   full_name: 'Pet Owner',
 }

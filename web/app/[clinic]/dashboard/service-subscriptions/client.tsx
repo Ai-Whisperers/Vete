@@ -10,7 +10,6 @@
 import { RefreshCw, Truck, Package, AlertCircle } from 'lucide-react'
 import { useServiceSubscriptions } from './hooks/use-service-subscriptions'
 import {
-  StatusBadge,
   SubscriptionsTab,
   TodayTab,
   PlansTab,
@@ -18,7 +17,6 @@ import {
   PlanFormModal,
 } from './components'
 import { TABS } from './constants'
-import type { TabId } from './types'
 
 const ICON_MAP = {
   RefreshCw: RefreshCw,
@@ -30,7 +28,7 @@ interface ServiceSubscriptionsDashboardProps {
   clinic: string
 }
 
-export function ServiceSubscriptionsDashboard({ clinic }: ServiceSubscriptionsDashboardProps) {
+export function ServiceSubscriptionsDashboard({ clinic: _clinic }: ServiceSubscriptionsDashboardProps) {
   const {
     // Tab state
     activeTab,

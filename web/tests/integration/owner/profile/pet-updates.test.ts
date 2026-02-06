@@ -15,7 +15,6 @@ import {
   getSupabaseServerMock,
   resetAllMocks,
   DEFAULT_OWNER,
-  DEFAULT_VET,
   DEFAULT_PET,
   DEFAULT_TENANT,
 } from '@/lib/test-utils'

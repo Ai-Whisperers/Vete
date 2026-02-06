@@ -157,7 +157,7 @@ export const getInvoices = withActionAuth(
  * Get single invoice with all details
  */
 export const getInvoice = withActionAuth(
-  async ({ profile, user, isStaff, supabase }, invoiceId: string) => {
+  async ({ profile: _profile, user, isStaff, supabase }, invoiceId: string) => {
     const { data: invoice, error } = await supabase
       .from('invoices')
       .select(

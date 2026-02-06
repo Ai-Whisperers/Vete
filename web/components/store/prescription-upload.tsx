@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { Upload, X, FileText, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react'
+import { Upload, X, FileText, AlertCircle, Check, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -275,7 +275,7 @@ export function PrescriptionUpload({
     if (fileType === 'image' && previewUrl) {
       return (
         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img
             src={previewUrl}
             alt={t('previewAlt')}
@@ -386,7 +386,7 @@ export function PrescriptionUpload({
             {/* Show preview during upload for images */}
             {fileType === 'image' && previewUrl ? (
               <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <img
                   src={previewUrl}
                   alt={t('previewLoading')}

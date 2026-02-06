@@ -18,7 +18,7 @@
 
 - **Name:** Vete - Multi-Tenant Veterinary Platform
 - **Technology:** Next.js 15, TypeScript, Supabase (PostgreSQL), Tailwind CSS
-- **Tenants:** `adris`, `petlife`
+- **Tenants:** `terrapet`, `petlife`
 - **Architecture:** JSON-CMS with dynamic routing
 
 ### Key Features by Area
@@ -420,7 +420,7 @@ describe('Pet Management', () => {
 - **Priority:** `critical`, `high`, `medium`, `low`
 - **Feature:** `pets`, `vaccines`, `booking`, `inventory`, `finance`, etc.
 - **Area:** `public`, `portal`, `dashboard`, `api`, `clinical`
-- **Tenant:** `adris`, `petlife`, `multi-tenant`
+- **Tenant:** `terrapet`, `petlife`, `multi-tenant`
 - **Role:** `owner`, `vet`, `admin`
 
 ---

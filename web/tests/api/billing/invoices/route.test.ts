@@ -4,7 +4,7 @@
  * Tests authentication, authorization, tenant isolation, and platform invoice management
  */
 
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { GET } from '@/app/api/billing/invoices/route'
 import {
   setupIntegrationTest,
@@ -15,6 +15,7 @@ import {
   createTestRequest,
   expectSuccess,
   expectError,
+  getAuthTokenFromUser,
 } from '../../../__helpers__/integration-setup'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -31,6 +32,9 @@ describe('API: /api/billing/invoices', () => {
     const owner = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     ownerUser.userId = owner.userId
     ownerUser.profile.id = owner.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -38,7 +42,7 @@ describe('API: /api/billing/invoices', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   describe('GET /api/billing/invoices', () => {

@@ -6,14 +6,11 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
-  MedicalRecord,
   MedicalRecordWithDetails,
-  Prescription,
   PrescriptionWithDetails,
   MedicalRecordFilters,
   CreateMedicalRecordInput,
   CreatePrescriptionInput,
-  Vaccine,
   VaccineWithDetails,
   VaccineFilters,
   CreateVaccineInput,

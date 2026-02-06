@@ -34,28 +34,28 @@ This directory contains a new API-based approach to setting up your veterinary p
 
 ```bash
 # Clear all data for a tenant (useful for testing)
-npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant adris --type clear
+npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant terrapet --type clear
 ```
 
 ### Basic Setup (Development)
 
 ```bash
 # Setup basic clinic structure
-npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant adris --type basic
+npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant terrapet --type basic
 ```
 
 ### Full Setup (Testing)
 
 ```bash
 # Setup complete clinic with sample data
-npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant adris --type full
+npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant terrapet --type full
 ```
 
 ### Demo Setup (Showcase)
 
 ```bash
 # Setup complete demo environment
-npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant adris --type demo
+npx tsx db/seeds/scripts/setup-via-api.ts --env http://localhost:3000 --tenant terrapet --type demo
 ```
 
 ### Reset Environment (Clear + Setup)
@@ -70,7 +70,7 @@ npx tsx db/seeds/scripts/setup-via-api.ts --clear-first --type demo
 | Option                   | Description                                  | Default                 |
 | ------------------------ | -------------------------------------------- | ----------------------- |
 | `--env`, `--environment` | API base URL                                 | `http://localhost:3000` |
-| `--tenant`               | Tenant ID to setup                           | `adris`                 |
+| `--tenant`               | Tenant ID to setup                           | `terrapet`                 |
 | `--type`                 | Setup type: `basic`, `full`, `demo`, `clear` | `basic`                 |
 | `--token`                | Admin authentication token                   | Auto-login              |
 | `--no-skip`              | Don't skip existing entities                 | Skip existing           |
@@ -89,7 +89,7 @@ npx tsx db/seeds/scripts/setup-via-api.ts \
 # Development setup without skipping existing data
 npx tsx db/seeds/scripts/setup-via-api.ts \
   --env http://localhost:3000 \
-  --tenant adris \
+  --tenant terrapet \
   --type full \
   --no-skip
 ```
@@ -180,7 +180,7 @@ data/
 ├── 02-global/         # Pet owners, pets, medical history
 ├── 02-clinic/         # Clinic-specific configuration
 │   ├── _global/       # Shared templates
-│   ├── adris/         # Clinic-specific data
+│   ├── terrapet/         # Clinic-specific data
 │   └── petlife/       # Other clinics
 └── 03-store/          # E-commerce catalog
 ```
@@ -215,13 +215,13 @@ The setup provides real-time progress:
 ```
 🚀 Starting environment setup via API
    Environment: http://localhost:3000
-   Tenant: adris
+   Tenant: terrapet
    Setup Type: demo
 
 🔐 Authenticating...
 ✅ Authentication successful
 
-🏢 Switching to tenant: adris
+🏢 Switching to tenant: terrapet
 ✅ Tenant context set
 
 📋 Running DEMO setup (complete demo environment)
@@ -312,7 +312,7 @@ console.log('Response:', JSON.stringify(result, null, 2))
   run: |
     npx tsx db/seeds/scripts/setup-via-api.ts \
       --env ${{ secrets.API_URL }} \
-      --tenant adris \
+      --tenant terrapet \
       --type demo \
       --token ${{ secrets.ADMIN_TOKEN }}
 ```

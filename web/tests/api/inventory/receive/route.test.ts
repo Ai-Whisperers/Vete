@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest'
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   setupIntegrationTest,
@@ -10,6 +10,7 @@ import {
   expectError,
   cleanupManager,
   TEST_TENANT_ID,
+  getAuthTokenFromUser,
 } from '@/tests/__helpers__/integration-setup'
 import { POST } from '@/app/api/inventory/receive/route'
 
@@ -36,6 +37,9 @@ describe('API: /api/inventory/receive', () => {
     const ownerUser = await createTestAuthUser(supabase, 'owner', TEST_TENANT_ID)
     ownerUserId = ownerUser.userId
     ownerProfileId = ownerUser.profile.id
+
+    // Checkpoint: preserve shared resources across afterEach cleanups
+    cleanupManager.checkpoint()
   })
 
   afterAll(async () => {
@@ -43,7 +47,7 @@ describe('API: /api/inventory/receive', () => {
   })
 
   afterEach(async () => {
-    await cleanupManager.cleanupWithRetry()
+    await cleanupManager.cleanupSinceCheckpoint()
   })
 
   // =============================================================================

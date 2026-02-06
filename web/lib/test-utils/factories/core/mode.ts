@@ -30,7 +30,7 @@ export interface FactoryConfig {
 
 const DEFAULT_CONFIG: FactoryConfig = {
   mode: 'memory',
-  defaultTenant: 'adris',
+  defaultTenant: 'terrapet',
   autoTrackResources: true,
   logDeprecationWarnings: true,
 }

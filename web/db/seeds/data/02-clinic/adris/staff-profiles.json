@@ -5,7 +5,7 @@
     {
       "id": "a0000001-0001-0001-0001-000000000001",
       "profile_id": "550e8400-e29b-41d4-a716-446655440004",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "specializations": ["Medicina General", "Dermatología"],
       "license_number": "MV-PY-2018-0456",
       "license_expiry": "2026-12-31",
@@ -19,7 +19,7 @@
     {
       "id": "a0000001-0001-0001-0001-000000000002",
       "profile_id": "550e8400-e29b-41d4-a716-446655440005",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "specializations": ["Cirugía General", "Traumatología"],
       "license_number": "MV-PY-2015-0234",
       "license_expiry": "2026-12-31",

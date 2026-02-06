@@ -187,7 +187,7 @@ import { AuditLog, isAuditAction } from '@/lib/types'
 
 const log: AuditLog = {
   id: uuid(),
-  tenant_id: 'adris',
+  tenant_id: 'terrapet',
   user_id: userId,
   action: 'update',
   resource_type: 'pet',

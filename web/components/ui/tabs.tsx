@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, createContext, useContext, useRef, useEffect, type ReactNode } from 'react'
+import { useState, createContext, useContext, useRef, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import * as Icons from 'lucide-react'
 

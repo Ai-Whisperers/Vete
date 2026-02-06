@@ -776,25 +776,25 @@ export const TEST_USERS: Record<UserRole, UserCredentials> = {
     email: '',
     password: '',
     role: 'public',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
   owner: {
     email: 'owner1@test.local',
     password: 'TestPassword123!',
     role: 'owner',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
   vet: {
     email: 'vet1@test.local',
     password: 'TestPassword123!',
     role: 'vet',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
   admin: {
     email: 'admin@test.local',
     password: 'TestPassword123!',
     role: 'admin',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
   },
 }
 
@@ -806,7 +806,7 @@ export const SCREENSHOT_CONFIG = {
   /** Output directory for screenshots */
   outputDir: './screenshots',
   /** Default tenant */
-  defaultTenant: 'adris',
+  defaultTenant: 'terrapet',
   /** Viewport sizes */
   viewports: {
     desktop: { width: 1920, height: 1080 },

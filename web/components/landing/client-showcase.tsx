@@ -43,7 +43,7 @@ interface ClinicShowcase {
 
 const clinics: ClinicShowcase[] = [
   {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Veterinaria Adris',
     tagline: 'Cuidado Experto, Amor Incondicional',
     city: 'Asuncion',

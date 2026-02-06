@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import type { ApiResponse, SuccessResponse, ErrorResponse } from '@/lib/errors'
+import type { SuccessResponse } from '@/lib/errors'
 
 // Standard response types
 export interface ListResponse<T> extends SuccessResponse<T[]> {

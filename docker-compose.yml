@@ -1,137 +1,72 @@
 # =============================================================================
-# Vete Platform - Docker Compose
-# Self-hosted deployment with Supabase Cloud
+# Vete Platform - Docker Compose Configuration
 # =============================================================================
-#
-# IMPORTANT: This application REQUIRES Supabase Cloud for authentication.
-# The database uses Supabase's PostgreSQL with Row-Level Security (RLS).
-# RLS policies depend on auth.uid() which is a Supabase-specific function.
-#
-# Architecture:
-#   - Supabase Cloud: Authentication + Database + Storage (REQUIRED)
-#   - Redis: Local caching (OPTIONAL, improves performance)
-#   - vete-web: Next.js application container
 #
 # Usage:
-#   cp .env.docker.example .env
-#   # Edit .env with your Supabase credentials
-#   docker compose up -d
+#   Development:  docker-compose up
+#   Production:   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   With tunnel:  docker-compose --profile tunnel up -d
+#
+# Profiles:
+#   - default: Web application only
+#   - tunnel: Includes Cloudflare tunnel sidecar
 #
 # =============================================================================
+
+version: '3.8'
 
 services:
   # ---------------------------------------------------------------------------
-  # Redis Cache (Optional - enhances performance)
+  # Web Application (Next.js)
   # ---------------------------------------------------------------------------
-  redis:
-    image: redis:7-alpine
-    container_name: vete-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - vete-network
-
-  # ---------------------------------------------------------------------------
-  # Vete Next.js Application
-  # ---------------------------------------------------------------------------
-  vete-web:
+  web:
     build:
-      context: ./web
+      context: .
       dockerfile: Dockerfile
-      args:
-        # Build-time environment variables
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
     container_name: vete-web
-    restart: unless-stopped
-    environment:
-      # --- Supabase Configuration (REQUIRED) ---
-      # Database and auth are provided by Supabase Cloud
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-
-      # Direct database connection (for migrations/seeding only)
-      DATABASE_URL: ${DATABASE_URL}
-
-      # --- Application Settings ---
-      NODE_ENV: production
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
-      TZ: ${TZ:-America/Asuncion}
-
-      # --- Redis Cache (local) ---
-      CACHE_PROVIDER: redis
-      REDIS_URL: redis://redis:6379
-
-      # --- Email Configuration ---
-      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-resend}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      EMAIL_FROM: ${EMAIL_FROM:-noreply@veterinaria.com}
-      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Vete Platform}
-
-      # --- Stripe Payments (Optional) ---
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-
-      # --- Background Jobs (Optional) ---
-      INNGEST_EVENT_KEY: ${INNGEST_EVENT_KEY:-}
-      INNGEST_SIGNING_KEY: ${INNGEST_SIGNING_KEY:-}
-
-      # --- Cron Job Security ---
-      CRON_SECRET: ${CRON_SECRET}
-
-      # --- Feature Flags ---
-      ENABLE_STORE: ${ENABLE_STORE:-true}
-      ENABLE_WHATSAPP: ${ENABLE_WHATSAPP:-false}
-      ENABLE_HOSPITALIZATION: ${ENABLE_HOSPITALIZATION:-true}
-      ENABLE_LAB: ${ENABLE_LAB:-true}
-      ENABLE_INSURANCE: ${ENABLE_INSURANCE:-false}
-
-      # --- Rate Limiting ---
-      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
-      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
-      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
-
-      # --- Monitoring (Optional) ---
-      MONITORING_ENABLED: ${MONITORING_ENABLED:-false}
-      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
     ports:
-      - "${APP_PORT:-3000}:3000"
-    depends_on:
-      redis:
-        condition: service_healthy
+      - "3000:3000"
+    env_file:
+      - ./web/.env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 10s
     networks:
       - vete-network
 
-# -----------------------------------------------------------------------------
-# Networks
-# -----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  # Cloudflare Tunnel (Optional)
+  # ---------------------------------------------------------------------------
+  # Enable with: docker-compose --profile tunnel up
+  # Requires: ./cloudflared/config.yml and tunnel credentials
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: vete-tunnel
+    profiles:
+      - tunnel
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vete-network
+
 networks:
   vete-network:
     driver: bridge
 
-# -----------------------------------------------------------------------------
-# Volumes
-# -----------------------------------------------------------------------------
-volumes:
-  redis_data:
-    driver: local
+# =============================================================================
+# Volume mounts (uncomment if needed for development)
+# =============================================================================
+# volumes:
+#   node_modules:

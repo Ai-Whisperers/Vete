@@ -58,12 +58,12 @@ export interface ProductCardProps {
  * @example
  * ```tsx
  * // Minimal variant (simple listing)
- * <ProductCard product={product} clinic="adris" variant="minimal" />
+ * <ProductCard product={product} clinic="terrapet" variant="minimal" />
  *
  * // Full variant (with wishlist, quick view, ratings)
  * <ProductCard
  *   product={product}
- *   clinic="adris"
+ *   clinic="terrapet"
  *   variant="full"
  *   onQuickView={(p) => setQuickViewProduct(p)}
  * />
@@ -71,7 +71,7 @@ export interface ProductCardProps {
  * // Custom feature selection
  * <ProductCard
  *   product={product}
- *   clinic="adris"
+ *   clinic="terrapet"
  *   showWishlist={false}
  *   showQuickView={true}
  *   showRatings={true}

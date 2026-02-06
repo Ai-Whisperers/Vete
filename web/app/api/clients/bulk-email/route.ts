@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { sendEmail } from '@/lib/email/client'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'

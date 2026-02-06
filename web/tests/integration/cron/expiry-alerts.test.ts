@@ -183,7 +183,7 @@ describe('GET /api/cron/expiry-alerts', () => {
         {
           id: 'user-admin',
           full_name: 'Admin User',
-          email: 'admin@adris.com',
+          email: 'admin@terrapet.com',
           phone: '+595991234567',
         },
       ])
@@ -216,7 +216,7 @@ describe('GET /api/cron/expiry-alerts', () => {
       mockState.setTableResult('expired_products', [])
       mockState.setTableResult('staff_alert_preferences', [])
       mockState.setTableResult('profiles', [
-        { id: 'user-admin', full_name: 'Admin User', email: 'admin@adris.com' },
+        { id: 'user-admin', full_name: 'Admin User', email: 'admin@terrapet.com' },
       ])
 
       const response = await GET(
@@ -255,14 +255,14 @@ describe('GET /api/cron/expiry-alerts', () => {
           expiry_alerts: true,
           email_enabled: true,
           whatsapp_enabled: false,
-          notification_email: 'custom@adris.com',
+          notification_email: 'custom@terrapet.com',
           notification_phone: null,
           expiry_days_warning: 30,
           digest_frequency: 'daily',
           last_digest_sent_at: null,
           profile: {
             full_name: 'Admin User',
-            email: 'admin@adris.com',
+            email: 'admin@terrapet.com',
             phone: null,
           },
         },
@@ -272,7 +272,7 @@ describe('GET /api/cron/expiry-alerts', () => {
 
       expect(sendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: 'custom@adris.com',
+          to: 'custom@terrapet.com',
         })
       )
     })
@@ -305,7 +305,7 @@ describe('GET /api/cron/expiry-alerts', () => {
           last_digest_sent_at: null,
           profile: {
             full_name: 'Admin User',
-            email: 'admin@adris.com',
+            email: 'admin@terrapet.com',
             phone: '+595991234567',
           },
         },
@@ -341,14 +341,14 @@ describe('GET /api/cron/expiry-alerts', () => {
           expiry_alerts: true,
           email_enabled: true,
           whatsapp_enabled: false,
-          notification_email: 'admin@adris.com',
+          notification_email: 'admin@terrapet.com',
           notification_phone: null,
           expiry_days_warning: 30,
           digest_frequency: 'daily',
           last_digest_sent_at: recentTime,
           profile: {
             full_name: 'Admin User',
-            email: 'admin@adris.com',
+            email: 'admin@terrapet.com',
             phone: null,
           },
         },
@@ -384,7 +384,7 @@ describe('GET /api/cron/expiry-alerts', () => {
       ])
       mockState.setTableResult('staff_alert_preferences', [])
       mockState.setTableResult('profiles', [
-        { id: 'user-admin', full_name: 'Admin User', email: 'admin@adris.com' },
+        { id: 'user-admin', full_name: 'Admin User', email: 'admin@terrapet.com' },
       ])
 
       const response = await GET(

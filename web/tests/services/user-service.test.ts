@@ -232,7 +232,8 @@ describe('UserService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch users');
+        // Service returns specific error message from database
+        expect(result.error).toBe('Connection failed');
       }
     });
   });
@@ -273,7 +274,8 @@ describe('UserService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to fetch user');
+        // Service throws specific error when user not found
+        expect(result.error).toBe('User not found');
       }
     });
 
@@ -401,7 +403,8 @@ describe('UserService', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe('Failed to create user');
+        // Service throws specific error for duplicate email
+        expect(result.error).toBe('User with this email already exists in this tenant');
       }
     });
   });

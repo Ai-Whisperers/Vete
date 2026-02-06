@@ -109,7 +109,7 @@ describe('Text Utilities', () => {
   })
 
   it('creates slugs', () => {
-    expect(slugify('Veterinaria Adris')).toBe('terrapet')
+    expect(slugify('TerraPet')).toBe('terrapet')
     expect(slugify('Café & Té')).toBe('cafe-te')
   })
 

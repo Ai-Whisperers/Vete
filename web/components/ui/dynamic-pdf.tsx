@@ -62,26 +62,26 @@ export const DynamicPDFViewer = dynamic(
   }
 ) as ComponentType<any>
 
-// Dynamic utility functions
-export const getDynamicPdf = () => dynamic(
-  () => import('@react-pdf/renderer').then((mod) => ({ default: mod.pdf })),
-  { ssr: false }
-)
+// Dynamic utility functions (these are not components, so don't use next/dynamic)
+export const getDynamicPdf = async () => {
+  const mod = await import('@react-pdf/renderer')
+  return mod.pdf
+}
 
-export const getDynamicStyleSheet = () => dynamic(
-  () => import('@react-pdf/renderer').then((mod) => ({ default: mod.StyleSheet })),
-  { ssr: false }
-)
+export const getDynamicStyleSheet = async () => {
+  const mod = await import('@react-pdf/renderer')
+  return mod.StyleSheet
+}
 
-export const getDynamicRenderToBuffer = () => dynamic(
-  () => import('@react-pdf/renderer').then((mod) => ({ default: mod.renderToBuffer })),
-  { ssr: false }
-)
+export const getDynamicRenderToBuffer = async () => {
+  const mod = await import('@react-pdf/renderer')
+  return mod.renderToBuffer
+}
 
-export const getDynamicRenderToStream = () => dynamic(
-  () => import('@react-pdf/renderer').then((mod) => ({ default: mod.renderToStream })),
-  { ssr: false }
-)
+export const getDynamicRenderToStream = async () => {
+  const mod = await import('@react-pdf/renderer')
+  return mod.renderToStream
+}
 
 /**
  * Hook to dynamically import PDF utilities

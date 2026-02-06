@@ -84,8 +84,7 @@ const nextConfig = {
 
   // TypeScript and ESLint settings
   typescript: {
-    // TODO: Fix TS errors and set back to false
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,

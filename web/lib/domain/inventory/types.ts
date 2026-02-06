@@ -12,14 +12,15 @@
  * Transaction types for inventory movements
  */
 export type TransactionType = 
-  | 'purchase'    // Receiving stock from supplier
-  | 'sale'        // Selling to customer
-  | 'adjustment'  // Manual stock adjustment
-  | 'return'      // Customer return
-  | 'damage'      // Damaged goods
-  | 'theft'       // Theft/loss
-  | 'expired'     // Expired products
-  | 'transfer';   // Transfer between locations
+  | 'purchase'     // Receiving stock from supplier
+  | 'sale'         // Selling to customer
+  | 'adjustment'   // Manual stock adjustment
+  | 'return'       // Customer return
+  | 'damage'       // Damaged goods
+  | 'theft'        // Theft/loss
+  | 'expired'      // Expired products
+  | 'transfer'     // Transfer between locations
+  | 'reservation'; // Reserved for pending order
 
 // =============================================================================
 // ENTITY TYPES
@@ -104,6 +105,7 @@ export interface CreateInventoryData {
  */
 export interface UpdateInventoryData {
   stock_quantity?: number;
+  reserved_quantity?: number;
   min_stock_level?: number;
   reorder_quantity?: number;
   reorder_point?: number;

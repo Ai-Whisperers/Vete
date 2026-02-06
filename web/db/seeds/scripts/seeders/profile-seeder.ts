@@ -18,25 +18,25 @@ interface DemoProfile {
 }
 
 const DEMO_PROFILES: Record<string, DemoProfile[]> = {
-  adris: [
+  terrapet: [
     // Staff
     {
       full_name: 'Dra. Silvia Carolina Sánchez',
-      email: 'silvia@adris.vet',
+      email: 'silvia@terrapet.vet',
       phone: '+595981123456',
       role: 'vet',
       is_staff: true,
     },
     {
       full_name: 'Dr. Roberto Javier Díaz',
-      email: 'roberto@adris.vet',
+      email: 'roberto@terrapet.vet',
       phone: '+595981234567',
       role: 'vet',
       is_staff: true,
     },
     {
       full_name: 'Admin Adris',
-      email: 'admin@adris.vet',
+      email: 'admin@terrapet.vet',
       phone: '+595981345678',
       role: 'admin',
       is_staff: true,
@@ -44,21 +44,21 @@ const DEMO_PROFILES: Record<string, DemoProfile[]> = {
     // Demo accounts (with standard passwords for testing)
     {
       full_name: 'Dr. Test Veterinario',
-      email: 'vet@adris.demo',
+      email: 'vet@terrapet.demo',
       phone: '+595981111111',
       role: 'vet',
       is_staff: true,
     },
     {
       full_name: 'Admin Test',
-      email: 'admin@adris.demo',
+      email: 'admin@terrapet.demo',
       phone: '+595981222222',
       role: 'admin',
       is_staff: true,
     },
     {
       full_name: 'Cliente Test (Adris)',
-      email: 'cliente@adris.demo',
+      email: 'cliente@terrapet.demo',
       phone: '+595981333333',
       role: 'owner',
     },

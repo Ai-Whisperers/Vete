@@ -19,7 +19,7 @@ All clinic configuration data is strongly typed to ensure type safety across the
 import { getClinicData } from '@/lib/clinics'
 import type { ClinicData, Service, TeamMember } from '@/lib/clinics'
 
-const clinicData = await getClinicData('adris')
+const clinicData = await getClinicData('terrapet')
 ```
 
 ### Import directly from types

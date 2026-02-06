@@ -8,7 +8,7 @@
 import { test, expect } from '@playwright/test'
 import { createScreenshotHelper, waitForPageReady } from '../helpers/screenshot-helper'
 
-const E2E_TENANT = 'adris'
+const E2E_TENANT = 'terrapet'
 const LOGIN_URL = `/${E2E_TENANT}/portal/login`
 const DASHBOARD_URL = `/${E2E_TENANT}/portal/dashboard`
 

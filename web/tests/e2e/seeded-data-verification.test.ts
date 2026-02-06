@@ -5,7 +5,7 @@
  * and that the application can properly display and interact with it.
  *
  * Prerequisites:
- * - Run the seed script: npx tsx web/db/seeds/scripts/seed-adris-demo.ts
+ * - Run the seed script: npx tsx web/db/seeds/scripts/seed-terrapet-demo.ts
  * - Start the dev server: npm run dev
  */
 
@@ -44,7 +44,7 @@ interface AppointmentRow {
   pet_id: string
 }
 
-const TENANT_ID = 'adris'
+const TENANT_ID = 'terrapet'
 
 describe('Seeded Data Verification', () => {
   beforeAll(() => {

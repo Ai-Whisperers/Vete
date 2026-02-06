@@ -11,15 +11,15 @@ import * as path from 'path'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
   outputDir: './screenshots',
   viewport: { width: 1920, height: 1080 },
 }
 
 const CREDENTIALS = {
-  owner: { email: 'owner@adris.demo', password: 'demo123' },
-  vet: { email: 'vet@adris.demo', password: 'demo123' },
-  admin: { email: 'admin@adris.demo', password: 'demo123' },
+  owner: { email: 'owner@terrapet.demo', password: 'demo123' },
+  vet: { email: 'vet@terrapet.demo', password: 'demo123' },
+  admin: { email: 'admin@terrapet.demo', password: 'demo123' },
 }
 
 function ensureDir(dir: string): void {

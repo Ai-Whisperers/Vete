@@ -1,7 +1,7 @@
 {
   "$schema": "../_TEMPLATE/images-schema.json",
   "version": "1.0",
-  "basePath": "/branding/adris/images",
+  "basePath": "/branding/terrapet/images",
   "images": {
     "hero": {
       "main": {
@@ -319,9 +319,9 @@
     "service": "/images/placeholders/service-placeholder.jpg"
   },
   "testimonials": {
-    "pet-1": "/branding/adris/images/testimonials/pet-1.jpg",
-    "pet-2": "/branding/adris/images/testimonials/pet-2.jpg",
-    "pet-5": "/branding/adris/images/testimonials/pet-5.jpg",
-    "pet-6": "/branding/adris/images/testimonials/pet-6.jpg"
+    "pet-1": "/branding/terrapet/images/testimonials/pet-1.jpg",
+    "pet-2": "/branding/terrapet/images/testimonials/pet-2.jpg",
+    "pet-5": "/branding/terrapet/images/testimonials/pet-5.jpg",
+    "pet-6": "/branding/terrapet/images/testimonials/pet-6.jpg"
   }
 }

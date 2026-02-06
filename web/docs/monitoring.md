@@ -146,7 +146,7 @@ LOG_LEVEL=info
 All logs automatically include tenant information for filtering:
 ```json
 {
-  "tenant": "clinic-adris",
+  "tenant": "clinic-terrapet",
   "userId": "user_123",
   "userRole": "vet",
   "action": "pet.create"
@@ -169,7 +169,7 @@ import { createRequestLogger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const log = createRequestLogger(request, { 
-    tenant: 'clinic-adris' 
+    tenant: 'clinic-terrapet' 
   })
   
   log.info('Processing pet request')
@@ -187,14 +187,14 @@ import { auditLogger } from '@/lib/logger'
 auditLogger.auth('login', {
   userId: 'user_123',
   email: 'vet@clinic.com',
-  tenant: 'clinic-adris',
+  tenant: 'clinic-terrapet',
   success: true
 })
 
 // Data access tracking
 auditLogger.access('pet', 'pet_456', 'read', {
   userId: 'user_123',
-  tenant: 'clinic-adris'
+  tenant: 'clinic-terrapet'
 })
 
 // Security events

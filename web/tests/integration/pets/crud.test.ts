@@ -495,8 +495,8 @@ describe('Pet CRUD Operations', () => {
     test('pets are isolated by tenant', async () => {
       const client = getTestClient({ serviceRole: true })
 
-      // Create pet in adris
-      const { data: adrisPet } = await client
+      // Create pet in terrapet
+      const { data: terrapetPet } = await client
         .from('pets')
         .insert({
           owner_id: testOwnerId,
@@ -507,7 +507,7 @@ describe('Pet CRUD Operations', () => {
         })
         .select()
         .single()
-      ctx.track('pets', adrisPet.id)
+      ctx.track('pets', terrapetPet.id)
 
       // Create pet in petlife
       const { data: petlifePet } = await client
@@ -523,19 +523,19 @@ describe('Pet CRUD Operations', () => {
         .single()
       ctx.track('pets', petlifePet.id)
 
-      // Query adris pets
-      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
+      // Query terrapet pets
+      const { data: terrapetPets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.ADRIS)
 
       // Query petlife pets
       const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
-      expect(adrisPets).not.toBeNull()
+      expect(terrapetPets).not.toBeNull()
       expect(petlifePets).not.toBeNull()
-      expect(adrisPets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(true)
-      expect(adrisPets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false)
+      expect(terrapetPets!.some((p: { id: string }) => p.id === terrapetPet.id)).toBe(true)
+      expect(terrapetPets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false)
       expect(petlifePets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(true)
-      expect(petlifePets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(false)
+      expect(petlifePets!.some((p: { id: string }) => p.id === terrapetPet.id)).toBe(false)
     })
   })
 })

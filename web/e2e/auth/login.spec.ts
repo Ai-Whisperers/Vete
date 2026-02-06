@@ -19,12 +19,12 @@ import { verifyUrl, waitForHeading } from '../helpers/navigation';
 
 test.describe('Authentication - Login Flows', () => {
   test.describe('Pet Owner Login', () => {
-    test('should login as owner and access pet portal @owner @adris', async ({ page }) => {
+    test('should login as owner and access pet portal @owner @terrapet', async ({ page }) => {
       // Act: Login as pet owner
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Assert: Redirected to pet owner portal
-      await verifyUrl(page, /\/adris\/portal/);
+      await verifyUrl(page, /\/terrapet\/portal/);
 
       // Assert: Portal content visible - check for greeting or portal actions
       const portalContent = page.getByRole('heading', { name: /good (morning|afternoon|evening)/i }).or(
@@ -43,36 +43,36 @@ test.describe('Authentication - Login Flows', () => {
       expect(loggedIn).toBe(true);
     });
 
-    test('should prevent owner from accessing staff dashboard @owner @adris @security', async ({ page }) => {
+    test('should prevent owner from accessing staff dashboard @owner @terrapet @security', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Act: Try to access staff dashboard
-      await verifyUnauthorizedAccess(page, '/adris/dashboard', /\/adris\/portal/);
+      await verifyUnauthorizedAccess(page, '/terrapet/dashboard', /\/terrapet\/portal/);
 
       // Assert: Should be redirected back to portal, not dashboard
-      await verifyUrl(page, /\/adris\/portal/);
+      await verifyUrl(page, /\/terrapet\/portal/);
     });
 
-    test('should prevent owner from accessing admin panel @owner @adris @security', async ({ page }) => {
+    test('should prevent owner from accessing admin panel @owner @terrapet @security', async ({ page }) => {
       // Arrange: Login as owner
-      await loginAs(page, 'adris', 'owner');
+      await loginAs(page, 'terrapet', 'owner');
 
       // Act: Try to access admin panel
-      await verifyUnauthorizedAccess(page, '/adris/admin', /\/adris\/portal/);
+      await verifyUnauthorizedAccess(page, '/terrapet/admin', /\/terrapet\/portal/);
 
       // Assert: Should be redirected back to portal
-      await verifyUrl(page, /\/adris\/portal/);
+      await verifyUrl(page, /\/terrapet\/portal/);
     });
   });
 
   test.describe('Veterinarian Login', () => {
-    test('should login as vet and access staff dashboard @vet @adris', async ({ page }) => {
+    test('should login as vet and access staff dashboard @vet @terrapet', async ({ page }) => {
       // Act: Login as veterinarian
-      await loginAs(page, 'adris', 'vet');
+      await loginAs(page, 'terrapet', 'vet');
 
       // Assert: Redirected to staff dashboard
-      await verifyUrl(page, /\/adris\/dashboard/);
+      await verifyUrl(page, /\/terrapet\/dashboard/);
 
       // Assert: Dashboard navigation visible
       const dashboardNav = page.locator('nav');
@@ -87,62 +87,62 @@ test.describe('Authentication - Login Flows', () => {
       expect(loggedIn).toBe(true);
     });
 
-    test('should allow vet to access patient management @vet @adris', async ({ page }) => {
+    test('should allow vet to access patient management @vet @terrapet', async ({ page }) => {
       // Arrange: Login as vet
-      await loginAs(page, 'adris', 'vet');
+      await loginAs(page, 'terrapet', 'vet');
 
       // Act: Navigate to patients section
-      await page.goto('/adris/dashboard/patients');
+      await page.goto('/terrapet/dashboard/patients');
 
       // Assert: Can access patients page
-      await verifyUrl(page, /\/adris\/dashboard\/patients/);
+      await verifyUrl(page, /\/terrapet\/dashboard\/patients/);
       await waitForHeading(page, 'Pacientes');
     });
 
-    test('should prevent vet from accessing admin panel @vet @adris @security', async ({ page }) => {
+    test('should prevent vet from accessing admin panel @vet @terrapet @security', async ({ page }) => {
       // Arrange: Login as vet
-      await loginAs(page, 'adris', 'vet');
+      await loginAs(page, 'terrapet', 'vet');
 
       // Act: Try to access admin panel
-      await verifyUnauthorizedAccess(page, '/adris/admin', /\/adris\/dashboard/);
+      await verifyUnauthorizedAccess(page, '/terrapet/admin', /\/terrapet\/dashboard/);
 
       // Assert: Should be redirected back to dashboard
-      await verifyUrl(page, /\/adris\/dashboard/);
+      await verifyUrl(page, /\/terrapet\/dashboard/);
     });
   });
 
   test.describe('Administrator Login', () => {
-    test('should login as admin and access all areas @admin @adris', async ({ page }) => {
+    test('should login as admin and access all areas @admin @terrapet', async ({ page }) => {
       // Act: Login as administrator
-      await loginAs(page, 'adris', 'admin');
+      await loginAs(page, 'terrapet', 'admin');
 
       // Assert: Can access admin panel
-      await page.goto('/adris/admin');
-      await verifyUrl(page, /\/adris\/admin/);
+      await page.goto('/terrapet/admin');
+      await verifyUrl(page, /\/terrapet\/admin/);
 
       // Assert: Admin panel content visible
       const adminHeading = page.locator('h1:has-text("Administración"), h2:has-text("Administración")').first();
       await expect(adminHeading).toBeVisible({ timeout: 10000 });
 
       // Assert: Can also access dashboard
-      await page.goto('/adris/dashboard');
-      await verifyUrl(page, /\/adris\/dashboard/);
+      await page.goto('/terrapet/dashboard');
+      await verifyUrl(page, /\/terrapet\/dashboard/);
 
       // Assert: User is logged in
       const loggedIn = await isLoggedIn(page);
       expect(loggedIn).toBe(true);
     });
 
-    test('should allow admin to access all modules @admin @adris', async ({ page }) => {
+    test('should allow admin to access all modules @admin @terrapet', async ({ page }) => {
       // Arrange: Login as admin
-      await loginAs(page, 'adris', 'admin');
+      await loginAs(page, 'terrapet', 'admin');
 
       // Act & Assert: Check access to key modules
       const modules = [
-        { path: '/adris/dashboard', name: 'Dashboard' },
-        { path: '/adris/admin', name: 'Admin' },
-        { path: '/adris/dashboard/patients', name: 'Patients' },
-        { path: '/adris/dashboard/appointments', name: 'Appointments' },
+        { path: '/terrapet/dashboard', name: 'Dashboard' },
+        { path: '/terrapet/admin', name: 'Admin' },
+        { path: '/terrapet/dashboard/patients', name: 'Patients' },
+        { path: '/terrapet/dashboard/appointments', name: 'Appointments' },
       ];
 
       for (const module of modules) {
@@ -157,8 +157,8 @@ test.describe('Authentication - Login Flows', () => {
   test.describe('Multi-Tenant Login', () => {
     test('should login to different clinics independently @owner @multi-tenant', async ({ page }) => {
       // Act & Assert: Login to Adris
-      await loginAs(page, 'adris', 'owner');
-      await verifyUrl(page, /\/adris\/portal/);
+      await loginAs(page, 'terrapet', 'owner');
+      await verifyUrl(page, /\/terrapet\/portal/);
       await logout(page);
 
       // Act & Assert: Login to PetLife
@@ -168,7 +168,7 @@ test.describe('Authentication - Login Flows', () => {
 
     test('should enforce tenant boundaries in URLs @vet @multi-tenant', async ({ page }) => {
       // Arrange: Login to Adris as vet
-      await loginAs(page, 'adris', 'vet');
+      await loginAs(page, 'terrapet', 'vet');
 
       // Act: Try to access PetLife dashboard with Adris credentials
       await page.goto('/petlife/dashboard');
@@ -181,9 +181,9 @@ test.describe('Authentication - Login Flows', () => {
   });
 
   test.describe('Invalid Credentials', () => {
-    test('should reject invalid email @unauthenticated @adris', async ({ page }) => {
+    test('should reject invalid email @unauthenticated @terrapet', async ({ page }) => {
       // Arrange
-      await page.goto('/adris/login');
+      await page.goto('/terrapet/login');
 
       // Act: Try to login with invalid email
       await page.fill('input[name="email"]', 'nonexistent@example.com');
@@ -199,12 +199,12 @@ test.describe('Authentication - Login Flows', () => {
       await verifyUrl(page, /\/login/);
     });
 
-    test('should reject invalid password @unauthenticated @adris', async ({ page }) => {
+    test('should reject invalid password @unauthenticated @terrapet', async ({ page }) => {
       // Arrange
-      await page.goto('/adris/login');
+      await page.goto('/terrapet/login');
 
       // Act: Try to login with valid email but wrong password
-      await page.fill('input[name="email"]', 'owner@adris.demo');
+      await page.fill('input[name="email"]', 'owner@terrapet.demo');
       await page.fill('input[name="password"]', 'wrongpassword123');
       await page.click('button[type="submit"]');
 
@@ -217,9 +217,9 @@ test.describe('Authentication - Login Flows', () => {
       await verifyUrl(page, /\/login/);
     });
 
-    test('should reject empty credentials @unauthenticated @adris', async ({ page }) => {
+    test('should reject empty credentials @unauthenticated @terrapet', async ({ page }) => {
       // Arrange
-      await page.goto('/adris/login');
+      await page.goto('/terrapet/login');
 
       // Act: Try to submit empty form
       await page.click('button[type="submit"]');
@@ -234,21 +234,21 @@ test.describe('Authentication - Login Flows', () => {
   test.describe('Unauthenticated Access', () => {
     test('should redirect unauthenticated user from protected routes @unauthenticated @security', async ({ page }) => {
       // Act & Assert: Try to access portal without login
-      await verifyUnauthorizedAccess(page, '/adris/portal', /\/login/);
+      await verifyUnauthorizedAccess(page, '/terrapet/portal', /\/login/);
 
       // Act & Assert: Try to access dashboard without login
-      await verifyUnauthorizedAccess(page, '/adris/dashboard', /\/login/);
+      await verifyUnauthorizedAccess(page, '/terrapet/dashboard', /\/login/);
 
       // Act & Assert: Try to access admin without login
-      await verifyUnauthorizedAccess(page, '/adris/admin', /\/login/);
+      await verifyUnauthorizedAccess(page, '/terrapet/admin', /\/login/);
     });
 
     test('should allow access to public pages @unauthenticated @public', async ({ page }) => {
       // Act: Visit home page
-      await page.goto('/adris');
+      await page.goto('/terrapet');
 
       // Assert: Should load successfully
-      await expect(page).toHaveURL(/\/adris/);
+      await expect(page).toHaveURL(/\/terrapet/);
 
       // Assert: Should show login link or button
       const loginLink = page.locator('a:has-text("Iniciar sesión"), button:has-text("Iniciar sesión")').first();

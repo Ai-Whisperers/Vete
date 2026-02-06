@@ -13,8 +13,8 @@ export const REDIRECT_PARAM = 'redirect'
  * Creates a login URL with an optional return path
  *
  * @example
- * createLoginUrl('adris') // '/adris/portal/login'
- * createLoginUrl('adris', '/adris/portal/pets') // '/adris/portal/login?redirect=%2Fadris%2Fportal%2Fpets'
+ * createLoginUrl('terrapet') // '/terrapet/portal/login'
+ * createLoginUrl('terrapet', '/terrapet/portal/pets') // '/terrapet/portal/login?redirect=%2Fterrapet%2Fportal%2Fpets'
  */
 export function createLoginUrl(clinic: string, returnPath?: string): string {
   const base = `/${clinic}/portal/login`

@@ -13,7 +13,7 @@
  * - inline: Inline ad within content
  *
  * Usage:
- * <AdBanner placement="top" tenantTier="gratis" tenantId="adris" />
+ * <AdBanner placement="top" tenantTier="gratis" tenantId="terrapet" />
  */
 
 import { useEffect, useState } from 'react'

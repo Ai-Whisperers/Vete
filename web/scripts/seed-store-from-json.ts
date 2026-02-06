@@ -58,7 +58,7 @@ async function main() {
     console.log('Connected to DB')
 
     // Read JSON
-    const jsonPath = path.resolve(__dirname, '../.content_data/adris/store/products.json')
+    const jsonPath = path.resolve(__dirname, '../.content_data/terrapet/store/products.json')
     const rawData = fs.readFileSync(jsonPath, 'utf-8')
     const products = JSON.parse(rawData)
 
@@ -77,7 +77,7 @@ async function main() {
       if (!catId) {
         // Try selecting
         const catRes = await client.query(
-          "SELECT id FROM store_categories WHERE slug = $1 AND tenant_id = 'adris'",
+          "SELECT id FROM store_categories WHERE slug = $1 AND tenant_id = 'terrapet'",
           [catSlug]
         )
         if (catRes.rows.length > 0) {
@@ -87,7 +87,7 @@ async function main() {
           const insertRes = await client.query(
             `
             INSERT INTO store_categories (tenant_id, name, slug, is_active)
-            VALUES ('adris', $1, $2, true)
+            VALUES ('terrapet', $1, $2, true)
             RETURNING id
           `,
             [catName, catSlug]
@@ -105,7 +105,7 @@ async function main() {
 
       if (!brandId) {
         const brandRes = await client.query(
-          "SELECT id FROM store_brands WHERE slug = $1 AND tenant_id = 'adris'",
+          "SELECT id FROM store_brands WHERE slug = $1 AND tenant_id = 'terrapet'",
           [brandSlug]
         )
         if (brandRes.rows.length > 0) {
@@ -114,7 +114,7 @@ async function main() {
           const insertRes = await client.query(
             `
             INSERT INTO store_brands (tenant_id, name, slug, is_active)
-            VALUES ('adris', $1, $2, true)
+            VALUES ('terrapet', $1, $2, true)
             RETURNING id
           `,
             [brandName, brandSlug]
@@ -143,7 +143,7 @@ async function main() {
             category_id, brand_id, is_active
         )
         VALUES (
-            'adris', $1, $2, $3, $4, 
+            'terrapet', $1, $2, $3, $4, 
             $5, $6, $7, $8, 
             $9, $10, true
         )
@@ -174,7 +174,7 @@ async function main() {
       await client.query(
         `
         INSERT INTO store_inventory (product_id, tenant_id, stock_quantity, min_stock_level)
-        VALUES ($1, 'adris', 100, 5)
+        VALUES ($1, 'terrapet', 100, 5)
         ON CONFLICT (product_id) DO NOTHING
       `,
         [productId]
@@ -186,7 +186,7 @@ async function main() {
         INSERT INTO clinic_product_assignments (
             tenant_id, catalog_product_id, sale_price, min_stock_level, is_active
         )
-        VALUES ('adris', $1, $2, 5, true)
+        VALUES ('terrapet', $1, $2, 5, true)
         ON CONFLICT (tenant_id, catalog_product_id) DO NOTHING
       `,
         [productId, p.price]

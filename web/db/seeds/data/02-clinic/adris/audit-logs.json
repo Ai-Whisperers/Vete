@@ -3,12 +3,12 @@
   "_comment": "Audit trail for security and compliance tracking",
   "audit_logs": [
     {
-      "id": "audit-001-adris",
-      "tenant_id": "adris",
+      "id": "audit-001-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "create",
       "resource": "prescription",
-      "resource_id": "rx-001-adris",
+      "resource_id": "rx-001-terrapet",
       "new_values": {
         "pet_id": "660e8400-e29b-41d4-a716-446655440001",
         "medications": ["Amoxicilina 500mg"]
@@ -19,12 +19,12 @@
       "created_at": "{{hoursAgo(2)}}"
     },
     {
-      "id": "audit-002-adris",
-      "tenant_id": "adris",
+      "id": "audit-002-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "update",
       "resource": "medical_record",
-      "resource_id": "mr-001-adris",
+      "resource_id": "mr-001-terrapet",
       "old_values": { "diagnosis": "Otitis externa" },
       "new_values": {
         "diagnosis": "Otitis externa bilateral",
@@ -36,8 +36,8 @@
       "created_at": "{{hoursAgo(4)}}"
     },
     {
-      "id": "audit-003-adris",
-      "tenant_id": "adris",
+      "id": "audit-003-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440001",
       "action": "login",
       "resource": "session",
@@ -47,20 +47,20 @@
       "created_at": "{{hoursAgo(1)}}"
     },
     {
-      "id": "audit-004-adris",
-      "tenant_id": "adris",
+      "id": "audit-004-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "export",
       "resource": "invoice",
-      "resource_id": "inv-001-adris",
+      "resource_id": "inv-001-terrapet",
       "metadata": { "format": "pdf", "reason": "client_request" },
       "ip_address": "192.168.1.101",
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
       "created_at": "{{hoursAgo(6)}}"
     },
     {
-      "id": "audit-005-adris",
-      "tenant_id": "adris",
+      "id": "audit-005-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "create",
       "resource": "appointment",
@@ -76,8 +76,8 @@
       "created_at": "{{hoursAgo(8)}}"
     },
     {
-      "id": "audit-006-adris",
-      "tenant_id": "adris",
+      "id": "audit-006-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "delete",
       "resource": "expense",
@@ -89,8 +89,8 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "audit-007-adris",
-      "tenant_id": "adris",
+      "id": "audit-007-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "view",
       "resource": "patient_history",
@@ -104,12 +104,12 @@
       "created_at": "{{hoursAgo(3)}}"
     },
     {
-      "id": "audit-008-adris",
-      "tenant_id": "adris",
+      "id": "audit-008-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "update",
       "resource": "invoice",
-      "resource_id": "inv-002-adris",
+      "resource_id": "inv-002-terrapet",
       "old_values": { "status": "sent" },
       "new_values": { "status": "paid", "payment_method": "card" },
       "metadata": { "payment_reference": "TXN-2025-00234" },
@@ -118,8 +118,8 @@
       "created_at": "{{daysAgo(2)}}"
     },
     {
-      "id": "audit-009-adris",
-      "tenant_id": "adris",
+      "id": "audit-009-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440002",
       "action": "login",
       "resource": "session",
@@ -129,12 +129,12 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "audit-010-adris",
-      "tenant_id": "adris",
+      "id": "audit-010-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "create",
       "resource": "hospitalization",
-      "resource_id": "hosp-001-adris",
+      "resource_id": "hosp-001-terrapet",
       "new_values": {
         "pet_id": "660e8400-e29b-41d4-a716-446655440002",
         "kennel": "K-01",
@@ -146,12 +146,12 @@
       "created_at": "{{daysAgo(5)}}"
     },
     {
-      "id": "audit-011-adris",
-      "tenant_id": "adris",
+      "id": "audit-011-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "approve",
       "resource": "expense",
-      "resource_id": "exp-001-adris",
+      "resource_id": "exp-001-terrapet",
       "old_values": { "status": "pending" },
       "new_values": { "status": "approved" },
       "metadata": { "amount": 850000, "category": "supplies" },
@@ -160,12 +160,12 @@
       "created_at": "{{daysAgo(6)}}"
     },
     {
-      "id": "audit-012-adris",
-      "tenant_id": "adris",
+      "id": "audit-012-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "update",
       "resource": "store_order",
-      "resource_id": "ord-003-adris",
+      "resource_id": "ord-003-terrapet",
       "old_values": { "status": "processing" },
       "new_values": { "status": "shipped", "tracking_number": "PY2025123456" },
       "metadata": { "shipping_method": "delivery" },
@@ -174,8 +174,8 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "audit-013-adris",
-      "tenant_id": "adris",
+      "id": "audit-013-terrapet",
+      "tenant_id": "terrapet",
       "user_id": null,
       "action": "system",
       "resource": "backup",
@@ -185,24 +185,24 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "audit-014-adris",
-      "tenant_id": "adris",
+      "id": "audit-014-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440005",
       "action": "create",
       "resource": "staff_invite",
-      "new_values": { "email": "nuevo.vet@adris.com", "role": "vet" },
-      "metadata": { "sent_to": "nuevo.vet@adris.com" },
+      "new_values": { "email": "nuevo.vet@terrapet.com", "role": "vet" },
+      "metadata": { "sent_to": "nuevo.vet@terrapet.com" },
       "ip_address": "192.168.1.101",
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
       "created_at": "{{daysAgo(3)}}"
     },
     {
-      "id": "audit-015-adris",
-      "tenant_id": "adris",
+      "id": "audit-015-terrapet",
+      "tenant_id": "terrapet",
       "user_id": "550e8400-e29b-41d4-a716-446655440004",
       "action": "approve",
       "resource": "prescription_order",
-      "resource_id": "ord-015-adris",
+      "resource_id": "ord-015-terrapet",
       "old_values": { "prescription_status": "pending" },
       "new_values": { "prescription_status": "approved" },
       "metadata": { "requires_prescription": true, "approved_by_vet": true },

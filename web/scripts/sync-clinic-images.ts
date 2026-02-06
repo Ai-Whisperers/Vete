@@ -6,7 +6,7 @@
  *
  * Usage:
  *   npx tsx scripts/sync-clinic-images.ts           # Sync all clinics
- *   npx tsx scripts/sync-clinic-images.ts adris     # Sync specific clinic
+ *   npx tsx scripts/sync-clinic-images.ts terrapet     # Sync specific clinic
  *   npx tsx scripts/sync-clinic-images.ts --watch   # Watch mode for development
  */
 
@@ -210,7 +210,7 @@ Clinic Images Sync Script
 
 Usage:
   npx tsx scripts/sync-clinic-images.ts           # Sync all clinics
-  npx tsx scripts/sync-clinic-images.ts adris     # Sync specific clinic
+  npx tsx scripts/sync-clinic-images.ts terrapet     # Sync specific clinic
   npx tsx scripts/sync-clinic-images.ts --watch   # Watch mode for development
   npx tsx scripts/sync-clinic-images.ts --help    # Show this help
 

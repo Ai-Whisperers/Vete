@@ -11,7 +11,7 @@
  *   service={service}
  *   allServices={allServices}
  *   config={clinicConfig}
- *   clinic="adris"
+ *   clinic="terrapet"
  *   isLoggedIn={true}
  * />
  * ```

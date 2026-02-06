@@ -39,7 +39,7 @@ npx tsx db/seeds/scripts/seed.ts [options]
 
 Options:
   --type, -t <type>     Seed type: basic, reference, full, demo (default: demo)
-  --tenant <id>         Tenant ID to seed (default: adris)
+  --tenant <id>         Tenant ID to seed (default: terrapet)
   --tenants <ids>       Comma-separated tenant IDs
   --clear               Clear existing tenant data first
   --verbose, -v         Verbose output
@@ -49,11 +49,11 @@ Options:
 ### Examples
 
 ```bash
-# Seed demo data for adris tenant
-npx tsx db/seeds/scripts/seed.ts --type demo --tenant adris
+# Seed demo data for terrapet tenant
+npx tsx db/seeds/scripts/seed.ts --type demo --tenant terrapet
 
-# Seed both adris and petlife with full data
-npx tsx db/seeds/scripts/seed.ts --type full --tenants adris,petlife
+# Seed both terrapet and petlife with full data
+npx tsx db/seeds/scripts/seed.ts --type full --tenants terrapet,petlife
 
 # Clear existing data and reseed with demo data
 npx tsx db/seeds/scripts/seed.ts --clear --type demo
@@ -95,7 +95,7 @@ setMode('seed')
 
 // Create an owner with VIP persona
 const owner = await OwnerFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .withPersona('vip')
   .withName('Carlos Benítez')
   .withAddress()
@@ -103,7 +103,7 @@ const owner = await OwnerFactory.create()
 
 // Create a pet with vaccines
 const { pet, vaccines } = await PetFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forOwner(owner.id)
   .asDog('Labrador Retriever')
   .withProfile('healthy')
@@ -111,7 +111,7 @@ const { pet, vaccines } = await PetFactory.create()
   .build()
 
 // Create appointment history
-const appointments = await createAppointmentHistory(pet.id, owner.id, vetId, 'adris', {
+const appointments = await createAppointmentHistory(pet.id, owner.id, vetId, 'terrapet', {
   past: 5,
   future: 2,
   includeRecords: true,
@@ -125,7 +125,7 @@ Seed data is organized in JSON files under `db/seeds/data/`:
 ```
 data/
 ├── 00-core/               # Core tenant configuration
-│   ├── tenants.json       # Clinic tenants (adris, petlife)
+│   ├── tenants.json       # Clinic tenants (terrapet, petlife)
 │   └── demo-accounts.json # Demo user credentials
 │
 ├── 01-reference/          # Medical reference data (global)
@@ -141,7 +141,7 @@ data/
 │   │   ├── consent-templates.json
 │   │   ├── message-templates.json
 │   │   └── time-off-types.json
-│   ├── adris/             # Adris clinic data
+│   ├── terrapet/             # Adris clinic data
 │   │   ├── services.json
 │   │   ├── payment-methods.json
 │   │   └── kennels.json

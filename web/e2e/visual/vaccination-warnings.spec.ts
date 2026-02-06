@@ -12,7 +12,7 @@ import {
   hasWarningColor,
 } from '../helpers/screenshot-helper'
 
-const E2E_TENANT = 'adris'
+const E2E_TENANT = 'terrapet'
 const DASHBOARD_URL = `/${E2E_TENANT}/portal/dashboard`
 const PETS_URL = `/${E2E_TENANT}/portal/pets`
 

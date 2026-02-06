@@ -8,7 +8,7 @@ import { chromium } from 'playwright'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
 }
 
 async function main(): Promise<void> {
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     console.log('\n5. Attempting login...')
 
     if (emailInput > 0 && passwordInput > 0) {
-      await page.fill('input#email', 'admin@adris.demo')
+      await page.fill('input#email', 'admin@terrapet.demo')
       await page.fill('input#password', 'demo123')
 
       // Verify values were filled

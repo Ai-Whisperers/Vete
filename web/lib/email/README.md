@@ -107,7 +107,7 @@ const emailData = {
     },
   ],
   paymentInstructions: 'Efectivo, transferencia o tarjeta',
-  viewUrl: 'https://yourdomain.com/adris/portal/invoices/123',
+  viewUrl: 'https://yourdomain.com/terrapet/portal/invoices/123',
 }
 
 const html = generateInvoiceEmail(emailData)
@@ -166,7 +166,7 @@ const emailData = {
   clinicName: 'Veterinaria Adris',
   clinicAddress: 'Av. Principal 123, Asunción',
   clinicPhone: '+595 21 123456',
-  clinicEmail: 'info@adris.com',
+  clinicEmail: 'info@terrapet.com',
   ownerName: 'Carlos Ramírez',
   petName: 'Bobby',
   petSpecies: 'Perro',

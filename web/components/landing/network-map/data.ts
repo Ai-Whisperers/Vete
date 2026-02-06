@@ -9,7 +9,7 @@ import type { ClinicLocation } from './types'
 
 export const clinicLocations: ClinicLocation[] = [
   {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Veterinaria Adris',
     address: 'Av. Santa Teresa 1234',
     city: 'Asuncion',

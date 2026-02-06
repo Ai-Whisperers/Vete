@@ -32,7 +32,7 @@ interface Notification {
 }
 
 export async function generateStaticParams() {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: 'terrapet' }, { clinic: 'petlife' }]
 }
 
 // Map notification subjects to icons and colors based on keywords

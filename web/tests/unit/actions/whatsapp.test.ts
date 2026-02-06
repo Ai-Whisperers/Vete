@@ -68,7 +68,7 @@ describe('WhatsApp Server Actions', () => {
         error: null,
       })
 
-      const result = await getConversations('adris')
+      const result = await getConversations('terrapet')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -89,7 +89,7 @@ describe('WhatsApp Server Actions', () => {
         return createMockChain(null)
       })
 
-      const result = await getConversations('adris')
+      const result = await getConversations('terrapet')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -110,7 +110,7 @@ describe('WhatsApp Server Actions', () => {
         return createMockChain(null)
       })
 
-      const result = await getConversations('adris')
+      const result = await getConversations('terrapet')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -126,7 +126,7 @@ describe('WhatsApp Server Actions', () => {
         error: null,
       })
 
-      const result = await getMessages('adris', '+595981123456')
+      const result = await getMessages('terrapet', '+595981123456')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -147,7 +147,7 @@ describe('WhatsApp Server Actions', () => {
         return createMockChain(null)
       })
 
-      const result = await getMessages('adris', '+595981123456')
+      const result = await getMessages('terrapet', '+595981123456')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -250,7 +250,7 @@ describe('WhatsApp Server Actions', () => {
         error: null,
       })
 
-      const result = await getTemplates('adris')
+      const result = await getTemplates('terrapet')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {
@@ -271,7 +271,7 @@ describe('WhatsApp Server Actions', () => {
         return createMockChain(null)
       })
 
-      const result = await getTemplates('adris')
+      const result = await getTemplates('terrapet')
 
       expect('error' in result).toBe(true)
       if ('error' in result) {

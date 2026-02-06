@@ -546,19 +546,19 @@ describe('Appointment Booking', () => {
       })
       ctx.track('pets', petlifePet.id)
 
-      // Create appointment in adris
-      const adrisTimes = buildAppointmentTimes(futureDate(30), '10:00')
-      const { data: adrisAppt } = await client
+      // Create appointment in terrapet
+      const terrapetTimes = buildAppointmentTimes(futureDate(30), '10:00')
+      const { data: terrapetAppt } = await client
         .from('appointments')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
           pet_id: testPetId,
-          ...adrisTimes,
+          ...terrapetTimes,
           status: 'scheduled',
         })
         .select()
         .single()
-      ctx.track('appointments', adrisAppt.id)
+      ctx.track('appointments', terrapetAppt.id)
 
       // Create appointment in petlife
       const petlifeTimes = buildAppointmentTimes(futureDate(30), '11:00')
@@ -574,8 +574,8 @@ describe('Appointment Booking', () => {
         .single()
       ctx.track('appointments', petlifeAppt.id)
 
-      // Query adris appointments
-      const { data: adrisAppts } = await client
+      // Query terrapet appointments
+      const { data: terrapetAppts } = await client
         .from('appointments')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -587,12 +587,12 @@ describe('Appointment Booking', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
       // Verify isolation
-      expect(adrisAppts).not.toBeNull()
+      expect(terrapetAppts).not.toBeNull()
       expect(petlifeAppts).not.toBeNull()
-      expect(adrisAppts!.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(true)
-      expect(adrisAppts!.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(false)
+      expect(terrapetAppts!.some((a: { id: string }) => a.id === terrapetAppt.id)).toBe(true)
+      expect(terrapetAppts!.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(false)
       expect(petlifeAppts!.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(true)
-      expect(petlifeAppts!.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(false)
+      expect(petlifeAppts!.some((a: { id: string }) => a.id === terrapetAppt.id)).toBe(false)
     })
   })
 })

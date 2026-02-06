@@ -54,7 +54,7 @@ function calculateTier(lifetimeEarned: number): LoyaltyPointsData['tier'] {
 
 export class LoyaltyFactory {
   private clientId: string = ''
-  private tenantId: string = 'adris'
+  private tenantId: string = 'terrapet'
   private transactions: Array<{
     points: number
     type: LoyaltyTransactionData['type']
@@ -327,7 +327,7 @@ export async function createLoyaltyFromPurchases(
   clientId: string,
   purchases: Array<{ amount: number; invoiceId?: string }>,
   appointments: Array<{ id?: string }> = [],
-  tenantId: string = 'adris'
+  tenantId: string = 'terrapet'
 ): Promise<{ points: LoyaltyPointsData; transactions: LoyaltyTransactionData[] }> {
   const factory = LoyaltyFactory.forUser(clientId).forTenant(tenantId)
 
@@ -350,7 +350,7 @@ export async function createLoyaltyFromPurchases(
 export async function createLoyaltyForPersona(
   clientId: string,
   persona: 'vip' | 'budget' | 'new' | 'loyal' | 'standard',
-  tenantId: string = 'adris'
+  tenantId: string = 'terrapet'
 ): Promise<{ points: LoyaltyPointsData; transactions: LoyaltyTransactionData[] }> {
   const factory = LoyaltyFactory.forUser(clientId).forTenant(tenantId)
 

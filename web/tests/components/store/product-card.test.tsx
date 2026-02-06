@@ -108,7 +108,7 @@ describe('ProductCard', () => {
   describe('Basic rendering', () => {
     it('renders product information correctly', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Dog Food Premium')).toBeInTheDocument()
@@ -119,7 +119,7 @@ describe('ProductCard', () => {
 
     it('renders product image with proper alt text', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       const image = screen.getByAltText('Dog Food Premium')
@@ -129,18 +129,18 @@ describe('ProductCard', () => {
 
     it('creates correct product link', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       const productLink = screen.getByRole('link')
-      expect(productLink).toHaveAttribute('href', '/adris/store/products/dog-food-premium')
+      expect(productLink).toHaveAttribute('href', '/terrapet/store/products/dog-food-premium')
     })
   })
 
   describe('Variant behavior', () => {
     it('shows all features in full variant by default', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" variant="full" />
+        <ProductCard product={mockProduct} clinic="terrapet" variant="full" />
       )
 
       // Should show wishlist, quick view, ratings by default for full variant
@@ -152,7 +152,7 @@ describe('ProductCard', () => {
 
     it('shows minimal features in minimal variant', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" variant="minimal" />
+        <ProductCard product={mockProduct} clinic="terrapet" variant="minimal" />
       )
 
       // Should not show wishlist, quick view, ratings by default for minimal variant
@@ -167,7 +167,7 @@ describe('ProductCard', () => {
       const outOfStockProduct = { ...mockProduct, stock: 0 }
       
       renderWithIntl(
-        <ProductCard product={outOfStockProduct} clinic="adris" />
+        <ProductCard product={outOfStockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Agotado')).toBeInTheDocument()
@@ -178,7 +178,7 @@ describe('ProductCard', () => {
       const outOfStockProduct = { ...mockProduct, stock: 0 }
       
       renderWithIntl(
-        <ProductCard product={outOfStockProduct} clinic="adris" />
+        <ProductCard product={outOfStockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByTestId('notify-when-available')).toBeInTheDocument()
@@ -186,7 +186,7 @@ describe('ProductCard', () => {
 
     it('shows add to cart button when in stock', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Agregar al carrito')).toBeInTheDocument()
@@ -198,7 +198,7 @@ describe('ProductCard', () => {
       const prescriptionProduct = { ...mockProduct, isPrescriptionRequired: true }
       
       renderWithIntl(
-        <ProductCard product={prescriptionProduct} clinic="adris" />
+        <ProductCard product={prescriptionProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Receta requerida')).toBeInTheDocument()
@@ -210,7 +210,7 @@ describe('ProductCard', () => {
       const newProduct = { ...mockProduct, isNewProduct: true }
       
       renderWithIntl(
-        <ProductCard product={newProduct} clinic="adris" />
+        <ProductCard product={newProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Nuevo')).toBeInTheDocument()
@@ -218,7 +218,7 @@ describe('ProductCard', () => {
 
     it('shows best seller badge', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Más vendido')).toBeInTheDocument()
@@ -226,7 +226,7 @@ describe('ProductCard', () => {
 
     it('shows free shipping indicator', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('Envío gratis')).toBeInTheDocument()
@@ -234,7 +234,7 @@ describe('ProductCard', () => {
 
     it('shows discount percentage', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       expect(screen.getByText('25% descuento')).toBeInTheDocument()
@@ -244,7 +244,7 @@ describe('ProductCard', () => {
   describe('Interactive features', () => {
     it('calls addToCart when add to cart button is clicked', async () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       fireEvent.click(screen.getByText('Agregar al carrito'))
@@ -258,7 +258,7 @@ describe('ProductCard', () => {
 
     it('handles wishlist toggle correctly', async () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       const wishlistButton = screen.getByLabelText(/agregar a favoritos/i)
@@ -271,7 +271,7 @@ describe('ProductCard', () => {
       mockIsInWishlist.mockReturnValue(true)
       
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       const wishlistButton = screen.getByLabelText(/quitar de favoritos/i)
@@ -286,7 +286,7 @@ describe('ProductCard', () => {
       renderWithIntl(
         <ProductCard 
           product={mockProduct} 
-          clinic="adris" 
+          clinic="terrapet" 
           onQuickView={mockQuickView} 
         />
       )
@@ -301,7 +301,7 @@ describe('ProductCard', () => {
       renderWithIntl(
         <ProductCard 
           product={mockProduct} 
-          clinic="adris" 
+          clinic="terrapet" 
           currencySymbol="$" 
         />
       )
@@ -316,7 +316,7 @@ describe('ProductCard', () => {
       renderWithIntl(
         <ProductCard 
           product={mockProduct} 
-          clinic="adris" 
+          clinic="terrapet" 
           variant="minimal"
           showWishlist={true}
           showQuickView={true}
@@ -335,7 +335,7 @@ describe('ProductCard', () => {
       renderWithIntl(
         <ProductCard 
           product={mockProduct} 
-          clinic="adris" 
+          clinic="terrapet" 
           variant="full"
           showWishlist={false}
           showQuickView={false}
@@ -355,7 +355,7 @@ describe('ProductCard', () => {
       const productWithoutImage = { ...mockProduct, image: '' }
       
       renderWithIntl(
-        <ProductCard product={productWithoutImage} clinic="adris" />
+        <ProductCard product={productWithoutImage} clinic="terrapet" />
       )
 
       expect(screen.getByTestId('image-placeholder')).toBeInTheDocument()
@@ -365,7 +365,7 @@ describe('ProductCard', () => {
   describe('Loyalty points', () => {
     it('shows loyalty points when feature is enabled', () => {
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" showLoyaltyPoints={true} />
+        <ProductCard product={mockProduct} clinic="terrapet" showLoyaltyPoints={true} />
       )
 
       expect(screen.getByText('150 puntos')).toBeInTheDocument()
@@ -377,7 +377,7 @@ describe('ProductCard', () => {
       mockAddToCart.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
       
       renderWithIntl(
-        <ProductCard product={mockProduct} clinic="adris" />
+        <ProductCard product={mockProduct} clinic="terrapet" />
       )
 
       fireEvent.click(screen.getByText('Agregar al carrito'))

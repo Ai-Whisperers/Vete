@@ -127,7 +127,7 @@ capitalize('hello world') // "Hello world"
 titleCase('hello world') // "Hello World"
 
 // URL slugs
-slugify('Veterinaria Adris') // "veterinaria-adris"
+slugify('Veterinaria Adris') // "veterinaria-terrapet"
 
 // Initials
 initials('Juan Pérez') // "JP"

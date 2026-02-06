@@ -71,7 +71,7 @@ Implemented comprehensive E2E testing infrastructure for the Vete multi-tenant v
 ### Authentication Helpers (`auth.ts`)
 
 - ✅ Multi-role login (admin, vet, owner)
-- ✅ Multi-tenant support (adris, petlife)
+- ✅ Multi-tenant support (terrapet, petlife)
 - ✅ Secure logout functionality
 - ✅ Unauthorized access verification
 - ✅ Session status checking
@@ -134,8 +134,8 @@ npm run test:e2e:headed
 ### Run Specific Clinic or Role
 
 ```bash
-# Run only @adris tests
-npx playwright test --grep @adris
+# Run only @terrapet tests
+npx playwright test --grep @terrapet
 
 # Run only @owner tests
 npx playwright test --grep @owner
@@ -157,10 +157,10 @@ npx playwright show-report
 ### Demo Accounts (From Seed Data)
 
 ```
-Clinic: adris
-- admin@adris.demo / demo123
-- vet@adris.demo / demo123
-- owner@adris.demo / demo123
+Clinic: terrapet
+- admin@terrapet.demo / demo123
+- vet@terrapet.demo / demo123
+- owner@terrapet.demo / demo123
 
 Clinic: petlife
 - admin@petlife.demo / demo123
@@ -170,7 +170,7 @@ Clinic: petlife
 
 ### Required Seed Data
 
-- ✅ 2 clinics (adris, petlife) configured
+- ✅ 2 clinics (terrapet, petlife) configured
 - ✅ 6 demo user accounts (3 per clinic)
 - ✅ 18+ pets with complete profiles
 - ✅ Medical records and vaccination histories
@@ -340,7 +340,7 @@ npm run test:e2e
 - [ ] Verifies expected outcomes, not just "no error"
 - [ ] Includes error handling with proper logging
 - [ ] Uses Spanish labels for UI assertions
-- [ ] Has appropriate test tags (@owner, @adris, @security, etc.)
+- [ ] Has appropriate test tags (@owner, @terrapet, @security, etc.)
 - [ ] Cleans up test-created data (if any)
 - [ ] Does not modify seed data
 

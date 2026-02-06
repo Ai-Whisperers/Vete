@@ -20,7 +20,7 @@ import * as path from 'path'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
   outputDir: './screenshots',
   viewport: { width: 1920, height: 1080 },
   loadTimeout: 30000,
@@ -29,9 +29,9 @@ const CONFIG = {
 }
 
 const CREDENTIALS = {
-  owner: { email: 'owner@adris.demo', password: 'demo123', name: 'owner' },
-  vet: { email: 'vet@adris.demo', password: 'demo123', name: 'vet' },
-  admin: { email: 'admin@adris.demo', password: 'demo123', name: 'admin' },
+  owner: { email: 'owner@terrapet.demo', password: 'demo123', name: 'owner' },
+  vet: { email: 'vet@terrapet.demo', password: 'demo123', name: 'vet' },
+  admin: { email: 'admin@terrapet.demo', password: 'demo123', name: 'admin' },
 }
 
 // All pages to capture organized by role

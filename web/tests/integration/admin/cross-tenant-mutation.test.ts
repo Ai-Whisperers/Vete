@@ -20,7 +20,7 @@ import { TENANT_IDS } from '@/lib/constants/tenants';
 // This tests the application-level security, not just RLS
 
 // Mock users for different tenants
-const mockTenantAAdmin = { id: 'admin-a-001', email: 'admin@adris.com' }
+const mockTenantAAdmin = { id: 'admin-a-001', email: 'admin@terrapet.com' }
 const mockTenantAProfile = {
   id: 'admin-a-001',
   tenant_id: TENANT_IDS.ADRIS,
@@ -36,7 +36,7 @@ const mockTenantBProfile = {
   full_name: 'PetLife Admin',
 }
 
-const mockTenantAVet = { id: 'vet-a-001', email: 'vet@adris.com' }
+const mockTenantAVet = { id: 'vet-a-001', email: 'vet@terrapet.com' }
 const mockTenantAVetProfile = {
   id: 'vet-a-001',
   tenant_id: TENANT_IDS.ADRIS,
@@ -54,7 +54,7 @@ const mockTenantBOwnerProfile = {
 
 // Test data - simulating data belonging to different tenants
 const tenantAPet = {
-  id: 'pet-adris-001',
+  id: 'pet-terrapet-001',
   name: 'Luna',
   tenant_id: TENANT_IDS.ADRIS,
   owner_id: 'owner-a-001',
@@ -68,7 +68,7 @@ const tenantBPet = {
 }
 
 const tenantAInvoice = {
-  id: 'invoice-adris-001',
+  id: 'invoice-terrapet-001',
   tenant_id: TENANT_IDS.ADRIS,
   total: 150000,
   status: 'paid',
@@ -369,7 +369,7 @@ describe('Cross-Tenant Mutation Security', () => {
       await mockSupabase.from('medical_records').insert({
         pet_id: tenantBPet.id,
         tenant_id: TENANT_IDS.PETLIFE,
-        performed_by: mockTenantAVetProfile.id, // Vet is from adris!
+        performed_by: mockTenantAVetProfile.id, // Vet is from terrapet!
         type: 'consultation',
         title: 'Cross-tenant record',
       })
@@ -446,7 +446,7 @@ describe('Cross-Tenant API Security', () => {
     it('should prevent tenant_id spoofing in request body', () => {
       // User tries to specify a different tenant_id in the request body
       const spoofedRequest = {
-        tenant_id: TENANT_IDS.PETLIFE, // Spoofed - user is actually from adris
+        tenant_id: TENANT_IDS.PETLIFE, // Spoofed - user is actually from terrapet
         name: 'Malicious Pet',
         species: 'dog',
       }
@@ -468,8 +468,8 @@ describe('Cross-Tenant API Security', () => {
         return true
       }
 
-      expect(() => correctPattern('adris', 'petlife')).toThrow('Tenant mismatch')
-      expect(correctPattern('adris', 'adris')).toBe(true)
+      expect(() => correctPattern('terrapet', 'petlife')).toThrow('Tenant mismatch')
+      expect(correctPattern('terrapet', 'terrapet')).toBe(true)
     })
 
     it('should reject requests with mismatched tenant in URL vs auth', () => {
@@ -549,7 +549,7 @@ describe('Audit Trail for Cross-Tenant Attempts', () => {
     // Verify that audit logs capture cross-tenant violation attempts
     const auditEntry = {
       user_id: mockTenantAAdmin.id,
-      user_tenant: 'adris',
+      user_tenant: 'terrapet',
       attempted_tenant: 'petlife',
       resource_type: 'pet',
       resource_id: tenantBPet.id,

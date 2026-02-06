@@ -41,7 +41,7 @@ describe('StockHistoryModal', () => {
     productName: 'Vacuna Antirrábica',
     isOpen: true,
     onClose: vi.fn(),
-    clinic: 'adris',
+    clinic: 'terrapet',
   }
 
   const mockHistoryData = {

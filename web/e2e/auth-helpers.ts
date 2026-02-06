@@ -13,14 +13,14 @@ export const TEST_USER = {
 /**
  * Navigate to the login page for a specific clinic
  */
-export async function gotoLogin(page: Page, clinic: string = 'adris') {
+export async function gotoLogin(page: Page, clinic: string = 'terrapet') {
   await page.goto(`/${clinic}/portal/login`)
 }
 
 /**
  * Navigate to the signup page for a specific clinic
  */
-export async function gotoSignup(page: Page, clinic: string = 'adris') {
+export async function gotoSignup(page: Page, clinic: string = 'terrapet') {
   await page.goto(`/${clinic}/portal/signup`)
 }
 
@@ -46,13 +46,13 @@ export async function signupViaUI(page: Page, email: string, password: string, f
 /**
  * Check if the user is logged in (redirected to dashboard)
  */
-export async function expectLoggedIn(page: Page, clinic: string = 'adris') {
+export async function expectLoggedIn(page: Page, clinic: string = 'terrapet') {
   await expect(page).toHaveURL(new RegExp(`/${clinic}/portal/dashboard`))
 }
 
 /**
  * Check if the user is logged out (redirected to login or public page)
  */
-export async function expectLoggedOut(page: Page, clinic: string = 'adris') {
+export async function expectLoggedOut(page: Page, clinic: string = 'terrapet') {
   await expect(page).toHaveURL(new RegExp(`/${clinic}/portal/login|/`))
 }

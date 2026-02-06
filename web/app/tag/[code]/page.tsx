@@ -20,7 +20,7 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
     .eq('code', code)
     .single()
 
-  const clinicSlug = tagData?.tenant_id || 'adris' // Fallback to adris if no tenant
+  const clinicSlug = tagData?.tenant_id || 'terrapet' // Fallback to terrapet if no tenant
 
   if (error || !tagInfo || tagInfo.status === 'not_found') {
     // Tag doesn't exist. Redirect to home or show 404.

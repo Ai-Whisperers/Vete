@@ -84,7 +84,7 @@ describe('Text Formatting', () => {
 
   describe('slugify', () => {
     it('converts to lowercase with hyphens', () => {
-      expect(slugify('Veterinaria Adris')).toBe('veterinaria-adris')
+      expect(slugify('Veterinaria Adris')).toBe('terrapet')
     })
 
     it('removes accents and special characters', () => {

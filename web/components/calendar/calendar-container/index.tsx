@@ -12,7 +12,7 @@
  *   staff={staff}
  *   pets={pets}
  *   services={services}
- *   clinicSlug="adris"
+ *   clinicSlug="terrapet"
  *   onCreateAppointment={handleCreate}
  * />
  * ```

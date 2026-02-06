@@ -136,7 +136,7 @@ describe('Multi-tenant isolation', () => {
     const { supabase, helpers } = createSupabaseMock()
 
     // Clinic A
-    const clinicA = 'adris'
+    const clinicA = 'terrapet'
     const ownerA = createMockProfile({ tenant_id: clinicA })
     const petA = createMockPet({ tenant_id: clinicA, owner_id: ownerA.id })
 
@@ -253,19 +253,19 @@ import { createMockProfile, createSupabaseMock } from '@/lib/test-utils'
 describe('Role-based access', () => {
   it('allows vets to access all pets in tenant', async () => {
     const { supabase, helpers } = createSupabaseMock()
-    const vet = createMockProfile({ role: 'vet', tenant_id: 'adris' })
+    const vet = createMockProfile({ role: 'vet', tenant_id: 'terrapet' })
 
     helpers.setUser({ id: vet.id, email: vet.email })
 
     // Vet should be able to query all pets
-    const result = await supabase.from('pets').select('*').eq('tenant_id', 'adris')
+    const result = await supabase.from('pets').select('*').eq('tenant_id', 'terrapet')
 
     expect(result.error).toBeNull()
   })
 
   it('restricts owners to their own pets', async () => {
     const { supabase, helpers } = createSupabaseMock()
-    const owner = createMockProfile({ role: 'owner', tenant_id: 'adris' })
+    const owner = createMockProfile({ role: 'owner', tenant_id: 'terrapet' })
 
     helpers.setUser({ id: owner.id, email: owner.email })
 

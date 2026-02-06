@@ -12,7 +12,7 @@
  *   --page <name>       Only capture specific page by name
  *   --viewport <size>   Viewport size (desktop|tablet|mobile)
  *   --data-set <name>   Data set to use (empty|full|busyDay|alerts)
- *   --tenant <id>       Tenant to use (default: adris)
+ *   --tenant <id>       Tenant to use (default: terrapet)
  *   --parallel          Run captures in parallel (faster but more resource intensive)
  *   --skip-auth         Skip pages requiring authentication
  *   --cleanup           Clean up test data after capture
@@ -55,7 +55,7 @@ function parseArgs(): CliOptions {
   const options: CliOptions = {
     viewport: 'desktop',
     dataSet: 'full',
-    tenant: 'adris',
+    tenant: 'terrapet',
     parallel: false,
     skipAuth: false,
     cleanup: false,
@@ -123,7 +123,7 @@ Options:
   --page <name>       Only capture specific page by name
   --viewport <size>   Viewport size (desktop|tablet|mobile) [default: desktop]
   --data-set <name>   Data set to use (${Object.keys(DATA_SETS).join('|')}) [default: full]
-  --tenant <id>       Tenant to use [default: adris]
+  --tenant <id>       Tenant to use [default: terrapet]
   --parallel          Run captures in parallel
   --skip-auth         Skip pages requiring authentication
   --cleanup           Clean up test data after capture

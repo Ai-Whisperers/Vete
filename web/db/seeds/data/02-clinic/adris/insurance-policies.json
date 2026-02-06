@@ -3,8 +3,8 @@
   "_comment": "Pet insurance policies with coverage details. Provider references use codes for lookup.",
   "insurance_policies": [
     {
-      "id": "ipol-001-adris",
-      "tenant_id": "adris",
+      "id": "ipol-001-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "provider_code": "MAPFRE_PY",
       "policy_number": "PET-2024-001234",
@@ -30,8 +30,8 @@
       "created_at": "{{daysAgo(365)}}"
     },
     {
-      "id": "ipol-002-adris",
-      "tenant_id": "adris",
+      "id": "ipol-002-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
       "provider_code": "SANCOR_PY",
       "policy_number": "PET-2024-005678",
@@ -58,8 +58,8 @@
       "created_at": "{{daysAgo(180)}}"
     },
     {
-      "id": "ipol-003-adris",
-      "tenant_id": "adris",
+      "id": "ipol-003-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "provider_code": "MAPFRE_PY",
       "policy_number": "PET-2023-009012",
@@ -84,8 +84,8 @@
       "created_at": "{{daysAgo(500)}}"
     },
     {
-      "id": "ipol-004-adris",
-      "tenant_id": "adris",
+      "id": "ipol-004-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "provider_code": "MAPFRE_PY",
       "policy_number": "PET-2025-000123",
@@ -114,8 +114,8 @@
       "created_at": "{{daysAgo(30)}}"
     },
     {
-      "id": "ipol-005-adris",
-      "tenant_id": "adris",
+      "id": "ipol-005-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "provider_code": "SANCOR_PY",
       "policy_number": "PET-2025-000456",

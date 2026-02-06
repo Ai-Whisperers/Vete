@@ -20,7 +20,7 @@ npm run dev
 **Verify**:
 
 ```bash
-curl http://localhost:3000/adris
+curl http://localhost:3000/terrapet
 # Should return HTML (not "Connection refused")
 ```
 
@@ -28,7 +28,7 @@ curl http://localhost:3000/adris
 
 ## Issue #2: Global Setup Login Route Wrong ⚠️ CRITICAL
 
-**Problem**: Global setup tries `/adris/portal/login` but should be `/adris/login`
+**Problem**: Global setup tries `/terrapet/portal/login` but should be `/terrapet/login`
 
 **Fix**:
 
@@ -123,9 +123,9 @@ npm run seed:demo
 ```bash
 # Check in Supabase dashboard or via psql
 # Should have users:
-# - owner@adris.demo
-# - vet@adris.demo
-# - admin@adris.demo
+# - owner@terrapet.demo
+# - vet@terrapet.demo
+# - admin@terrapet.demo
 # (and same for petlife)
 ```
 

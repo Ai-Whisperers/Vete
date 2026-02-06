@@ -34,7 +34,7 @@ export interface AppointmentFixture {
 export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   maxCheckup: {
     id: '00000000-0000-0000-0003-000000000001',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000001',
     ownerId: '00000000-0000-0000-0000-000000000001',
     vetId: '00000000-0000-0000-0000-000000000010',
@@ -47,7 +47,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   },
   maxVaccination: {
     id: '00000000-0000-0000-0003-000000000002',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000001',
     ownerId: '00000000-0000-0000-0000-000000000001',
     vetId: '00000000-0000-0000-0000-000000000010',
@@ -60,7 +60,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   },
   lunaGrooming: {
     id: '00000000-0000-0000-0003-000000000003',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000002',
     ownerId: '00000000-0000-0000-0000-000000000001',
     type: 'grooming',
@@ -72,7 +72,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   },
   mishiConsultation: {
     id: '00000000-0000-0000-0003-000000000004',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000003',
     ownerId: '00000000-0000-0000-0000-000000000002',
     vetId: '00000000-0000-0000-0000-000000000011',
@@ -86,7 +86,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   },
   completedAppointment: {
     id: '00000000-0000-0000-0003-000000000005',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000001',
     ownerId: '00000000-0000-0000-0000-000000000001',
     vetId: '00000000-0000-0000-0000-000000000010',
@@ -99,7 +99,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
   },
   cancelledAppointment: {
     id: '00000000-0000-0000-0003-000000000006',
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000002',
     ownerId: '00000000-0000-0000-0000-000000000001',
     type: 'grooming',
@@ -172,7 +172,7 @@ export function generateAppointmentData(
   tomorrow.setDate(tomorrow.getDate() + 1)
 
   return {
-    tenantId: 'adris',
+    tenantId: 'terrapet',
     petId: '00000000-0000-0000-0001-000000000001',
     ownerId: '00000000-0000-0000-0000-000000000001',
     type: 'consultation',

@@ -3,8 +3,8 @@
   "_comment": "Discount coupons with usage limits and validity periods",
   "store_coupons": [
     {
-      "id": "coup-001-adris",
-      "tenant_id": "adris",
+      "id": "coup-001-terrapet",
+      "tenant_id": "terrapet",
       "code": "WELCOME10",
       "name": "Cupón de Bienvenida",
       "description": "10% de descuento en tu primera compra",
@@ -21,8 +21,8 @@
       "created_at": "{{daysAgo(90)}}"
     },
     {
-      "id": "coup-002-adris",
-      "tenant_id": "adris",
+      "id": "coup-002-terrapet",
+      "tenant_id": "terrapet",
       "code": "VERANO10",
       "name": "Descuento Verano",
       "description": "10% de descuento en compras de verano",
@@ -39,8 +39,8 @@
       "created_at": "{{daysAgo(30)}}"
     },
     {
-      "id": "coup-003-adris",
-      "tenant_id": "adris",
+      "id": "coup-003-terrapet",
+      "tenant_id": "terrapet",
       "code": "VIP15",
       "name": "Descuento VIP",
       "description": "15% de descuento para clientes VIP",
@@ -57,8 +57,8 @@
       "created_at": "{{daysAgo(60)}}"
     },
     {
-      "id": "coup-004-adris",
-      "tenant_id": "adris",
+      "id": "coup-004-terrapet",
+      "tenant_id": "terrapet",
       "code": "ENVIOGRATIS",
       "name": "Envío Gratis",
       "description": "Envío gratis en compras mayores a Gs. 300.000",
@@ -75,8 +75,8 @@
       "created_at": "{{daysAgo(20)}}"
     },
     {
-      "id": "coup-005-adris",
-      "tenant_id": "adris",
+      "id": "coup-005-terrapet",
+      "tenant_id": "terrapet",
       "code": "MASCOTAS50K",
       "name": "Descuento Fijo 50.000",
       "description": "Gs. 50.000 de descuento en compras mayores a Gs. 500.000",
@@ -93,8 +93,8 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "coup-006-adris",
-      "tenant_id": "adris",
+      "id": "coup-006-terrapet",
+      "tenant_id": "terrapet",
       "code": "PRIMAVERA20",
       "name": "Descuento Primavera",
       "description": "20% de descuento - Promoción de primavera (expirado)",
@@ -111,8 +111,8 @@
       "created_at": "{{daysAgo(120)}}"
     },
     {
-      "id": "coup-007-adris",
-      "tenant_id": "adris",
+      "id": "coup-007-terrapet",
+      "tenant_id": "terrapet",
       "code": "NEXGARD25",
       "name": "Descuento NexGard",
       "description": "25% en productos NexGard antiparasitarios",
@@ -129,8 +129,8 @@
       "created_at": "{{daysAgo(7)}}"
     },
     {
-      "id": "coup-008-adris",
-      "tenant_id": "adris",
+      "id": "coup-008-terrapet",
+      "tenant_id": "terrapet",
       "code": "CUMPLE10",
       "name": "Cupón Cumpleaños",
       "description": "10% de descuento por cumpleaños de tu mascota",

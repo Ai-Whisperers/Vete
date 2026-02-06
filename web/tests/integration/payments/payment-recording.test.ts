@@ -21,7 +21,7 @@ interface MockResponse {
 
 // Mock user and profile
 const mockUser = { id: 'user-123', email: 'vet@clinic.com' }
-const mockProfile = { tenant_id: 'tenant-adris', role: 'vet', full_name: 'Dr. Test' }
+const mockProfile = { tenant_id: 'tenant-terrapet', role: 'vet', full_name: 'Dr. Test' }
 
 // Mock Supabase client with RPC support
 const mockRpcFn = vi.fn()
@@ -349,7 +349,7 @@ describe('Payment Recording API', () => {
       ]
 
       mockSingleFn.mockResolvedValue({
-        data: { id: invoiceId, owner_id: 'owner-123', tenant_id: 'tenant-adris' },
+        data: { id: invoiceId, owner_id: 'owner-123', tenant_id: 'tenant-terrapet' },
         error: null,
       })
 

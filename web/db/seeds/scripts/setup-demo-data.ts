@@ -39,14 +39,14 @@ interface DemoUser {
 
 const DEMO_USERS: DemoUser[] = [
   {
-    email: 'admin@adris.demo',
+    email: 'admin@terrapet.demo',
     tenant_id: TENANT_IDS.ADRIS,
     role: 'admin',
     full_name: 'Maria Garcia (Admin)',
   },
-  { email: 'vet@adris.demo', tenant_id: TENANT_IDS.ADRIS, role: 'vet', full_name: 'Dr. Carlos Rodriguez' },
+  { email: 'vet@terrapet.demo', tenant_id: TENANT_IDS.ADRIS, role: 'vet', full_name: 'Dr. Carlos Rodriguez' },
   {
-    email: 'owner@adris.demo',
+    email: 'owner@terrapet.demo',
     tenant_id: TENANT_IDS.ADRIS,
     role: 'owner',
     full_name: 'Juan Perez (Cliente)',
@@ -82,7 +82,7 @@ type VaccineStatus =
 // Demo pets data with vaccination scenarios
 const DEMO_PETS = [
   {
-    ownerEmail: 'owner@adris.demo',
+    ownerEmail: 'owner@terrapet.demo',
     pets: [
       {
         name: 'Luna',
@@ -297,9 +297,9 @@ async function setupDemoData(): Promise<void> {
 
   console.log('\n✅ Demo data setup complete!')
   console.log('\nYou can now log in:')
-  console.log('  Owner: owner@adris.demo / demo123')
-  console.log('  Vet: vet@adris.demo / demo123')
-  console.log('  Admin: admin@adris.demo / demo123')
+  console.log('  Owner: owner@terrapet.demo / demo123')
+  console.log('  Vet: vet@terrapet.demo / demo123')
+  console.log('  Admin: admin@terrapet.demo / demo123')
 }
 
 async function createPetsForOwner(

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test('homepage loads and displays navigation', async ({ page }) => {
-  await page.goto('/adris')
+  await page.goto('/terrapet')
 
   // Check for the navigation
   const nav = page.getByRole('navigation')

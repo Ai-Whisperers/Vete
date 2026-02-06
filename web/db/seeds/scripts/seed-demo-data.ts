@@ -7,8 +7,8 @@
  *
  * Usage:
  *   npx tsx db/seeds/scripts/seed-demo-data.ts
- *   npx tsx db/seeds/scripts/seed-demo-data.ts --tenant adris
- *   npx tsx db/seeds/scripts/seed-demo-data.ts --tenants adris,petlife --verbose
+ *   npx tsx db/seeds/scripts/seed-demo-data.ts --tenant terrapet
+ *   npx tsx db/seeds/scripts/seed-demo-data.ts --tenants terrapet,petlife --verbose
  */
 
 import { config } from 'dotenv'
@@ -22,7 +22,7 @@ import { seedDemoData } from './seeders/demo-data-seeder'
 
 async function main() {
   const args = process.argv.slice(2)
-  let tenants = ['adris']
+  let tenants = ['terrapet']
   let verbose = false
 
   for (let i = 0; i < args.length; i++) {
@@ -42,7 +42,7 @@ Usage:
   npx tsx db/seeds/scripts/seed-demo-data.ts [options]
 
 Options:
-  --tenant <name>       Seed single tenant (default: adris)
+  --tenant <name>       Seed single tenant (default: terrapet)
   --tenants <list>      Seed multiple tenants (comma-separated)
   --verbose             Show detailed progress
   --help                Show this help
@@ -50,7 +50,7 @@ Options:
 Examples:
   npx tsx db/seeds/scripts/seed-demo-data.ts
   npx tsx db/seeds/scripts/seed-demo-data.ts --tenant petlife
-  npx tsx db/seeds/scripts/seed-demo-data.ts --tenants adris,petlife --verbose
+  npx tsx db/seeds/scripts/seed-demo-data.ts --tenants terrapet,petlife --verbose
       `)
       process.exit(0)
     }

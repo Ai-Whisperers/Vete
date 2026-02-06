@@ -1053,4 +1053,4 @@ Static map showing clinic location:
 
 _Document created: December 2024_
 _Last updated: December 2024_
-_For: Veterinaria Adris - adris.vet_
+_For: Veterinaria Adris - terrapet.vet_

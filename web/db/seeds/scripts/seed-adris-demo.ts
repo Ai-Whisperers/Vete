@@ -12,7 +12,7 @@
  * - Loyalty points based on purchase history
  *
  * Usage:
- *   npx tsx web/db/seeds/scripts/seed-adris-demo.ts
+ *   npx tsx web/db/seeds/scripts/seed-terrapet-demo.ts
  *
  * Modes:
  *   - 'seed': Data persists (default)
@@ -40,7 +40,7 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_
   process.exit(1)
 }
 
-const TENANT_ID = 'adris'
+const TENANT_ID = 'terrapet'
 
 // Dynamic imports to ensure env vars are loaded first
 let testContext: any
@@ -115,14 +115,14 @@ async function getOrCreateVet(): Promise<string | null> {
 
   // No vet found - create one
   console.log('  Creating demo vet...')
-  const vetId = 'vet-adris-demo-001'
+  const vetId = 'vet-terrapet-demo-001'
 
   const { error } = await apiClient.dbUpsert(
     'profiles',
     {
       id: vetId,
       tenant_id: TENANT_ID,
-      email: 'vet.demo@adris.com',
+      email: 'vet.demo@terrapet.com',
       full_name: 'Dr. María González',
       phone: '+595981555001',
       role: 'vet',

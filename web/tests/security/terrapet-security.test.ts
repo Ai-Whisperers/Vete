@@ -98,7 +98,7 @@ describe('TerraPet Security Tests', () => {
       expect(true).toBe(true)
     })
 
-    it('vet cannot view adris pets', () => {
+    it('vet cannot view terrapet pets', () => {
       // Tenant isolation for staff
       expect(true).toBe(true)
     })
@@ -118,7 +118,7 @@ describe('TerraPet Security Tests', () => {
       expect(true).toBe(true)
     })
 
-    it('terrapet user cannot access adris data', () => {
+    it('terrapet user cannot access terrapet data', () => {
       // Tenant isolation enforced
       expect(true).toBe(true)
     })

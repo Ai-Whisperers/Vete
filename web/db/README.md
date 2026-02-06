@@ -299,10 +299,10 @@ After running migrations, create these users in Supabase Auth:
 
 | Email               | Password    | Role  | Clinic  |
 | ------------------- | ----------- | ----- | ------- |
-| `admin@demo.com`    | password123 | Admin | adris   |
-| `vet@demo.com`      | password123 | Vet   | adris   |
-| `owner@demo.com`    | password123 | Owner | adris   |
-| `owner2@demo.com`   | password123 | Owner | adris   |
+| `admin@demo.com`    | password123 | Admin | terrapet   |
+| `vet@demo.com`      | password123 | Vet   | terrapet   |
+| `owner@demo.com`    | password123 | Owner | terrapet   |
+| `owner2@demo.com`   | password123 | Owner | terrapet   |
 | `vet@petlife.com`   | password123 | Vet   | petlife |
 | `admin@petlife.com` | password123 | Admin | petlife |
 

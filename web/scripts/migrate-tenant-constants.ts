@@ -1,7 +1,7 @@
 /**
  * Migrate Hardcoded Tenant IDs to Constants
  * 
- * Finds and replaces hardcoded 'adris' and 'petlife' strings with
+ * Finds and replaces hardcoded 'terrapet' and 'petlife' strings with
  * centralized constants from lib/constants/tenants.ts
  * 
  * Usage:
@@ -35,9 +35,9 @@ interface FileChange {
  * Replacement patterns for different contexts
  */
 const REPLACEMENTS: Replacement[] = [
-  // tenant_id: 'adris' => tenant_id: TENANT_IDS.ADRIS
+  // tenant_id: 'terrapet' => tenant_id: TENANT_IDS.ADRIS
   {
-    pattern: /tenant_id:\s*['"]adris['"]/g,
+    pattern: /tenant_id:\s*['"]terrapet['"]/g,
     replacement: "tenant_id: TENANT_IDS.ADRIS",
     description: "tenant_id property assignment",
   },
@@ -47,9 +47,9 @@ const REPLACEMENTS: Replacement[] = [
     description: "tenant_id property assignment",
   },
   
-  // .eq('tenant_id', 'adris') => .eq('tenant_id', TENANT_IDS.ADRIS)
+  // .eq('tenant_id', 'terrapet') => .eq('tenant_id', TENANT_IDS.ADRIS)
   {
-    pattern: /\.eq\(['"]tenant_id['"],\s*['"]adris['"]\)/g,
+    pattern: /\.eq\(['"]tenant_id['"],\s*['"]terrapet['"]\)/g,
     replacement: ".eq('tenant_id', TENANT_IDS.ADRIS)",
     description: "Supabase .eq() filter",
   },
@@ -59,10 +59,10 @@ const REPLACEMENTS: Replacement[] = [
     description: "Supabase .eq() filter",
   },
   
-  // "tenant_id": "adris" (JSON format) => "tenant_id": TENANT_IDS.ADRIS
+  // "tenant_id": "terrapet" (JSON format) => "tenant_id": TENANT_IDS.ADRIS
   // Note: This is for TypeScript/JavaScript, not actual JSON files
   {
-    pattern: /"tenant_id":\s*"adris"/g,
+    pattern: /"tenant_id":\s*"terrapet"/g,
     replacement: '"tenant_id": TENANT_IDS.ADRIS',
     description: "JSON-style object property",
   },

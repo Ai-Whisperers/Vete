@@ -44,7 +44,7 @@ for (const entry of domainsConfig.domains as DomainEntry[]) {
  * @example
  * const mapping = getDomainMapping('terrapet.com.py')
  * if (mapping) {
- *   console.log(mapping.tenant) // 'adris'
+ *   console.log(mapping.tenant) // 'terrapet'
  * }
  */
 export function getDomainMapping(host: string): DomainLookupResult {
@@ -61,7 +61,7 @@ export function getDomainMapping(host: string): DomainLookupResult {
  *
  * @example
  * const tenant = getTenantByDomain('terrapet.com.py')
- * // Returns: 'adris'
+ * // Returns: 'terrapet'
  */
 export function getTenantByDomain(host: string): string | null {
   const mapping = getDomainMapping(host)

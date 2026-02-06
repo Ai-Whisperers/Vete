@@ -402,8 +402,8 @@ describe('Inventory Management', () => {
         .single()
       ctx.track('store_products', product2.id)
 
-      // Create inventory in adris
-      const { data: adrisInv } = await client
+      // Create inventory in terrapet
+      const { data: terrapetInv } = await client
         .from('store_inventory')
         .insert({
           product_id: product.id,
@@ -412,7 +412,7 @@ describe('Inventory Management', () => {
         })
         .select()
         .single()
-      ctx.track('store_inventory', adrisInv.id)
+      ctx.track('store_inventory', terrapetInv.id)
 
       // Create inventory in petlife (different product due to unique product_id constraint)
       const { data: petlifeInv } = await client
@@ -427,7 +427,7 @@ describe('Inventory Management', () => {
       ctx.track('store_inventory', petlifeInv.id)
 
       // Query by tenant - verify each tenant only sees their own inventory
-      const { data: adrisStock } = await client
+      const { data: terrapetStock } = await client
         .from('store_inventory')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -439,9 +439,9 @@ describe('Inventory Management', () => {
         .eq('tenant_id', TENANT_IDS.PETLIFE)
         .eq('product_id', product2.id)
 
-      expect(adrisStock).not.toBeNull()
-      expect(adrisStock!.length).toBe(1)
-      expect(adrisStock![0].stock_quantity).toBe(50)
+      expect(terrapetStock).not.toBeNull()
+      expect(terrapetStock!.length).toBe(1)
+      expect(terrapetStock![0].stock_quantity).toBe(50)
       expect(petlifeStock).not.toBeNull()
       expect(petlifeStock!.length).toBe(1)
       expect(petlifeStock![0].stock_quantity).toBe(30)

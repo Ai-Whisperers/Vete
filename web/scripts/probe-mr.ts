@@ -14,7 +14,7 @@ async function probe() {
   const { data, error } = await supabase
     .from('medical_records')
     .insert({
-      tenant_id: 'adris',
+      tenant_id: 'terrapet',
       pet_id: dummyUUID,
     })
     .select('*')

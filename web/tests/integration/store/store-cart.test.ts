@@ -665,10 +665,10 @@ describe('Cart Integration Scenarios', () => {
       mockState.setAuthScenario('OWNER')
       mockState.setTableResult('store_carts', { items: SAMPLE_CART_ITEMS, updated_at: new Date().toISOString() })
 
-      const adrisCartResponse = await GET()
-      expect(adrisCartResponse.status).toBe(200)
-      const adrisCartBody = await adrisCartResponse.json()
-      expect(adrisCartBody.items).toEqual(SAMPLE_CART_ITEMS)
+      const terrapetCartResponse = await GET()
+      expect(terrapetCartResponse.status).toBe(200)
+      const terrapetCartBody = await terrapetCartResponse.json()
+      expect(terrapetCartBody.items).toEqual(SAMPLE_CART_ITEMS)
 
       // Different tenant (PETLIFE) user would have separate cart
       mockState.setUser({

@@ -59,7 +59,7 @@ export function titleCase(text: string): string {
  * @returns URL-friendly slug
  *
  * @example
- * slugify("Veterinaria Adris") // "veterinaria-adris"
+ * slugify("Veterinaria Adris") // "terrapet"
  * slugify("Café & Té") // "cafe-te"
  * slugify("  Multiple   Spaces  ") // "multiple-spaces"
  */

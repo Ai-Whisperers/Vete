@@ -13,10 +13,10 @@ export interface TenantFixture {
 
 /** Default test tenants matching database seeds */
 export const TENANTS: Record<string, TenantFixture> = {
-  adris: {
-    id: 'adris',
+  terrapet: {
+    id: 'terrapet',
     name: 'Veterinaria Adris',
-    slug: 'adris',
+    slug: 'terrapet',
   },
   petlife: {
     id: 'petlife',
@@ -35,7 +35,7 @@ export function getTenant(id: string): TenantFixture {
 }
 
 /** Default tenant for most tests */
-export const DEFAULT_TENANT = TENANTS.adris
+export const DEFAULT_TENANT = TENANTS.terrapet
 
 /** All tenant IDs for multi-tenant tests */
 export const ALL_TENANT_IDS = Object.keys(TENANTS)

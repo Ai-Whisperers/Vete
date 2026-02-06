@@ -338,7 +338,7 @@ describe('Finance - Expenses CRUD', () => {
 
   describe('MULTI-TENANT ISOLATION', () => {
     test('expenses are isolated by tenant', async () => {
-      const { data: adrisExpense } = await client
+      const { data: terrapetExpense } = await client
         .from('expenses')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
@@ -349,7 +349,7 @@ describe('Finance - Expenses CRUD', () => {
         })
         .select()
         .single()
-      ctx.track('expenses', adrisExpense.id)
+      ctx.track('expenses', terrapetExpense.id)
 
       // Create admin for petlife
       const petlifeAdmin = await createProfile({
@@ -371,7 +371,7 @@ describe('Finance - Expenses CRUD', () => {
         .single()
       ctx.track('expenses', petlifeExpense.id)
 
-      const { data: adrisExpenses } = await client
+      const { data: terrapetExpenses } = await client
         .from('expenses')
         .select('*')
         .eq('tenant_id', TENANT_IDS.ADRIS)
@@ -381,8 +381,8 @@ describe('Finance - Expenses CRUD', () => {
         .select('*')
         .eq('tenant_id', TENANT_IDS.PETLIFE)
 
-      expect(adrisExpenses!.some((e: { id: string }) => e.id === adrisExpense.id)).toBe(true)
-      expect(adrisExpenses!.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(false)
+      expect(terrapetExpenses!.some((e: { id: string }) => e.id === terrapetExpense.id)).toBe(true)
+      expect(terrapetExpenses!.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(false)
       expect(petlifeExpenses!.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(true)
     })
   })

@@ -35,7 +35,7 @@ test.describe('Critical Business Flows - Smoke Tests', () => {
 
   test('pet registration portal is accessible', async ({ page }) => {
     // Try to access a generic pet portal page
-    await page.goto('/adris/portal')
+    await page.goto('/terrapet/portal')
     
     // Should either show login redirect or portal content
     await expect(page.locator('body')).toBeVisible()
@@ -47,7 +47,7 @@ test.describe('Critical Business Flows - Smoke Tests', () => {
 
   test('appointment booking page exists', async ({ page }) => {
     // Try to access booking page
-    await page.goto('/adris/book')
+    await page.goto('/terrapet/book')
     
     // Should load some kind of booking interface or auth redirect
     await expect(page.locator('body')).toBeVisible()
@@ -59,7 +59,7 @@ test.describe('Critical Business Flows - Smoke Tests', () => {
 
   test('store/shop page exists', async ({ page }) => {
     // Try to access store page
-    await page.goto('/adris/store')
+    await page.goto('/terrapet/store')
     
     // Should load store interface or redirect
     await expect(page.locator('body')).toBeVisible()
@@ -71,7 +71,7 @@ test.describe('Critical Business Flows - Smoke Tests', () => {
 
   test('staff dashboard is protected', async ({ page }) => {
     // Try to access staff area without auth
-    await page.goto('/adris/dashboard')
+    await page.goto('/terrapet/dashboard')
     
     // Should redirect to login or show auth error
     await expect(page.locator('body')).toBeVisible()

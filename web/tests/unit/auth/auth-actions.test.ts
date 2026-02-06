@@ -47,7 +47,7 @@ describe('Auth Actions', () => {
     it('returns error when email is empty', async () => {
       const formData = new FormData()
       formData.append('email', '')
-      formData.append('clinic', 'adris')
+      formData.append('clinic', 'terrapet')
 
       const result = await requestPasswordReset(null, formData)
 
@@ -62,7 +62,7 @@ describe('Auth Actions', () => {
 
       const formData = new FormData()
       formData.append('email', 'nonexistent@example.com')
-      formData.append('clinic', 'adris')
+      formData.append('clinic', 'terrapet')
 
       const result = await requestPasswordReset(null, formData)
 
@@ -75,14 +75,14 @@ describe('Auth Actions', () => {
 
       const formData = new FormData()
       formData.append('email', 'user@example.com')
-      formData.append('clinic', 'adris')
+      formData.append('clinic', 'terrapet')
 
       await requestPasswordReset(null, formData)
 
       expect(mockSupabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
         'user@example.com',
         expect.objectContaining({
-          redirectTo: expect.stringContaining('/adris/portal/reset-password'),
+          redirectTo: expect.stringContaining('/terrapet/portal/reset-password'),
         })
       )
     })
@@ -92,7 +92,7 @@ describe('Auth Actions', () => {
 
       const formData = new FormData()
       formData.append('email', 'user@example.com')
-      formData.append('clinic', 'adris')
+      formData.append('clinic', 'terrapet')
 
       const result = await requestPasswordReset(null, formData)
 

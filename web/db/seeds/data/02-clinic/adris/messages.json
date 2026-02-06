@@ -3,9 +3,9 @@
   "_comment": "Messages within conversations showing realistic back-and-forth communication",
   "messages": [
     {
-      "id": "msg-001-adris",
-      "conversation_id": "conv-001-adris",
-      "tenant_id": "adris",
+      "id": "msg-001-terrapet",
+      "conversation_id": "conv-001-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440001",
       "sender_type": "client",
       "sender_name": "Ana María González",
@@ -17,9 +17,9 @@
       "created_at": "{{hoursAgo(5)}}"
     },
     {
-      "id": "msg-002-adris",
-      "conversation_id": "conv-001-adris",
-      "tenant_id": "adris",
+      "id": "msg-002-terrapet",
+      "conversation_id": "conv-001-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440004",
       "sender_type": "staff",
       "sender_name": "Dra. Silvia Fernández",
@@ -31,9 +31,9 @@
       "created_at": "{{hoursAgo(4)}}"
     },
     {
-      "id": "msg-003-adris",
-      "conversation_id": "conv-001-adris",
-      "tenant_id": "adris",
+      "id": "msg-003-terrapet",
+      "conversation_id": "conv-001-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440004",
       "sender_type": "staff",
       "sender_name": "Dra. Silvia Fernández",
@@ -45,9 +45,9 @@
       "created_at": "{{hoursAgo(4)}}"
     },
     {
-      "id": "msg-004-adris",
-      "conversation_id": "conv-001-adris",
-      "tenant_id": "adris",
+      "id": "msg-004-terrapet",
+      "conversation_id": "conv-001-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440001",
       "sender_type": "client",
       "sender_name": "Ana María González",
@@ -58,9 +58,9 @@
       "created_at": "{{hoursAgo(1)}}"
     },
     {
-      "id": "msg-005-adris",
-      "conversation_id": "conv-002-adris",
-      "tenant_id": "adris",
+      "id": "msg-005-terrapet",
+      "conversation_id": "conv-002-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440005",
       "sender_type": "staff",
       "sender_name": "Dr. Roberto Acosta",
@@ -72,9 +72,9 @@
       "created_at": "{{daysAgo(5)}}"
     },
     {
-      "id": "msg-006-adris",
-      "conversation_id": "conv-002-adris",
-      "tenant_id": "adris",
+      "id": "msg-006-terrapet",
+      "conversation_id": "conv-002-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440002",
       "sender_type": "client",
       "sender_name": "Carlos Rodríguez",
@@ -86,9 +86,9 @@
       "created_at": "{{daysAgo(3)}}"
     },
     {
-      "id": "msg-007-adris",
-      "conversation_id": "conv-002-adris",
-      "tenant_id": "adris",
+      "id": "msg-007-terrapet",
+      "conversation_id": "conv-002-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440002",
       "sender_type": "client",
       "sender_name": "Carlos Rodríguez",
@@ -107,9 +107,9 @@
       "created_at": "{{daysAgo(3)}}"
     },
     {
-      "id": "msg-008-adris",
-      "conversation_id": "conv-002-adris",
-      "tenant_id": "adris",
+      "id": "msg-008-terrapet",
+      "conversation_id": "conv-002-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440005",
       "sender_type": "staff",
       "sender_name": "Dr. Roberto Acosta",
@@ -121,9 +121,9 @@
       "created_at": "{{daysAgo(2)}}"
     },
     {
-      "id": "msg-009-adris",
-      "conversation_id": "conv-003-adris",
-      "tenant_id": "adris",
+      "id": "msg-009-terrapet",
+      "conversation_id": "conv-003-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440006",
       "sender_type": "client",
       "sender_name": "José Martínez",
@@ -135,9 +135,9 @@
       "created_at": "{{daysAgo(12)}}"
     },
     {
-      "id": "msg-010-adris",
-      "conversation_id": "conv-003-adris",
-      "tenant_id": "adris",
+      "id": "msg-010-terrapet",
+      "conversation_id": "conv-003-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": null,
       "sender_type": "system",
       "sender_name": "Sistema",
@@ -149,9 +149,9 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "msg-011-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-011-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440007",
       "sender_type": "client",
       "sender_name": "Laura Benítez",
@@ -163,9 +163,9 @@
       "created_at": "{{hoursAgo(8)}}"
     },
     {
-      "id": "msg-012-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-012-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440004",
       "sender_type": "staff",
       "sender_name": "Dra. Silvia Fernández",
@@ -177,9 +177,9 @@
       "created_at": "{{hoursAgo(7)}}"
     },
     {
-      "id": "msg-013-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-013-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440007",
       "sender_type": "client",
       "sender_name": "Laura Benítez",
@@ -191,9 +191,9 @@
       "created_at": "{{hoursAgo(6)}}"
     },
     {
-      "id": "msg-014-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-014-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440004",
       "sender_type": "staff",
       "sender_name": "Dra. Silvia Fernández",
@@ -205,9 +205,9 @@
       "created_at": "{{hoursAgo(5)}}"
     },
     {
-      "id": "msg-015-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-015-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440007",
       "sender_type": "client",
       "sender_name": "Laura Benítez",
@@ -218,9 +218,9 @@
       "created_at": "{{hoursAgo(4)}}"
     },
     {
-      "id": "msg-016-adris",
-      "conversation_id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "msg-016-terrapet",
+      "conversation_id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440007",
       "sender_type": "client",
       "sender_name": "Laura Benítez",
@@ -231,9 +231,9 @@
       "created_at": "{{hoursAgo(4)}}"
     },
     {
-      "id": "msg-017-adris",
-      "conversation_id": "conv-005-adris",
-      "tenant_id": "adris",
+      "id": "msg-017-terrapet",
+      "conversation_id": "conv-005-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440001",
       "sender_type": "client",
       "sender_name": "Ana María González",
@@ -245,9 +245,9 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "msg-018-adris",
-      "conversation_id": "conv-005-adris",
-      "tenant_id": "adris",
+      "id": "msg-018-terrapet",
+      "conversation_id": "conv-005-terrapet",
+      "tenant_id": "terrapet",
       "sender_id": "550e8400-e29b-41d4-a716-446655440004",
       "sender_type": "staff",
       "sender_name": "Dra. Silvia Fernández",

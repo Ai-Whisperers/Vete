@@ -62,7 +62,7 @@ describe('PUT /api/settings/general', () => {
   it('should return 400 when name is missing (validation error)', async () => {
     const req = new Request('http://localhost/api/settings/general', {
       method: 'PUT',
-      body: JSON.stringify({ clinic: 'adris' }), // missing 'name'
+      body: JSON.stringify({ clinic: 'terrapet' }), // missing 'name'
     }) as unknown as NextRequest
 
     const res = await PUT(req)
@@ -76,7 +76,7 @@ describe('PUT /api/settings/general', () => {
     const req = new Request('http://localhost/api/settings/general', {
       method: 'PUT',
       body: JSON.stringify({
-        clinic: 'adris',
+        clinic: 'terrapet',
         name: 'New Clinic Name',
       }),
     }) as unknown as NextRequest

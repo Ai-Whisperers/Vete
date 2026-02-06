@@ -29,7 +29,7 @@ config({ path: resolve(process.cwd(), '.env') })
 // Constants
 // =============================================================================
 
-export const E2E_TEST_TENANT = 'adris'
+export const E2E_TEST_TENANT = 'terrapet'
 
 export const E2E_TEST_OWNER = {
   email: 'e2e-owner@test.local',

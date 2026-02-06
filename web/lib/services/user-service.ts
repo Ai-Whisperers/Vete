@@ -11,7 +11,7 @@
  * @example
  * ```typescript
  * const service = new UserService(supabase);
- * const result = await service.list('adris', { role: 'vet' });
+ * const result = await service.list('terrapet', { role: 'vet' });
  * ```
  */
 

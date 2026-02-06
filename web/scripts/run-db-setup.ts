@@ -218,7 +218,7 @@ async function main() {
       console.log('   admin@demo.com  - Clinic admin')
       console.log('')
       console.log('🌐 Access the app at:')
-      console.log('   http://localhost:3000/adris')
+      console.log('   http://localhost:3000/terrapet')
       console.log('   http://localhost:3000/petlife')
     }
     console.log('')

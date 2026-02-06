@@ -9,7 +9,7 @@
  * @example
  * ```typescript
  * const service = new MedicalRecordService(supabase);
- * const result = await service.createMedicalRecord('pet-123', 'adris', {
+ * const result = await service.createMedicalRecord('pet-123', 'terrapet', {
  *   type: 'consultation',
  *   title: 'Check-up anual',
  *   diagnosis: 'Saludable'

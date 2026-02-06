@@ -24,7 +24,7 @@ vi.mock('lucide-react', () => ({
 describe('GeneralSettingsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useParams as any).mockReturnValue({ clinic: 'adris' })
+    ;(useParams as any).mockReturnValue({ clinic: 'terrapet' })
 
     // Mock fetch for initial data
     global.fetch = vi.fn().mockResolvedValue({

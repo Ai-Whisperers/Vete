@@ -408,7 +408,7 @@ export async function cleanupAllTestData(): Promise<void> {
 
   console.log('[Database Test Setup] Cleaning up all previous test data...')
 
-  const testTenants = ['terrapet', 'adris']
+  const testTenants = ['terrapet', 'terrapet']
 
   try {
     // Get all profile IDs and pet IDs for test tenants (for dependent data cleanup)

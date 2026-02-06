@@ -598,7 +598,7 @@ export class CartFactory {
  */
 export async function createOrderHistory(
   customerId: string,
-  tenantId: string = 'adris',
+  tenantId: string = 'terrapet',
   options: { count?: number; scenarios?: OrderScenario[] } = {}
 ): Promise<Array<{ order: StoreOrderData; items: StoreOrderItemData[] }>> {
   const { count = 3, scenarios = ['simple', 'simple', 'coupon'] } = options
@@ -633,7 +633,7 @@ export async function createOrderHistory(
  */
 export async function createAbandonedCarts(
   customerIds: string[],
-  tenantId: string = 'adris'
+  tenantId: string = 'terrapet'
 ): Promise<StoreCartData[]> {
   const carts: StoreCartData[] = []
 

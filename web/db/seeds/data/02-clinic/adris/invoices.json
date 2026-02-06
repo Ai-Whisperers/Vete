@@ -8,8 +8,8 @@
   },
   "invoices": [
     {
-      "id": "inv-001-adris",
-      "tenant_id": "adris",
+      "id": "inv-001-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "invoice_number": "INV-2025-0001",
@@ -25,8 +25,8 @@
       "paid_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "inv-002-adris",
-      "tenant_id": "adris",
+      "id": "inv-002-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440002",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "invoice_number": "INV-2025-0002",
@@ -42,8 +42,8 @@
       "paid_at": "{{daysAgo(8)}}"
     },
     {
-      "id": "inv-003-adris",
-      "tenant_id": "adris",
+      "id": "inv-003-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
       "invoice_number": "INV-2025-0003",
@@ -59,8 +59,8 @@
       "sent_at": "{{daysAgo(5)}}"
     },
     {
-      "id": "inv-004-adris",
-      "tenant_id": "adris",
+      "id": "inv-004-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440006",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
       "invoice_number": "INV-2025-0004",
@@ -76,8 +76,8 @@
       "sent_at": "{{daysAgo(20)}}"
     },
     {
-      "id": "inv-005-adris",
-      "tenant_id": "adris",
+      "id": "inv-005-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440007",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
       "invoice_number": "INV-2025-0005",
@@ -93,8 +93,8 @@
       "sent_at": "{{daysAgo(3)}}"
     },
     {
-      "id": "inv-006-adris",
-      "tenant_id": "adris",
+      "id": "inv-006-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440002",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
       "invoice_number": "INV-2025-0006",
@@ -110,8 +110,8 @@
       "sent_at": "{{daysAgo(45)}}"
     },
     {
-      "id": "inv-007-adris",
-      "tenant_id": "adris",
+      "id": "inv-007-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "invoice_number": "INV-2025-0007",
@@ -125,8 +125,8 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "inv-008-adris",
-      "tenant_id": "adris",
+      "id": "inv-008-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440006",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
       "invoice_number": "INV-2025-0008",
@@ -142,8 +142,8 @@
       "paid_at": "{{daysAgo(7)}}"
     },
     {
-      "id": "inv-009-adris",
-      "tenant_id": "adris",
+      "id": "inv-009-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440007",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
       "invoice_number": "INV-2025-0009",
@@ -159,8 +159,8 @@
       "sent_at": "{{daysAgo(2)}}"
     },
     {
-      "id": "inv-010-adris",
-      "tenant_id": "adris",
+      "id": "inv-010-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "invoice_number": "INV-2025-0010",

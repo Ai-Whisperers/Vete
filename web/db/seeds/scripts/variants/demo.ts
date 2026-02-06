@@ -29,7 +29,7 @@ class DemoDataSeederWrapper {
   private tenantId: string
 
   constructor(client: any, options: any) {
-    this.tenantId = options.tenantId || 'adris'
+    this.tenantId = options.tenantId || 'terrapet'
     this.seeder = new DemoDataSeeder(client, this.tenantId, options.verbose)
   }
 

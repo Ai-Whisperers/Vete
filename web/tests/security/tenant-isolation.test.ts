@@ -10,7 +10,7 @@ import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
 import { createProfile, createPet, resetSequence } from '../__helpers__/factories'
 
 // Test with both available tenants
-const TENANT_A = 'adris'
+const TENANT_A = 'terrapet'
 const TENANT_B = 'petlife'
 
 describe('Multi-Tenant Data Isolation', () => {

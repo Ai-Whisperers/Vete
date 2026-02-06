@@ -1,5 +1,5 @@
 {
-  "id": "adris",
+  "id": "terrapet",
   "name": "Terra Pet",
   "tagline": "Para Nosotros, Ellos Son Familia",
   "contact": {
@@ -52,14 +52,14 @@
     "inventory_template_google_sheet_url": "https://docs.google.com/spreadsheets/d/15hPrnWt0VcLAJkC2s2l-g5PLbM4Fe8e6KAsaSZUF6uk/copy"
   },
   "branding": {
-    "logo_url": "/branding/adris/images/logo.png",
-    "logo_dark_url": "/branding/adris/images/logo-dark.png",
+    "logo_url": "/branding/terrapet/images/logo.png",
+    "logo_dark_url": "/branding/terrapet/images/logo-dark.png",
     "logo_width": 150,
     "logo_height": 56,
-    "favicon_url": "/branding/adris/images/favicon.ico",
-    "hero_image_url": "/branding/adris/images/hero-bg.jpg",
-    "og_image_url": "/branding/adris/images/og-image.jpg",
-    "apple_touch_icon": "/branding/adris/images/apple-touch-icon.png"
+    "favicon_url": "/branding/terrapet/images/favicon.ico",
+    "hero_image_url": "/branding/terrapet/images/hero-bg.jpg",
+    "og_image_url": "/branding/terrapet/images/og-image.jpg",
+    "apple_touch_icon": "/branding/terrapet/images/apple-touch-icon.png"
   },
   "ui_labels": {
     "nav": {

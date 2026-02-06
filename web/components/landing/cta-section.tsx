@@ -45,7 +45,7 @@ export function CTASection() {
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
             <Link
-              href="/adris"
+              href="/terrapet"
               className="group inline-flex items-center justify-center gap-2 rounded-full border border-teal-400 bg-teal-500/20 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-teal-500/30"
             >
               <Play className="h-5 w-5 fill-white text-white" />

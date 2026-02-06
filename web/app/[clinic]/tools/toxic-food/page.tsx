@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams(): Promise<{ clinic: string }[]> {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: 'terrapet' }, { clinic: 'petlife' }]
 }
 
 export default async function ToxicFoodPage({ params }: Props): Promise<React.ReactElement> {

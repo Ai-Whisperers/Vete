@@ -26,8 +26,8 @@ describe('Appointments API Contract', () => {
       expect(date).toBeNull()
 
       // Valid case
-      const validUrl = new URL('http://localhost/api/appointments/slots?clinic=adris&date=2026-01-20')
-      expect(validUrl.searchParams.get('clinic')).toBe('adris')
+      const validUrl = new URL('http://localhost/api/appointments/slots?clinic=terrapet&date=2026-01-20')
+      expect(validUrl.searchParams.get('clinic')).toBe('terrapet')
       expect(validUrl.searchParams.get('date')).toBe('2026-01-20')
     })
 
@@ -49,7 +49,7 @@ describe('Appointments API Contract', () => {
       // Expected response structure
       const mockResponse = {
         date: '2026-01-20',
-        clinic: 'adris',
+        clinic: 'terrapet',
         slotDuration: 30,
         slots: [
           { time: '08:00', available: true },

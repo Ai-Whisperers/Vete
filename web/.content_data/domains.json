@@ -4,8 +4,8 @@
   "defaultDomain": "vetic.vercel.app",
   "domains": [
     {
-      "domain": "adris.vetic.vercel.app",
-      "tenant": "adris",
+      "domain": "terrapet.vetic.vercel.app",
+      "tenant": "terrapet",
       "type": "subdomain",
       "provider": "vercel",
       "ssl": {

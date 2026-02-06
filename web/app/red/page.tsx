@@ -23,7 +23,7 @@ interface ClinicFromDB {
 // Demo clinic data with real coordinates in Paraguay
 const demoClinics: ClinicLocation[] = [
   {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Veterinaria Adris',
     city: 'Asunción',
     department: 'Central',

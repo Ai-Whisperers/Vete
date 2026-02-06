@@ -11,7 +11,7 @@ import * as path from 'path'
 
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
-  tenant: 'adris',
+  tenant: 'terrapet',
   outputDir: './screenshots',
   viewport: { width: 1920, height: 1080 },
 }

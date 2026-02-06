@@ -57,8 +57,8 @@ export const ROUTES = {
  * @param options - Navigation options
  * 
  * @example
- * await navigateTo(page, '/adris/portal');
- * await navigateTo(page, ROUTES.myPets('adris'));
+ * await navigateTo(page, '/terrapet/portal');
+ * await navigateTo(page, ROUTES.myPets('terrapet'));
  */
 export async function navigateTo(
   page: Page,
@@ -211,8 +211,8 @@ export async function clickButton(
  * @param expectedUrl - Expected URL string or regex pattern
  * 
  * @example
- * await verifyUrl(page, '/adris/portal');
- * await verifyUrl(page, /\/adris\/dashboard/);
+ * await verifyUrl(page, '/terrapet/portal');
+ * await verifyUrl(page, /\/terrapet\/dashboard/);
  */
 export async function verifyUrl(page: Page, expectedUrl: string | RegExp): Promise<void> {
   try {

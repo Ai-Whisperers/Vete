@@ -5,7 +5,7 @@
  *
  * Usage:
  *   import { StoreAnalyticsClient } from '@/components/analytics/store'
- *   <StoreAnalyticsClient clinic="adris" />
+ *   <StoreAnalyticsClient clinic="terrapet" />
  */
 
 // Main orchestrator

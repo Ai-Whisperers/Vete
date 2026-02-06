@@ -17,7 +17,7 @@
  * @example
  * ```typescript
  * const service = new PetService(supabase);
- * const result = await service.create('owner-123', 'adris', {
+ * const result = await service.create('owner-123', 'terrapet', {
  *   name: 'Max',
  *   species: 'dog',
  *   breed: 'Labrador'

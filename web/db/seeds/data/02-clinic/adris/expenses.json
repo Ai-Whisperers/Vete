@@ -3,8 +3,8 @@
   "_comment": "Clinic expense records across various categories with different statuses",
   "expenses": [
     {
-      "id": "exp-001-adris",
-      "tenant_id": "adris",
+      "id": "exp-001-terrapet",
+      "tenant_id": "terrapet",
       "description": "Compra de insumos médicos - jeringuillas, gasas, vendas",
       "amount": 850000,
       "currency": "PYG",
@@ -23,8 +23,8 @@
       "created_at": "{{daysAgo(7)}}"
     },
     {
-      "id": "exp-002-adris",
-      "tenant_id": "adris",
+      "id": "exp-002-terrapet",
+      "tenant_id": "terrapet",
       "description": "Pago de electricidad - ANDE",
       "amount": 1250000,
       "currency": "PYG",
@@ -42,8 +42,8 @@
       "created_at": "{{daysAgo(12)}}"
     },
     {
-      "id": "exp-003-adris",
-      "tenant_id": "adris",
+      "id": "exp-003-terrapet",
+      "tenant_id": "terrapet",
       "description": "Pago de agua - ESSAP",
       "amount": 320000,
       "currency": "PYG",
@@ -61,8 +61,8 @@
       "created_at": "{{daysAgo(12)}}"
     },
     {
-      "id": "exp-004-adris",
-      "tenant_id": "adris",
+      "id": "exp-004-terrapet",
+      "tenant_id": "terrapet",
       "description": "Alquiler mensual del local",
       "amount": 8500000,
       "currency": "PYG",
@@ -79,8 +79,8 @@
       "created_at": "{{daysAgo(2)}}"
     },
     {
-      "id": "exp-005-adris",
-      "tenant_id": "adris",
+      "id": "exp-005-terrapet",
+      "tenant_id": "terrapet",
       "description": "Compra de alimentos para pacientes hospitalizados",
       "amount": 450000,
       "currency": "PYG",
@@ -99,8 +99,8 @@
       "created_at": "{{daysAgo(5)}}"
     },
     {
-      "id": "exp-006-adris",
-      "tenant_id": "adris",
+      "id": "exp-006-terrapet",
+      "tenant_id": "terrapet",
       "description": "Mantenimiento del equipo de rayos X",
       "amount": 2500000,
       "currency": "PYG",
@@ -119,8 +119,8 @@
       "created_at": "{{daysAgo(18)}}"
     },
     {
-      "id": "exp-007-adris",
-      "tenant_id": "adris",
+      "id": "exp-007-terrapet",
+      "tenant_id": "terrapet",
       "description": "Publicidad en redes sociales - Facebook/Instagram",
       "amount": 750000,
       "currency": "PYG",
@@ -138,8 +138,8 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "exp-008-adris",
-      "tenant_id": "adris",
+      "id": "exp-008-terrapet",
+      "tenant_id": "terrapet",
       "description": "Compra de nuevo equipo de ultrasonido portátil",
       "amount": 15000000,
       "currency": "PYG",
@@ -159,8 +159,8 @@
       "created_at": "{{daysAgo(35)}}"
     },
     {
-      "id": "exp-009-adris",
-      "tenant_id": "adris",
+      "id": "exp-009-terrapet",
+      "tenant_id": "terrapet",
       "description": "Capacitación en cirugía laparoscópica",
       "amount": 3500000,
       "currency": "PYG",
@@ -179,8 +179,8 @@
       "created_at": "{{daysAgo(50)}}"
     },
     {
-      "id": "exp-010-adris",
-      "tenant_id": "adris",
+      "id": "exp-010-terrapet",
+      "tenant_id": "terrapet",
       "description": "Servicio de contabilidad mensual",
       "amount": 1800000,
       "currency": "PYG",
@@ -198,8 +198,8 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "exp-011-adris",
-      "tenant_id": "adris",
+      "id": "exp-011-terrapet",
+      "tenant_id": "terrapet",
       "description": "Seguro de responsabilidad civil profesional",
       "amount": 4500000,
       "currency": "PYG",
@@ -218,8 +218,8 @@
       "created_at": "{{daysAgo(65)}}"
     },
     {
-      "id": "exp-012-adris",
-      "tenant_id": "adris",
+      "id": "exp-012-terrapet",
+      "tenant_id": "terrapet",
       "description": "Compra de medicamentos - lote mensual",
       "amount": 2800000,
       "currency": "PYG",
@@ -235,8 +235,8 @@
       "created_at": "{{hoursAgo(6)}}"
     },
     {
-      "id": "exp-013-adris",
-      "tenant_id": "adris",
+      "id": "exp-013-terrapet",
+      "tenant_id": "terrapet",
       "description": "Pago de IVA - declaración mensual",
       "amount": 1500000,
       "currency": "PYG",
@@ -254,8 +254,8 @@
       "created_at": "{{daysAgo(22)}}"
     },
     {
-      "id": "exp-014-adris",
-      "tenant_id": "adris",
+      "id": "exp-014-terrapet",
+      "tenant_id": "terrapet",
       "description": "Reparación de aire acondicionado",
       "amount": 650000,
       "currency": "PYG",
@@ -273,8 +273,8 @@
       "created_at": "{{daysAgo(14)}}"
     },
     {
-      "id": "exp-015-adris",
-      "tenant_id": "adris",
+      "id": "exp-015-terrapet",
+      "tenant_id": "terrapet",
       "description": "Viaje a conferencia de veterinarios - Montevideo",
       "amount": 5200000,
       "currency": "PYG",
@@ -294,8 +294,8 @@
       "created_at": "{{daysAgo(45)}}"
     },
     {
-      "id": "exp-016-adris",
-      "tenant_id": "adris",
+      "id": "exp-016-terrapet",
+      "tenant_id": "terrapet",
       "description": "Solicitud de compra de microscopio rechazada",
       "amount": 12000000,
       "currency": "PYG",

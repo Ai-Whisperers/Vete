@@ -104,7 +104,7 @@ describe('EditPetForm', () => {
 
   const defaultProps = {
     pet: mockPet,
-    clinic: 'adris',
+    clinic: 'terrapet',
   }
 
   beforeEach(() => {
@@ -355,7 +355,7 @@ describe('EditPetForm', () => {
         name: 'Luna',
       })
 
-      render(<EditPetForm pet={catPet} clinic="adris" />)
+      render(<EditPetForm pet={catPet} clinic="terrapet" />)
 
       const speciesSelect = screen.getByLabelText(/especie/i)
       expect(speciesSelect).toHaveValue('cat')

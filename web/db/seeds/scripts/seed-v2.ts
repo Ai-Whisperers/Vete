@@ -9,8 +9,8 @@
  * - Proper cleanup
  *
  * Usage:
- *   npx tsx db/seeds/scripts/seed-v2.ts --variant demo --tenant adris
- *   npx tsx db/seeds/scripts/seed-v2.ts --variant reset --tenants adris,petlife
+ *   npx tsx db/seeds/scripts/seed-v2.ts --variant demo --tenant terrapet
+ *   npx tsx db/seeds/scripts/seed-v2.ts --variant reset --tenants terrapet,petlife
  *   npx tsx db/seeds/scripts/seed-v2.ts --variant basic --dry-run
  */
 
@@ -37,7 +37,7 @@ function parseArgs(): {
   const args = process.argv.slice(2)
   const result = {
     variant: 'demo' as VariantName,
-    tenants: ['adris'],
+    tenants: ['terrapet'],
     clear: false,
     dryRun: false,
     verbose: false,

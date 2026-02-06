@@ -63,7 +63,7 @@ test.describe('E2E Setup Verification', () => {
 
   test('can access portal with authenticated state', async ({ page }) => {
     // Navigate to portal dashboard
-    await page.goto('/adris/portal/dashboard')
+    await page.goto('/terrapet/portal/dashboard')
 
     // Wait for page to load
     await page.waitForLoadState('networkidle')
@@ -95,7 +95,7 @@ test.describe('E2E Setup Verification', () => {
   })
 
   test('portal navigation works', async ({ page }) => {
-    await page.goto('/adris/portal/dashboard')
+    await page.goto('/terrapet/portal/dashboard')
 
     // Try to navigate to pets section if available
     const petsLink = page.getByRole('link', { name: /pets|mis mascotas/i }).first()
@@ -145,7 +145,7 @@ test.describe('E2E Setup Verification', () => {
       test.skip()
     }
 
-    await page.goto('/adris/portal/pets')
+    await page.goto('/terrapet/portal/pets')
 
     // Wait for page load
     await page.waitForLoadState('networkidle')

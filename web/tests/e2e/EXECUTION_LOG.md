@@ -333,7 +333,7 @@ if (existingUser) {
    ```bash
    # Run seed script
    npm run seed:demo
-   # Check if pets exist for owner@adris.demo
+   # Check if pets exist for owner@terrapet.demo
    ```
 
 ### Medium Term (Improvement)

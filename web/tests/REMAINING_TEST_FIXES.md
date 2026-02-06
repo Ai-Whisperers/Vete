@@ -78,7 +78,7 @@ it('should create invoice', async () => {
   mockSupabase._mocks.setMockData({ data: 'INV-001', error: null })
   mockSupabase._mocks.setMockData({ data: invoice, error: null })
 
-  const result = await service.create('adris', 'user-1', data)
+  const result = await service.create('terrapet', 'user-1', data)
   // Test would fail because only last setMockData is used
 })
 ```
@@ -94,7 +94,7 @@ it('should create invoice', async () => {
     { data: null, error: null } // Items insert
   )
 
-  const result = await service.create('adris', 'user-1', data)
+  const result = await service.create('terrapet', 'user-1', data)
   expect(result.success).toBe(true)
   if (result.success) {
     expect(result.data.invoice_number).toBe('INV-001')

@@ -17,7 +17,7 @@ test.describe('Integration and Error Handling', () => {
     await page.context().setOffline(true)
     
     // Try to navigate to another page
-    await page.goto('/adris/portal').catch(() => {
+    await page.goto('/terrapet/portal').catch(() => {
       // Expected to fail when offline
     })
     
@@ -76,7 +76,7 @@ test.describe('Integration and Error Handling', () => {
     await expect(page.locator('body')).toBeVisible()
     
     // Test session by navigating to protected area
-    await page.goto('/adris/dashboard')
+    await page.goto('/terrapet/dashboard')
     
     // Should handle unauthorized access appropriately
     await expect(page.locator('body')).toBeVisible()
@@ -111,7 +111,7 @@ test.describe('Integration and Error Handling', () => {
   test('handles malformed urls and routes', async ({ page }) => {
     const malformedUrls = [
       '/nonexistent-page',
-      '/adris/nonexistent',
+      '/terrapet/nonexistent',
       '/invalid-clinic/portal',
       '/%20spaces%20in%20url'
     ]
@@ -136,7 +136,7 @@ test.describe('Integration and Error Handling', () => {
     await expect(page.locator('body')).toBeVisible()
     
     // Navigate to a different page
-    await page.goto('/adris/store')
+    await page.goto('/terrapet/store')
     await expect(page.locator('body')).toBeVisible()
     
     // Refresh the page
@@ -144,7 +144,7 @@ test.describe('Integration and Error Handling', () => {
     await expect(page.locator('body')).toBeVisible()
     
     // Should still be on the same page after refresh
-    expect(page.url()).toContain('/adris/store')
+    expect(page.url()).toContain('/terrapet/store')
     
     // Navigate back and forward
     await page.goBack()
@@ -165,7 +165,7 @@ test.describe('Integration and Error Handling', () => {
     })
     
     // Navigate to key pages
-    const pagesToCheck = ['/', '/login', '/adris/portal', '/adris/store']
+    const pagesToCheck = ['/', '/login', '/terrapet/portal', '/terrapet/store']
     
     for (const url of pagesToCheck) {
       await page.goto(url)

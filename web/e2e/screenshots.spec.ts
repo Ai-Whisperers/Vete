@@ -20,7 +20,7 @@ test.setTimeout(60000)
 // Configuration
 // ============================================================================
 
-const TENANT = 'adris'
+const TENANT = 'terrapet'
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 const TARGET_ROLE = process.env.ROLE || undefined
 const TARGET_PAGE = process.env.PAGE || undefined

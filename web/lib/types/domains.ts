@@ -62,7 +62,7 @@ export interface DNSRecord {
 export interface DomainEntry {
   /** Full domain name (e.g., "terrapet.com.py") */
   domain: string
-  /** Tenant/clinic slug from .content_data (e.g., "adris") */
+  /** Tenant/clinic slug from .content_data (e.g., "terrapet") */
   tenant: string
   /** Type of domain mapping */
   type: DomainType

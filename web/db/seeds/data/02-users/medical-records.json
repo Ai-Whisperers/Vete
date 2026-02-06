@@ -5,7 +5,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-03-15",
@@ -28,7 +28,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440002",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2024-11-20",
@@ -52,7 +52,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440003",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-12-10",
@@ -76,7 +76,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440004",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "emergency",
       "visit_date": "2024-11-15",
@@ -100,7 +100,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440005",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2023-05-01",
@@ -124,7 +124,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440006",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2024-11-25",
@@ -148,7 +148,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440007",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-11-12",
@@ -172,7 +172,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440008",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2024-12-08",
@@ -195,7 +195,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440009",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-11-18",
@@ -219,7 +219,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440010",
       "pet_id": "660e8400-e29b-41d4-a716-446655440011",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2023-02-15",
@@ -243,7 +243,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440011",
       "pet_id": "660e8400-e29b-41d4-a716-446655440012",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-12-03",
@@ -267,7 +267,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440012",
       "pet_id": "660e8400-e29b-41d4-a716-446655440013",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2024-11-30",
@@ -291,7 +291,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440013",
       "pet_id": "660e8400-e29b-41d4-a716-446655440014",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
       "record_type": "consultation",
       "visit_date": "2024-12-07",
@@ -315,7 +315,7 @@
     {
       "id": "770e8400-e29b-41d4-a716-446655440014",
       "pet_id": "660e8400-e29b-41d4-a716-446655440015",
-      "created_by_clinic": "adris",
+      "created_by_clinic": "terrapet",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
       "record_type": "consultation",
       "visit_date": "2023-07-05",

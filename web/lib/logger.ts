@@ -19,7 +19,7 @@
  *   logger.error('Failed to fetch', { error })
  *
  *   // Request-scoped logging (in API routes)
- *   const log = createRequestLogger(request, { tenant: 'adris' })
+ *   const log = createRequestLogger(request, { tenant: 'terrapet' })
  *   log.info('Processing request')
  *   log.debug('Query params', { params })
  *

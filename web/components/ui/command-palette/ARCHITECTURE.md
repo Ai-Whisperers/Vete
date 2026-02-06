@@ -374,7 +374,7 @@ describe('CommandPalette', () => {
 ```typescript
 // command-palette.spec.ts (Playwright)
 test('opens command palette with Cmd+K', async ({ page }) => {
-  await page.goto('/adris/dashboard')
+  await page.goto('/terrapet/dashboard')
   await page.keyboard.press('Meta+k')
   await expect(page.locator('[placeholder*="Buscar"]')).toBeVisible()
 })

@@ -3,8 +3,8 @@
   "_comment": "Appointments are clinic-specific - testing all services offered by the clinic",
   "appointments": [
     {
-      "id": "appt-001-adris",
-      "tenant_id": "adris",
+      "id": "appt-001-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "owner_id": "owner-001",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -16,8 +16,8 @@
       "created_at": "2024-12-15T10:00:00Z"
     },
     {
-      "id": "appt-002-adris",
-      "tenant_id": "adris",
+      "id": "appt-002-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "owner_id": "owner-002",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -29,8 +29,8 @@
       "created_at": "2024-12-16T14:30:00Z"
     },
     {
-      "id": "appt-003-adris",
-      "tenant_id": "adris",
+      "id": "appt-003-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
       "owner_id": "owner-002",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -42,8 +42,8 @@
       "created_at": "2024-12-17T09:15:00Z"
     },
     {
-      "id": "appt-004-adris",
-      "tenant_id": "adris",
+      "id": "appt-004-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -55,8 +55,8 @@
       "created_at": "2024-12-18T16:45:00Z"
     },
     {
-      "id": "appt-005-adris",
-      "tenant_id": "adris",
+      "id": "appt-005-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -68,8 +68,8 @@
       "created_at": "2024-12-19T11:20:00Z"
     },
     {
-      "id": "appt-006-adris",
-      "tenant_id": "adris",
+      "id": "appt-006-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
       "owner_id": "owner-004",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -81,8 +81,8 @@
       "created_at": "2024-12-20T13:10:00Z"
     },
     {
-      "id": "appt-007-adris",
-      "tenant_id": "adris",
+      "id": "appt-007-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440011",
       "owner_id": "owner-004",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -94,8 +94,8 @@
       "created_at": "2024-12-21T08:45:00Z"
     },
     {
-      "id": "appt-008-adris",
-      "tenant_id": "adris",
+      "id": "appt-008-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440013",
       "owner_id": "owner-005",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -107,8 +107,8 @@
       "created_at": "2024-12-22T15:30:00Z"
     },
     {
-      "id": "appt-009-adris",
-      "tenant_id": "adris",
+      "id": "appt-009-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440014",
       "owner_id": "owner-005",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -120,8 +120,8 @@
       "created_at": "2024-12-23T12:15:00Z"
     },
     {
-      "id": "appt-010-adris",
-      "tenant_id": "adris",
+      "id": "appt-010-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "owner_id": "owner-001",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -133,8 +133,8 @@
       "created_at": "2024-12-24T10:00:00Z"
     },
     {
-      "id": "appt-011-adris",
-      "tenant_id": "adris",
+      "id": "appt-011-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
       "owner_id": "owner-001",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -146,8 +146,8 @@
       "created_at": "2024-12-25T11:30:00Z"
     },
     {
-      "id": "appt-012-adris",
-      "tenant_id": "adris",
+      "id": "appt-012-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "owner_id": "owner-001",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -159,8 +159,8 @@
       "created_at": "2024-12-26T09:45:00Z"
     },
     {
-      "id": "appt-013-adris",
-      "tenant_id": "adris",
+      "id": "appt-013-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
       "owner_id": "owner-002",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -172,8 +172,8 @@
       "created_at": "2024-12-27T14:20:00Z"
     },
     {
-      "id": "appt-014-adris",
-      "tenant_id": "adris",
+      "id": "appt-014-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -185,8 +185,8 @@
       "created_at": "2024-12-28T16:10:00Z"
     },
     {
-      "id": "appt-015-adris",
-      "tenant_id": "adris",
+      "id": "appt-015-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "owner_id": "owner-002",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -198,8 +198,8 @@
       "created_at": "2024-12-29T11:45:00Z"
     },
     {
-      "id": "appt-016-adris",
-      "tenant_id": "adris",
+      "id": "appt-016-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "owner_id": "owner-002",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -211,8 +211,8 @@
       "created_at": "2024-12-29T11:45:00Z"
     },
     {
-      "id": "appt-017-adris",
-      "tenant_id": "adris",
+      "id": "appt-017-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -224,8 +224,8 @@
       "created_at": "2024-12-30T13:20:00Z"
     },
     {
-      "id": "appt-018-adris",
-      "tenant_id": "adris",
+      "id": "appt-018-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440011",
       "owner_id": "owner-004",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -237,8 +237,8 @@
       "created_at": "2024-12-31T10:15:00Z"
     },
     {
-      "id": "appt-019-adris",
-      "tenant_id": "adris",
+      "id": "appt-019-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440015",
       "owner_id": "owner-005",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -250,8 +250,8 @@
       "created_at": "2025-01-01T14:30:00Z"
     },
     {
-      "id": "appt-020-adris",
-      "tenant_id": "adris",
+      "id": "appt-020-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440012",
       "owner_id": "owner-004",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -263,8 +263,8 @@
       "created_at": "2025-01-02T09:20:00Z"
     },
     {
-      "id": "appt-021-adris",
-      "tenant_id": "adris",
+      "id": "appt-021-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "owner_id": "owner-001",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -276,8 +276,8 @@
       "created_at": "2025-01-03T16:45:00Z"
     },
     {
-      "id": "appt-022-adris",
-      "tenant_id": "adris",
+      "id": "appt-022-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -289,8 +289,8 @@
       "created_at": "2025-01-04T11:10:00Z"
     },
     {
-      "id": "appt-023-adris",
-      "tenant_id": "adris",
+      "id": "appt-023-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
       "owner_id": "owner-003",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",
@@ -302,8 +302,8 @@
       "created_at": "2025-01-05T13:25:00Z"
     },
     {
-      "id": "appt-024-adris",
-      "tenant_id": "adris",
+      "id": "appt-024-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440013",
       "owner_id": "owner-005",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004",
@@ -315,8 +315,8 @@
       "created_at": "2025-01-06T07:30:00Z"
     },
     {
-      "id": "appt-025-adris",
-      "tenant_id": "adris",
+      "id": "appt-025-terrapet",
+      "tenant_id": "terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
       "owner_id": "owner-004",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005",

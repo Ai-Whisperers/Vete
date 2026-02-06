@@ -32,7 +32,7 @@ async function main() {
     console.log('Store Products Count:', res.rows[0].count)
 
     const assignRes = await client.query(
-      "SELECT count(*) FROM clinic_product_assignments WHERE tenant_id = 'adris'"
+      "SELECT count(*) FROM clinic_product_assignments WHERE tenant_id = 'terrapet'"
     )
     console.log('Assignments Count:', assignRes.rows[0].count)
   } catch (err) {

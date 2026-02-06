@@ -52,7 +52,7 @@ The Vete platform is a comprehensive multi-tenant veterinary clinic management s
 - **22 Server Actions**
 - **300+ Components**
 - **94 Database Tables**
-- **2 Tenants** (adris, petlife)
+- **2 Tenants** (terrapet, petlife)
 
 ---
 

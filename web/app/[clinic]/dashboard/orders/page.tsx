@@ -10,7 +10,7 @@ interface Props {
 }
 
 export async function generateStaticParams(): Promise<Array<{ clinic: string }>> {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: 'terrapet' }, { clinic: 'petlife' }]
 }
 
 export default async function OrdersPage({ params }: Props): Promise<React.ReactElement> {

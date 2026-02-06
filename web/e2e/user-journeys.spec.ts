@@ -48,13 +48,13 @@ test.describe('Complete User Journeys', () => {
     }
     
     // Step 3: Test navigation to portal (may require auth)
-    await page.goto('/adris/portal')
+    await page.goto('/terrapet/portal')
     await expect(page.locator('body')).toBeVisible()
   })
 
   test('store browsing and cart interaction', async ({ page }) => {
     // Step 1: Navigate to store
-    await page.goto('/adris/store')
+    await page.goto('/terrapet/store')
     await expect(page.locator('body')).toBeVisible()
     
     // Step 2: Look for product listings or categories
@@ -82,7 +82,7 @@ test.describe('Complete User Journeys', () => {
 
   test('veterinarian staff workflow simulation', async ({ page }) => {
     // Step 1: Try to access staff dashboard
-    await page.goto('/adris/dashboard')
+    await page.goto('/terrapet/dashboard')
     
     // Should redirect to login or show access control
     await expect(page.locator('body')).toBeVisible()
@@ -94,10 +94,10 @@ test.describe('Complete User Journeys', () => {
     }
     
     // Step 3: Test other staff areas
-    await page.goto('/adris/patients')
+    await page.goto('/terrapet/patients')
     await expect(page.locator('body')).toBeVisible()
     
-    await page.goto('/adris/appointments')
+    await page.goto('/terrapet/appointments')
     await expect(page.locator('body')).toBeVisible()
   })
 
@@ -108,9 +108,9 @@ test.describe('Complete User Journeys', () => {
     const pagesToTest = [
       '/',
       '/login',
-      '/adris/portal',
-      '/adris/book',
-      '/adris/store'
+      '/terrapet/portal',
+      '/terrapet/book',
+      '/terrapet/store'
     ]
     
     for (const url of pagesToTest) {
@@ -130,7 +130,7 @@ test.describe('Complete User Journeys', () => {
     const pagesToTest = [
       { url: '/', name: 'Homepage' },
       { url: '/login', name: 'Login' },
-      { url: '/adris/portal', name: 'Pet Portal' }
+      { url: '/terrapet/portal', name: 'Pet Portal' }
     ]
     
     for (const pageTest of pagesToTest) {

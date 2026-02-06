@@ -20,28 +20,28 @@ import { getOwnerPets, verifySeededData } from '../helpers/database';
 test.describe('Pet Owner Portal - Pet Management', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     // Verify seeded data exists before running tests
-    const verification = await verifySeededData('adris');
+    const verification = await verifySeededData('terrapet');
     if (!verification.valid) {
       console.error('[E2E/Setup] Seeded data verification failed:', verification.errors);
       test.skip('Skipping test - seeded data not available');
     }
 
     // Login as pet owner for all tests
-    await loginAs(page, 'adris', 'owner');
+    await loginAs(page, 'terrapet', 'owner');
   });
 
   test.describe('Pet List View', () => {
-    test('should display list of owner pets @owner @adris @pets', async ({ page }) => {
+    test('should display list of owner pets @owner @terrapet @pets', async ({ page }) => {
       // Arrange: Get expected pets from database
-      const expectedPets = await getOwnerPets('owner@adris.demo');
+      const expectedPets = await getOwnerPets('owner@terrapet.demo');
       expect(expectedPets.length).toBeGreaterThan(0); // Verify test data exists
 
       // Act: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
 
       // Assert: Pets list page loaded
       await waitForHeading(page, 'Mis Mascotas');
-      await verifyUrl(page, /\/adris\/portal\/pets/);
+      await verifyUrl(page, /\/terrapet\/portal\/pets/);
 
       // Assert: Pet cards are visible
       const petCards = page.locator('[data-testid="pet-card"]');
@@ -55,9 +55,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       }
     });
 
-    test('should show pet basic information in cards @owner @adris @pets', async ({ page }) => {
+    test('should show pet basic information in cards @owner @terrapet @pets', async ({ page }) => {
       // Act: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
 
       // Assert: Wait for pet cards
       const firstPetCard = page.locator('[data-testid="pet-card"]').first();
@@ -74,9 +74,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       expect(hasName || (await firstPetCard.textContent())).toBeTruthy();
     });
 
-    test('should allow clicking pet card to view details @owner @adris @pets', async ({ page }) => {
+    test('should allow clicking pet card to view details @owner @terrapet @pets', async ({ page }) => {
       // Arrange: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
 
       // Act: Click first pet card
       const firstPetCard = page.locator('[data-testid="pet-card"]').first();
@@ -84,7 +84,7 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       await firstPetCard.click();
 
       // Assert: Navigated to pet detail page
-      await expect(page).toHaveURL(/\/adris\/portal\/pets\/[a-f0-9-]+/, {
+      await expect(page).toHaveURL(/\/terrapet\/portal\/pets\/[a-f0-9-]+/, {
         timeout: 10000,
       });
 
@@ -94,9 +94,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
   });
 
   test.describe('Pet Detail View', () => {
-    test('should display comprehensive pet information @owner @adris @pets', async ({ page }) => {
+    test('should display comprehensive pet information @owner @terrapet @pets', async ({ page }) => {
       // Arrange: Navigate to pets and select first pet
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
       const firstPetCard = page.locator('[data-testid="pet-card"]').first();
       await firstPetCard.waitFor({ state: 'visible', timeout: 10000 });
       await firstPetCard.click();
@@ -122,9 +122,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       }
     });
 
-    test('should show medical history if available @owner @adris @pets @medical', async ({ page }) => {
+    test('should show medical history if available @owner @terrapet @pets @medical', async ({ page }) => {
       // Arrange: Navigate to pets and select first pet
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
       const firstPetCard = page.locator('[data-testid="pet-card"]').first();
       await firstPetCard.click();
       await page.waitForLoadState('networkidle', { timeout: 10000 });
@@ -143,9 +143,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       }
     });
 
-    test('should show vaccination records if available @owner @adris @pets @vaccines', async ({ page }) => {
+    test('should show vaccination records if available @owner @terrapet @pets @vaccines', async ({ page }) => {
       // Arrange: Navigate to pets and select first pet
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
       const firstPetCard = page.locator('[data-testid="pet-card"]').first();
       await firstPetCard.click();
       await page.waitForLoadState('networkidle', { timeout: 10000 });
@@ -166,21 +166,21 @@ test.describe('Pet Owner Portal - Pet Management', () => {
   });
 
   test.describe('Medical History', () => {
-    test('should navigate to medical history page @owner @adris @medical', async ({ page }) => {
+    test('should navigate to medical history page @owner @terrapet @medical', async ({ page }) => {
       // Act: Navigate to medical records section
-      await navigateTo(page, ROUTES.myMedicalRecords('adris'));
+      await navigateTo(page, ROUTES.myMedicalRecords('terrapet'));
 
       // Assert: Medical records page loaded
-      await verifyUrl(page, /\/adris\/portal\/medical-records/);
+      await verifyUrl(page, /\/terrapet\/portal\/medical-records/);
       
       // Assert: Page heading visible
       const heading = page.locator('h1:has-text("Historial Médico"), h1:has-text("Registros Médicos")').first();
       await expect(heading).toBeVisible({ timeout: 10000 });
     });
 
-    test('should display medical records if available @owner @adris @medical', async ({ page }) => {
+    test('should display medical records if available @owner @terrapet @medical', async ({ page }) => {
       // Act: Navigate to medical records
-      await navigateTo(page, ROUTES.myMedicalRecords('adris'));
+      await navigateTo(page, ROUTES.myMedicalRecords('terrapet'));
 
       // Assert: Records list or empty state visible
       const recordsList = page.locator('[data-testid="medical-records-list"]');
@@ -194,9 +194,9 @@ test.describe('Pet Owner Portal - Pet Management', () => {
   });
 
   test.describe('Vaccination Records', () => {
-    test('should view vaccination history @owner @adris @vaccines', async ({ page }) => {
+    test('should view vaccination history @owner @terrapet @vaccines', async ({ page }) => {
       // Arrange: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
       
       // Look for vaccines link or section
       const vaccinesLink = page.locator('a:has-text("Vacunas"), nav:has-text("Vacunas")').first();
@@ -224,21 +224,21 @@ test.describe('Pet Owner Portal - Pet Management', () => {
   });
 
   test.describe('Prescriptions', () => {
-    test('should navigate to prescriptions page @owner @adris @prescriptions', async ({ page }) => {
+    test('should navigate to prescriptions page @owner @terrapet @prescriptions', async ({ page }) => {
       // Act: Navigate to prescriptions section
-      await navigateTo(page, ROUTES.myPrescriptions('adris'));
+      await navigateTo(page, ROUTES.myPrescriptions('terrapet'));
 
       // Assert: Prescriptions page loaded
-      await verifyUrl(page, /\/adris\/portal\/prescriptions/);
+      await verifyUrl(page, /\/terrapet\/portal\/prescriptions/);
 
       // Assert: Page heading visible
       const heading = page.locator('h1:has-text("Recetas"), h1:has-text("Prescripciones")').first();
       await expect(heading).toBeVisible({ timeout: 10000 });
     });
 
-    test('should display prescriptions if available @owner @adris @prescriptions', async ({ page }) => {
+    test('should display prescriptions if available @owner @terrapet @prescriptions', async ({ page }) => {
       // Act: Navigate to prescriptions
-      await navigateTo(page, ROUTES.myPrescriptions('adris'));
+      await navigateTo(page, ROUTES.myPrescriptions('terrapet'));
 
       // Assert: Prescriptions list or empty state visible
       const prescriptionsList = page.locator('[data-testid="prescriptions-list"]');
@@ -252,13 +252,13 @@ test.describe('Pet Owner Portal - Pet Management', () => {
   });
 
   test.describe('Data Isolation', () => {
-    test('should only see own pets @owner @adris @security', async ({ page }) => {
+    test('should only see own pets @owner @terrapet @security', async ({ page }) => {
       // Arrange: Get owner's pets from database
-      const ownerPets = await getOwnerPets('owner@adris.demo');
+      const ownerPets = await getOwnerPets('owner@terrapet.demo');
       const ownerPetNames = ownerPets.map(p => p.name);
 
       // Act: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
 
       // Assert: All visible pets belong to this owner
       const petCards = page.locator('[data-testid="pet-card"]');
@@ -273,16 +273,16 @@ test.describe('Pet Owner Portal - Pet Management', () => {
       }
     });
 
-    test('should not see other owners pets @owner @adris @security', async ({ page }) => {
+    test('should not see other owners pets @owner @terrapet @security', async ({ page }) => {
       // Act: Navigate to pets section
-      await navigateTo(page, ROUTES.myPets('adris'));
+      await navigateTo(page, ROUTES.myPets('terrapet'));
 
       // Get all visible pet names
       const petCards = page.locator('[data-testid="pet-card"]');
       const petCount = await petCards.count();
 
       // Verify owner's pets from database
-      const ownerPets = await getOwnerPets('owner@adris.demo');
+      const ownerPets = await getOwnerPets('owner@terrapet.demo');
 
       // Assert: Visible count matches owned count
       expect(petCount).toBeLessThanOrEqual(ownerPets.length);

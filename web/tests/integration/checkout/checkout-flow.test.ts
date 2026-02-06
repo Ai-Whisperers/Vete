@@ -107,7 +107,7 @@ describe('Checkout API', () => {
       it('should reject empty cart', async () => {
         const request = createRequest({
           items: [],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -120,7 +120,7 @@ describe('Checkout API', () => {
 
       it('should reject missing items', async () => {
         const request = createRequest({
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -174,7 +174,7 @@ describe('Checkout API', () => {
           items: [
             { id: 'prod-1', name: 'Alimento', price: 25000, type: 'product', quantity: 2 },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
           notes: 'Entrega a domicilio',
         })
 
@@ -206,7 +206,7 @@ describe('Checkout API', () => {
             { id: 'prod-1', name: 'Vacuna', price: 50000, type: 'product', quantity: 1 },
             { id: 'svc-1', name: 'Consulta', price: 50000, type: 'service', quantity: 1 },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -227,7 +227,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items: [{ id: 'prod-1', name: 'Test', price: 10000, type: 'product', quantity: 1 }],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         await POST(request)
@@ -254,7 +254,7 @@ describe('Checkout API', () => {
           items: [
             { id: 'prod-1', name: 'Alimento Premium', price: 50000, type: 'product', quantity: 10 },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -284,7 +284,7 @@ describe('Checkout API', () => {
             { id: 'prod-1', name: 'Producto A', price: 10000, type: 'product', quantity: 5 },
             { id: 'prod-2', name: 'Producto B', price: 20000, type: 'product', quantity: 3 },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -324,7 +324,7 @@ describe('Checkout API', () => {
               // No prescription_file provided
             },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -361,7 +361,7 @@ describe('Checkout API', () => {
               prescription_file: 'https://storage.supabase.co/prescriptions/rx-123.pdf',
             },
           ],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -379,7 +379,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items: [{ id: 'prod-1', name: 'Test', price: 10000, type: 'product', quantity: 1 }],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -394,7 +394,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items: [{ id: 'prod-1', name: 'Test', price: 10000, type: 'product', quantity: 1 }],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -415,7 +415,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items: [{ id: 'prod-1', name: 'Test', price: 10000, type: 'product', quantity: 1 }],
-          clinic: 'adris',
+          clinic: 'terrapet',
         })
 
         const response = (await POST(request)) as MockResponse
@@ -448,7 +448,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items,
-          clinic: 'adris',
+          clinic: 'terrapet',
           notes: 'Test notes',
         })
 
@@ -484,7 +484,7 @@ describe('Checkout API', () => {
 
         const request = createRequest({
           items: [{ id: 'prod-1', name: 'Test', price: 10000, type: 'product', quantity: 1 }],
-          clinic: 'adris',
+          clinic: 'terrapet',
           // notes not provided
         })
 

@@ -3,24 +3,24 @@
   "_comment": "Demo accounts for development. In production, set is_active=false or delete.",
   "demo_accounts": [
     {
-      "email": "admin@adris.demo",
-      "tenant_id": "adris",
+      "email": "admin@terrapet.demo",
+      "tenant_id": "terrapet",
       "role": "admin",
       "full_name": "Maria Garcia (Admin)",
       "password_hint": "demo123",
       "is_active": true
     },
     {
-      "email": "vet@adris.demo",
-      "tenant_id": "adris",
+      "email": "vet@terrapet.demo",
+      "tenant_id": "terrapet",
       "role": "vet",
       "full_name": "Dr. Carlos Rodriguez",
       "password_hint": "demo123",
       "is_active": true
     },
     {
-      "email": "owner@adris.demo",
-      "tenant_id": "adris",
+      "email": "owner@terrapet.demo",
+      "tenant_id": "terrapet",
       "role": "owner",
       "full_name": "Juan Perez (Cliente)",
       "password_hint": "demo123",

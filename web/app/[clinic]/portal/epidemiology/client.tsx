@@ -107,7 +107,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', 'reporte_epidemiologico_adris.csv')
+    link.setAttribute('download', 'reporte_epidemiologico_terrapet.csv')
     document.body.appendChild(link)
     link.click()
   }

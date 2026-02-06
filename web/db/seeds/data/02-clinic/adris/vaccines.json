@@ -3,9 +3,9 @@
   "_comment": "Vaccines are recorded per clinic visit - pets can have different vaccine histories at different clinics",
   "vaccines": [
     {
-      "id": "vaccine-001-adris",
+      "id": "vaccine-001-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-03-15",
@@ -16,9 +16,9 @@
       "notes": "Vacuna anual obligatoria"
     },
     {
-      "id": "vaccine-002-adris",
+      "id": "vaccine-002-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-03-15",
@@ -29,9 +29,9 @@
       "notes": "Vacuna anual - protección completa"
     },
     {
-      "id": "vaccine-003-adris",
+      "id": "vaccine-003-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-02-20",
@@ -42,9 +42,9 @@
       "notes": "Vacuna anual obligatoria"
     },
     {
-      "id": "vaccine-004-adris",
+      "id": "vaccine-004-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-02-20",
@@ -55,9 +55,9 @@
       "notes": "Vacuna anual - protección completa"
     },
     {
-      "id": "vaccine-005-adris",
+      "id": "vaccine-005-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Triple Felina",
       "vaccine_code": "FVRCP",
       "administered_date": "2024-04-10",
@@ -68,9 +68,9 @@
       "notes": "Vacuna anual felina"
     },
     {
-      "id": "vaccine-006-adris",
+      "id": "vaccine-006-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Leucemia Felina",
       "vaccine_code": "FeLV",
       "administered_date": "2024-04-10",
@@ -81,9 +81,9 @@
       "notes": "Protección contra leucemia felina"
     },
     {
-      "id": "vaccine-007-adris",
+      "id": "vaccine-007-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-10-15",
@@ -94,9 +94,9 @@
       "notes": "Vacuna anual obligatoria - Rocky al día con vacunas"
     },
     {
-      "id": "vaccine-008-adris",
+      "id": "vaccine-008-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-10-15",
@@ -107,9 +107,9 @@
       "notes": "Vacuna anual - Rocky protegido"
     },
     {
-      "id": "vaccine-009-adris",
+      "id": "vaccine-009-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-11-01",
@@ -120,9 +120,9 @@
       "notes": "Vacuna anual obligatoria - cachorra pequeña"
     },
     {
-      "id": "vaccine-010-adris",
+      "id": "vaccine-010-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440005",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-11-01",
@@ -133,9 +133,9 @@
       "notes": "Primera vacuna - cachorra pequeña"
     },
     {
-      "id": "vaccine-011-adris",
+      "id": "vaccine-011-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440006",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Triple Felina",
       "vaccine_code": "FVRCP",
       "administered_date": "2024-01-20",
@@ -146,9 +146,9 @@
       "notes": "Vacuna anual felina"
     },
     {
-      "id": "vaccine-012-adris",
+      "id": "vaccine-012-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-09-10",
@@ -159,9 +159,9 @@
       "notes": "Vacuna anual obligatoria"
     },
     {
-      "id": "vaccine-013-adris",
+      "id": "vaccine-013-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440007",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-09-10",
@@ -172,9 +172,9 @@
       "notes": "Vacuna anual - perro adulto"
     },
     {
-      "id": "vaccine-014-adris",
+      "id": "vaccine-014-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Triple Felina",
       "vaccine_code": "FVRCP",
       "administered_date": "2024-06-05",
@@ -185,9 +185,9 @@
       "notes": "Vacuna anual felina"
     },
     {
-      "id": "vaccine-015-adris",
+      "id": "vaccine-015-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Leucemia Felina",
       "vaccine_code": "FeLV",
       "administered_date": "2024-06-05",
@@ -198,9 +198,9 @@
       "notes": "Protección contra leucemia felina"
     },
     {
-      "id": "vaccine-016-adris",
+      "id": "vaccine-016-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-05-18",
@@ -211,9 +211,9 @@
       "notes": "Vacuna anual obligatoria - perro joven"
     },
     {
-      "id": "vaccine-017-adris",
+      "id": "vaccine-017-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-10-22",
@@ -224,9 +224,9 @@
       "notes": "Vacuna anual obligatoria"
     },
     {
-      "id": "vaccine-018-adris",
+      "id": "vaccine-018-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440010",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-10-22",
@@ -237,9 +237,9 @@
       "notes": "Vacuna anual - perro adulto mayor"
     },
     {
-      "id": "vaccine-019-adris",
+      "id": "vaccine-019-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440011",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Triple Felina",
       "vaccine_code": "FVRCP",
       "administered_date": "2024-07-15",
@@ -250,9 +250,9 @@
       "notes": "Primera vacuna - gatito joven"
     },
     {
-      "id": "vaccine-020-adris",
+      "id": "vaccine-020-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440012",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-08-30",
@@ -263,9 +263,9 @@
       "notes": "Vacuna anual obligatoria"
     },
     {
-      "id": "vaccine-021-adris",
+      "id": "vaccine-021-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440012",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-08-30",
@@ -276,9 +276,9 @@
       "notes": "Vacuna anual - perra adulta"
     },
     {
-      "id": "vaccine-022-adris",
+      "id": "vaccine-022-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440013",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Triple Felina",
       "vaccine_code": "FVRCP",
       "administered_date": "2024-12-01",
@@ -289,9 +289,9 @@
       "notes": "Vacuna anual felina"
     },
     {
-      "id": "vaccine-023-adris",
+      "id": "vaccine-023-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440014",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-04-25",
@@ -302,9 +302,9 @@
       "notes": "Vacuna anual obligatoria - perro pequeño"
     },
     {
-      "id": "vaccine-024-adris",
+      "id": "vaccine-024-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440014",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-04-25",
@@ -315,9 +315,9 @@
       "notes": "Vacuna anual - perro pequeño"
     },
     {
-      "id": "vaccine-025-adris",
+      "id": "vaccine-025-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440015",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-09-28",
@@ -328,9 +328,9 @@
       "notes": "Primera vacuna - perrita pequeña"
     },
     {
-      "id": "vaccine-026-adris",
+      "id": "vaccine-026-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440015",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-09-28",
@@ -341,9 +341,9 @@
       "notes": "Primera vacuna - perrita pequeña"
     },
     {
-      "id": "vaccine-027-adris",
+      "id": "vaccine-027-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440006",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-01-20",
@@ -354,9 +354,9 @@
       "notes": "Vacuna anual obligatoria para gatos"
     },
     {
-      "id": "vaccine-028-adris",
+      "id": "vaccine-028-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440011",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-07-15",
@@ -367,9 +367,9 @@
       "notes": "Vacuna anual obligatoria para gatos"
     },
     {
-      "id": "vaccine-029-adris",
+      "id": "vaccine-029-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440013",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-12-01",
@@ -380,9 +380,9 @@
       "notes": "Vacuna anual obligatoria para gatos"
     },
     {
-      "id": "vaccine-030-adris",
+      "id": "vaccine-030-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Séxtuple Canina",
       "vaccine_code": "DHPP",
       "administered_date": "2024-05-18",
@@ -393,9 +393,9 @@
       "notes": "Vacuna anual - perro joven"
     },
     {
-      "id": "vaccine-031-adris",
+      "id": "vaccine-031-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-04-10",
@@ -406,9 +406,9 @@
       "notes": "Vacuna anual obligatoria para gatos"
     },
     {
-      "id": "vaccine-032-adris",
+      "id": "vaccine-032-terrapet",
       "pet_id": "660e8400-e29b-41d4-a716-446655440008",
-      "tenant_id": "adris",
+      "tenant_id": "terrapet",
       "name": "Vacuna Antirrábica",
       "vaccine_code": "RAB",
       "administered_date": "2024-06-05",

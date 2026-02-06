@@ -3,8 +3,8 @@
   "_comment": "Conversations between clinic and pet owners across different channels and statuses",
   "conversations": [
     {
-      "id": "conv-001-adris",
-      "tenant_id": "adris",
+      "id": "conv-001-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440001",
       "subject": "Consulta sobre vacunación de Luna",
@@ -22,8 +22,8 @@
       "created_at": "{{hoursAgo(5)}}"
     },
     {
-      "id": "conv-002-adris",
-      "tenant_id": "adris",
+      "id": "conv-002-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440002",
       "pet_id": "660e8400-e29b-41d4-a716-446655440002",
       "subject": "Seguimiento post-operatorio Max",
@@ -43,8 +43,8 @@
       "created_at": "{{daysAgo(8)}}"
     },
     {
-      "id": "conv-003-adris",
-      "tenant_id": "adris",
+      "id": "conv-003-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440006",
       "pet_id": null,
       "subject": "Pregunta sobre horarios de atención",
@@ -63,8 +63,8 @@
       "created_at": "{{daysAgo(15)}}"
     },
     {
-      "id": "conv-004-adris",
-      "tenant_id": "adris",
+      "id": "conv-004-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440007",
       "pet_id": "660e8400-e29b-41d4-a716-446655440004",
       "subject": "Emergencia - Rocky no come",
@@ -82,8 +82,8 @@
       "created_at": "{{hoursAgo(8)}}"
     },
     {
-      "id": "conv-005-adris",
-      "tenant_id": "adris",
+      "id": "conv-005-terrapet",
+      "tenant_id": "terrapet",
       "client_id": "550e8400-e29b-41d4-a716-446655440001",
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "subject": "Consulta sobre alimentación Michi",

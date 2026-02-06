@@ -165,7 +165,7 @@ import {
 // =============================================================================
 
 const TENANTS = {
-  ADRIS: { id: 'adris', name: 'Veterinaria Adris' },
+  ADRIS: { id: 'terrapet', name: 'Veterinaria Adris' },
   PETLIFE: { id: 'petlife', name: 'PetLife Center' },
 }
 
@@ -584,7 +584,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
       if (result.data) {
@@ -618,7 +618,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
     })
@@ -635,7 +635,7 @@ describe('TST-001: Owner Appointment Booking', () => {
         chain.eq = vi.fn((field: string, value: unknown) => {
           // Verify tenant_id filter is applied
           if (field === 'tenant_id') {
-            expect(value).toBe('adris')
+            expect(value).toBe('terrapet')
           }
           return chain
         })
@@ -652,7 +652,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      await getOwnerAppointments('adris')
+      await getOwnerAppointments('terrapet')
     })
 
     it('should return empty arrays when no appointments exist', async () => {
@@ -676,7 +676,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(true)
       if (result.data) {
@@ -706,7 +706,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(false)
       expect(result.error).toContain('Error')
@@ -752,7 +752,7 @@ describe('TST-001: Owner Appointment Booking', () => {
 
       ;(createClient as ReturnType<typeof vi.fn>).mockResolvedValue(mockSupabase)
 
-      const result = await getOwnerAppointments('adris')
+      const result = await getOwnerAppointments('terrapet')
 
       expect(result.success).toBe(false)
     })

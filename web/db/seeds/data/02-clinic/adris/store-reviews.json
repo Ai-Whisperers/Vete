@@ -3,8 +3,8 @@
   "_comment": "Product reviews with ratings and moderation status",
   "store_reviews": [
     {
-      "id": "rev-001-adris",
-      "tenant_id": "adris",
+      "id": "rev-001-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-ADULT-MED-15KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 5,
@@ -16,8 +16,8 @@
       "created_at": "{{daysAgo(20)}}"
     },
     {
-      "id": "rev-002-adris",
-      "tenant_id": "adris",
+      "id": "rev-002-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-M-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440002",
       "rating": 5,
@@ -29,8 +29,8 @@
       "created_at": "{{daysAgo(15)}}"
     },
     {
-      "id": "rev-003-adris",
-      "tenant_id": "adris",
+      "id": "rev-003-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "HILLS-SD-ADULT-12KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440006",
       "rating": 4,
@@ -42,8 +42,8 @@
       "created_at": "{{daysAgo(12)}}"
     },
     {
-      "id": "rev-004-adris",
-      "tenant_id": "adris",
+      "id": "rev-004-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-CAT-ADULT-4KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "rating": 5,
@@ -55,8 +55,8 @@
       "created_at": "{{daysAgo(10)}}"
     },
     {
-      "id": "rev-005-adris",
-      "tenant_id": "adris",
+      "id": "rev-005-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-PUPPY-MED-15KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 5,
@@ -68,8 +68,8 @@
       "created_at": "{{daysAgo(45)}}"
     },
     {
-      "id": "rev-006-adris",
-      "tenant_id": "adris",
+      "id": "rev-006-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-S-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "rating": 4,
@@ -81,8 +81,8 @@
       "created_at": "{{daysAgo(8)}}"
     },
     {
-      "id": "rev-007-adris",
-      "tenant_id": "adris",
+      "id": "rev-007-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-ADULT-MED-3KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440002",
       "rating": 5,
@@ -94,8 +94,8 @@
       "created_at": "{{daysAgo(5)}}"
     },
     {
-      "id": "rev-008-adris",
-      "tenant_id": "adris",
+      "id": "rev-008-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "HILLS-SD-PUPPY-12KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440006",
       "rating": 3,
@@ -107,8 +107,8 @@
       "created_at": "{{daysAgo(25)}}"
     },
     {
-      "id": "rev-009-adris",
-      "tenant_id": "adris",
+      "id": "rev-009-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-CAT-KITTEN-4KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 5,
@@ -120,8 +120,8 @@
       "created_at": "{{daysAgo(18)}}"
     },
     {
-      "id": "rev-010-adris",
-      "tenant_id": "adris",
+      "id": "rev-010-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-L-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440006",
       "rating": 5,
@@ -133,8 +133,8 @@
       "created_at": "{{daysAgo(30)}}"
     },
     {
-      "id": "rev-011-adris",
-      "tenant_id": "adris",
+      "id": "rev-011-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-ADULT-MED-15KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440006",
       "rating": 4,
@@ -146,8 +146,8 @@
       "created_at": "{{daysAgo(50)}}"
     },
     {
-      "id": "rev-012-adris",
-      "tenant_id": "adris",
+      "id": "rev-012-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-M-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 5,
@@ -159,8 +159,8 @@
       "created_at": "{{daysAgo(60)}}"
     },
     {
-      "id": "rev-013-adris",
-      "tenant_id": "adris",
+      "id": "rev-013-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-ADULT-MED-15KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "rating": 5,
@@ -172,8 +172,8 @@
       "created_at": "{{daysAgo(1)}}"
     },
     {
-      "id": "rev-014-adris",
-      "tenant_id": "adris",
+      "id": "rev-014-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "HILLS-SD-ADULT-12KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440002",
       "rating": 2,
@@ -185,8 +185,8 @@
       "created_at": "{{daysAgo(35)}}"
     },
     {
-      "id": "rev-015-adris",
-      "tenant_id": "adris",
+      "id": "rev-015-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-CAT-ADULT-4KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 4,
@@ -198,8 +198,8 @@
       "created_at": "{{daysAgo(40)}}"
     },
     {
-      "id": "rev-016-adris",
-      "tenant_id": "adris",
+      "id": "rev-016-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-S-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440002",
       "rating": 5,
@@ -211,8 +211,8 @@
       "created_at": "{{daysAgo(22)}}"
     },
     {
-      "id": "rev-017-adris",
-      "tenant_id": "adris",
+      "id": "rev-017-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-PUPPY-MED-3KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "rating": 5,
@@ -224,8 +224,8 @@
       "created_at": "{{daysAgo(55)}}"
     },
     {
-      "id": "rev-018-adris",
-      "tenant_id": "adris",
+      "id": "rev-018-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "RC-DOG-ADULT-MED-15KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440002",
       "rating": 5,
@@ -237,8 +237,8 @@
       "created_at": "{{daysAgo(70)}}"
     },
     {
-      "id": "rev-019-adris",
-      "tenant_id": "adris",
+      "id": "rev-019-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "NEXGARD-L-3",
       "customer_id": "550e8400-e29b-41d4-a716-446655440007",
       "rating": 4,
@@ -250,8 +250,8 @@
       "created_at": "{{daysAgo(14)}}"
     },
     {
-      "id": "rev-020-adris",
-      "tenant_id": "adris",
+      "id": "rev-020-terrapet",
+      "tenant_id": "terrapet",
       "product_sku": "HILLS-SD-PUPPY-12KG",
       "customer_id": "550e8400-e29b-41d4-a716-446655440001",
       "rating": 5,

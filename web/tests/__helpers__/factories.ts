@@ -97,7 +97,7 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
 
   return {
     ownerId: overrides.ownerId || '00000000-0000-0000-0000-000000000001',
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     name: overrides.name || `TestPet-${seq}`,
     species,
     breed: overrides.breed || randomItem(breeds[species] || breeds.other),
@@ -250,7 +250,7 @@ export function buildAppointment(
   const seq = nextSequence()
 
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     petId: overrides.petId || '00000000-0000-0000-0001-000000000001',
     ownerId: overrides.ownerId || '00000000-0000-0000-0000-000000000001',
     type: overrides.type || randomItem<AppointmentType>(['consultation', 'vaccination', 'checkup']),
@@ -322,7 +322,7 @@ export function buildProfile(overrides: Partial<ProfileData> = {}): ProfileData 
   const seq = nextSequence()
 
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     fullName: overrides.fullName || `Test User ${seq}`,
     email: overrides.email || `test-${seq}-${Date.now()}@test.local`,
     phone: overrides.phone || `+595981${String(seq).padStart(6, '0')}`,
@@ -393,7 +393,7 @@ export function buildMedicalRecord(
 
   return {
     petId,
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     type: overrides.type || 'consultation',
     title: overrides.title || `Medical Record ${seq}`,
     diagnosis: overrides.diagnosis || 'Test diagnosis',
@@ -428,7 +428,7 @@ export async function createCompleteTestScenario(
   vaccines: VaccineFixture[]
   appointments: AppointmentFixture[]
 }> {
-  const { tenantId = 'adris', petCount = 2, vaccinesPerPet = 2, appointmentsPerPet = 1 } = options
+  const { tenantId = 'terrapet', petCount = 2, vaccinesPerPet = 2, appointmentsPerPet = 1 } = options
 
   // Create owner profile
   const profile = await createProfile({ tenantId, role: 'owner' })
@@ -518,7 +518,7 @@ export interface InvoiceData {
 
 export function buildInvoice(overrides: Partial<InvoiceData> = {}): InvoiceData {
   return {
-    tenantId: overrides.tenantId || 'adris',
+    tenantId: overrides.tenantId || 'terrapet',
     clientId: overrides.clientId || '00000000-0000-0000-0000-000000000001',
     status: overrides.status || 'draft',
     ...overrides,

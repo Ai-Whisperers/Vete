@@ -46,12 +46,12 @@ Consolidated test data constants. Single source of truth for IDs and test entiti
 ```typescript
 import { TENANTS, DEFAULT_TENANT, ALL_TENANT_IDS } from '@/lib/test-utils';
 
-TENANTS.ADRIS      // { id: 'adris', name: 'Veterinaria Adris', slug: 'adris' }
+TENANTS.ADRIS      // { id: 'terrapet', name: 'Veterinaria Adris', slug: 'terrapet' }
 TENANTS.PETLIFE    // { id: 'petlife', name: 'PetLife Center', slug: 'petlife' }
 TENANTS.TEST       // { id: 'test-tenant', name: 'Test Clinic', slug: 'test' }
 
 DEFAULT_TENANT     // TENANTS.ADRIS
-ALL_TENANT_IDS     // ['adris', 'petlife', 'test-tenant']
+ALL_TENANT_IDS     // ['terrapet', 'petlife', 'test-tenant']
 ```
 
 ### Users
@@ -124,14 +124,14 @@ SERVICES.GROOMING
 import { tenantUrl, toProfile, getUsersByRole, getUsersByTenant } from '@/lib/test-utils';
 
 // Generate tenant-prefixed URLs
-tenantUrl(TENANTS.ADRIS, '/dashboard')  // '/adris/dashboard'
+tenantUrl(TENANTS.ADRIS, '/dashboard')  // '/terrapet/dashboard'
 
 // Convert UserFixture to ProfileFixture (for DB inserts)
 const profile = toProfile(USERS.OWNER_JUAN);
 
 // Filter users
 const owners = getUsersByRole('owner');
-const adrisUsers = getUsersByTenant('adris');
+const terrapetUsers = getUsersByTenant('terrapet');
 ```
 
 ---
@@ -314,7 +314,7 @@ factoryMode.configureForIntegrationTests();
 // Manual configuration
 factoryMode.setMode('memory');
 factoryMode.setMode('persist');
-factoryMode.setDefaultTenant('adris');
+factoryMode.setDefaultTenant('terrapet');
 ```
 
 ---
@@ -330,21 +330,21 @@ import { PetFactory } from '@/lib/test-utils';
 
 // Basic usage
 const pet = PetFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forOwner('owner-123')
   .asDog('Labrador')
   .build();
 
 // With vaccines
 const { pet, vaccines } = await PetFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forOwner('owner-123')
   .asDog()
   .withVaccines()
   .build();
 
 // Create multiple
-const pets = await createPetsForOwner('owner-123', 3, 'adris');
+const pets = await createPetsForOwner('owner-123', 3, 'terrapet');
 ```
 
 ### Owner Factory
@@ -354,14 +354,14 @@ import { OwnerFactory, PREDEFINED_OWNERS } from '@/lib/test-utils';
 
 // With persona
 const owner = await OwnerFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .withPersona('vip')      // VIP customer
   .build();
 
 // Predefined owners
-const standard = PREDEFINED_OWNERS.standardOwner('adris');
-const vip = PREDEFINED_OWNERS.vipOwner('adris');
-const new_ = PREDEFINED_OWNERS.newOwner('adris');
+const standard = PREDEFINED_OWNERS.standardOwner('terrapet');
+const vip = PREDEFINED_OWNERS.vipOwner('terrapet');
+const new_ = PREDEFINED_OWNERS.newOwner('terrapet');
 ```
 
 ### Appointment Factory
@@ -370,14 +370,14 @@ const new_ = PREDEFINED_OWNERS.newOwner('adris');
 import { AppointmentFactory, createAppointmentHistory } from '@/lib/test-utils';
 
 const appointment = AppointmentFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forPet('pet-123')
   .withVet('vet-456')
   .withStatus('confirmed')
   .build();
 
 // Create history
-const history = await createAppointmentHistory('pet-123', 'adris', 6);
+const history = await createAppointmentHistory('pet-123', 'terrapet', 6);
 ```
 
 ### Invoice Factory
@@ -386,7 +386,7 @@ const history = await createAppointmentHistory('pet-123', 'adris', 6);
 import { InvoiceFactory, createInvoiceHistory } from '@/lib/test-utils';
 
 const invoice = InvoiceFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forClient('client-123')
   .withStatus('sent')
   .withAmount(150000)
@@ -401,13 +401,13 @@ const invoice = InvoiceFactory.create()
 import { StoreOrderFactory, CartFactory } from '@/lib/test-utils';
 
 const order = StoreOrderFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forCustomer('customer-123')
   .withItems([{ product_id: 'prod-1', quantity: 2 }])
   .build();
 
 const cart = CartFactory.create()
-  .forTenant('adris')
+  .forTenant('terrapet')
   .forCustomer('customer-123')
   .withItems([{ product_id: 'prod-1', quantity: 1 }])
   .build();

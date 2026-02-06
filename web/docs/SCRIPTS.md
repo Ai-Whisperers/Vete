@@ -159,9 +159,9 @@ The V2 seeder supports variants, tenants, and additional options.
 
 | Command | Description |
 |---------|-------------|
-| `npm run seed:v2:adris` | Seed Adris clinic only |
+| `npm run seed:v2:terrapet` | Seed Adris clinic only |
 | `npm run seed:v2:petlife` | Seed PetLife clinic only |
-| `npm run seed:v2:all` | Seed all clinics (adris, petlife) |
+| `npm run seed:v2:all` | Seed all clinics (terrapet, petlife) |
 
 ### Demo Data Generator
 
@@ -288,7 +288,7 @@ npm run test:e2e:ui
 
 ```bash
 # Seed specific clinic
-npm run seed:v2:adris
+npm run seed:v2:terrapet
 
 # Seed all clinics with verbose output
 npm run seed:v2:all -- --verbose

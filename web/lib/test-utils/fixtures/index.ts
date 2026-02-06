@@ -26,9 +26,9 @@ export interface TenantFixture {
 
 export const TENANTS = {
   ADRIS: {
-    id: 'adris',
+    id: 'terrapet',
     name: 'Veterinaria Adris',
-    slug: 'adris',
+    slug: 'terrapet',
   },
   PETLIFE: {
     id: 'petlife',
@@ -108,7 +108,7 @@ const USERS_BASE = {
   // Vets
   VET_CARLOS: {
     id: 'user-vet-carlos',
-    email: 'carlos@adris.com',
+    email: 'carlos@terrapet.com',
     password: TEST_PASSWORD,
     fullName: 'Dr. Carlos Rodríguez',
     phone: '+595981456789',
@@ -117,7 +117,7 @@ const USERS_BASE = {
   },
   VET_ANA: {
     id: 'user-vet-ana',
-    email: 'ana@adris.com',
+    email: 'ana@terrapet.com',
     password: TEST_PASSWORD,
     fullName: 'Dra. Ana García',
     phone: '+595981567890',
@@ -128,7 +128,7 @@ const USERS_BASE = {
   // Admins
   ADMIN_PRINCIPAL: {
     id: 'user-admin-principal',
-    email: 'admin@adris.com',
+    email: 'admin@terrapet.com',
     password: TEST_PASSWORD,
     fullName: 'Admin Principal',
     phone: '+595981678901',

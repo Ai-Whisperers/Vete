@@ -14,7 +14,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(true)
     })
@@ -31,7 +31,7 @@ describe('checkoutRequestSchema', () => {
             requires_prescription: true,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
         pet_id: '660e8400-e29b-41d4-a716-446655440001',
         requires_prescription_review: true,
       }
@@ -53,7 +53,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
         notes: 'Consulta urgente',
       })
       expect(result.success).toBe(true)
@@ -77,7 +77,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 2,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(true)
     })
@@ -87,7 +87,7 @@ describe('checkoutRequestSchema', () => {
     it('rejects empty items array', () => {
       const result = checkoutRequestSchema.safeParse({
         items: [],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -121,7 +121,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -137,7 +137,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 0,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -153,7 +153,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 100,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -169,7 +169,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -185,7 +185,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -201,7 +201,7 @@ describe('checkoutRequestSchema', () => {
             quantity: 1,
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
         pet_id: 'not-a-uuid',
       })
       expect(result.success).toBe(false)
@@ -220,7 +220,7 @@ describe('checkoutRequestSchema', () => {
             prescription_file_url: 'not-a-url',
           },
         ],
-        clinic: 'adris',
+        clinic: 'terrapet',
       })
       expect(result.success).toBe(false)
     })
@@ -230,7 +230,7 @@ describe('checkoutRequestSchema', () => {
 describe('createStoreOrderSchema', () => {
   it('includes pet_id field', () => {
     const input = {
-      clinic: 'adris',
+      clinic: 'terrapet',
       items: [
         {
           product_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -252,7 +252,7 @@ describe('createStoreOrderSchema', () => {
 
   it('allows null pet_id', () => {
     const result = createStoreOrderSchema.safeParse({
-      clinic: 'adris',
+      clinic: 'terrapet',
       items: [
         {
           product_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -270,7 +270,7 @@ describe('createStoreOrderSchema', () => {
 
   it('allows undefined pet_id', () => {
     const result = createStoreOrderSchema.safeParse({
-      clinic: 'adris',
+      clinic: 'terrapet',
       items: [
         {
           product_id: '550e8400-e29b-41d4-a716-446655440000',

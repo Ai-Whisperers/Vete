@@ -51,7 +51,7 @@ describe('PetVaccinesTab', () => {
     petName: 'Max',
     petSpecies: 'dog',
     petBirthDate: '2020-05-15',
-    clinic: 'adris',
+    clinic: 'terrapet',
     vaccines: [],
   }
 
@@ -115,7 +115,7 @@ describe('PetVaccinesTab', () => {
       render(<PetVaccinesTab {...defaultProps} />)
 
       const certificateLink = screen.getByText(/certificado/i)
-      expect(certificateLink).toHaveAttribute('href', '/adris/portal/pets/pet-123/vaccines/certificate')
+      expect(certificateLink).toHaveAttribute('href', '/terrapet/portal/pets/pet-123/vaccines/certificate')
     })
   })
 
@@ -124,7 +124,7 @@ describe('PetVaccinesTab', () => {
       render(<PetVaccinesTab {...defaultProps} isStaff={true} />)
 
       const newVaccineLink = screen.getByText(/nueva vacuna/i)
-      expect(newVaccineLink).toHaveAttribute('href', '/adris/portal/pets/pet-123/vaccines/new')
+      expect(newVaccineLink).toHaveAttribute('href', '/terrapet/portal/pets/pet-123/vaccines/new')
     })
 
     it('hides new vaccine button for non-staff', () => {
@@ -327,7 +327,7 @@ describe('PetVaccinesTab', () => {
       render(<PetVaccinesTab {...defaultProps} vaccines={vaccines} />)
 
       const bookingLink = screen.getByText(/agendar vacunación/i)
-      expect(bookingLink).toHaveAttribute('href', '/adris/book?pet=pet-123&service=vacunacion')
+      expect(bookingLink).toHaveAttribute('href', '/terrapet/book?pet=pet-123&service=vacunacion')
     })
   })
 

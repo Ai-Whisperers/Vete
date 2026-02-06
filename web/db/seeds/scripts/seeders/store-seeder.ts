@@ -378,7 +378,7 @@ export class StoreProductSeeder extends JsonSeeder<StoreProduct> {
  * Also creates clinic_product_assignments for store visibility.
  *
  * Loads ALL files matching pattern: {tenant_id}*.json
- * This allows multiple product files per tenant (e.g., adris.json, adris-real.json)
+ * This allows multiple product files per tenant (e.g., terrapet.json, terrapet-real.json)
  */
 export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
   // Track processed data for postProcess to create assignments
@@ -409,7 +409,7 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
 
   /**
    * Override loadData to load ALL files matching tenant pattern
-   * This supports multiple product files per tenant (e.g., adris.json, adris-real.json)
+   * This supports multiple product files per tenant (e.g., terrapet.json, terrapet-real.json)
    */
   async loadData(): Promise<unknown[]> {
     const fs = await import('fs/promises')
@@ -421,7 +421,7 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
 
     try {
       const files = await fs.readdir(dir)
-      // Match files starting with tenant ID (e.g., adris.json, adris-real.json)
+      // Match files starting with tenant ID (e.g., terrapet.json, terrapet-real.json)
       const tenantFiles = files.filter(
         (f) => f.startsWith(tenantId) && f.endsWith('.json')
       )

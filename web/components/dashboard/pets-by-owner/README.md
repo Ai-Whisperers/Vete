@@ -187,7 +187,7 @@ import { PetsByOwner } from '@/components/dashboard/pets-by-owner'
 export default function Page() {
   const owners = await fetchOwners()
 
-  return <PetsByOwner clinic="adris" owners={owners} />
+  return <PetsByOwner clinic="terrapet" owners={owners} />
 }
 ```
 

@@ -315,7 +315,7 @@ describe('POST /api/store/prescriptions/upload', () => {
 
     it('should handle additional fields (clinic)', async () => {
       const file = createMockFile('prescription.pdf', 'application/pdf', 1000)
-      const formData = createFormData(file, { clinic: 'adris' })
+      const formData = createFormData(file, { clinic: 'terrapet' })
 
       const response = await POST(createRequest(formData))
 

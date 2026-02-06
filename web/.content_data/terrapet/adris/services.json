@@ -11,7 +11,7 @@
       "title": "Consultas Médicas",
       "icon": "stethoscope",
       "summary": "Atención primaria y de especialidad.",
-      "image": "/branding/adris/images/services/consultation.jpg",
+      "image": "/branding/terrapet/images/services/consultation.jpg",
       "details": {
         "description": "Evaluación física completa por profesionales capacitados.",
         "duration_minutes": 30,
@@ -22,37 +22,37 @@
           "name": "Consulta Clínica General",
           "price_display": "100.000 Gs",
           "price_value": 100000,
-          "image": "/branding/adris/images/icons/consultation_general.png"
+          "image": "/branding/terrapet/images/icons/consultation_general.png"
         },
         {
           "name": "Consulta Puppy/Kitten (Primera Visita)",
           "price_display": "80.000 Gs",
           "price_value": 80000,
-          "image": "/branding/adris/images/icons/consultation_puppy.png"
+          "image": "/branding/terrapet/images/icons/consultation_puppy.png"
         },
         {
           "name": "Consulta Gerontológica (Senior)",
           "price_display": "120.000 Gs",
           "price_value": 120000,
-          "image": "/branding/adris/images/icons/consultation_senior.png"
+          "image": "/branding/terrapet/images/icons/consultation_senior.png"
         },
         {
           "name": "Consulta de Urgencia (24hs)",
           "price_display": "250.000 Gs",
           "price_value": 250000,
-          "image": "/branding/adris/images/icons/consultation_emergency.png"
+          "image": "/branding/terrapet/images/icons/consultation_emergency.png"
         },
         {
           "name": "Telemedicina (Video Consulta)",
           "price_display": "80.000 Gs",
           "price_value": 80000,
-          "image": "/branding/adris/images/icons/telemedicine.png"
+          "image": "/branding/terrapet/images/icons/telemedicine.png"
         },
         {
           "name": "Consulta a Domicilio (Mobile Vet)",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/mobile_vet.png"
+          "image": "/branding/terrapet/images/icons/mobile_vet.png"
         }
       ],
       "booking": { "online_enabled": true, "emergency_available": true }
@@ -64,7 +64,7 @@
       "title": "Vacunación y Prevención",
       "icon": "shield-check",
       "summary": "Inmunización certificada y control de parásitos.",
-      "image": "/branding/adris/images/services/vaccination.jpg",
+      "image": "/branding/terrapet/images/services/vaccination.jpg",
       "details": {
         "description": "Biológicos de primera calidad con Carnet Digital.",
         "duration_minutes": 20,
@@ -75,37 +75,37 @@
           "name": "Antirrábica",
           "price_display": "80.000 Gs",
           "price_value": 80000,
-          "image": "/branding/adris/images/icons/rabies.png"
+          "image": "/branding/terrapet/images/icons/rabies.png"
         },
         {
           "name": "Polivalente Canina (Séxtuple/Óctuple)",
           "price_display": "100.000 Gs",
           "price_value": 100000,
-          "image": "/branding/adris/images/icons/polyvalent.png"
+          "image": "/branding/terrapet/images/icons/polyvalent.png"
         },
         {
           "name": "Triple Felina",
           "price_display": "100.000 Gs",
           "price_value": 100000,
-          "image": "/branding/adris/images/icons/polyvalent.png"
+          "image": "/branding/terrapet/images/icons/polyvalent.png"
         },
         {
           "name": "Tos de las Perreras (Intranasal)",
           "price_display": "120.000 Gs",
           "price_value": 120000,
-          "image": "/branding/adris/images/icons/kennel_cough.png"
+          "image": "/branding/terrapet/images/icons/kennel_cough.png"
         },
         {
           "name": "Vacuna Leishmaniasis (Dosis)",
           "price_display": "Consultar",
           "price_value": 0,
-          "image": "/branding/adris/images/icons/vaccination_generic.png"
+          "image": "/branding/terrapet/images/icons/vaccination_generic.png"
         },
         {
           "name": "Desparasitación Interna (Comprimido)",
           "price_display": "Desde 25.000 Gs",
           "price_value": 30000,
-          "image": "/branding/adris/images/icons/deworming.png",
+          "image": "/branding/terrapet/images/icons/deworming.png",
           "size_pricing": {
             "mini": 25000,
             "pequeño": 30000,
@@ -124,7 +124,7 @@
       "title": "Especialidades Médicas",
       "icon": "activity",
       "summary": "Cardio, Onco, Neuro, Oftalmo y más.",
-      "image": "/branding/adris/images/services/specialties.jpg",
+      "image": "/branding/terrapet/images/services/specialties.jpg",
       "details": {
         "description": "Atención por especialistas certificados.",
         "duration_minutes": 45,
@@ -135,31 +135,31 @@
           "name": "Consulta Cardiología",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/cardiology.png"
+          "image": "/branding/terrapet/images/icons/cardiology.png"
         },
         {
           "name": "Consulta Dermatología (Alergias)",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/dermatology.png"
+          "image": "/branding/terrapet/images/icons/dermatology.png"
         },
         {
           "name": "Consulta Oftalmología",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/ophthalmology.png"
+          "image": "/branding/terrapet/images/icons/ophthalmology.png"
         },
         {
           "name": "Consulta Neurología",
           "price_display": "180.000 Gs",
           "price_value": 180000,
-          "image": "/branding/adris/images/icons/neurology.png"
+          "image": "/branding/terrapet/images/icons/neurology.png"
         },
         {
           "name": "Consulta Oncología",
           "price_display": "180.000 Gs",
           "price_value": 180000,
-          "image": "/branding/adris/images/icons/oncology.png"
+          "image": "/branding/terrapet/images/icons/oncology.png"
         },
         {
           "name": "Consulta Reproducción (Theriogenology)",
@@ -170,13 +170,13 @@
           "name": "Consulta Animales Exóticos (Birds/Reptiles)",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/exotic.png"
+          "image": "/branding/terrapet/images/icons/exotic.png"
         },
         {
           "name": "Consulta Comportamiento (Etología)",
           "price_display": "200.000 Gs",
           "price_value": 200000,
-          "image": "/branding/adris/images/icons/behavior.png"
+          "image": "/branding/terrapet/images/icons/behavior.png"
         }
       ],
       "booking": { "online_enabled": true, "emergency_available": false }
@@ -188,7 +188,7 @@
       "title": "Diagnóstico Avanzado",
       "icon": "microscope",
       "summary": "Laboratorio, Imágenes y Genética.",
-      "image": "/branding/adris/images/services/diagnostics.jpg",
+      "image": "/branding/terrapet/images/services/diagnostics.jpg",
       "details": {
         "description": "Tecnología de última generación para diagnósticos precisos.",
         "duration_minutes": 30,
@@ -199,25 +199,25 @@
           "name": "Hemograma + Bioquímica",
           "price_display": "150.000 Gs",
           "price_value": 150000,
-          "image": "/branding/adris/images/icons/bloodwork.png"
+          "image": "/branding/terrapet/images/icons/bloodwork.png"
         },
         {
           "name": "Radiografía Digital",
           "price_display": "120.000 Gs",
           "price_value": 120000,
-          "image": "/branding/adris/images/icons/xray.png"
+          "image": "/branding/terrapet/images/icons/xray.png"
         },
         {
           "name": "Ecografía Doppler Color",
           "price_display": "250.000 Gs",
           "price_value": 250000,
-          "image": "/branding/adris/images/icons/ultrasound.png"
+          "image": "/branding/terrapet/images/icons/ultrasound.png"
         },
         {
           "name": "Ecocardiograma",
           "price_display": "300.000 Gs",
           "price_value": 300000,
-          "image": "/branding/adris/images/icons/ultrasound.png"
+          "image": "/branding/terrapet/images/icons/ultrasound.png"
         },
         { "name": "Tomografía (CT Scan)", "price_display": "Consultar", "price_value": 0 },
         { "name": "Resonancia Magnética (MRI)", "price_display": "Consultar", "price_value": 0 },
@@ -234,7 +234,7 @@
       "title": "Cirugía y Anestesia",
       "icon": "scalpel",
       "summary": "Desde rutina hasta alta complejidad.",
-      "image": "/branding/adris/images/services/surgery.jpg",
+      "image": "/branding/terrapet/images/services/surgery.jpg",
       "details": {
         "description": "Quirófano inteligente con anestesia sevofluorane.",
         "duration_minutes": 0,
@@ -286,7 +286,7 @@
       "title": "Internación y Cuidados Críticos",
       "icon": "pulse",
       "summary": "UCI y monitoreo 24/7.",
-      "image": "/branding/adris/images/services/hospitalization.jpg",
+      "image": "/branding/terrapet/images/services/hospitalization.jpg",
       "details": {
         "description": "Cuidado intensivo para pacientes graves.",
         "duration_minutes": 1440,
@@ -328,7 +328,7 @@
       "title": "Bienestar y Rehabilitación",
       "icon": "sun",
       "summary": "Fisioterapia y medicina integrativa.",
-      "image": "/branding/adris/images/services/senior-care.jpg",
+      "image": "/branding/terrapet/images/services/senior-care.jpg",
       "details": {
         "description": "Recuperación funcional y terapias naturales.",
         "duration_minutes": 45,
@@ -372,7 +372,7 @@
       "title": "Spa & Grooming de Lujo",
       "icon": "scissors",
       "summary": "Estética premium.",
-      "image": "/branding/adris/images/services/grooming-bath.jpg",
+      "image": "/branding/terrapet/images/services/grooming-bath.jpg",
       "details": {
         "description": "Productos importados y trato Fear-Free.",
         "duration_minutes": 60,
@@ -430,7 +430,7 @@
       "title": "Servicios Premium & Hotel",
       "icon": "star",
       "summary": "Comodidad máxima para vos y tu mascota.",
-      "image": "/branding/adris/images/services/hotel.jpg",
+      "image": "/branding/terrapet/images/services/hotel.jpg",
       "details": {
         "description": "Soluciones exclusivas.",
         "duration_minutes": 0,
@@ -470,7 +470,7 @@
       "title": "Trámites",
       "icon": "file-text",
       "summary": "Documentación oficial.",
-      "image": "/branding/adris/images/services/travel-docs.jpg",
+      "image": "/branding/terrapet/images/services/travel-docs.jpg",
       "details": {
         "description": "Gestión de papeles.",
         "duration_minutes": 20,

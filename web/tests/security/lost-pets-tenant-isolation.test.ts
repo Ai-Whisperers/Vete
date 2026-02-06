@@ -16,12 +16,12 @@ import { createMockUser, mockAuthenticatedUser } from '../helpers/auth-mock'
 import type { TestUser } from '../helpers/auth-mock'
 
 // Mock data
-const TENANT_A = 'adris'
+const TENANT_A = 'terrapet'
 const TENANT_B = 'petlife'
 
 const mockUserTenantA: TestUser = {
   id: 'user-tenant-a',
-  email: 'vet@adris.com',
+  email: 'vet@terrapet.com',
   role: 'vet',
   tenantId: TENANT_A,
 }
@@ -35,7 +35,7 @@ const mockUserTenantB: TestUser = {
 
 const mockAdminTenantA: TestUser = {
   id: 'admin-tenant-a',
-  email: 'admin@adris.com',
+  email: 'admin@terrapet.com',
   role: 'admin',
   tenantId: TENANT_A,
 }

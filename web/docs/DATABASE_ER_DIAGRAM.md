@@ -64,7 +64,7 @@ erDiagram
     profiles ||--o{ clinic_invites : "invited_by"
 
     tenants {
-        TEXT id PK "Slug (e.g., 'adris')"
+        TEXT id PK "Slug (e.g., 'terrapet')"
         TEXT name "Clinic name"
         TIMESTAMPTZ created_at
         TIMESTAMPTZ updated_at

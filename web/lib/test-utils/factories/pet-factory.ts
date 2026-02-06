@@ -662,7 +662,7 @@ export class PetFactory {
 export async function createPetsForOwner(
   ownerId: string,
   count: number = 5,
-  tenantId: string = 'adris'
+  tenantId: string = 'terrapet'
 ): Promise<Array<{ pet: PetData; vaccines: VaccineData[] }>> {
   const results: Array<{ pet: PetData; vaccines: VaccineData[] }> = []
   const profiles: PetProfile[] = ['healthy', 'chronic', 'senior', 'puppy', 'standard']

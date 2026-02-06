@@ -52,7 +52,7 @@ export { cleanupManager }
  * Dedicated tenant ID for integration tests.
  * This tenant should exist in the database with necessary seed data.
  */
-export const TEST_TENANT_ID = 'adris'
+export const TEST_TENANT_ID = 'terrapet'
 
 /**
  * Test users for different roles (must exist in Supabase Auth)

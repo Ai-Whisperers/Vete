@@ -13,7 +13,7 @@ import { test as setup, expect } from '@playwright/test'
 import * as fs from 'fs'
 import { resolve } from 'path'
 
-const E2E_TEST_TENANT = 'adris'
+const E2E_TEST_TENANT = 'terrapet'
 
 const E2E_TEST_OWNER = {
   email: 'e2e-owner@test.local',

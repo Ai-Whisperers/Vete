@@ -103,7 +103,7 @@ export default function DemoPage() {
                 Accede a nuestra demo en vivo y navegá todas las funcionalidades.
               </p>
               <Link
-                href="/adris"
+                href="/terrapet"
                 className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-3 font-bold text-white transition-all hover:bg-teal-700"
               >
                 Ir a Demo en Vivo

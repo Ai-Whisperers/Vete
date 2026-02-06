@@ -33,12 +33,12 @@ describe('TerraPet Tenant Isolation Integration', () => {
   let tracker: RLSTestDataTracker
   let terrapetOwner: TestUserContext
   let terrapetVet: TestUserContext
-  let adrisOwner: TestUserContext
-  let adrisVet: TestUserContext
+  let terrapetOwner: TestUserContext
+  let terrapetVet: TestUserContext
   let terrapetPetId: string
-  let adrisPetId: string
+  let terrapetPetId: string
   let terrapetAppointmentId: string
-  let adrisAppointmentId: string
+  let terrapetAppointmentId: string
 
   beforeAll(async () => {
     // Clean up any leftover data from previous test runs
@@ -48,7 +48,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
 
     // Create tenants
     await createTestTenant('terrapet', 'TerraPet', tracker)
-    await createTestTenant('adris', 'Veterinaria Adris', tracker)
+    await createTestTenant('terrapet', 'Veterinaria Adris', tracker)
 
     // Create users for each tenant with unique emails
     const timestamp = Date.now()
@@ -69,18 +69,18 @@ describe('TerraPet Tenant Isolation Integration', () => {
       tracker
     )
 
-    adrisOwner = await createTestUser(
-      'adris',
+    terrapetOwner = await createTestUser(
+      'terrapet',
       'owner',
-      `adris-owner-${timestamp}@test.com`,
+      `terrapet-owner-${timestamp}@test.com`,
       'testpass123',
       tracker
     )
 
-    adrisVet = await createTestUser(
-      'adris',
+    terrapetVet = await createTestUser(
+      'terrapet',
       'vet',
-      `adris-vet-${timestamp}@test.com`,
+      `terrapet-vet-${timestamp}@test.com`,
       'testpass123',
       tracker
     )
@@ -93,7 +93,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
       tracker
     )
 
-    adrisPetId = await createTestPet('adris', adrisOwner.userId, 'Adris Cat', tracker)
+    terrapetPetId = await createTestPet('terrapet', terrapetOwner.userId, 'Adris Cat', tracker)
 
     // Create appointments for each tenant
     terrapetAppointmentId = await createTestAppointment(
@@ -103,16 +103,16 @@ describe('TerraPet Tenant Isolation Integration', () => {
       tracker
     )
 
-    adrisAppointmentId = await createTestAppointment(
-      'adris',
-      adrisPetId,
-      adrisOwner.userId,
+    terrapetAppointmentId = await createTestAppointment(
+      'terrapet',
+      terrapetPetId,
+      terrapetOwner.userId,
       tracker
     )
 
     // Create medical records for each tenant
     await createTestMedicalRecord('terrapet', terrapetPetId, terrapetVet.userId, tracker)
-    await createTestMedicalRecord('adris', adrisPetId, adrisVet.userId, tracker)
+    await createTestMedicalRecord('terrapet', terrapetPetId, terrapetVet.userId, tracker)
   })
 
   afterAll(async () => {
@@ -165,11 +165,11 @@ describe('TerraPet Tenant Isolation Integration', () => {
     })
 
     it('appointments JOIN pets - cannot access cross-tenant via join', async () => {
-      // Try to query adris appointment as terrapet user
+      // Try to query terrapet appointment as terrapet user
       const { data, error } = await terrapetOwner.client
         .from('appointments')
         .select('*, pets(*)')
-        .eq('id', adrisAppointmentId)
+        .eq('id', terrapetAppointmentId)
         .single()
 
       // Should return no data due to RLS filtering
@@ -238,19 +238,19 @@ describe('TerraPet Tenant Isolation Integration', () => {
         .from('pets')
         .select('*', { count: 'exact', head: true })
 
-      const { count: adrisCount } = await adrisVet.client
+      const { count: terrapetCount } = await terrapetVet.client
         .from('pets')
         .select('*', { count: 'exact', head: true })
 
       // Each vet should see different counts (their own tenant's pets)
       expect(terrapetCount).toBeDefined()
-      expect(adrisCount).toBeDefined()
+      expect(terrapetCount).toBeDefined()
 
       // Counts should be different (each tenant has different pets)
-      if (terrapetCount !== null && adrisCount !== null) {
+      if (terrapetCount !== null && terrapetCount !== null) {
         // Both should have at least 1 pet
         expect(terrapetCount).toBeGreaterThan(0)
-        expect(adrisCount).toBeGreaterThan(0)
+        expect(terrapetCount).toBeGreaterThan(0)
       }
     })
 
@@ -276,10 +276,10 @@ describe('TerraPet Tenant Isolation Integration', () => {
     it('cannot insert pet with mismatched tenant_id', async () => {
       const serviceClient = createServiceClient()
 
-      // Create a pet with terrapet tenant_id but owned by adris user
+      // Create a pet with terrapet tenant_id but owned by terrapet user
       const { data, error } = await serviceClient.from('pets').insert({
         tenant_id: 'terrapet', // Wrong tenant
-        owner_id: adrisOwner.userId, // Adris user
+        owner_id: terrapetOwner.userId, // Adris user
         name: 'Mismatched Pet',
         species: 'dog',
         breed: 'Test Breed',
@@ -377,20 +377,20 @@ describe('TerraPet Tenant Isolation Integration', () => {
     it('vet CANNOT update medical record from different tenant', async () => {
       const serviceClient = createServiceClient()
 
-      // Get an adris medical record ID
-      const { data: adrisRecords } = await serviceClient
+      // Get an terrapet medical record ID
+      const { data: terrapetRecords } = await serviceClient
         .from('medical_records')
         .select('id')
         .eq('tenant_id', TENANT_IDS.ADRIS)
         .limit(1)
         .single()
 
-      if (adrisRecords) {
+      if (terrapetRecords) {
         // Try to update as terrapet vet
         const { error } = await terrapetVet.client
           .from('medical_records')
           .update({ clinical_notes: 'Unauthorized update attempt' })
-          .eq('id', adrisRecords.id)
+          .eq('id', terrapetRecords.id)
 
         // Should fail or return no rows affected
         expect(error).toBeDefined()
@@ -462,7 +462,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
     })
 
     it('owner cannot delete pet from different tenant', async () => {
-      const { error } = await terrapetOwner.client.from('pets').delete().eq('id', adrisPetId)
+      const { error } = await terrapetOwner.client.from('pets').delete().eq('id', terrapetPetId)
 
       // Should fail or affect 0 rows
       expect(error).toBeDefined()
@@ -488,7 +488,7 @@ describe('TerraPet Tenant Isolation Integration', () => {
         .from('pets')
         .insert({
           tenant_id: TENANT_IDS.ADRIS,
-          owner_id: adrisOwner.userId,
+          owner_id: terrapetOwner.userId,
           name: 'Temp Pet 2',
           species: 'cat',
           breed: 'Test',

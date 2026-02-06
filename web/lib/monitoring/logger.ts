@@ -269,7 +269,7 @@ class Logger {
     const sentryDsn = process.env.SENTRY_DSN
     if (!sentryDsn) return
 
-    const sentryData = {
+    const sentryData: Record<string, unknown> = {
       timestamp: entry.timestamp,
       level: entry.level === 'critical' ? 'fatal' : entry.level,
       logger: 'deprecated-monitoring-logger',

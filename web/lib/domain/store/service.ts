@@ -511,15 +511,16 @@ export class StoreService {
    * Map database errors to user-friendly messages
    */
   private mapDatabaseError(error: unknown): string {
-    if (error?.code === '23505') {
+    const err = error as { code?: string; message?: string } | null;
+    if (err?.code === '23505') {
       return 'This item already exists in the system';
     }
-    if (error?.code === '23503') {
+    if (err?.code === '23503') {
       return 'Referenced item does not exist';
     }
-    if (error?.code === '23514') {
+    if (err?.code === '23514') {
       return 'Invalid data provided';
     }
-    return error?.message || 'An unexpected error occurred';
+    return err?.message || 'An unexpected error occurred';
   }
 }

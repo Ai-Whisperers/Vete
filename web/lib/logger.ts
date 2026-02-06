@@ -276,7 +276,7 @@ function sendToExternalServices(entry: LogEntry): void {
 function sendToDataDog(entry: LogEntry): void {
   if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_SITE) return
 
-  const ddData = {
+  const ddData: Record<string, unknown> = {
     timestamp: new Date(entry.timestamp).getTime(),
     level: entry.level,
     message: entry.message,
@@ -317,7 +317,7 @@ function sendToLogRocket(entry: LogEntry): void {
 
   // LogRocket is typically client-side, but we can send server events
   // via their REST API for correlation with client sessions
-  const lrData = {
+  const lrData: Record<string, unknown> = {
     timestamp: entry.timestamp,
     level: entry.level,
     message: entry.message,

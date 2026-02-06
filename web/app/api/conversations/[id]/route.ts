@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server'
 import { withApiAuthParams } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { z } from 'zod'
 
 type Params = { id: string }
+
+const conversationMessagesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+})
+
+const updateConversationSchema = z.object({
+  status: z.enum(['open', 'pending', 'resolved', 'closed']).optional(),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+  assigned_to: z.string().uuid().optional(),
+  subject: z.string().max(200).optional(),
+}).refine(
+  (data) => Object.keys(data).length > 0,
+  'Al menos un campo debe ser proporcionado'
+)
 
 // GET /api/conversations/[id] - Get conversation with messages
 export const GET = withApiAuthParams<Params>(async (ctx) => {
@@ -42,8 +58,19 @@ export const GET = withApiAuthParams<Params>(async (ctx) => {
 
     // Get messages
     const { searchParams } = new URL(ctx.request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    
+    const queryResult = conversationMessagesQuerySchema.safeParse({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { page, limit } = queryResult.data
     const offset = (page - 1) * limit
 
     const {
@@ -102,25 +129,21 @@ export const PATCH = withApiAuthParams<Params>(
 
     try {
       const body = await request.json()
+      const result = updateConversationSchema.safeParse(body)
+
+      if (!result.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { issues: result.error.issues },
+        })
+      }
+
       const updates: {
         status?: string
         priority?: string
         assigned_to?: string
         subject?: string
         closed_at?: string
-      } = {}
-
-      // Check each allowed field individually for type safety
-      if (body.status !== undefined) updates.status = body.status
-      if (body.priority !== undefined) updates.priority = body.priority
-      if (body.assigned_to !== undefined) updates.assigned_to = body.assigned_to
-      if (body.subject !== undefined) updates.subject = body.subject
-
-      if (Object.keys(updates).length === 0) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: 'No hay campos para actualizar' },
-        })
-      }
+      } = result.data
 
       // If closing, set closed_at
       if (updates.status === 'closed') {

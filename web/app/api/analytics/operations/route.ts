@@ -3,6 +3,11 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { z } from 'zod'
+
+const operationsAnalyticsQuerySchema = z.object({
+  period: z.enum(['week', 'month', 'quarter']).default('month'),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +24,18 @@ interface DateRange {
 export const GET = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const period = searchParams.get('period') || 'month'
+    
+    const queryResult = operationsAnalyticsQuerySchema.safeParse({
+      period: searchParams.get('period'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { period } = queryResult.data
     const tenantId = profile.tenant_id
 
     try {

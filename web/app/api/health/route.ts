@@ -9,7 +9,15 @@ export async function GET() {
 
   try {
     // Basic health checks
-    const checks = {
+    const checks: {
+      timestamp: string
+      uptime: number
+      memory: NodeJS.MemoryUsage
+      env: string
+      version: string
+      node: string
+      database?: { status: string; responseTime: number; error?: string }
+    } = {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),

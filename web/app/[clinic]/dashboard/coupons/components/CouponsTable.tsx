@@ -164,6 +164,7 @@ interface CouponRowProps {
 }
 
 function CouponRow({ coupon, onEdit, onDelete }: CouponRowProps): React.ReactElement {
+  const t = useTranslations()
   return (
     <tr className="transition-colors hover:bg-gray-50">
       <td className="px-6 py-4">

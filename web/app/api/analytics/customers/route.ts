@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+
+const customerAnalyticsQuerySchema = z.object({
+  period: z.coerce.number().int().min(1).max(365).default(90),
+})
 
 /**
  * GET /api/analytics/customers
@@ -13,10 +18,18 @@ import { logger } from '@/lib/logger'
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const period = parseInt(searchParams.get('period') || '90', 10)
+    
+    const queryResult = customerAnalyticsQuerySchema.safeParse({
+      period: searchParams.get('period'),
+    })
 
-    // Validate period (1-365 days)
-    const validPeriod = Math.min(Math.max(period, 1), 365)
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { period: validPeriod } = queryResult.data
 
     try {
       // Use database function for efficient aggregation

@@ -1,4 +1,4 @@
-import { getCLS, getFCP, getFID, getLCP, getTTFB, getINP } from 'web-vitals'
+import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals'
 import * as Sentry from '@sentry/nextjs'
 
 interface VitalsMetric {
@@ -78,19 +78,17 @@ function handleMetric(metric: VitalsMetric) {
  */
 export function initWebVitals() {
   try {
-    // Core Web Vitals
-    getCLS(handleMetric) // Cumulative Layout Shift
-    getFID(handleMetric) // First Input Delay
-    getLCP(handleMetric) // Largest Contentful Paint
+    // Core Web Vitals (web-vitals v4 uses onXXX instead of getXXX)
+    onCLS(handleMetric) // Cumulative Layout Shift
+    onLCP(handleMetric) // Largest Contentful Paint
+    // Note: FID removed in web-vitals v4, replaced by INP
     
     // Other important metrics
-    getFCP(handleMetric) // First Contentful Paint
-    getTTFB(handleMetric) // Time to First Byte
+    onFCP(handleMetric) // First Contentful Paint
+    onTTFB(handleMetric) // Time to First Byte
     
     // INP is the successor to FID
-    if (typeof getINP === 'function') {
-      getINP(handleMetric) // Interaction to Next Paint
-    }
+    onINP(handleMetric) // Interaction to Next Paint
   } catch (error) {
     // Silently fail if web-vitals library has issues
     console.debug('Failed to initialize web vitals:', error)

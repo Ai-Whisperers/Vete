@@ -73,13 +73,11 @@ export default defineConfig(() => ({
     // Reporter configuration
     reporters: ['verbose'],
 
-    // Pool configuration for parallel execution
+    // Pool configuration for parallel execution (Vitest 4 flat config)
     // Run sequentially to avoid Supabase rate limits on auth operations
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true, // Force sequential execution
-      },
+    forks: {
+      singleFork: true, // Force sequential execution
     },
     isolate: true,
     maxConcurrency: 1, // One test at a time

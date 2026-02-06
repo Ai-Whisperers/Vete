@@ -1,17 +1,32 @@
-import { test, expect } from 'vitest'
-import { createClient } from '@supabase/supabase-js'
+import { test, expect, beforeAll, afterAll } from 'vitest'
+import { getTestClient, TestContext } from '../__helpers__/db'
+import { createProfile } from '../__helpers__/factories'
 import { TENANT_IDS } from '@/lib/constants/tenants';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const ctx = new TestContext()
+let testOwnerId: string
+
+beforeAll(async () => {
+  // Create test owner for the pet test
+  const profile = await createProfile({
+    tenantId: TENANT_IDS.ADRIS,
+    role: 'owner',
+  })
+  testOwnerId = profile.id
+  ctx.track('profiles', testOwnerId)
+})
+
+afterAll(async () => {
+  await ctx.cleanup()
+})
 
 test('creates a pet via Supabase client', async () => {
+  const supabase = getTestClient({ serviceRole: true })
+  
   const { data, error } = await supabase
     .from('pets')
     .insert({
-      owner_id: '00000000-0000-0000-0000-000000000001',
+      owner_id: testOwnerId,
       tenant_id: TENANT_IDS.ADRIS,
       name: 'TestDog',
       species: 'dog',
@@ -22,6 +37,6 @@ test('creates a pet via Supabase client', async () => {
   expect(data).toBeDefined()
   // Cleanup
   if (data && data[0]) {
-    await supabase.from('pets').delete().eq('id', data[0].id)
+    ctx.track('pets', data[0].id)
   }
 })

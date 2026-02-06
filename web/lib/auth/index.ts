@@ -72,3 +72,16 @@ export {
   clearAllCachedSessions,
   getCacheStats,
 } from './session-cache'
+
+// Auth monitoring and security (S004-T002)
+export {
+  logAuthAttempt,
+  logSuccessfulLogin,
+  logFailedLogin,
+  checkSuspiciousActivity,
+  withAuthMonitoring,
+  getAuthActivitySummary,
+  getClientInfo,
+  type AuthAttempt,
+  type AuthAttemptAlert,
+} from './monitoring'

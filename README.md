@@ -24,11 +24,27 @@ A SaaS veterinary clinic management platform built with Next.js 15, Supabase, an
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Environment Setup**
+
+   Copy `.env.example` to `.env.local`:
    ```bash
    cd web
    cp .env.example .env.local
-   # Edit .env.local with your Supabase credentials
+   ```
+
+   Fill in your Supabase credentials from the dashboard:
+
+   ```bash
+   # Required: Get these from https://supabase.com/dashboard/project/YOUR_PROJECT/settings/api
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+   # Service role key (KEEP SECRET - server only)
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+   # Optional: Configure rate limiting with Upstash Redis
+   UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
+   UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
    ```
 
 4. **Run development server**

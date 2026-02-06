@@ -3,6 +3,43 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { env } from '@/lib/env'
 import { getDomainMapping, isCustomDomain } from '@/lib/domains'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+
+// ============================================================================
+// RATE LIMITING
+// Upstash-based rate limiting for API protection
+// ============================================================================
+
+// Check if Upstash Redis is configured
+const isRateLimitingEnabled = !!(
+  process.env.UPSTASH_REDIS_REST_URL && 
+  process.env.UPSTASH_REDIS_REST_TOKEN
+)
+
+// Only create rate limiters if Upstash Redis is configured
+let generalRateLimit: Ratelimit | null = null
+let authRateLimit: Ratelimit | null = null
+
+if (isRateLimitingEnabled) {
+  try {
+    // General API rate limiting - 100 requests per minute per IP
+    generalRateLimit = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(100, '1 m'),
+      analytics: true,
+    })
+
+    // Stricter rate limiting for auth endpoints - 10 requests per minute per IP
+    authRateLimit = new Ratelimit({
+      redis: Redis.fromEnv(), 
+      limiter: Ratelimit.slidingWindow(10, '1 m'),
+      analytics: true,
+    })
+  } catch (error) {
+    console.error('[RATE LIMIT] Failed to initialize rate limiters:', error)
+  }
+}
 
 // ============================================================================
 // MIDDLEWARE LOGGING
@@ -100,6 +137,70 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // ============================================================================
+  // RATE LIMITING
+  // Apply rate limiting before other middleware logic
+  // ============================================================================
+
+  // Determine which rate limiter to use based on path
+  const isAuthEndpoint = path.includes('/api/auth') || path.includes('/portal/login') || path.includes('/portal/signup')
+  const isApiEndpoint = path.startsWith('/api/')
+  
+  // Only apply rate limiting to API endpoints and auth pages if rate limiting is enabled
+  if ((isApiEndpoint || isAuthEndpoint) && isRateLimitingEnabled) {
+    const rateLimiter = isAuthEndpoint ? authRateLimit : generalRateLimit
+    const limitType = isAuthEndpoint ? 'auth' : 'api'
+    
+    if (rateLimiter) {
+      try {
+        // Use IP address for rate limiting
+        const identifier = ip
+        const { success, limit, remaining, reset } = await rateLimiter.limit(identifier)
+        
+        middlewareLog(success ? 'info' : 'warn', `Rate limit ${success ? 'passed' : 'exceeded'}`, {
+          ...baseLogContext,
+          rateLimitType: limitType,
+          remaining,
+          limit,
+          reset: new Date(reset).toISOString(),
+        })
+        
+        if (!success) {
+          // Return 429 Too Many Requests with proper headers
+          const rateLimitResponse = new NextResponse('Too Many Requests', { 
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': new Date(reset).toISOString(),
+              'Retry-After': Math.round((reset - Date.now()) / 1000).toString(),
+              'Content-Type': 'text/plain',
+              'x-request-id': requestId,
+            }
+          })
+          
+          return rateLimitResponse
+        }
+        
+        // Add rate limit headers to successful responses (will be added to final response)
+        baseLogContext.rateLimitRemaining = remaining
+        baseLogContext.rateLimitLimit = limit
+      } catch (error) {
+        middlewareLog('error', 'Rate limiting error - continuing without rate limit', {
+          ...baseLogContext,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        })
+        // Continue without rate limiting if there's an error
+      }
+    }
+  } else if ((isApiEndpoint || isAuthEndpoint) && !isRateLimitingEnabled) {
+    // Log when rate limiting is skipped due to missing configuration
+    middlewareLog('warn', 'Rate limiting skipped - Upstash Redis not configured', {
+      ...baseLogContext,
+      endpointType: isAuthEndpoint ? 'auth' : 'api',
+    })
+  }
+
+  // ============================================================================
   // CUSTOM DOMAIN RESOLUTION
   // Resolve custom domains to tenant slugs via URL rewriting
   // ============================================================================
@@ -140,6 +241,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Add headers to response for downstream code and correlation
   response.headers.set('x-pathname', path)
   response.headers.set('x-request-id', requestId)
+  
+  // Add rate limit headers if rate limiting was applied
+  if (baseLogContext.rateLimitLimit) {
+    response.headers.set('X-RateLimit-Limit', baseLogContext.rateLimitLimit.toString())
+    response.headers.set('X-RateLimit-Remaining', baseLogContext.rateLimitRemaining?.toString() || '0')
+  }
 
   // OPTIMIZATION: Skip auth for public routes to reduce latency
   // Public routes don't need session refresh (saves ~50-100ms per request)
@@ -209,6 +316,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
     const redirectResponse = NextResponse.redirect(url)
     redirectResponse.headers.set('x-request-id', requestId)
+    
+    // Add rate limit headers if rate limiting was applied
+    if (baseLogContext.rateLimitLimit) {
+      redirectResponse.headers.set('X-RateLimit-Limit', baseLogContext.rateLimitLimit.toString())
+      redirectResponse.headers.set('X-RateLimit-Remaining', baseLogContext.rateLimitRemaining?.toString() || '0')
+    }
+    
     return redirectResponse
   }
 
@@ -240,6 +354,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
     const redirectResponse = NextResponse.redirect(url)
     redirectResponse.headers.set('x-request-id', requestId)
+    
+    // Add rate limit headers if rate limiting was applied
+    if (baseLogContext.rateLimitLimit) {
+      redirectResponse.headers.set('X-RateLimit-Limit', baseLogContext.rateLimitLimit.toString())
+      redirectResponse.headers.set('X-RateLimit-Remaining', baseLogContext.rateLimitRemaining?.toString() || '0')
+    }
+    
     return redirectResponse
   }
 
@@ -278,6 +399,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
       const redirectResponse = NextResponse.redirect(url)
       redirectResponse.headers.set('x-request-id', requestId)
+      
+      // Add rate limit headers if rate limiting was applied
+      if (baseLogContext.rateLimitLimit) {
+        redirectResponse.headers.set('X-RateLimit-Limit', baseLogContext.rateLimitLimit.toString())
+        redirectResponse.headers.set('X-RateLimit-Remaining', baseLogContext.rateLimitRemaining?.toString() || '0')
+      }
+      
       return redirectResponse
     }
 

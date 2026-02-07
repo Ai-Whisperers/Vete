@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createExpenseSchema } from '@/lib/schemas/finance'
 
 /**
  * GET /api/finance/expenses
@@ -49,22 +50,20 @@ export const POST = withApiAuth(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    // Explicitly destructure allowed fields - don't spread body
-    const { amount, category, description, date, vendor, notes, receipt_url } = body
-
-    // Validate required fields
-    if (!amount || !category || !date) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['amount', 'category', 'date'] },
-      })
-    }
-
-    // Validate amount is positive number
-    if (typeof amount !== 'number' || amount <= 0) {
+    // VALID-004: Validate with Zod schema
+    const validation = createExpenseSchema.safeParse(body)
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { field: 'amount', reason: 'Must be a positive number' },
+        details: {
+          errors: validation.error.issues.map((i) => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
       })
     }
+
+    const { amount, category, description, date, vendor, notes, receipt_url } = validation.data
 
     const { data, error } = await supabase
       .from('expenses')

@@ -1,40 +1,135 @@
-# 🚀 Despliegue en Vercel (Guía Rápida)
+# 🚀 Despliegue en GCP (Google Cloud Platform)
 
-He optimizado tu proyecto para trabajar nativamente con **Vercel**.
+Vete se despliega en una VM de GCP usando GitHub Actions.
 
-## ⚠️ IMPORTANTE: Ubicación
+## Producción
 
-Para que funcione, **DEBES** estar dentro de la carpeta `web`.
+- **URL:** http://34.151.201.27:3000
+- **VM:** vete-prod (e2-medium)
+- **Región:** southamerica-east1 (São Paulo)
+- **OS:** Ubuntu 22.04 LTS
 
-1.  Abre tu terminal.
-2.  Asegúrate de entrar a la carpeta correcta:
-    ```bash
-    cd web
-    ```
-3.  Ejecuta el comando de despliegue:
-    ```bash
-    npx vercel
-    ```
+## Despliegue Automático
 
-## Pasos del Asistente de Vercel
+Cada push a `main` activa el workflow de GitHub Actions que:
 
-Cuando ejecutes el comando, te preguntará varias cosas. Responde así:
+1. Ejecuta tests
+2. Se conecta a la VM via SSH
+3. Hace pull del código
+4. Instala dependencias
+5. Hace build
+6. Reinicia con PM2
 
-- `Set up and deploy?` -> **Y** (Yes)
-- `Which scope?` -> Selecciona tu cuenta.
-- `Link to existing project?` -> **N** (No)
-  _(Nota: Si ya creaste uno fallido antes, di No para crear uno nuevo limpio, o Sí para arreglar el anterior sobrescribiéndolo)_
-- `Project name?` -> `veterinaria-app` (o el nombre que gustes)
-- `In which directory?` -> `./` (Enter)
-  _(Si muestra `No framework detected`, ¡ALTO! Estás en la carpeta incorrecta. Cancela con Ctrl+C, entra a `cd web` y empieza de nuevo)._
-- `Want to modify these settings?` -> **N** (No)
+## Configuración Inicial (una vez)
 
-¡Y listo! Vercel detectará **Next.js** automáticamente y te dará una URL funcionando.
+### 1. En la VM de GCP
 
-## Cómo probar las clínicas
+```bash
+# Instalar Node.js 22
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-Una vez desplegado, tendrás una URL como `https://veterinaria-app.vercel.app`.
-Prueba las siguientes rutas:
+# Instalar PM2
+sudo npm install -g pm2
 
-- **Adris:** `https://.../terrapet`
-- **Petlife:** `https://.../petlife`
+# Clonar el repo
+cd /home/ai-whisperers
+git clone https://github.com/Ai-Whisperers/Vete.git
+cd Vete/web
+
+# Configurar .env.local
+cp .env.example .env.local
+# Editar con las credenciales de producción
+
+# Build inicial
+npm ci --legacy-peer-deps
+npm run build
+
+# Iniciar con PM2
+pm2 start npm --name vete-web -- start
+pm2 startup
+pm2 save
+```
+
+### 2. En GitHub
+
+Agregar secret `GCP_SSH_PRIVATE_KEY` con la clave privada SSH:
+
+```bash
+# Generar par de claves (si no existe)
+ssh-keygen -t ed25519 -C "github-actions@vete"
+
+# Agregar clave pública a la VM
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+
+# Copiar clave privada para GitHub Secrets
+cat ~/.ssh/id_ed25519
+```
+
+Ir a: Repo → Settings → Secrets → Actions → New repository secret
+
+## Despliegue Manual
+
+```bash
+# Conectar a la VM
+ssh ai-whisperers@34.151.201.27
+
+# Ir al directorio
+cd /home/ai-whisperers/Vete/web
+
+# Pull, build, restart
+git pull origin main
+npm ci --legacy-peer-deps
+npm run build
+pm2 restart vete-web
+```
+
+## Monitoreo
+
+```bash
+# Ver logs
+pm2 logs vete-web
+
+# Estado
+pm2 status
+
+# Monitoreo en tiempo real
+pm2 monit
+```
+
+## Dominios (próximamente)
+
+Para configurar un dominio custom:
+
+1. Configurar DNS A record apuntando a 34.151.201.27
+2. Instalar Nginx como reverse proxy
+3. Configurar SSL con Let's Encrypt
+
+```bash
+# Instalar Nginx y Certbot
+sudo apt install nginx certbot python3-certbot-nginx
+
+# Configurar sitio (ejemplo: vete.ai-whisperers.com)
+sudo nano /etc/nginx/sites-available/vete
+```
+
+## Troubleshooting
+
+### App no inicia
+```bash
+pm2 logs vete-web --lines 50
+```
+
+### Puerto 3000 ocupado
+```bash
+sudo lsof -i :3000
+pm2 delete all
+pm2 start npm --name vete-web -- start
+```
+
+### Error de build
+```bash
+rm -rf .next node_modules
+npm ci --legacy-peer-deps
+npm run build
+```

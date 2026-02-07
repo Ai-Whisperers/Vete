@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { LIMITS } from '@/lib/constants'
 import * as ExcelJS from 'exceljs'
+import { inventoryImportPreviewBodySchema } from '@/lib/schemas/inventory'
 
 interface PreviewRow {
   rowNumber: number
@@ -80,19 +81,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // Handle JSON body request (pre-mapped rows from wizard)
     if (isJsonRequest) {
-      const body = await req.json()
-      const rows = body.rows as Record<string, unknown>[]
-
-      if (!rows || !Array.isArray(rows) || rows.length === 0) {
-        return NextResponse.json({ error: 'Datos faltantes o vacíos' }, { status: 400 })
+      const rawBody = await req.json()
+      
+      // Validate with Zod
+      const validation = inventoryImportPreviewBodySchema.safeParse(rawBody)
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: 'Datos inválidos', issues: validation.error.issues },
+          { status: 400 }
+        )
       }
+
+      const { rows } = validation.data
 
       if (rows.length > LIMITS.MAX_IMPORT_ROWS) {
         return NextResponse.json({ error: `Máximo ${LIMITS.MAX_IMPORT_ROWS} filas permitidas` }, { status: 400 })
       }
 
       // Process the pre-mapped rows (skip to the preview analysis section)
-      return await processPreview(rows, profile, supabase)
+      return await processPreview(rows as Record<string, unknown>[], profile, supabase)
     }
 
     // Handle FormData file upload

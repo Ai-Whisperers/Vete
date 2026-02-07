@@ -52,3 +52,38 @@ export const inventoryImportPreviewSchema = z.object({
 })
 
 export type InventoryImportPreviewInput = z.infer<typeof inventoryImportPreviewSchema>
+
+/**
+ * Schema for inventory receive
+ */
+export const inventoryReceiveSchema = z.object({
+  product_id: uuidSchema,
+  quantity: z.number().int().positive('La cantidad debe ser mayor a 0'),
+  unit_cost: z.number().min(0).optional(),
+  notes: optionalString(500),
+  batch_number: optionalString(100),
+  expiry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato: YYYY-MM-DD').optional(),
+})
+
+export type InventoryReceiveInput = z.infer<typeof inventoryReceiveSchema>
+
+/**
+ * Schema for inventory import preview (JSON body mode)
+ */
+export const inventoryImportRowSchema = z.object({
+  operation: z.string().optional(),
+  sku: z.string().optional(),
+  name: z.string().optional(),
+  category: z.string().optional(),
+  price: z.number().optional(),
+  quantity: z.number().optional(),
+  unit_cost: z.number().optional(),
+  expiry_date: z.string().optional().nullable(),
+  batch_number: z.string().optional().nullable(),
+})
+
+export const inventoryImportPreviewBodySchema = z.object({
+  rows: z.array(inventoryImportRowSchema).min(1, 'Al menos una fila requerida'),
+})
+
+export type InventoryImportPreviewBodyInput = z.infer<typeof inventoryImportPreviewBodySchema>

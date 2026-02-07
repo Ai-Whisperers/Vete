@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { processRefundSchema } from '@/lib/schemas/invoice'
 
 /**
  * POST /api/invoices/[id]/refund
@@ -14,18 +15,16 @@ export const POST = withApiAuthParams(
 
     try {
       const body = await request.json()
-      const { amount, reason, payment_id } = body
 
-      // SEC-019: Validate positive amount for refunds
-      if (!amount || typeof amount !== 'number' || amount <= 0) {
+      // SEC-019: Validate input with Zod schema
+      const validation = processRefundSchema.safeParse(body)
+      if (!validation.success) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { field: 'amount', message: 'El monto debe ser positivo' },
+          details: { issues: validation.error.issues },
         })
       }
 
-      if (!reason || typeof reason !== 'string') {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'reason' } })
-      }
+      const { amount, reason, payment_id } = validation.data
 
       // Use atomic RPC function to prevent race conditions
       // The function handles row locking, validation, and atomic updates

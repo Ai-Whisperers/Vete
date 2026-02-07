@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuthParams, isStaff, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { recordPaymentSchema } from '@/lib/schemas/invoice'
 
 /**
  * POST /api/invoices/[id]/payments
@@ -14,14 +15,16 @@ export const POST = withApiAuthParams(
 
     try {
       const body = await request.json()
-      const { amount, payment_method, reference_number, notes } = body
 
-      // SEC-019: Validate positive amount for payments
-      if (!amount || typeof amount !== 'number' || amount <= 0) {
+      // SEC-019: Validate input with Zod schema
+      const validation = recordPaymentSchema.safeParse(body)
+      if (!validation.success) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { field: 'amount', message: 'El monto debe ser positivo' },
+          details: { issues: validation.error.issues },
         })
       }
+
+      const { amount, payment_method, reference, notes } = validation.data
 
       // Use atomic RPC function to prevent race conditions
       // The function handles row locking, validation, and atomic updates
@@ -29,8 +32,8 @@ export const POST = withApiAuthParams(
         p_invoice_id: invoiceId,
         p_tenant_id: profile.tenant_id,
         p_amount: amount,
-        p_payment_method: payment_method || 'cash',
-        p_reference_number: reference_number || null,
+        p_payment_method: payment_method,
+        p_reference_number: reference || null,
         p_notes: notes || null,
         p_received_by: user.id,
       })
@@ -56,7 +59,7 @@ export const POST = withApiAuthParams(
       const { logAudit } = await import('@/lib/audit')
       await logAudit('RECORD_PAYMENT', `invoices/${invoiceId}/payments/${result.payment_id}`, {
         amount,
-        payment_method: payment_method || 'cash',
+        payment_method,
         new_status: result.status,
       })
 

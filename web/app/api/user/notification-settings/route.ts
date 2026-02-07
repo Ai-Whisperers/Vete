@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { notificationSettingsSchema } from '@/lib/schemas/notification'
 
 /**
  * GET /api/user/notification-settings - Get user's notification preferences
@@ -37,13 +38,16 @@ export const GET = withApiAuth(async ({ user, profile: _profile, supabase }: Api
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const body = await request.json()
-  const { settings } = body
-
-  if (!settings) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['settings'] },
+  
+  // Validate input with Zod schema
+  const validation = notificationSettingsSchema.safeParse(body)
+  if (!validation.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: validation.error.issues },
     })
   }
+  
+  const { settings } = validation.data
 
   // Map from UI format to DB format
   const prefsData = {

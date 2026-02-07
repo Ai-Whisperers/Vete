@@ -8,16 +8,22 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCodeQuerySchema } from '@/lib/schemas/ambassador'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const code = request.nextUrl.searchParams.get('code')
+  // Validate query parameters
+  const queryValidation = validateCodeQuerySchema.safeParse({
+    code: request.nextUrl.searchParams.get('code'),
+  })
 
-  if (!code) {
+  if (!queryValidation.success) {
     return NextResponse.json(
-      { valid: false, error: 'Código es requerido' },
+      { valid: false, error: 'Código es requerido', issues: queryValidation.error.issues },
       { status: 400 }
     )
   }
+
+  const { code } = queryValidation.data
 
   const supabase = await createClient()
 

@@ -105,7 +105,7 @@ export class InventoryService {
       const expiryItems: ExpiryItem[] = inventory
         .filter(item => item.expiry_date)
         .map(item => {
-          const expiryDate = new Date(item.expiry_date!);
+          const expiryDate = new Date(item.expiry_date as string);
           const today = new Date();
           const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 

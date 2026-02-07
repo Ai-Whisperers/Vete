@@ -7,7 +7,7 @@ import { z } from 'zod'
 // Schema for PATCH - allows partial updates for both draft and sent invoices
 const updateInvoiceSchema = z.object({
   notes: z.string().max(1000).optional(),
-  status: z.string().optional(),
+  status: z.enum(['draft', 'sent']).optional(),
   due_date: z.string().datetime().optional(),
   // For draft invoices
   items: z.array(z.object({

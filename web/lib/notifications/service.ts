@@ -12,7 +12,8 @@ import type {
   NotificationResult, 
   ChannelResult, 
   InAppNotification,
-  NotificationType 
+  NotificationType,
+  NotificationChannel,
 } from './types'
 
 /**
@@ -422,7 +423,7 @@ export async function notifyStaff(payload: {
   type: string
   title: string
   message: string
-  channels?: string[]
+  channels?: NotificationChannel[]
   roles?: string[]
   data?: Record<string, unknown>
 }): Promise<NotificationResult> {

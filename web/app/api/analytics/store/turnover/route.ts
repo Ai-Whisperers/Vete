@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { turnoverQuerySchema } from '@/lib/schemas/analytics'
 
 interface ProductTurnover {
   id: string
@@ -46,7 +47,21 @@ interface ReorderSuggestion {
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const period = parseInt(searchParams.get('period') || '90', 10)
+    
+    // Validate query parameters
+    const queryValidation = turnoverQuerySchema.safeParse({
+      period: searchParams.get('period'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    // Map period enum to days
+    const periodDays: Record<string, number> = { week: 7, month: 30, quarter: 90, year: 365 }
+    const period = periodDays[queryValidation.data.period]
 
     try {
       const startDate = new Date()

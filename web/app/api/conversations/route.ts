@@ -2,14 +2,39 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+import { uuidSchema, requiredString } from '@/lib/schemas/common'
+
+const createConversationWithMessageSchema = z.object({
+  subject: requiredString('Asunto', 200),
+  pet_id: uuidSchema.optional(),
+  message: requiredString('Mensaje', 5000),
+  client_id: uuidSchema.optional(),
+})
+
+const conversationQuerySchema = z.object({
+  status: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
 
 // GET /api/conversations - List conversations
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
 
   const { searchParams } = new URL(request.url)
-  const status = searchParams.get('status')
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '20')
+  const queryResult = conversationQuerySchema.safeParse({
+    status: searchParams.get('status'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+  })
+
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: queryResult.error.issues },
+    })
+  }
+
+  const { status, page, limit } = queryResult.data
   const offset = (page - 1) * limit
 
   const isStaff = ['vet', 'admin'].includes(profile.role)
@@ -71,13 +96,15 @@ export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     try {
       const body = await request.json()
-      const { subject, pet_id, message, client_id } = body
-
-      if (!subject || !message) {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-          details: { required: ['subject', 'message'] },
+      const result = createConversationWithMessageSchema.safeParse(body)
+      
+      if (!result.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { issues: result.error.issues },
         })
       }
+
+      const { subject, pet_id, message, client_id } = result.data
 
       const isStaff = ['vet', 'admin'].includes(profile.role)
 

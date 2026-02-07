@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { onboardingCompleteSchema } from '@/lib/schemas/signup'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -16,11 +17,17 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const clinic = body.clinic
-
-    if (!clinic) {
-      return NextResponse.json({ error: 'Clinic es requerido' }, { status: 400 })
+    
+    // Validate input with Zod
+    const validation = onboardingCompleteSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validación fallida', issues: validation.error.issues },
+        { status: 400 }
+      )
     }
+    
+    const { clinic } = validation.data
 
     // Update user's profile to mark onboarding as complete
     const { error: updateError } = await supabase

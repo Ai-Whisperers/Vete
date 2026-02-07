@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+
+const labCatalogQuerySchema = z.object({
+  category: z.string().optional(),
+  include_inactive: z.enum(['true', 'false']).transform(val => val === 'true').default('false'),
+})
 
 /**
  * GET /api/lab-catalog
@@ -11,8 +17,19 @@ import { logger } from '@/lib/logger'
 export const GET = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const includeInactive = searchParams.get('include_inactive') === 'true'
+    
+    const queryResult = labCatalogQuerySchema.safeParse({
+      category: searchParams.get('category'),
+      include_inactive: searchParams.get('include_inactive'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { category, include_inactive: includeInactive } = queryResult.data
 
     // Build query for test catalog
     let query = supabase.from('lab_test_catalog').select('*').order('category').order('name')

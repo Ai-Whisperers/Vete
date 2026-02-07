@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { UploadLogoResponse } from '@/lib/signup/types'
 import { logger } from '@/lib/logger'
 import { LIMITS, formatFileSize } from '@/lib/constants'
+import { uploadLogoFormSchema } from '@/lib/schemas/signup'
 
 export const dynamic = 'force-dynamic'
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']
@@ -61,7 +62,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadLog
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
-    const tempSlug = formData.get('slug') as string | null
+    
+    // Validate form fields with Zod
+    const formValidation = uploadLogoFormSchema.safeParse({
+      slug: formData.get('slug'),
+    })
+    
+    const tempSlug = formValidation.success ? formValidation.data.slug : null
 
     if (!file) {
       return NextResponse.json(

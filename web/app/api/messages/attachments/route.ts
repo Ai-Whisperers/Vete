@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { LIMITS, formatFileSize } from '@/lib/constants'
+import { uploadAttachmentFormSchema } from '@/lib/schemas/message'
 
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -56,12 +57,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     const formData = await request.formData()
-    const conversationId = formData.get('conversation_id') as string
-    const files = formData.getAll('files') as File[]
-
-    if (!conversationId) {
-      return NextResponse.json({ error: 'conversation_id requerido' }, { status: 400 })
+    
+    // Validate form data with Zod
+    const formValidation = uploadAttachmentFormSchema.safeParse({
+      conversation_id: formData.get('conversation_id'),
+    })
+    
+    if (!formValidation.success) {
+      return NextResponse.json(
+        { error: 'Datos inválidos', issues: formValidation.error.issues },
+        { status: 400 }
+      )
     }
+    
+    const conversationId = formValidation.data.conversation_id
+    const files = formData.getAll('files') as File[]
 
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No se proporcionaron archivos' }, { status: 400 })

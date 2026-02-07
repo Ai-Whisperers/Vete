@@ -2,17 +2,9 @@ import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { VALIDATION_ERRORS, NOT_FOUND_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
+import { inventoryReceiveSchema } from '@/lib/schemas/inventory'
 
 export const dynamic = 'force-dynamic'
-
-interface ReceiveRequest {
-  product_id: string
-  quantity: number
-  unit_cost?: number
-  notes?: string
-  batch_number?: string
-  expiry_date?: string
-}
 
 /**
  * POST /api/inventory/receive
@@ -21,30 +13,24 @@ interface ReceiveRequest {
  */
 export const POST = withApiAuth(
   async ({ profile, supabase, request, log }: ApiHandlerContext) => {
-    // Parse request body
-    let body: ReceiveRequest
+    // Parse and validate request body
+    let rawBody: unknown
     try {
-      body = await request.json()
+      rawBody = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: VALIDATION_ERRORS.INVALID_FORMAT },
       })
     }
 
-    const { product_id, quantity, unit_cost, notes, batch_number, expiry_date } = body
-
-    // Validate required fields
-    if (!product_id) {
+    const validation = inventoryReceiveSchema.safeParse(rawBody)
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: VALIDATION_ERRORS.REQUIRED_FIELD },
+        details: { issues: validation.error.issues },
       })
     }
 
-    if (!quantity || quantity <= 0) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: VALIDATION_ERRORS.INVALID_QUANTITY },
-      })
-    }
+    const { product_id, quantity, unit_cost, notes, batch_number, expiry_date } = validation.data
 
     try {
       // Use atomic function with proper row locking to prevent race conditions

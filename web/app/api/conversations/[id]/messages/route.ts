@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server'
 import { withApiAuthParams } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { z } from 'zod'
 
 type Params = { id: string }
+
+const attachmentSchema = z.object({
+  url: z.string().url('URL de adjunto inválida'),
+  name: z.string().min(1, 'Nombre de archivo requerido').max(255),
+  type: z.string().min(1, 'Tipo de archivo requerido'),
+  size: z.number().int().min(1).max(20971520), // 20MB max
+})
+
+const sendMessageSchema = z.object({
+  content: z.string().max(5000).optional(),
+  content_type: z.string().optional().default('text'),
+  attachments: z.array(attachmentSchema).max(10).optional().default([]),
+  is_internal: z.boolean().optional().default(false),
+}).refine(
+  (data) => data.content || data.attachments.length > 0,
+  'Se requiere contenido o adjunto'
+)
 
 interface Attachment {
   url: string
@@ -45,17 +63,19 @@ export const POST = withApiAuthParams<Params>(async (ctx) => {
     }
 
     const body = await request.json()
-    const { content, content_type, attachments, is_internal } = body
+    const result = sendMessageSchema.safeParse(body)
+
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: result.error.issues },
+      })
+    }
+
+    const { content, content_type, attachments, is_internal } = result.data
 
     // Support both single attachment (legacy) and multiple attachments
     const attachmentList: Attachment[] = attachments || []
     const hasAttachments = attachmentList.length > 0
-
-    if (!content && !hasAttachments) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Se requiere contenido o adjunto' },
-      })
-    }
 
     // Non-staff cannot send internal messages
     const finalIsInternal = isStaff ? is_internal || false : false

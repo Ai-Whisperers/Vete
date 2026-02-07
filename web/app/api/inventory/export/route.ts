@@ -6,6 +6,7 @@ import {
   workbookToBuffer,
   type ProductForExport,
 } from '@/lib/excel'
+import { inventoryExportQuerySchema } from '@/lib/schemas/inventory'
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -27,7 +28,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   const { searchParams } = new URL(req.url)
-  const type = searchParams.get('type') || 'catalog'
+  
+  // Validate query params
+  const queryValidation = inventoryExportQuerySchema.safeParse({
+    type: searchParams.get('type'),
+  })
+  
+  const type = queryValidation.success ? queryValidation.data.type : 'catalog'
 
   let workbook
   let filename: string

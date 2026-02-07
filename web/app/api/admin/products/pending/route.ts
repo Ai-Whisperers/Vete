@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { pendingProductsQuerySchema } from '@/lib/schemas/admin'
 
 /**
  * GET /api/admin/products/pending
@@ -11,10 +12,22 @@ import { logger } from '@/lib/logger'
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status') || 'pending' // pending, verified, rejected, needs_review
-    const search = searchParams.get('search') || ''
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const limit = parseInt(searchParams.get('limit') || '25', 10)
+    
+    // Validate query parameters
+    const queryValidation = pendingProductsQuerySchema.safeParse({
+      status: searchParams.get('status'),
+      search: searchParams.get('search'),
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    const { status, search, page, limit } = queryValidation.data
 
     try {
       const offset = (page - 1) * limit

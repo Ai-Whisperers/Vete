@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
+import { createQuickReplySchema, deleteQuickReplyQuerySchema } from '@/lib/schemas/message'
 
 // GET /api/messages/quick-replies - List quick replies for current user
 export async function GET(request: Request) {
@@ -73,11 +74,17 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { shortcut, content, is_shared } = body
-
-    if (!shortcut || !content) {
-      return NextResponse.json({ error: 'shortcut y content son requeridos' }, { status: 400 })
+    
+    // Validate input with Zod
+    const validation = createQuickReplySchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validación fallida', issues: validation.error.issues },
+        { status: 400 }
+      )
     }
+
+    const { shortcut, content, is_shared } = validation.data
 
     // Check for duplicate shortcut
     const { data: existing } = await supabase
@@ -129,11 +136,20 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const id = searchParams.get('id')
-
-  if (!id) {
-    return NextResponse.json({ error: 'Se requiere id' }, { status: 400 })
+  
+  // Validate query params
+  const queryValidation = deleteQuickReplyQuerySchema.safeParse({
+    id: searchParams.get('id'),
+  })
+  
+  if (!queryValidation.success) {
+    return NextResponse.json(
+      { error: 'ID inválido', issues: queryValidation.error.issues },
+      { status: 400 }
+    )
   }
+  
+  const { id } = queryValidation.data
 
   try {
     const { error } = await supabase

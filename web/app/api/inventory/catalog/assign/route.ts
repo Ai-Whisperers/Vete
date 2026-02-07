@@ -2,16 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
-
-interface AssignProductRequest {
-  catalog_product_id: string
-  clinic_id: string
-  sale_price: number
-  min_stock_level?: number
-  location?: string
-  initial_stock?: number
-  requires_prescription?: boolean
-}
+import { catalogAssignSchema } from '@/lib/schemas/inventory'
 
 /**
  * POST /api/inventory/catalog/assign
@@ -29,7 +20,16 @@ interface AssignProductRequest {
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     try {
-      const body: AssignProductRequest = await request.json()
+      const rawBody = await request.json()
+      
+      // Validate with Zod
+      const validation = catalogAssignSchema.safeParse(rawBody)
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { issues: validation.error.issues },
+        })
+      }
+
       const {
         catalog_product_id,
         clinic_id,
@@ -38,26 +38,7 @@ export const POST = withApiAuth(
         location,
         initial_stock,
         requires_prescription,
-      } = body
-
-      // Validation
-      if (!catalog_product_id || !clinic_id || sale_price === undefined) {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-          details: { required: ['catalog_product_id', 'clinic_id', 'sale_price'] },
-        })
-      }
-
-      if (sale_price < 0) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: 'El precio de venta no puede ser negativo' },
-        })
-      }
-
-      if (initial_stock !== undefined && initial_stock < 0) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: 'El stock inicial no puede ser negativo' },
-        })
-      }
+      } = validation.data
 
       // Verify user can assign to this clinic
       if (profile.tenant_id !== clinic_id) {

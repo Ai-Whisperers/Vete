@@ -3,6 +3,7 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { analyticsExportQuerySchema } from '@/lib/schemas/analytics'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,10 +43,23 @@ export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
 
-    const type = (searchParams.get('type') || 'revenue') as ExportType
-    const format = searchParams.get('format') || 'csv'
-    const startDate = searchParams.get('startDate') || getDefaultStartDate()
-    const endDate = searchParams.get('endDate') || new Date().toISOString().split('T')[0]
+    // Validate query parameters
+    const queryValidation = analyticsExportQuerySchema.safeParse({
+      type: searchParams.get('type'),
+      format: searchParams.get('format'),
+      startDate: searchParams.get('startDate'),
+      endDate: searchParams.get('endDate'),
+    })
+
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+
+    const { type, format } = queryValidation.data
+    const startDate = queryValidation.data.startDate || getDefaultStartDate()
+    const endDate = queryValidation.data.endDate || new Date().toISOString().split('T')[0]
 
     try {
       const tenantId = profile.tenant_id

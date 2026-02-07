@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { templateQuerySchema, createTemplateSchema } from '@/lib/schemas/message'
 
 /**
  * GET /api/messages/templates - List message templates
@@ -10,7 +11,13 @@ import { logger } from '@/lib/logger'
 export const GET = withApiAuth(
   async ({ user, profile, scoped, request }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
+    
+    // Validate query params
+    const queryValidation = templateQuerySchema.safeParse({
+      category: searchParams.get('category'),
+    })
+    
+    const category = queryValidation.success ? queryValidation.data.category : null
 
     try {
       const { data: templates, error } = await scoped.select(
@@ -50,13 +57,16 @@ export const POST = withApiAuth(
   async ({ user, profile, scoped, request }: ApiHandlerContext) => {
     try {
       const body = await request.json()
-      const { name, category, subject, content, variables } = body
-
-      if (!name || !category || !content) {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-          details: { required: ['name', 'category', 'content'] },
+      
+      // Validate input with Zod
+      const validation = createTemplateSchema.safeParse(body)
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { issues: validation.error.issues },
         })
       }
+
+      const { name, category, subject, content, variables } = validation.data
 
       // scoped.insert() automatically adds tenant_id
       const { data: templates, error } = await scoped.insert('message_templates', {

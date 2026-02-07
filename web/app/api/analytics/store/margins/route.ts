@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { marginsQuerySchema } from '@/lib/schemas/analytics'
 
 interface ProductMargin {
   id: string
@@ -43,8 +44,20 @@ interface MarginSummary {
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const period = parseInt(searchParams.get('period') || '30', 10)
-    const lowMarginThreshold = parseFloat(searchParams.get('lowMarginThreshold') || '15')
+    
+    // Validate query parameters
+    const queryValidation = marginsQuerySchema.safeParse({
+      period: searchParams.get('period'),
+      lowMarginThreshold: searchParams.get('lowMarginThreshold'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    const { period, lowMarginThreshold } = queryValidation.data
 
     try {
       const startDate = new Date()

@@ -17,11 +17,7 @@ import { logger } from '@/lib/logger'
 import { sendAmbassadorConversionEmail } from '@/lib/email/templates/ambassador-conversion'
 import { sendAmbassadorConversionNotification, sendAmbassadorTierUpgradeNotification } from '@/lib/ambassador/notifications'
 import { timingSafeEqual } from 'crypto'
-
-interface ConversionPayload {
-  tenantId: string
-  subscriptionAmount: number
-}
+import { processConversionSchema } from '@/lib/schemas/ambassador'
 
 /**
  * Verify service-to-service authorization
@@ -55,21 +51,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  let payload: ConversionPayload
+  let rawPayload: unknown
   try {
-    payload = await request.json()
+    rawPayload = await request.json()
   } catch (_error: unknown) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { tenantId, subscriptionAmount } = payload
-
-  if (!tenantId || typeof subscriptionAmount !== 'number' || subscriptionAmount <= 0) {
+  // Validate input with Zod schema
+  const validation = processConversionSchema.safeParse(rawPayload)
+  if (!validation.success) {
     return NextResponse.json(
-      { error: 'Missing tenantId or invalid subscriptionAmount' },
+      { error: 'Validation failed', issues: validation.error.issues },
       { status: 400 }
     )
   }
+
+  const { tenantId, subscriptionAmount } = validation.data
 
   const supabase = await createClient('service_role')
 

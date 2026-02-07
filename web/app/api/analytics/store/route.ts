@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { storeAnalyticsQuerySchema } from '@/lib/schemas/analytics'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,8 +59,20 @@ interface CouponStats {
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const period = parseInt(searchParams.get('period') || '30') // days for trend
-    const topProductsLimit = parseInt(searchParams.get('topProducts') || '10')
+    
+    // Validate query parameters
+    const queryValidation = storeAnalyticsQuerySchema.safeParse({
+      period: searchParams.get('period'),
+      topProducts: searchParams.get('topProducts'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    const { period, topProducts: topProductsLimit } = queryValidation.data
 
     try {
       // Calculate date boundaries

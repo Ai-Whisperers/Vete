@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { logger } from '@/lib/logger'
 import type { ClinicData } from '@/lib/types'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
@@ -92,10 +93,9 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
         setSignatureHash(mockHash)
       }
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error(e)
-      }
+      logger.error('Error saving prescription', {
+        error: e instanceof Error ? e.message : 'Unknown error'
+      })
       showToast({ title: 'Error al guardar receta', variant: 'error' })
     } finally {
       setIsSaving(false)

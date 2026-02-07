@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 import {
   Package,
   Calendar,
@@ -101,10 +102,11 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
         newStatus === 'paused' ? 'Suscripción pausada' : 'Suscripción reactivada'
       )
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e)
-      }
+      logger.error('Error toggling subscription status', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        subscriptionId: subscription.id,
+        newStatus
+      })
       showFeedback('error', 'Error al actualizar suscripción')
     } finally {
       setLoadingId(null)
@@ -131,10 +133,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', data.message)
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e)
-      }
+      logger.error('Error skipping subscription order', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        subscriptionId: subscription.id
+      })
       showFeedback('error', 'Error al saltar pedido')
     } finally {
       setLoadingId(null)
@@ -158,10 +160,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
       setSubscriptions((prev) => prev.filter((s) => s.id !== subscription.id))
       showFeedback('success', 'Suscripción cancelada')
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e)
-      }
+      logger.error('Error canceling subscription', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        subscriptionId: subscription.id
+      })
       showFeedback('error', 'Error al cancelar suscripción')
     } finally {
       setLoadingId(null)
@@ -186,10 +188,11 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', 'Frecuencia actualizada')
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e)
-      }
+      logger.error('Error updating subscription frequency', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        subscriptionId: subscription.id,
+        newFrequency
+      })
       showFeedback('error', 'Error al actualizar frecuencia')
     } finally {
       setLoadingId(null)
@@ -216,10 +219,11 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', 'Cantidad actualizada')
     } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e)
-      }
+      logger.error('Error updating subscription quantity', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        subscriptionId: subscription.id,
+        newQuantity
+      })
       showFeedback('error', 'Error al actualizar cantidad')
     } finally {
       setLoadingId(null)

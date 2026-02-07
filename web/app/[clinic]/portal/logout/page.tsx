@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import { useEffect, useState } from 'react'
 import * as Icons from 'lucide-react'
 
@@ -17,10 +18,10 @@ export default function LogoutPage() {
       try {
         const { error } = await supabase.auth.signOut()
         if (error) {
-          // Client-side error logging - only in development
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Logout error:', error)
-          }
+          logger.error('Logout error', {
+            error: error.message,
+            clinic
+          })
           setStatus('error')
           return
         }
@@ -32,10 +33,10 @@ export default function LogoutPage() {
           router.push(`/${clinic}/portal/login`)
         }, 1500)
       } catch (err) {
-        // Client-side error logging - only in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Logout error:', err)
-        }
+        logger.error('Logout error', {
+          error: err instanceof Error ? err.message : 'Unknown error',
+          clinic
+        })
         setStatus('error')
       }
     }

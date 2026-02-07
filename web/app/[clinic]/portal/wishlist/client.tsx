@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 import { ShoppingCart, Trash2, Bell, Check, AlertCircle, Loader2 } from 'lucide-react'
 import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
@@ -93,10 +94,10 @@ export function WishlistClient({ clinic, initialProducts }: WishlistClientProps)
         setNotifiedIds((prev) => new Set(prev).add(productId))
       }
     } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error subscribing to stock alert:', error)
-      }
+      logger.error('Error subscribing to stock alert', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        productId: product.id
+      })
     } finally {
       setNotifyingIds((prev) => {
         const next = new Set(prev)

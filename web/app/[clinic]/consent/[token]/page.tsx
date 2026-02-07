@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import { SigningForm } from '@/components/consents'
 import type { SigningFormData } from '@/components/consents'
 import type { JSX } from 'react'
@@ -107,10 +108,10 @@ export default function RemoteSigningPage(): JSX.Element {
 
       setRequest(data as ConsentRequest)
     } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error validating token:', err)
-      }
+      logger.error('Error validating consent token', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+        token
+      })
       setError('Error al validar el enlace')
     } finally {
       setLoading(false)
@@ -151,10 +152,11 @@ export default function RemoteSigningPage(): JSX.Element {
 
       setSubmitted(true)
     } catch (err) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error submitting consent:', err)
-      }
+      logger.error('Error submitting consent', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+        token,
+        requestId: request?.id
+      })
       throw err
     }
   }

@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/Toast'
+import { logger } from '@/lib/logger'
 import type { Subscription, Plan, Pet, SubscribeFormData } from '../types'
 import { DEFAULT_SUBSCRIBE_FORM } from '../constants'
 
@@ -85,9 +86,9 @@ export function usePortalSubscriptions(): UsePortalSubscriptionsReturn {
         }
       } catch (err) {
         setError('Error al cargar datos')
-        if (process.env.NODE_ENV === 'development') {
-          console.error(err)
-        }
+        logger.error('Error loading portal subscriptions data', {
+          error: err instanceof Error ? err.message : 'Unknown error'
+        })
       } finally {
         setLoading(false)
       }
@@ -162,9 +163,11 @@ export function usePortalSubscriptions(): UsePortalSubscriptionsReturn {
         )
       }
     } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(err)
-      }
+      logger.error('Error toggling subscription status', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+        subscriptionId: sub.id,
+        newStatus
+      })
     }
   }
 
@@ -185,9 +188,10 @@ export function usePortalSubscriptions(): UsePortalSubscriptionsReturn {
         setSelectedSubscription(null)
       }
     } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(err)
-      }
+      logger.error('Error canceling subscription', {
+        error: err instanceof Error ? err.message : 'Unknown error',
+        subscriptionId: subId
+      })
     }
   }
 

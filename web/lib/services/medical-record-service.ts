@@ -351,7 +351,10 @@ export class MedicalRecordService extends BaseService {
           .single();
 
         if (!diagCode) {
-          console.warn(`Diagnosis code ${recordData.diagnosis_code} not found in reference table`);
+          logger.warn('Diagnosis code not found in reference table', {
+            diagnosisCode: recordData.diagnosis_code,
+            tenantId: this.tenantId
+          });
         }
       }
 

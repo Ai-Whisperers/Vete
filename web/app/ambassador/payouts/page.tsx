@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import {
   Banknote,
   ArrowLeft,
@@ -75,10 +76,9 @@ export default function AmbassadorPayoutsPage() {
         setBankHolderName(data.summary.saved_bank_details.bank_holder_name)
       }
     } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', error)
-      }
+      logger.error('Error loading payouts', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
     } finally {
       setIsLoading(false)
     }

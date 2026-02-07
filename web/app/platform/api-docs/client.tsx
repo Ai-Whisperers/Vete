@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { FileJson, ExternalLink, Download, RefreshCw } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 // Dynamically import SwaggerUI to avoid SSR issues
 const SwaggerUI = dynamic(() => import('swagger-ui-react'), {
@@ -52,7 +53,9 @@ export function ApiDocsClient() {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Error downloading spec:', error)
+      logger.error('Error downloading API spec', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
     }
   }
 

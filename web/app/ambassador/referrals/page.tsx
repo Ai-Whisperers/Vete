@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import {
   Users,
   ArrowLeft,
@@ -69,10 +70,12 @@ export default function AmbassadorReferralsPage() {
       setReferrals(data.referrals || [])
       setPagination(data.pagination)
     } catch (error) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', error)
-      }
+      logger.error('Error loading referrals', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        page,
+        limit,
+        statusFilter
+      })
     } finally {
       setIsLoading(false)
     }

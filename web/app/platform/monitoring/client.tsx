@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import { logger } from '@/lib/logger'
 import {
   Activity,
   Database,
@@ -147,13 +148,16 @@ export function MonitoringDashboardClient() {
       const res = await fetch(`/api/health/metrics/history?range=${range}`)
       if (!res.ok) {
         // Historical data might not be available yet
-        console.warn('No historical data available')
+        logger.warn('No historical data available', { range })
         return
       }
       const data = await res.json()
       setHistorical(data)
     } catch (err) {
-      console.warn('Failed to load historical data:', err)
+      logger.warn('Failed to load historical data', { 
+        error: err instanceof Error ? err.message : 'Unknown error',
+        range 
+      })
     }
   }, [])
 

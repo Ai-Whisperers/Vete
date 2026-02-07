@@ -276,7 +276,7 @@ export async function getUserNotificationPreferences(userId: string) {
  */
 export async function updateNotificationPreferences(
   userId: string, 
-  preferences: Record<string, any>
+  preferences: Record<string, unknown>
 ) {
   // This would update a user_notification_preferences table
   console.log('Updated notification preferences for user:', userId, preferences)

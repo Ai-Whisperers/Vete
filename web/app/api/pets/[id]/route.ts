@@ -3,6 +3,7 @@ import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { PetService } from '@/lib/services/pet-service'
 import { logger } from '@/lib/logger'
+import { apiUpdatePetSchema } from '@/lib/schemas/pet'
 
 type Params = { id: string }
 
@@ -47,8 +48,28 @@ export const PATCH = withApiAuthParams<Params>(
 
     const isStaff = ['vet', 'admin'].includes(profile.role)
 
-    // Parse body
-    const body = await request.json()
+    // Parse and validate body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    // VALID-004: Validate with Zod schema
+    const validation = apiUpdatePetSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((i) => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
+      })
+    }
+
+    const validatedBody = validation.data
 
     // Map form field names to database column names
     const fieldMapping: Record<string, string> = {
@@ -72,8 +93,8 @@ export const PATCH = withApiAuthParams<Params>(
 
     const updates: Record<string, unknown> = {}
     for (const [formField, dbColumn] of Object.entries(fieldMapping)) {
-      if (formField in body) {
-        let value = body[formField]
+      if (formField in validatedBody) {
+        let value = validatedBody[formField as keyof typeof validatedBody]
 
         // Convert allergies string to array if needed
         if (dbColumn === 'allergies' && typeof value === 'string') {

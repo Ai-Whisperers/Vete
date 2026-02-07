@@ -64,6 +64,31 @@ export const updatePetSchema = createPetSchema.partial().extend({
 export type UpdatePetInput = z.infer<typeof updatePetSchema>
 
 /**
+ * Schema for API pet update (PATCH /api/pets/[id])
+ * Maps form field names - service layer handles DB column mapping
+ */
+export const apiUpdatePetSchema = z.object({
+  name: z.string().min(1).max(50).optional(),
+  species: enumSchema(PET_SPECIES, 'Especie').optional(),
+  breed: z.string().max(100).optional().nullable(),
+  weight_kg: z.number().min(0).max(500).optional().nullable(),
+  microchip_id: z.string().max(50).optional().nullable(),
+  diet_category: z.string().max(50).optional().nullable(),
+  diet_notes: z.string().max(500).optional().nullable(),
+  sex: enumSchema(PET_GENDERS, 'Sexo').optional(),
+  is_neutered: z.boolean().optional(),
+  color: z.string().max(50).optional().nullable(),
+  temperament: z.string().max(100).optional().nullable(),
+  allergies: z.union([z.string(), z.array(z.string())]).optional().nullable(),
+  existing_conditions: z.string().max(500).optional().nullable(),
+  photo_url: z.string().url().optional().nullable(),
+  birth_date: z.string().optional().nullable(),
+  notes: z.string().max(1000).optional().nullable(),
+}).strict()
+
+export type ApiUpdatePetInput = z.infer<typeof apiUpdatePetSchema>
+
+/**
  * Schema for pet query parameters
  */
 export const petQuerySchema = z.object({

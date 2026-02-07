@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { plQuerySchema } from '@/lib/schemas/finance'
 
 // Type definitions for P&L calculations
 interface ExpenseBreakdown {
@@ -20,9 +21,22 @@ interface ExpenseRecord {
 export const GET = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const clinic = searchParams.get('clinic') || profile.tenant_id
-    const start = searchParams.get('start')
-    const end = searchParams.get('end')
+    
+    // Validate query params
+    const queryValidation = plQuerySchema.safeParse({
+      clinic: searchParams.get('clinic'),
+      start: searchParams.get('start'),
+      end: searchParams.get('end'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    const { start, end } = queryValidation.data
+    const clinic = queryValidation.data.clinic || profile.tenant_id
 
     // Verify user belongs to the requested clinic
     if (clinic !== profile.tenant_id) {

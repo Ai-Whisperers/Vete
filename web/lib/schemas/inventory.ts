@@ -87,3 +87,27 @@ export const inventoryImportPreviewBodySchema = z.object({
 })
 
 export type InventoryImportPreviewBodyInput = z.infer<typeof inventoryImportPreviewBodySchema>
+
+/**
+ * Schema for catalog product assignment
+ */
+export const catalogAssignSchema = z.object({
+  catalog_product_id: uuidSchema,
+  clinic_id: uuidSchema,
+  sale_price: z.number().min(0, 'El precio de venta no puede ser negativo'),
+  min_stock_level: z.number().int().min(0).optional(),
+  location: z.string().max(100).optional(),
+  initial_stock: z.number().int().min(0, 'El stock inicial no puede ser negativo').optional(),
+  requires_prescription: z.boolean().optional(),
+})
+
+export type CatalogAssignInput = z.infer<typeof catalogAssignSchema>
+
+/**
+ * Schema for inventory export query
+ */
+export const inventoryExportQuerySchema = z.object({
+  type: z.enum(['catalog', 'template']).default('catalog'),
+})
+
+export type InventoryExportQueryInput = z.infer<typeof inventoryExportQuerySchema>

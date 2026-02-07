@@ -2,24 +2,9 @@ import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { VALIDATION_ERRORS, NOT_FOUND_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
+import { inventoryAdjustSchema } from '@/lib/schemas/inventory'
 
 export const dynamic = 'force-dynamic'
-
-type AdjustmentReason =
-  | 'physical_count'
-  | 'damage'
-  | 'theft'
-  | 'expired'
-  | 'return'
-  | 'correction'
-  | 'other'
-
-interface AdjustRequest {
-  product_id: string
-  new_quantity: number
-  reason: AdjustmentReason
-  notes?: string
-}
 
 /**
  * POST /api/inventory/adjust
@@ -28,36 +13,24 @@ interface AdjustRequest {
  */
 export const POST = withApiAuth(
   async ({ profile, supabase, request, log }: ApiHandlerContext) => {
-    // Parse request body
-    let body: AdjustRequest
+    // Parse and validate request body
+    let rawBody: unknown
     try {
-      body = await request.json()
+      rawBody = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: VALIDATION_ERRORS.INVALID_FORMAT },
       })
     }
 
-    const { product_id, new_quantity, reason, notes } = body
-
-    // Validate required fields
-    if (!product_id) {
+    const validation = inventoryAdjustSchema.safeParse(rawBody)
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: VALIDATION_ERRORS.REQUIRED_FIELD },
+        details: { issues: validation.error.issues },
       })
     }
 
-    if (new_quantity === undefined || new_quantity < 0) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: VALIDATION_ERRORS.INVALID_QUANTITY },
-      })
-    }
-
-    if (!reason) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: VALIDATION_ERRORS.REQUIRED_FIELD },
-      })
-    }
+    const { product_id, new_quantity, reason, notes } = validation.data
 
     try {
       // Use atomic function with proper row locking to prevent race conditions

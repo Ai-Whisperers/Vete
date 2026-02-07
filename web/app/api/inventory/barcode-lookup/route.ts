@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { barcodeLookupQuerySchema } from '@/lib/schemas/inventory'
 
 /**
  * GET /api/inventory/barcode-lookup
@@ -13,22 +14,20 @@ import { logger } from '@/lib/logger'
  */
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Get query params
+    // Validate query params
     const { searchParams } = new URL(request.url)
-    const barcode = searchParams.get('barcode')
-    const clinic = searchParams.get('clinic')
+    const queryValidation = barcodeLookupQuerySchema.safeParse({
+      barcode: searchParams.get('barcode'),
+      clinic: searchParams.get('clinic'),
+    })
 
-    if (!barcode) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { field: 'barcode' },
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
       })
     }
 
-    if (!clinic) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { field: 'clinic' },
-      })
-    }
+    const { barcode, clinic } = queryValidation.data
 
     // Verify tenant matches
     if (profile.tenant_id !== clinic) {

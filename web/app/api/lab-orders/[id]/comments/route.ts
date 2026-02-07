@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { labCommentSchema } from '@/lib/schemas/lab'
 
 /**
  * POST /api/lab-orders/[id]/comments - Add comment to lab order
@@ -10,21 +11,22 @@ export const POST = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const orderId = params.id
 
-    // Parse body
-    let body
+    // Parse and validate body
+    let rawBody: unknown
     try {
-      body = await request.json()
+      rawBody = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { comment_text, interpretation } = body
-
-    if (!comment_text) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['comment_text'] },
+    const validation = labCommentSchema.safeParse(rawBody)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: validation.error.issues },
       })
     }
+
+    const { comment_text, interpretation } = validation.data
 
     // Verify order belongs to staff's clinic
     const { data: order } = await supabase

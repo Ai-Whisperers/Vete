@@ -4,6 +4,7 @@ import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { requireFeature } from '@/lib/features/server'
+import { purchaseOrderQuerySchema, createPurchaseOrderSchema } from '@/lib/schemas/procurement'
 
 /**
  * GET /api/procurement/orders
@@ -20,8 +21,22 @@ export const GET = withApiAuth(
     if (featureCheck) return featureCheck
 
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status')
-    const supplierId = searchParams.get('supplier_id')
+    
+    // Validate query params
+    const queryValidation = purchaseOrderQuerySchema.safeParse({
+      status: searchParams.get('status'),
+      supplier_id: searchParams.get('supplier_id'),
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    })
+    
+    if (!queryValidation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryValidation.error.issues },
+      })
+    }
+    
+    const { status, supplier_id: supplierId } = queryValidation.data
     const { page, limit, offset } = parsePagination(searchParams)
 
     // Build query
@@ -84,57 +99,22 @@ export const GET = withApiAuth(
  */
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
-    let body
+    // Parse and validate body
+    let rawBody: unknown
     try {
-      body = await request.json()
+      rawBody = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { supplier_id, items, expected_delivery_date, shipping_address, notes } = body
-
-    // Validate required fields
-    if (!supplier_id) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        field_errors: {
-          supplier_id: ['El ID del proveedor es requerido'],
-        },
+    const validation = createPurchaseOrderSchema.safeParse(rawBody)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: validation.error.issues },
       })
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        field_errors: {
-          items: ['Al menos un producto es requerido'],
-        },
-      })
-    }
-
-    // Validate items
-    for (const item of items) {
-      if (!item.catalog_product_id) {
-        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-          field_errors: {
-            catalog_product_id: ['El ID del producto es requerido'],
-          },
-        })
-      }
-      if (!item.quantity || item.quantity <= 0) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          field_errors: {
-            quantity: ['La cantidad debe ser mayor a 0'],
-          },
-        })
-      }
-      if (item.unit_cost === undefined || item.unit_cost < 0) {
-        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          field_errors: {
-            unit_cost: ['El costo unitario debe ser mayor o igual a 0'],
-          },
-        })
-      }
-    }
+    const { supplier_id, items, expected_delivery_date, shipping_address, notes } = validation.data
 
     // Verify supplier exists and belongs to tenant
     const { data: supplier } = await supabase

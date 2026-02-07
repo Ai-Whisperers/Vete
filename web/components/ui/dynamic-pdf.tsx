@@ -1,9 +1,13 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Dynamic PDF Component Wrapper
  * 
  * Code-splits @react-pdf/renderer to reduce bundle size
+ * 
+ * Note: Using `any` for ComponentType because next/dynamic loses type info
+ * and @react-pdf/renderer types are complex. This is a known Next.js limitation.
  */
 
 import dynamic from 'next/dynamic'

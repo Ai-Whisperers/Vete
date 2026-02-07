@@ -21,7 +21,7 @@ export interface AuthAttemptAlert {
   ip?: string
   attemptCount: number
   timeWindow: string
-  details: any
+  details: Record<string, unknown>
 }
 
 /**
@@ -166,11 +166,11 @@ export async function checkSuspiciousActivity(
 /**
  * Wrapper for Supabase auth operations with monitoring
  */
-export function withAuthMonitoring<T extends (...args: any[]) => Promise<any>>(
+export function withAuthMonitoring<T extends (...args: unknown[]) => Promise<unknown>>(
   authOperation: T,
   operationName: string
 ): T {
-  return (async (...args: any[]) => {
+  return (async (...args: unknown[]) => {
     try {
       const result = await authOperation(...args)
       

@@ -329,7 +329,7 @@ export async function sendNotification(payload: NotificationPayload): Promise<No
 
       default:
         result = {
-          channel: channel as any,
+          channel: channel as NotificationChannel,
           success: false,
           error: `Unsupported channel: ${channel}`,
         }

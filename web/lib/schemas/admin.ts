@@ -20,8 +20,8 @@ export type PendingProductsQueryInput = z.infer<typeof pendingProductsQuerySchem
  * Schema for product approval action
  */
 export const approveProductSchema = z.object({
-  action: z.enum(['approve', 'reject', 'needs_review']),
-  notes: z.string().max(500).optional(),
+  action: z.enum(['verify', 'reject', 'needs_review']),
+  rejection_reason: z.string().max(500).optional(),
 })
 
 export type ApproveProductInput = z.infer<typeof approveProductSchema>

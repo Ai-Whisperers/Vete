@@ -18,9 +18,10 @@ export type StoreAnalyticsQueryInput = z.infer<typeof storeAnalyticsQuerySchema>
  * Schema for analytics export query parameters
  */
 export const analyticsExportQuerySchema = z.object({
-  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato: YYYY-MM-DD'),
-  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato: YYYY-MM-DD'),
-  format: z.enum(['csv', 'xlsx', 'pdf']).default('csv'),
+  type: z.enum(['revenue', 'appointments', 'clients', 'services', 'inventory', 'customers']).default('revenue'),
+  format: z.enum(['csv', 'pdf', 'json']).default('csv'),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato: YYYY-MM-DD').optional(),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato: YYYY-MM-DD').optional(),
 })
 
 export type AnalyticsExportQueryInput = z.infer<typeof analyticsExportQuerySchema>

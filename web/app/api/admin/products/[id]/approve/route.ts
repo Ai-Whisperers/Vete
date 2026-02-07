@@ -3,6 +3,7 @@ import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { notifyStaff } from '@/lib/notifications'
+import { approveProductSchema } from '@/lib/schemas/admin'
 
 /**
  * POST /api/admin/products/[id]/approve
@@ -14,13 +15,16 @@ export const POST = withApiAuthParams(
 
     try {
       const body = await request.json()
-      const { action, rejection_reason } = body
 
-      if (!action || !['verify', 'reject', 'needs_review'].includes(action)) {
+      // Validate input with Zod
+      const validation = approveProductSchema.safeParse(body)
+      if (!validation.success) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: 'Acción inválida. Use: verify, reject, needs_review' },
+          details: { issues: validation.error.issues },
         })
       }
+
+      const { action, rejection_reason } = validation.data
 
       // Get the product
       const { data: product, error: fetchError } = await supabase

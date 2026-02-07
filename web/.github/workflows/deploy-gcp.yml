@@ -9,7 +9,7 @@ env:
   GCP_VM_IP: 34.151.201.27
   GCP_VM_USER: ai-whisperers
   APP_DIR: /home/ai-whisperers/Vete/web
-  PM2_APP_NAME: vete-web
+  PM2_APP_NAME: vete
 
 jobs:
   test:

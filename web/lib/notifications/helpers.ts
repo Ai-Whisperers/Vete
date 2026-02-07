@@ -6,6 +6,7 @@
 
 import { sendNotification, sendInAppNotification, notifyStaff } from './service'
 import type { NotificationPayload } from './types'
+import { logger } from '@/lib/logger'
 
 // =============================================================================
 // Common Notification Scenarios
@@ -234,7 +235,7 @@ export async function scheduleNotification(
 ) {
   // This would typically integrate with a job queue like Bull, Inngest, or similar
   // For now, just log the scheduled notification
-  console.log('Scheduled notification:', {
+  logger.debug('Scheduled notification:', {
     ...payload,
     scheduledAt: scheduledAt.toISOString(),
   })
@@ -279,7 +280,7 @@ export async function updateNotificationPreferences(
   preferences: Record<string, unknown>
 ) {
   // This would update a user_notification_preferences table
-  console.log('Updated notification preferences for user:', userId, preferences)
+  logger.debug('Updated notification preferences for user:', { userId, preferences })
   
   return {
     success: true,

@@ -1,9 +1,13 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Dynamic Chart Component Wrapper
  * 
  * Code-splits recharts to reduce bundle size
+ * 
+ * Note: Using `any` for ComponentType because next/dynamic loses type info.
+ * This is a known Next.js limitation with dynamic imports.
  */
 
 import dynamic from 'next/dynamic'

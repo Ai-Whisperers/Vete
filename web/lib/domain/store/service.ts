@@ -188,9 +188,12 @@ export class StoreService {
 
       // Return updated cart
       const updatedCart = await this.repository.getCart(userId, tenantId);
+      if (!updatedCart) {
+        return { success: false, error: 'Cart not found after update' };
+      }
       return {
         success: true,
-        data: updatedCart!,
+        data: updatedCart,
       };
     } catch (error) {
       return {
@@ -279,9 +282,12 @@ export class StoreService {
 
       // Return updated cart
       const updatedCart = await this.repository.getCart(userId, tenantId);
+      if (!updatedCart) {
+        return { success: false, error: 'Cart not found after update' };
+      }
       return {
         success: true,
-        data: updatedCart!,
+        data: updatedCart,
       };
     } catch (error) {
       return {
@@ -322,9 +328,12 @@ export class StoreService {
 
       // Return updated cart
       const updatedCart = await this.repository.getCart(userId, tenantId);
+      if (!updatedCart) {
+        return { success: false, error: 'Cart not found after update' };
+      }
       return {
         success: true,
-        data: updatedCart!,
+        data: updatedCart,
       };
     } catch (error) {
       return {
@@ -438,10 +447,13 @@ export class StoreService {
 
       // Get complete order
       const order = await this.repository.getOrderWithItems(orderId, tenantId);
+      if (!order) {
+        return { success: false, error: 'Order not found after creation' };
+      }
       
       return {
         success: true,
-        data: order!,
+        data: order,
       };
     } catch (error) {
       return {

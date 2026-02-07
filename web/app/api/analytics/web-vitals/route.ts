@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/utils/logger'
-
-interface WebVitalsPayload {
-  name: string
-  value: number
-  id: string
-  url: string
-  userAgent: string
-  timestamp: number
-  rating?: 'good' | 'needs-improvement' | 'poor'
-}
+import { webVitalsPayloadSchema } from '@/lib/schemas/analytics'
 
 /**
  * Analytics endpoint for Web Vitals collection
@@ -17,18 +8,19 @@ interface WebVitalsPayload {
  */
 export async function POST(request: NextRequest) {
   try {
-    const data: WebVitalsPayload = await request.json()
+    const rawData = await request.json()
     
-    // Validate the payload
-    if (!data.name || typeof data.value !== 'number' || !data.id) {
+    // Validate the payload with Zod
+    const validation = webVitalsPayloadSchema.safeParse(rawData)
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid web vitals data' },
+        { error: 'Invalid web vitals data', issues: validation.error.issues },
         { status: 400 }
       )
     }
 
-    // Extract useful information
-    const { name, value, id, url, userAgent, timestamp, rating } = data
+    // Extract validated data
+    const { name, value, id, url, userAgent, timestamp, rating } = validation.data
     
     // Log the metric (this could be sent to a proper analytics service)
     logger.info('Web Vitals metric collected', {

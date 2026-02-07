@@ -53,7 +53,22 @@ export type TurnoverQueryInput = z.infer<typeof turnoverQuerySchema>
  */
 export const marginsQuerySchema = z.object({
   period: z.coerce.number().int().min(1).max(365).default(30),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  lowMarginThreshold: z.coerce.number().min(0).max(100).default(15),
 })
 
 export type MarginsQueryInput = z.infer<typeof marginsQuerySchema>
+
+/**
+ * Schema for web vitals POST payload
+ */
+export const webVitalsPayloadSchema = z.object({
+  name: z.string().min(1),
+  value: z.number(),
+  id: z.string().min(1),
+  url: z.string().url().optional(),
+  userAgent: z.string().optional(),
+  timestamp: z.number().optional(),
+  rating: z.enum(['good', 'needs-improvement', 'poor']).optional(),
+})
+
+export type WebVitalsPayloadInput = z.infer<typeof webVitalsPayloadSchema>

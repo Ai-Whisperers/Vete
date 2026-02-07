@@ -60,3 +60,12 @@ export const deleteQuickReplyQuerySchema = z.object({
 })
 
 export type DeleteQuickReplyQueryInput = z.infer<typeof deleteQuickReplyQuerySchema>
+
+/**
+ * Schema for message attachment upload
+ */
+export const uploadAttachmentFormSchema = z.object({
+  conversation_id: z.string().uuid('ID de conversación inválido'),
+})
+
+export type UploadAttachmentFormInput = z.infer<typeof uploadAttachmentFormSchema>

@@ -1,10 +1,10 @@
-Clinic Name,Location,Size,Contact Name,Phone,Email,Instagram,Website,Status,Priority,Notes,Last Contact,Next Action
-Veterinaria San Roque,San Lorenzo,Medium,,,,,https://veterinariasanroque.com.py,Not Contacted,High,Near our area,N/A,Research contact
-Hospital Veterinario Acosta Ñu,Luque,Large,,,,,https://www.acostanu.com.py,Not Contacted,High,Major hospital,N/A,Research contact
-Clínica Veterinaria del Sol,Villa Morra,Medium,,,,,https://clinicaveterinariasol.com,Not Contacted,High,Premium area,N/A,Research contact
-Pet Center Paraguay,Carmelitas,Medium,,,,,https://petcenterpy.com,Not Contacted,Medium,,N/A,Research contact
-Veterinaria Norte,Mburucuyá,Small,,,,,,,Not Contacted,Medium,,N/A,Find on Maps
-Clínica Veterinaria Central,Centro,Medium,,,,,,,Not Contacted,Medium,Central location,N/A,Research
-VetPlus Asunción,Recoleta,Small,,,,,,,Not Contacted,Medium,,N/A,Research
-Clínica Santa Ana,Fernando de la Mora,Small,,,,,,,Not Contacted,Low,,N/A,Research
-Veterinaria Lambaré,Lambaré,Small,,,,,,,Not Contacted,Low,,N/A,Research
+Clinic Name,Location,Size,Contact Name,Phone,Email,Instagram,Website,Status,Priority,Score,Notes,Last Contact,Next Action
+Hospital Veterinario Acosta Ñu,Luque,Large,,,,,https://www.acostanu.com.py,Not Contacted,High,95,Major hospital - high volume - likely needs software,N/A,Visit website for contact
+Clínica Veterinaria del Sol,Villa Morra,Medium,,,,,https://clinicaveterinariasol.com,Not Contacted,High,90,Premium area - likely tech-savvy clients,N/A,Find Instagram/contact
+Veterinaria San Roque,San Lorenzo,Medium,,,,,https://veterinariasanroque.com.py,Not Contacted,High,88,Near our area - easy for demos/support,N/A,Visit in person
+Pet Center Paraguay,Carmelitas,Medium,,,,,https://petcenterpy.com,Not Contacted,High,85,Good location - established brand,N/A,Research contact info
+Clínica Veterinaria Central,Centro,Medium,,,,,,,Not Contacted,Medium,70,Central location - foot traffic,N/A,Find on Google Maps
+Veterinaria Norte,Mburucuyá,Small,,,,,,,Not Contacted,Medium,65,Growing neighborhood,N/A,Find on Maps
+VetPlus Asunción,Recoleta,Small,,,,,,,Not Contacted,Medium,60,Premium area but small,N/A,Research
+Clínica Santa Ana,Fernando de la Mora,Small,,,,,,,Not Contacted,Low,45,Small clinic - maybe later,N/A,Backlog
+Veterinaria Lambaré,Lambaré,Small,,,,,,,Not Contacted,Low,40,Small clinic - maybe later,N/A,Backlog

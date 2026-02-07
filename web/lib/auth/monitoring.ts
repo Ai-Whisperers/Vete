@@ -166,11 +166,13 @@ export async function checkSuspiciousActivity(
 /**
  * Wrapper for Supabase auth operations with monitoring
  */
-export function withAuthMonitoring<T extends (...args: unknown[]) => Promise<unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function withAuthMonitoring<T extends (...args: any[]) => Promise<any>>(
   authOperation: T,
   operationName: string
 ): T {
-  return (async (...args: unknown[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (async (...args: any[]) => {
     try {
       const result = await authOperation(...args)
       

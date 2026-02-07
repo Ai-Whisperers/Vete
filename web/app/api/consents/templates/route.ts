@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createConsentTemplateSchema } from '@/lib/schemas/consent'
 
 interface ConsentField {
   field_name: string
@@ -52,12 +53,19 @@ export const GET = withApiAuth(
 
 export const POST = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
+    // Parse and validate body
     let body
     try {
       body = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const result = createConsentTemplateSchema.safeParse(body)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { errors: result.error.flatten().fieldErrors },
+      })
     }
 
     const {
@@ -69,14 +77,7 @@ export const POST = withApiAuth(
       can_be_revoked,
       default_expiry_days,
       fields,
-    } = body
-
-    // Validate required fields
-    if (!name || !category || !content) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['name', 'category', 'content'] },
-      })
-    }
+    } = result.data
 
     // Insert template
     const { data, error } = await supabase

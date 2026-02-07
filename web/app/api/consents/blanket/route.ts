@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createBlanketConsentSchema, revokeBlanketConsentSchema } from '@/lib/schemas/consent'
 
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
@@ -54,7 +55,7 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
 
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
+    // Parse and validate body
     let body
     try {
       body = await request.json()
@@ -62,14 +63,14 @@ export const POST = withApiAuth(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { pet_id, owner_id, consent_type, scope, conditions, signature_data, expires_at } = body
-
-    // Validate required fields
-    if (!pet_id || !owner_id || !consent_type || !scope || !signature_data) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] },
+    const result = createBlanketConsentSchema.safeParse(body)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { errors: result.error.flatten().fieldErrors },
       })
     }
+
+    const { pet_id, owner_id, consent_type, scope, conditions, signature_data, expires_at } = result.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase
@@ -130,7 +131,7 @@ export const POST = withApiAuth(
 
 export const PATCH = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-  // Parse body
+  // Parse and validate body
   let body
   try {
     body = await request.json()
@@ -138,13 +139,14 @@ export const PATCH = withApiAuth(
     return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const { id, action, reason } = body
-
-  if (!id || action !== 'revoke') {
+  const result = revokeBlanketConsentSchema.safeParse(body)
+  if (!result.success) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'id and action=revoke are required' },
+      details: { errors: result.error.flatten().fieldErrors },
     })
   }
+
+  const { id, reason } = result.data
 
   // Get existing blanket consent
   const { data: existing } = await supabase

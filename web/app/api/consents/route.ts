@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createConsentDocumentSchema } from '@/lib/schemas/consent'
 
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
@@ -64,12 +65,19 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
 
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
+    // Parse and validate body
     let body
     try {
       body = await request.json()
     } catch (_error: unknown) {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const result = createConsentDocumentSchema.safeParse(body)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { errors: result.error.flatten().fieldErrors },
+      })
     }
 
     const {
@@ -84,14 +92,7 @@ export const POST = withApiAuth(
       id_verification_type,
       id_verification_number,
       expires_at,
-    } = body
-
-    // Validate required fields
-    if (!template_id || !pet_id || !owner_id || !signature_data) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['template_id', 'pet_id', 'owner_id', 'signature_data'] },
-      })
-    }
+    } = result.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase

@@ -51,9 +51,9 @@ describe('PaymentService', () => {
   it('should handle provider errors gracefully', async () => {
     const service = new PaymentService('mock')
     
-    // Force an error by mocking the provider's method
+    // Force an error by mocking the provider's internal method
     const provider = (service as any).provider
-    vi.spyOn(provider, 'createPaymentIntent').mockRejectedValue(new Error('Provider failed'))
+    vi.spyOn(provider, 'doCreatePaymentIntent').mockRejectedValue(new Error('Provider failed'))
 
     const result = await service.createPaymentIntent({
       amount: 1000,
@@ -63,7 +63,7 @@ describe('PaymentService', () => {
     })
 
     expect(result.success).toBe(false)
-    expect(result.error?.code).toBe('service_error')
+    expect(result.error?.code).toBe('unknown_provider_error')
     expect(result.error?.message).toBe('Provider failed')
   })
 })

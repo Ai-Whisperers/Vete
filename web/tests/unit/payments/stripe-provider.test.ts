@@ -40,7 +40,7 @@ describe('StripePaymentProvider', () => {
     ;(getStripeClient as any).mockReturnValue(mockStripe)
   })
 
-  it('should create a payment intent successfully', async () => {
+  it('should create a payment intent successfully (internal mapping)', async () => {
     const mockIntent = {
       id: 'pi_123',
       client_secret: 'secret_123',
@@ -51,23 +51,22 @@ describe('StripePaymentProvider', () => {
     }
     mockStripe.paymentIntents.create.mockResolvedValue(mockIntent)
 
-    const result = await provider.createPaymentIntent({
+    const result = await (provider as any).doCreatePaymentIntent({
       amount: 100000,
       currency: 'PYG',
       invoiceId: 'inv-1',
       tenantId: 'tenant-1',
     })
 
-    expect(result.success).toBe(true)
-    expect(result.data?.id).toBe('pi_123')
-    expect(result.data?.clientSecret).toBe('secret_123')
+    expect(result.id).toBe('pi_123')
+    expect(result.clientSecret).toBe('secret_123')
     expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith(expect.objectContaining({
       amount: 100000,
       currency: 'pyg',
     }))
   })
 
-  it('should handle stripe errors during intent creation', async () => {
+  it('should handle stripe errors during intent creation via base class', async () => {
     mockStripe.paymentIntents.create.mockRejectedValue({
       code: 'card_declined',
       message: 'Your card was declined.',
@@ -83,9 +82,10 @@ describe('StripePaymentProvider', () => {
     expect(result.success).toBe(false)
     expect(result.error?.code).toBe('card_declined')
     expect(result.error?.message).toBe('Your card was declined.')
+    expect(result.error?.provider).toBe('stripe')
   })
 
-  it('should retrieve a payment intent', async () => {
+  it('should retrieve a payment intent (internal mapping)', async () => {
     const mockIntent = {
       id: 'pi_123',
       status: 'succeeded',
@@ -95,10 +95,10 @@ describe('StripePaymentProvider', () => {
     }
     mockStripe.paymentIntents.retrieve.mockResolvedValue(mockIntent)
 
-    const result = await provider.getPaymentIntent('pi_123')
+    const result = await (provider as any).doGetPaymentIntent('pi_123')
 
-    expect(result.success).toBe(true)
-    expect(result.data?.status).toBe('succeeded')
+    expect(result.id).toBe('pi_123')
+    expect(result.status).toBe('succeeded')
     expect(mockStripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_123')
   })
 })

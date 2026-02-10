@@ -4,138 +4,76 @@
  * Implementation of PaymentProvider for Stripe.
  */
 
+import { AbstractPaymentProvider } from './abstract-provider'
 import type { 
-  PaymentProvider, 
   PaymentIntent, 
   CreatePaymentIntentOptions, 
-  ProviderResult 
+  ProviderResult,
+  PaymentError
 } from './types'
 import { getStripeClient, toStripeAmount } from '../billing/stripe'
-import { logger } from '@/lib/logger'
 import type Stripe from 'stripe'
 
-export class StripePaymentProvider implements PaymentProvider {
+export class StripePaymentProvider extends AbstractPaymentProvider {
   readonly name = 'stripe'
 
-  async createPaymentIntent(options: CreatePaymentIntentOptions): Promise<ProviderResult<PaymentIntent>> {
-    try {
-      const stripe = getStripeClient()
-      
-      const params: Stripe.PaymentIntentCreateParams = {
-        amount: toStripeAmount(options.amount, options.currency),
-        currency: options.currency.toLowerCase(),
-        metadata: {
-          tenant_id: options.tenantId,
-          invoice_id: options.invoiceId,
-          ...options.metadata,
-        },
-      }
-
-      if (options.customerId) {
-        params.customer = options.customerId
-      } else if (options.customerEmail) {
-        // We could look up or create a customer here if needed
-        // For now, just attach email to receipt_email
-        params.receipt_email = options.customerEmail
-      }
-
-      if (options.description) {
-        params.description = options.description
-      }
-
-      const intent = await stripe.paymentIntents.create(params)
-
-      return {
-        success: true,
-        data: this.mapStripeIntent(intent),
-      }
-    } catch (error) {
-      logger.error('[StripePaymentProvider] Failed to create payment intent', { error, options })
-      return {
-        success: false,
-        error: {
-          code: (error as any).code || 'stripe_error',
-          message: (error as any).message || 'Unknown Stripe error',
-          details: error,
-        },
-      }
+  protected async doCreatePaymentIntent(options: CreatePaymentIntentOptions): Promise<PaymentIntent> {
+    const stripe = getStripeClient()
+    
+    const params: Stripe.PaymentIntentCreateParams = {
+      amount: toStripeAmount(options.amount, options.currency),
+      currency: options.currency.toLowerCase(),
+      metadata: {
+        tenant_id: options.tenantId,
+        invoice_id: options.invoiceId,
+        ...options.metadata,
+      },
     }
+
+    if (options.customerId) {
+      params.customer = options.customerId
+    } else if (options.customerEmail) {
+      params.receipt_email = options.customerEmail
+    }
+
+    if (options.description) {
+      params.description = options.description
+    }
+
+    const intent = await stripe.paymentIntents.create(params)
+    return this.mapStripeIntent(intent)
   }
 
-  async getPaymentIntent(intentId: string): Promise<ProviderResult<PaymentIntent>> {
-    try {
-      const stripe = getStripeClient()
-      const intent = await stripe.paymentIntents.retrieve(intentId)
-      
-      return {
-        success: true,
-        data: this.mapStripeIntent(intent),
-      }
-    } catch (error) {
-      logger.error('[StripePaymentProvider] Failed to retrieve payment intent', { error, intentId })
-      return {
-        success: false,
-        error: {
-          code: (error as any).code || 'stripe_error',
-          message: (error as any).message || 'Unknown Stripe error',
-        },
-      }
-    }
+  protected async doGetPaymentIntent(intentId: string): Promise<PaymentIntent> {
+    const stripe = getStripeClient()
+    const intent = await stripe.paymentIntents.retrieve(intentId)
+    return this.mapStripeIntent(intent)
   }
 
-  async refund(paymentIntentId: string, amount?: number, reason?: string): Promise<ProviderResult<{ refundId: string }>> {
-    try {
-      const stripe = getStripeClient()
-      
-      const params: Stripe.RefundCreateParams = {
-        payment_intent: paymentIntentId,
-      }
-
-      if (amount) {
-        // Note: We need currency here to know how to convert amount to cents
-        // For now, assuming the payment intent's currency.
-        // In a real scenario, we might want to retrieve the intent first or pass currency.
-        // Assuming PYG for now if not specified, but this is a bit risky.
-        // Better: Stripe handles conversion if we pass the amount in the smallest unit.
-        // But we don't have currency here. 
-        // TODO: Improve refund API to include currency or retrieve intent first.
-      }
-
-      const refund = await stripe.refunds.create(params)
-
-      return {
-        success: true,
-        data: { refundId: refund.id },
-      }
-    } catch (error) {
-      logger.error('[StripePaymentProvider] Failed to process refund', { error, paymentIntentId })
-      return {
-        success: false,
-        error: {
-          code: (error as any).code || 'stripe_error',
-          message: (error as any).message || 'Unknown Stripe error',
-        },
-      }
+  protected async doRefund(paymentIntentId: string, amount?: number, reason?: string): Promise<{ refundId: string }> {
+    const stripe = getStripeClient()
+    const params: Stripe.RefundCreateParams = {
+      payment_intent: paymentIntentId,
     }
+    // Note: Currency handling for partial refunds needed here if amount is provided
+    const refund = await stripe.refunds.create(params)
+    return { refundId: refund.id }
   }
 
   async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {
-    try {
+    // Webhooks are special and usually handled before execute wrapper to avoid body re-reading issues
+    return this.execute('verifyWebhook', async () => {
       const stripe = getStripeClient()
-      const event = stripe.webhooks.constructEvent(payload, signature, secret)
-      return {
-        success: true,
-        data: event,
-      }
-    } catch (error) {
-      logger.error('[StripePaymentProvider] Webhook verification failed', { error })
-      return {
-        success: false,
-        error: {
-          code: 'webhook_verification_failed',
-          message: (error as any).message || 'Webhook verification failed',
-        },
-      }
+      return stripe.webhooks.constructEvent(payload, signature, secret)
+    })
+  }
+
+  protected override normalizeError(error: any): PaymentError {
+    const stripeError = error as Stripe.StripeError
+    return {
+      code: stripeError.code || stripeError.type || 'stripe_error',
+      message: stripeError.message || 'Unknown Stripe error',
+      details: stripeError,
     }
   }
 
@@ -143,7 +81,7 @@ export class StripePaymentProvider implements PaymentProvider {
     return {
       id: intent.id,
       clientSecret: intent.client_secret,
-      amount: intent.amount, // Note: Stripe returns amount in cents (or units for PYG)
+      amount: intent.amount,
       currency: intent.currency.toUpperCase() as any,
       status: this.mapStripeStatus(intent.status),
       metadata: intent.metadata as Record<string, string>,

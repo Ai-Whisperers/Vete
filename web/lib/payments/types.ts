@@ -41,14 +41,17 @@ export interface PaymentIntent {
 /**
  * Result of a provider operation
  */
+export interface PaymentError {
+  code: string
+  message: string
+  details?: any
+  provider?: string
+}
+
 export interface ProviderResult<T> {
   success: boolean
   data?: T
-  error?: {
-    code: string
-    message: string
-    details?: any
-  }
+  error?: PaymentError
 }
 
 // =============================================================================
@@ -64,6 +67,13 @@ export interface CreatePaymentIntentOptions {
   customerEmail?: string
   description?: string
   metadata?: Record<string, string>
+}
+
+/**
+ * Factory for creating payment providers
+ */
+export interface PaymentProviderFactory {
+  getProvider(name?: string): PaymentProvider
 }
 
 export interface PaymentProvider {

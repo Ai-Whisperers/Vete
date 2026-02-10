@@ -4,21 +4,18 @@
  * Implementation of PaymentProvider for testing and development.
  */
 
+import { AbstractPaymentProvider } from './abstract-provider'
 import type { 
-  PaymentProvider, 
   PaymentIntent, 
   CreatePaymentIntentOptions, 
   ProviderResult 
 } from './types'
-import { logger } from '@/lib/logger'
 
-export class MockPaymentProvider implements PaymentProvider {
+export class MockPaymentProvider extends AbstractPaymentProvider {
   readonly name = 'mock'
 
-  async createPaymentIntent(options: CreatePaymentIntentOptions): Promise<ProviderResult<PaymentIntent>> {
-    logger.info('[MockPaymentProvider] Creating payment intent', options)
-    
-    const intent: PaymentIntent = {
+  protected async doCreatePaymentIntent(options: CreatePaymentIntentOptions): Promise<PaymentIntent> {
+    return {
       id: `mock_pi_${Math.random().toString(36).slice(2)}`,
       clientSecret: `mock_secret_${Math.random().toString(36).slice(2)}`,
       amount: options.amount,
@@ -27,36 +24,21 @@ export class MockPaymentProvider implements PaymentProvider {
       metadata: options.metadata,
       provider: 'mock',
     }
+  }
 
+  protected async doGetPaymentIntent(intentId: string): Promise<PaymentIntent> {
     return {
-      success: true,
-      data: intent,
+      id: intentId,
+      clientSecret: 'mock_secret_static',
+      amount: 1000,
+      currency: 'PYG',
+      status: 'succeeded',
+      provider: 'mock',
     }
   }
 
-  async getPaymentIntent(intentId: string): Promise<ProviderResult<PaymentIntent>> {
-    logger.info('[MockPaymentProvider] Retrieving payment intent', { intentId })
-    
-    return {
-      success: true,
-      data: {
-        id: intentId,
-        clientSecret: 'mock_secret_static',
-        amount: 1000,
-        currency: 'PYG',
-        status: 'succeeded',
-        provider: 'mock',
-      },
-    }
-  }
-
-  async refund(paymentIntentId: string, amount?: number, reason?: string): Promise<ProviderResult<{ refundId: string }>> {
-    logger.info('[MockPaymentProvider] Processing refund', { paymentIntentId, amount, reason })
-    
-    return {
-      success: true,
-      data: { refundId: `mock_re_${Math.random().toString(36).slice(2)}` },
-    }
+  protected async doRefund(paymentIntentId: string, amount?: number, reason?: string): Promise<{ refundId: string }> {
+    return { refundId: `mock_re_${Math.random().toString(36).slice(2)}` }
   }
 
   async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {

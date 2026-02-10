@@ -3,11 +3,12 @@
  * 
  * Orchestrates payment operations across different providers and 
  * manages the integration with the application's database.
+ * 
+ * This service is provider-agnostic and relies on the PaymentProviderFactory
+ * to resolve the concrete implementation.
  */
 
-import { logger } from '@/lib/logger'
-import { StripePaymentProvider } from './stripe-provider'
-import { MockPaymentProvider } from './mock-provider'
+import { paymentProviderFactory } from './factory'
 import type { 
   PaymentProvider, 
   PaymentIntent, 
@@ -19,21 +20,7 @@ export class PaymentService {
   private provider: PaymentProvider
 
   constructor(providerName?: string) {
-    this.provider = this.createProvider(providerName || process.env.PAYMENT_PROVIDER)
-  }
-
-  private createProvider(name?: string): PaymentProvider {
-    switch (name) {
-      case 'stripe':
-        return new StripePaymentProvider()
-      case 'mock':
-        return new MockPaymentProvider()
-      default:
-        if (process.env.NODE_ENV === 'production' && !name) {
-          logger.error('No payment provider configured in production!')
-        }
-        return new MockPaymentProvider()
-    }
+    this.provider = paymentProviderFactory.getProvider(providerName)
   }
 
   /**
@@ -47,39 +34,8 @@ export class PaymentService {
    * Initialize a payment transaction
    */
   async createPaymentIntent(options: CreatePaymentIntentOptions): Promise<ProviderResult<PaymentIntent>> {
-    const startTime = Date.now()
-    
-    try {
-      const result = await this.provider.createPaymentIntent(options)
-      
-      const duration = Date.now() - startTime
-      logger.info('[PaymentService] Created payment intent', {
-        provider: this.provider.name,
-        success: result.success,
-        duration,
-        invoiceId: options.invoiceId,
-        amount: options.amount,
-        currency: options.currency,
-      })
-
-      return result
-    } catch (error) {
-      const duration = Date.now() - startTime
-      logger.error('[PaymentService] Failed to create payment intent', {
-        provider: this.provider.name,
-        duration,
-        invoiceId: options.invoiceId,
-        error,
-      })
-
-      return {
-        success: false,
-        error: {
-          code: 'service_error',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        },
-      }
-    }
+    // Logging and timing are now handled by the AbstractPaymentProvider
+    return this.provider.createPaymentIntent(options)
   }
 
   /**
@@ -108,11 +64,17 @@ export class PaymentService {
 // Singleton Instance
 // =============================================================================
 
-let paymentService: PaymentService | null = null
+let paymentServiceInstance: PaymentService | null = null
 
-export function getPaymentService(): PaymentService {
-  if (!paymentService) {
-    paymentService = new PaymentService()
+export function getPaymentService(providerName?: string): PaymentService {
+  // If a specific provider is requested, we don't use the singleton
+  // unless it matches the existing one.
+  if (providerName) {
+    return new PaymentService(providerName)
   }
-  return paymentService
+
+  if (!paymentServiceInstance) {
+    paymentServiceInstance = new PaymentService()
+  }
+  return paymentServiceInstance
 }

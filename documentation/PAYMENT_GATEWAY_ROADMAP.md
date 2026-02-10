@@ -86,3 +86,29 @@ The `/api/store/checkout` route will be enhanced to:
 - **Feb 12:** Stripe functional in Store (Production Ready).
 - **Feb 15:** Abstraction layer complete.
 - **Feb 20:** Bancard integration started.
+
+---
+
+## 🛡️ Future-Proof Resilience & Generic Abstraction
+
+To ensure long-term maintainability and rapid integration of local gateways (Bancard, Tigo Money), we will implement a **Base Abstraction Layer** that separates provider-specific SDK logic from our core business rules.
+
+### 1. The `AbstractPaymentProvider` Base Class
+Instead of providers implementing the `PaymentProvider` interface directly, they will extend an `AbstractPaymentProvider` class.
+
+**Responsibilities of the Base Class:**
+- **Standardized Logging:** Automatic entry/exit logging for all payment attempts with duration tracking.
+- **Error Normalization:** Mapping provider-specific errors (Stripe, Bancard) into a unified `VetePaymentError` schema.
+- **Telemetry:** Hook points for Datadog/Prometheus to track payment success rates and latency.
+- **Idempotency Logic:** Shared logic for handling retry headers and duplicate webhook events.
+
+### 2. CI/CD & Testing Resilience
+- **Contract Testing:** A shared test suite template that any new provider (e.g., `BancardProvider`) must pass to be considered "Vete-compliant".
+- **Provider Agnostic Smoke Tests:** CI/CD jobs that run against the `MockPaymentProvider` to ensure the orchestration layer (RPCs + Service) never breaks during unrelated changes.
+- **Circuit Breaker Pattern:** Future implementation of a circuit breaker in the base class to automatically disable a gateway if its failure rate exceeds a threshold (e.g., if Bancard goes down, fallback to Stripe or Cash).
+
+### 3. Implementation Plan for Abstraction
+- [ ] Refactor `PaymentProvider` to `AbstractPaymentProvider`.
+- [ ] Move `logger` and `performance.now()` logic into the base class decorators/methods.
+- [ ] Implement `normalizeError(rawError)` as a required abstract method.
+- [ ] Create a `BaseProviderTest` suite that can be extended for any new gateway.

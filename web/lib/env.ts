@@ -131,6 +131,11 @@ export const env = {
     return value
   },
 
+  /** Stripe publishable key (safe for client-side) */
+  get STRIPE_PUBLISHABLE_KEY(): string {
+    return process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+  },
+
   /** Supabase service role key (server-side only, bypasses RLS) */
   get SUPABASE_SERVICE_ROLE_KEY(): string {
     // Lazy evaluation to avoid errors when not needed

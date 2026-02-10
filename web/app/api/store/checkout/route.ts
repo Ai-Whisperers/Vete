@@ -4,6 +4,7 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { requireFeature } from '@/lib/features/server'
 import { checkoutRequestSchema } from '@/lib/schemas/store'
 import type { PostgrestError } from '@supabase/supabase-js'
+import { getPaymentService } from '@/lib/payments/service'
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
@@ -83,6 +84,9 @@ export const POST = withApiAuth(
           invoiceId: existingInvoice.id,
           invoiceNumber: existingInvoice.invoice_number,
         })
+
+        // For idempotent requests, we might still need a payment intent if the previous one wasn't finished
+        // For now, returning existing invoice as before
         return NextResponse.json({
           success: true,
           invoice: {
@@ -292,6 +296,47 @@ export const POST = withApiAuth(
       // Success - cart clearing and reservation conversion now handled atomically
       // in the process_checkout database function (migration 021)
 
+      // PHASE 1: Initiate payment intent for the checkout
+      let paymentIntent = null
+      if (result.invoice) {
+        try {
+          const paymentService = getPaymentService()
+          const intentResult = await paymentService.createPaymentIntent({
+            amount: result.invoice.total,
+            currency: 'PYG', // Default for Paraguay
+            invoiceId: result.invoice.id,
+            tenantId: clinic,
+            customerEmail: user.email,
+            description: `Store Order ${result.invoice.invoice_number}`,
+            metadata: {
+              order_type: 'store',
+              client_id: user.id,
+            }
+          })
+
+          if (intentResult.success) {
+            paymentIntent = {
+              id: intentResult.data?.id,
+              clientSecret: intentResult.data?.clientSecret,
+              provider: paymentService.providerName,
+            }
+          } else {
+            log.error('Failed to create payment intent', {
+              action: 'checkout.payment_intent_error',
+              invoiceId: result.invoice.id,
+              error: intentResult.error,
+            })
+            // We continue anyway, the invoice was created successfully
+            // The client might need to pay later or through another method
+          }
+        } catch (paymentError) {
+          log.error('Payment service error during checkout', {
+            action: 'checkout.payment_service_error',
+            error: paymentError instanceof Error ? paymentError : new Error(String(paymentError)),
+          })
+        }
+      }
+
       // Log the transaction
       const { logAudit } = await import('@/lib/audit')
       await logAudit('CHECKOUT', `invoices/${result.invoice?.id}`, {
@@ -307,12 +352,14 @@ export const POST = withApiAuth(
         resourceId: result.invoice?.id,
         total: result.invoice?.total,
         itemCount: items.length,
+        paymentIntentId: paymentIntent?.id,
       })
 
       return NextResponse.json(
         {
           success: true,
           invoice: result.invoice,
+          paymentIntent,
         },
         { status: 201 }
       )

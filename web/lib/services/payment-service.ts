@@ -1,4 +1,7 @@
 /**
+ * @deprecated Use the new domain-driven unified payment system in @/lib/payments/ instead.
+ * This service is kept for backward compatibility during the migration phase.
+ * 
  * PaymentService - Payment Processing Service Layer (CORE MVP)
  *
  * Handles CORE payment operations only:

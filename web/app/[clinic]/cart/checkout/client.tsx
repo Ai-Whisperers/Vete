@@ -20,6 +20,8 @@ import { PetSelector, type Pet } from '@/components/store/pet-selector'
 import { PrescriptionCheckoutBanner } from '@/components/store/prescription-warning'
 import { PrintableReceipt } from '@/components/store/printable-receipt'
 import { ErrorBoundary } from '@/components/error/error-boundary'
+import { StripePaymentWrapper } from '@/components/payments/StripePaymentWrapper'
+import { env } from '@/lib/env'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 // FEAT-013: Prescription verification with pet selection
@@ -37,6 +39,11 @@ interface CheckoutResult {
     id: string
     invoice_number: string
     total: number
+  }
+  paymentIntent?: {
+    id: string
+    clientSecret: string
+    provider: string
   }
   error?: string
   stockErrors?: StockError[]
@@ -67,6 +74,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   const [checkoutItems, setCheckoutItems] = useState<typeof items | null>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [stockErrors, setStockErrors] = useState<StockError[]>([])
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false)
 
   // Prescription tracking: map of item.id -> prescription file URL
   const [prescriptions, setPrescriptions] = useState<Record<string, string>>({})
@@ -166,6 +174,11 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
         setCheckoutItems([...items])
         setCheckoutResult(result)
         clearCart()
+        
+        // If no payment intent (e.g. cash/mock), confirm immediately
+        if (!result.paymentIntent) {
+          setIsPaymentConfirmed(true)
+        }
       } else {
         setCheckoutError(result.error || t('errors.processingError'))
         if (result.stockErrors) {
@@ -179,6 +192,15 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
       isSubmittingRef.current = false
       setIsProcessing(false)
     }
+  }
+
+  const handlePaymentSuccess = () => {
+    setIsPaymentConfirmed(true)
+  }
+
+  const handlePaymentCancel = () => {
+    // User chose to pay later, show success state anyway since invoice is created
+    setIsPaymentConfirmed(true)
   }
 
   const handlePrint = () => {
@@ -208,8 +230,36 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
   }
 
+  // Payment state - show payment wrapper if we have an intent and payment isn't confirmed yet
+  if (checkoutResult?.paymentIntent && !isPaymentConfirmed) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-default)] p-8">
+        <div className="mx-auto max-w-lg">
+          <div className="mb-8 text-center">
+            <h1 className="mb-2 text-3xl font-bold text-[var(--text-primary)]">
+              Pedido Recibido
+            </h1>
+            <p className="text-[var(--text-secondary)]">
+              Su pedido #{checkoutResult.invoice?.invoice_number} ha sido creado.
+              Por favor complete el pago a continuación.
+            </p>
+          </div>
+
+          <StripePaymentWrapper
+            clientSecret={checkoutResult.paymentIntent.clientSecret}
+            publishableKey={env.STRIPE_PUBLISHABLE_KEY}
+            amount={checkoutResult.invoice?.total || 0}
+            currency={currency}
+            onSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
+          />
+        </div>
+      </div>
+    )
+  }
+
   // Success state - order completed
-  if (checkoutResult?.success) {
+  if (checkoutResult?.success && isPaymentConfirmed) {
     // Reconstruct items for receipt (cart was cleared, but we saved the result)
     const successTotal = checkoutResult.invoice?.total || 0
     const successSubtotal = successTotal / (1 + taxRate)

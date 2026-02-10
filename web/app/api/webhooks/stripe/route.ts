@@ -118,84 +118,113 @@ async function handlePaymentIntentSucceeded(
 ): Promise<void> {
   const metadata = paymentIntent.metadata
   const transactionId = metadata.transaction_id
-  const invoiceId = metadata.platform_invoice_id
+  const platformInvoiceId = metadata.platform_invoice_id
+  const storeInvoiceId = metadata.invoice_id
   const tenantId = metadata.tenant_id
 
   logger.info('Payment intent succeeded', {
     paymentIntentId: paymentIntent.id,
     transactionId,
-    invoiceId,
+    platformInvoiceId,
+    storeInvoiceId,
     amount: paymentIntent.amount,
   })
 
-  if (!transactionId || !invoiceId) {
-    logger.warn('Missing metadata in payment intent', { paymentIntentId: paymentIntent.id })
-    return
-  }
-
   const now = new Date().toISOString()
 
-  // Update transaction
-  const { error: txError } = await supabase
-    .from('billing_payment_transactions')
-    .update({
-      status: 'succeeded',
-      stripe_charge_id: paymentIntent.latest_charge as string || null,
-      completed_at: now,
-    })
-    .eq('id', transactionId)
+  // 1. Handle Platform Billing (Legacy/Platform invoices)
+  if (transactionId || platformInvoiceId) {
+    // Update transaction if present
+    if (transactionId) {
+      const { error: txError } = await supabase
+        .from('billing_payment_transactions')
+        .update({
+          status: 'succeeded',
+          stripe_charge_id: paymentIntent.latest_charge as string || null,
+          completed_at: now,
+        })
+        .eq('id', transactionId)
 
-  if (txError) {
-    logger.error('Error updating transaction', { error: txError.message, transactionId })
-  }
+      if (txError) {
+        logger.error('Error updating transaction', { error: txError.message, transactionId })
+      }
+    }
 
-  // Update invoice
-  const { data: existingInvoice } = await supabase
-    .from('platform_invoices')
-    .select('status')
-    .eq('id', invoiceId)
-    .single()
-
-  // Only update if not already paid (avoid duplicate webhooks)
-  if (existingInvoice && existingInvoice.status !== 'paid') {
-    await supabase
-      .from('platform_invoices')
-      .update({
-        status: 'paid',
-        paid_at: now,
-        payment_reference: paymentIntent.id,
-        updated_at: now,
-      })
-      .eq('id', invoiceId)
-
-    // Mark commissions as paid
-    await supabase
-      .from('store_commissions')
-      .update({ status: 'paid', paid_at: now })
-      .eq('platform_invoice_id', invoiceId)
-
-    await supabase
-      .from('service_commissions')
-      .update({ status: 'paid', paid_at: now })
-      .eq('platform_invoice_id', invoiceId)
-
-    // Send notification
-    if (tenantId) {
-      const { data: adminProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('tenant_id', tenantId)
-        .eq('role', 'admin')
-        .limit(1)
+    // Update platform invoice if present
+    if (platformInvoiceId) {
+      const { data: existingInvoice } = await supabase
+        .from('platform_invoices')
+        .select('status')
+        .eq('id', platformInvoiceId)
         .single()
 
-      if (adminProfile) {
-        await supabase.from('notifications').insert({
-          user_id: adminProfile.id,
-          title: 'Pago confirmado',
-          message: `Su pago de ₲${(paymentIntent.amount).toLocaleString('es-PY')} ha sido procesado exitosamente.`,
-        })
+      // Only update if not already paid (avoid duplicate webhooks)
+      if (existingInvoice && existingInvoice.status !== 'paid') {
+        await supabase
+          .from('platform_invoices')
+          .update({
+            status: 'paid',
+            paid_at: now,
+            payment_reference: paymentIntent.id,
+            updated_at: now,
+          })
+          .eq('id', platformInvoiceId)
+
+        // Mark commissions as paid
+        await supabase
+          .from('store_commissions')
+          .update({ status: 'paid', paid_at: now })
+          .eq('platform_invoice_id', platformInvoiceId)
+
+        await supabase
+          .from('service_commissions')
+          .update({ status: 'paid', paid_at: now })
+          .eq('platform_invoice_id', platformInvoiceId)
       }
+    }
+  }
+
+  // 2. Handle Store Invoices (Clinic invoices)
+  if (storeInvoiceId && tenantId) {
+    logger.info('Recording store invoice payment via RPC', { storeInvoiceId, tenantId })
+    
+    // We use the atomic RPC function for store invoices
+    const { data: rpcResult, error: rpcError } = await supabase.rpc('record_invoice_payment', {
+      p_invoice_id: storeInvoiceId,
+      p_tenant_id: tenantId,
+      p_amount: paymentIntent.amount, // Stripe units for PYG match DB units
+      p_payment_method: 'stripe',
+      p_reference_number: paymentIntent.id,
+      p_notes: `Pago procesado vía Stripe (Webhook). Intent ID: ${paymentIntent.id}`,
+    })
+
+    if (rpcError) {
+      logger.error('RPC record_invoice_payment failed in webhook', { 
+        error: rpcError, 
+        storeInvoiceId, 
+        tenantId 
+      })
+    } else {
+      logger.info('RPC record_invoice_payment successful', { rpcResult, storeInvoiceId })
+    }
+  }
+
+  // 3. Send Notification to Admin
+  if (tenantId) {
+    const { data: adminProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('role', 'admin')
+      .limit(1)
+      .single()
+
+    if (adminProfile) {
+      await supabase.from('notifications').insert({
+        user_id: adminProfile.id,
+        title: 'Pago confirmado',
+        message: `Su pago de ₲${(paymentIntent.amount).toLocaleString('es-PY')} ha sido procesado exitosamente.`,
+      })
     }
   }
 }

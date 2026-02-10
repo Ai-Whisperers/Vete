@@ -1,0 +1,116 @@
+/**
+ * Unified Payment System Types
+ * 
+ * Defines the core interfaces and types for the provider-agnostic payment system.
+ */
+
+import type { PaymentMethod as DbPaymentMethod, PaymentStatus as DbPaymentStatus } from '../types/database/enums'
+
+// =============================================================================
+// Core Types
+// =============================================================================
+
+/**
+ * Extended payment methods supported by providers
+ */
+export type PaymentMethod = DbPaymentMethod | 'stripe' | 'bancard' | 'tigo_money'
+
+/**
+ * Payment status lifecycle
+ */
+export type PaymentStatus = DbPaymentStatus
+
+/**
+ * Supported currencies (PYG is primary for Paraguay)
+ */
+export type Currency = 'PYG' | 'USD'
+
+/**
+ * Payment Intent represents a transaction in progress
+ */
+export interface PaymentIntent {
+  id: string
+  clientSecret: string | null
+  amount: number
+  currency: Currency
+  status: 'requires_payment_method' | 'requires_confirmation' | 'requires_action' | 'processing' | 'requires_capture' | 'canceled' | 'succeeded'
+  metadata?: Record<string, string>
+  provider: string
+}
+
+/**
+ * Result of a provider operation
+ */
+export interface ProviderResult<T> {
+  success: boolean
+  data?: T
+  error?: {
+    code: string
+    message: string
+    details?: any
+  }
+}
+
+// =============================================================================
+// Provider Interface
+// =============================================================================
+
+export interface CreatePaymentIntentOptions {
+  amount: number
+  currency: Currency
+  invoiceId: string
+  tenantId: string
+  customerId?: string
+  customerEmail?: string
+  description?: string
+  metadata?: Record<string, string>
+}
+
+export interface PaymentProvider {
+  /**
+   * Provider identifier (e.g., 'stripe', 'bancard')
+   */
+  readonly name: string
+
+  /**
+   * Initialize a payment transaction
+   */
+  createPaymentIntent(options: CreatePaymentIntentOptions): Promise<ProviderResult<PaymentIntent>>
+
+  /**
+   * Retrieve an existing payment intent
+   */
+  getPaymentIntent(intentId: string): Promise<ProviderResult<PaymentIntent>>
+
+  /**
+   * Process a refund
+   */
+  refund(paymentIntentId: string, amount?: number, reason?: string): Promise<ProviderResult<{ refundId: string }>>
+
+  /**
+   * Verify a webhook signature and parse the event
+   */
+  verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>>
+}
+
+// =============================================================================
+// Service Configuration
+// =============================================================================
+
+export interface PaymentServiceConfig {
+  defaultProvider: string
+  providers: {
+    stripe?: {
+      enabled: boolean
+      publishableKey: string
+      secretKey: string
+      webhookSecret: string
+    }
+    bancard?: {
+      enabled: boolean
+      publicKey: string
+      privateKey: string
+    }
+    // Future providers can be added here
+  }
+}

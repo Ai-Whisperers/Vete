@@ -66,7 +66,7 @@ on:
           - monthly-invoicing
 
 env:
-  PRODUCTION_URL: https://vetepy.vercel.app
+  PRODUCTION_URL: https://vetic.vercel.app
 
 jobs:
   # ===========================================================================
@@ -84,6 +84,16 @@ jobs:
       group: cron-release-reservations
       cancel-in-progress: false
     steps:
+      - name: Health Check
+        run: |
+          echo "Checking application health at ${{ env.PRODUCTION_URL }}..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PRODUCTION_URL }}/api/health")
+          if [ "$response" -ne 200 ]; then
+            echo "::error::Health check failed with status $response"
+            exit 1
+          fi
+          echo "✅ Application is healthy"
+
       - name: Call release-reservations endpoint
         run: |
           echo "Calling release-reservations..."

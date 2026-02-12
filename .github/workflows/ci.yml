@@ -19,17 +19,14 @@ jobs:
   # Stage 1: Fast Checks (Lint + Type Check)
   # ============================================
   lint:
-    name: Lint (Node ${{ matrix.node-version }})
+    name: Lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -40,17 +37,14 @@ jobs:
         run: cd web && npm run lint
 
   typecheck:
-    name: Type Check (Node ${{ matrix.node-version }})
+    name: Type Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -64,17 +58,14 @@ jobs:
   # Stage 2: Security Audit
   # ============================================
   security-audit:
-    name: Security Audit (Node ${{ matrix.node-version }})
+    name: Security Audit
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -94,18 +85,15 @@ jobs:
   # Stage 3: Unit Tests
   # ============================================
   unit-tests:
-    name: Unit Tests (Node ${{ matrix.node-version }})
+    name: Unit Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -127,18 +115,15 @@ jobs:
   # Stage 4: Build Validation
   # ============================================
   build:
-    name: Build (Node ${{ matrix.node-version }})
+    name: Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -165,18 +150,15 @@ jobs:
   # Stage 5: Integration Tests (Parallel)
   # ============================================
   integration-tests:
-    name: Integration Tests (Node ${{ matrix.node-version }})
+    name: Integration Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [unit-tests, build]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -188,18 +170,15 @@ jobs:
         continue-on-error: true  # Non-blocking: needs database setup (see INTEGRATION_TESTS_TODO.md)
 
   api-tests:
-    name: API Tests (Node ${{ matrix.node-version }})
+    name: API Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [unit-tests, build]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -210,18 +189,15 @@ jobs:
         run: cd web && npm run test:api
 
   security-tests:
-    name: Security Tests (Node ${{ matrix.node-version }})
+    name: Security Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [unit-tests]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 
@@ -235,18 +211,15 @@ jobs:
   # Stage 6: E2E Tests (Most Expensive)
   # ============================================
   e2e-tests:
-    name: E2E Tests (Node ${{ matrix.node-version }})
+    name: E2E Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
     needs: [integration-tests, api-tests]
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: web/package-lock.json
 

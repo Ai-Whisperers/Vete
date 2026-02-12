@@ -77,7 +77,7 @@ export const PATCH = withApiAuthParams<Params>(
       species: 'species',
       breed: 'breed',
       weight_kg: 'weight_kg',
-      microchip_id: 'microchip_id',
+      microchip_id: 'microchip_number',
       diet_category: 'diet_category',
       diet_notes: 'diet_notes',
       sex: 'sex',

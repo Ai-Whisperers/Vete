@@ -19,7 +19,7 @@ export default async function ScanPage({ params }: { params: Promise<{ id: strin
             species,
             breed,
             photo_url,
-            microchip_id,
+            microchip_number,
             allergies,
             existing_conditions,
             owner_id
@@ -73,10 +73,10 @@ export default async function ScanPage({ params }: { params: Promise<{ id: strin
               <p className="text-lg text-gray-600">
                 {pet.species} • {pet.breed}
               </p>
-              {pet.microchip_id && (
+              {pet.microchip_number && (
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700">
                   <Icons.Cpu className="h-4 w-4" />
-                  Microchip: {pet.microchip_id}
+                  Microchip: {pet.microchip_number}
                 </div>
               )}
             </div>

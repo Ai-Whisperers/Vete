@@ -16,7 +16,7 @@ export const POST = withApiAuthParams(
       // Verify pet exists and get owner info
       const { data: pet, error: petError } = await supabase
         .from('pets')
-        .select('id, name, owner_id, tenant_id, species, breed, microchip_id')
+        .select('id, name, owner_id, tenant_id, species, breed, microchip_number')
         .eq('id', petId)
         .single()
 
@@ -46,7 +46,7 @@ export const POST = withApiAuthParams(
         petName: pet.name,
         species: pet.species,
         breed: pet.breed,
-        microchip: pet.microchip_id,
+        microchip: pet.microchip_number,
         ownerName: owner?.full_name,
         ownerPhone: owner?.phone,
         ownerEmail: owner?.email,

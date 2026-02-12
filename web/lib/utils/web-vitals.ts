@@ -64,7 +64,7 @@ async function sendToAnalytics(metric: VitalsMetric) {
     }
   } catch (error) {
     // Silently fail - analytics shouldn't break user experience
-    console.debug('Failed to send web vitals to analytics:', error)
+    console.warn('Failed to send web vitals to analytics:', error)
   }
 }
 
@@ -95,7 +95,7 @@ export function initWebVitals() {
     onINP(handleMetric) // Interaction to Next Paint
   } catch (error) {
     // Silently fail if web-vitals library has issues
-    console.debug('Failed to initialize web vitals:', error)
+    console.warn('Failed to initialize web vitals:', error)
   }
 }
 

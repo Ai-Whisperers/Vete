@@ -63,6 +63,7 @@ export interface CreatePetData {
   sex?: 'male' | 'female' | null;
   color?: string | null;
   is_neutered?: boolean | null;
+  microchip_number?: string | null;
   photo_url?: string | null;
   notes?: string | null;
 }
@@ -78,6 +79,7 @@ export interface UpdatePetData {
   sex?: 'male' | 'female' | null;
   color?: string | null;
   is_neutered?: boolean | null;
+  microchip_number?: string | null;
   photo_url?: string | null;
   notes?: string | null;
 }
@@ -253,6 +255,7 @@ export class PetService extends BaseService {
             sex: data.sex || null,
             color: data.color || null,
             is_neutered: data.is_neutered || null,
+            microchip_number: data.microchip_number || null,
             photo_url: data.photo_url || null,
             notes: data.notes || null,
             is_active: true,

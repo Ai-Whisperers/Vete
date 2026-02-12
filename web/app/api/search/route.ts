@@ -45,7 +45,7 @@ export const GET = withApiAuth(async ({ request, user: _user, profile, supabase 
       .select('id, name, species, breed, owner_id')
       .eq('tenant_id', clinic)
       .or(
-        `name.ilike.${searchPattern},breed.ilike.${searchPattern},microchip_id.ilike.${searchPattern}`
+        `name.ilike.${searchPattern},breed.ilike.${searchPattern},microchip_number.ilike.${searchPattern}`
       )
       .limit(5)
 

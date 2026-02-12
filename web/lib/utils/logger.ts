@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Application logging utility
  * Only logs to console in development environment

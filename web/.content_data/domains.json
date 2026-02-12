@@ -1,8 +1,16 @@
 {
   "$schema": "./schemas/domains.schema.json",
   "version": "1.0.0",
-  "defaultDomain": "vetic.vercel.app",
+  "defaultDomain": "vetic.ai-whisperers.org",
   "domains": [
+    {
+      "domain": "vetic.ai-whisperers.org",
+      "tenant": "platform",
+      "type": "primary",
+      "provider": "vercel",
+      "status": "active",
+      "createdAt": "2026-02-12T00:00:00Z"
+    },
     {
       "domain": "terrapet.vetic.vercel.app",
       "tenant": "terrapet",
@@ -42,18 +50,6 @@
     {
       "domain": "fun4me.vetic.vercel.app",
       "tenant": "fun4me",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2025-01-31T00:00:00Z"
-    },
-    {
-      "domain": "terrapet.vetic.vercel.app",
-      "tenant": "terrapet",
       "type": "subdomain",
       "provider": "vercel",
       "ssl": {

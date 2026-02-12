@@ -81,6 +81,7 @@ export function isCustomDomain(host: string): boolean {
   if (domain === 'localhost') return false
   if (domain.includes('vercel.app')) return false
   if (domain.includes('vercel-dns.com')) return false
+  if (domain.includes('ai-whisperers.org')) return false
 
   return true
 }

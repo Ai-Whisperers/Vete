@@ -41,7 +41,7 @@ export const GET = withApiAuthParams<{ id: string }>(
             color,
             weight_kg,
             photo_url,
-            microchip_id,
+            microchip_number,
             owner:profiles!pets_owner_id_fkey (
               id,
               full_name,
@@ -208,6 +208,7 @@ export const PUT = withApiAuthParams<{ id: string }>(
             species,
             breed,
             photo_url,
+            microchip_number,
             owner:profiles!pets_owner_id_fkey (
               id,
               full_name,

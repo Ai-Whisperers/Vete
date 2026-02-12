@@ -1,5 +1,5 @@
 /**
- * Abstract Payment Provider
+ *  Abstract Payment Provider
  * 
  * Base class for all payment providers to ensure consistent logging,
  * error handling, and telemetry.
@@ -11,7 +11,8 @@ import type {
   PaymentIntent, 
   CreatePaymentIntentOptions, 
   ProviderResult,
-  PaymentError
+  PaymentError,
+  WebhookEvent
 } from './types'
 
 export abstract class AbstractPaymentProvider implements PaymentProvider {
@@ -35,7 +36,7 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   /**
    * Verify a webhook signature - implemented by concrete providers
    */
-  public abstract verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>>
+  public abstract verifyWebhook(payload: string | Buffer | Record<string, unknown>, signature: string, secret: string): Promise<ProviderResult<WebhookEvent>>
 
   /**
    * Standardized wrapper for creating payment intents
@@ -64,7 +65,7 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   protected async execute<T>(
     operation: string, 
     action: () => Promise<T>, 
-    context: Record<string, any> = {}
+    context: Record<string, unknown> = {}
   ): Promise<ProviderResult<T>> {
     const startTime = Date.now()
     
@@ -96,13 +97,14 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   }
 
   /**
-   * Normalize provider-specific errors into a standard PaymentError
-   */
-  protected normalizeError(error: any): PaymentError {
+ * Normalize provider-specific errors into a standard PaymentError
+ */
+  protected normalizeError(error: unknown): PaymentError {
     if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
+      const err = error as Record<string, unknown>
       return {
-        code: String(error.code),
-        message: String(error.message),
+        code: String(err.code),
+        message: String(err.message),
         details: error
       }
     }

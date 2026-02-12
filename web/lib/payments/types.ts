@@ -4,6 +4,15 @@
  * Defines the core interfaces and types for the provider-agnostic payment system.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface WebhookEvent<T = any> {
+  type: string
+  id: string
+  data: {
+    object: T
+  }
+}
+
 import type { PaymentMethod as DbPaymentMethod, PaymentStatus as DbPaymentStatus } from '../types/database/enums'
 
 // =============================================================================
@@ -44,7 +53,7 @@ export interface PaymentIntent {
 export interface PaymentError {
   code: string
   message: string
-  details?: any
+  details?: unknown
   provider?: string
 }
 
@@ -100,7 +109,7 @@ export interface PaymentProvider {
   /**
    * Verify a webhook signature and parse the event
    */
-  verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>>
+  verifyWebhook(payload: string | Buffer | Record<string, unknown>, signature: string, secret: string): Promise<ProviderResult<WebhookEvent>>
 }
 
 // =============================================================================
@@ -120,6 +129,13 @@ export interface PaymentServiceConfig {
       enabled: boolean
       publicKey: string
       privateKey: string
+      environment: 'sandbox' | 'production'
+    }
+    tigo_money?: {
+      enabled: boolean
+      apiKey: string
+      apiSecret: string
+      environment: 'sandbox' | 'production'
     }
     // Future providers can be added here
   }

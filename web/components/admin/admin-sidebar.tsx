@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Building2,
   CreditCard,
+  Wallet,
   Users,
   Gift,
   Settings,
@@ -23,6 +24,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Clínicas', href: '/admin/tenants', icon: Building2 },
+  { name: 'Pasarelas de Pago', href: '/admin/payment-gateways', icon: Wallet },
   { name: 'Suscripciones', href: '/admin/subscriptions', icon: CreditCard },
   { name: 'Comisiones', href: '/admin/commissions', icon: BarChart3 },
   { name: 'Referidos', href: '/admin/referrals', icon: Gift },

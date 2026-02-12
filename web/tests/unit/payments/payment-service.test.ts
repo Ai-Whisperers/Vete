@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { PaymentService } from '@/lib/payments/service'
-import { MockPaymentProvider } from '@/lib/payments/mock-provider'
-import { StripePaymentProvider } from '@/lib/payments/stripe-provider'
 
 // Mock logger to avoid noise
 vi.mock('@/lib/logger', () => ({

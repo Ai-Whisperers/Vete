@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { StripePaymentProvider } from '@/lib/payments/stripe-provider'
-import { getStripeClient, toStripeAmount } from '@/lib/billing/stripe'
+import { getStripeClient } from '@/lib/billing/stripe'
 
 vi.mock('@/lib/billing/stripe', () => ({
   getStripeClient: vi.fn(),

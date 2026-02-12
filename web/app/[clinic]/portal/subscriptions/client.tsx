@@ -82,9 +82,9 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
   const handlePauseResume = async (subscription: Subscription) => {
     setLoadingId(subscription.id)
+    const newStatus = subscription.status === 'active' ? 'paused' : 'active'
 
     try {
-      const newStatus = subscription.status === 'active' ? 'paused' : 'active'
       const res = await fetch(`/api/store/subscriptions?id=${subscription.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

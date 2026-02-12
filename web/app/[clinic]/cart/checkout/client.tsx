@@ -20,8 +20,7 @@ import { PetSelector, type Pet } from '@/components/store/pet-selector'
 import { PrescriptionCheckoutBanner } from '@/components/store/prescription-warning'
 import { PrintableReceipt } from '@/components/store/printable-receipt'
 import { ErrorBoundary } from '@/components/error/error-boundary'
-import { StripePaymentWrapper } from '@/components/payments/StripePaymentWrapper'
-import { env } from '@/lib/env'
+import { PaymentWrapper } from '@/components/payments/PaymentWrapper'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 // FEAT-013: Prescription verification with pet selection
@@ -245,9 +244,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             </p>
           </div>
 
-          <StripePaymentWrapper
-            clientSecret={checkoutResult.paymentIntent.clientSecret}
-            publishableKey={env.STRIPE_PUBLISHABLE_KEY}
+          <PaymentWrapper
+            tenantId={clinic}
             amount={checkoutResult.invoice?.total || 0}
             currency={currency}
             onSuccess={handlePaymentSuccess}

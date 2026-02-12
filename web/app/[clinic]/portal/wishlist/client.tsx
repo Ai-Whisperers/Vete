@@ -96,7 +96,7 @@ export function WishlistClient({ clinic, initialProducts }: WishlistClientProps)
     } catch (error) {
       logger.error('Error subscribing to stock alert', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        productId: product.id
+        productId: productId
       })
     } finally {
       setNotifyingIds((prev) => {

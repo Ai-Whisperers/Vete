@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
-import withBundleAnalyzer from '@next/bundle-analyzer';
+// import withBundleAnalyzer from '@next/bundle-analyzer'; // Temporarily disabled for build
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -406,17 +406,14 @@ const sentryWebpackPluginOptions = {
   automaticVercelMonitors: true,
 };
 
-// Configure bundle analyzer
-const bundleAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-// Only wrap with Sentry if DSN is configured
-let finalConfig = process.env.SENTRY_DSN
-  ? withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions)
-  : withNextIntl(nextConfig);
-
-// Wrap with bundle analyzer
-finalConfig = bundleAnalyzer(finalConfig);
-
-export default finalConfig;
+  // Configure bundle analyzer
+  // const bundleAnalyzer = withBundleAnalyzer({
+  //   enabled: process.env.ANALYZE === 'true',
+  // });
+  
+  // Only wrap with Sentry if DSN is configured
+  let finalConfig = process.env.SENTRY_DSN
+    ? withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions)
+    : withNextIntl(nextConfig);
+  
+  export default finalConfig;

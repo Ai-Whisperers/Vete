@@ -3,9 +3,6 @@
  * 
  * Orchestrates payment operations across different providers and 
  * manages the integration with the application's database.
- * 
- * This service is provider-agnostic and relies on the PaymentProviderFactory
- * to resolve the concrete implementation.
  */
 
 import { paymentProviderFactory } from './factory'
@@ -13,7 +10,8 @@ import type {
   PaymentProvider, 
   PaymentIntent, 
   CreatePaymentIntentOptions, 
-  ProviderResult 
+  ProviderResult,
+  WebhookEvent
 } from './types'
 
 export class PaymentService {
@@ -55,7 +53,7 @@ export class PaymentService {
   /**
    * Verify a webhook
    */
-  async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {
+  async verifyWebhook(payload: string | Buffer | Record<string, unknown>, signature: string, secret: string): Promise<ProviderResult<WebhookEvent>> {
     return this.provider.verifyWebhook(payload, signature, secret)
   }
 }

@@ -18,6 +18,7 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import { logger } from '@/lib/logger';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -353,7 +354,7 @@ export class MedicalRecordService extends BaseService {
         if (!diagCode) {
           logger.warn('Diagnosis code not found in reference table', {
             diagnosisCode: recordData.diagnosis_code,
-            tenantId: this.tenantId
+            tenantId: tenantId
           });
         }
       }

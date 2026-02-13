@@ -72,7 +72,7 @@ npm run start
 
 #### Test 1: Authentication
 ```bash
-curl https://your-domain.com/api/store/checkout \
+curl https://vetic.ai-whisperers.org/api/store/checkout \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"items":[],"clinic":"adris"}'
@@ -84,7 +84,7 @@ Expected: `401 Unauthorized`
 #### Test 2: Empty Cart
 ```bash
 # Use valid auth token
-curl https://your-domain.com/api/store/checkout \
+curl https://vetic.ai-whisperers.org/api/store/checkout \
   -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -96,7 +96,7 @@ Expected: `400 Bad Request` with "El carrito está vacío"
 
 #### Test 3: Successful Checkout (Small Order)
 ```bash
-curl https://your-domain.com/api/store/checkout \
+curl https://vetic.ai-whisperers.org/api/store/checkout \
   -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -119,7 +119,7 @@ Expected: `201 Created` with invoice details
 
 #### Test 4: Stock Error
 ```bash
-curl https://your-domain.com/api/store/checkout \
+curl https://vetic.ai-whisperers.org/api/store/checkout \
   -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -258,7 +258,7 @@ ORDER BY created_at DESC;
 ab -n 100 -c 10 -T "application/json" \
   -H "Authorization: Bearer TOKEN" \
   -p checkout_payload.json \
-  https://your-domain.com/api/store/checkout
+  https://vetic.ai-whisperers.org/api/store/checkout
 ```
 
 Expected metrics:

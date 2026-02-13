@@ -123,7 +123,7 @@ function Test-CronEndpoint {
         return $null
     }
     
-    $url = "https://vetepy.vercel.app/api/cron/$Endpoint"
+    $url = "https://vetic.ai-whisperers.org/api/cron/$Endpoint"
     
     try {
         $response = Invoke-WebRequest -Uri $url -Method Get -Headers @{

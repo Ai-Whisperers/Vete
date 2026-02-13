@@ -86,7 +86,7 @@ on:
           - monthly-invoicing
 
 env:
-  PRODUCTION_URL: https://vetic.vercel.app
+  PRODUCTION_URL: https://vetic.ai-whisperers.org
 
 jobs:
   # ===========================================================================

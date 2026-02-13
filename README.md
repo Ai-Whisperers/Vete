@@ -179,7 +179,7 @@ npm run test:coverage:html
 
 | Environment | URL | Hosting |
 |-------------|-----|---------|
-| Production (Vercel) | https://vetepy.vercel.app | Vercel |
+| Production (Vercel) | https://vetic.ai-whisperers.org | Vercel |
 | Production (GCP) | http://34.151.201.27 | GCP e2-medium |
 
 ### Deployment Guides

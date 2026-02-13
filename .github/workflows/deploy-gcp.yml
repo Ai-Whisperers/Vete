@@ -70,6 +70,40 @@ jobs:
             
             echo "✅ Deployed successfully to GCP VM"
 
+      - name: Verify Deployment Health
+        run: |
+          echo "Waiting for application to start..."
+          sleep 30
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://${{ env.GCP_VM_IP }}:3000/api/health)
+          if [ "$response" -ne 200 ]; then
+            echo "::error::Health check failed with status $response"
+            exit 1
+          fi
+          echo "✅ Application is healthy"
+
+      - name: Rollback on Failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.GCP_VM_IP }}
+          username: ${{ env.GCP_VM_USER }}
+          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ env.APP_DIR }}
+            echo "⚠️ Deployment failed, initiating rollback..."
+            
+            # Rollback to previous commit
+            git checkout HEAD@{1}
+            
+            # Reinstall and rebuild
+            npm ci --legacy-peer-deps
+            npm run build
+            
+            # Restart
+            pm2 restart ${{ env.PM2_APP_NAME }}
+            
+            echo "✅ Rolled back to previous stable version"
+
   notify:
     needs: deploy
     runs-on: ubuntu-latest

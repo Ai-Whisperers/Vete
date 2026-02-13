@@ -13,25 +13,25 @@ All cron jobs failing with 404: "The deployment could not be found on Vercel"
 3. **DNS Issues**: `vetepy.vercel.app` may not resolve to correct deployment
 
 ### Action Items
-- [ ] **Verify Vercel deployment status**
+- [x] **Verify Vercel deployment status**
   ```bash
   gh vercel ls
-  curl -I https://vetepy.vercel.app/api/health
+  curl -I https://vetic.ai-whisperers.org/api/health
   ```
-- [ ] **Check cron endpoint routes exist in deployed code**
+- [x] **Check cron endpoint routes exist in deployed code**
   ```bash
   # Locally test if endpoints exist
   npm run build
   npm run start &
   curl -I http://localhost:3000/api/cron/release-reservations
   ```
-- [ ] **Update cron.yml production URL** if deployment moved
+- [x] **Update cron.yml production URL** if deployment moved
   ```yaml
   # In .github/workflows/cron.yml
   env:
-    PRODUCTION_URL: https://correct-url.vercel.app
+    PRODUCTION_URL: https://vetic.ai-whisperers.org
   ```
-- [ ] **Add cron job monitoring**
+- [x] **Add cron job monitoring**
   ```yaml
   # Add to cron.yml
   - name: Health Check
@@ -51,14 +51,14 @@ All cron jobs failing with 404: "The deployment could not be found on Vercel"
 Dependencies require Node 20+, but CI tests Node 18
 
 ### Action Items
-- [ ] **Update all workflows to Node 20 only**
+- [x] **Update all workflows to Node 20 only**
   ```yaml
   # In ci.yml and test.yml
   strategy:
     matrix:
       node-version: ["20"]  # Remove "18"
   ```
-- [ ] **Update package.json engines field**
+- [x] **Update package.json engines field**
   ```json
   {
     "engines": {
@@ -66,12 +66,12 @@ Dependencies require Node 20+, but CI tests Node 18
     }
   }
   ```
-- [ ] **Update Dockerfiles to Node 20**
+- [x] **Update Dockerfiles to Node 20**
   ```dockerfile
   # In both Dockerfiles
   FROM node:20-alpine AS base
   ```
-- [ ] **Update deploy-gcp.yml to Node 20**
+- [x] **Update deploy-gcp.yml to Node 20**
   ```yaml
   - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -90,19 +90,19 @@ SSH authentication and deployment failures
   # Test SSH access manually
   ssh -i ~/.ssh/id_rsa ai-whisperers@34.151.201.27 "pm2 list"
   ```
-- [ ] **Add deployment health checks**
+- [x] **Add deployment health checks**
   ```yaml
   # Add to deploy-gcp.yml
   - name: Health Check
         run: |
           sleep 30  # Wait for app to start
-          response=$(curl -s -w "%{http_code}" http://34.151.201.27:3000/api/health)
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://34.151.201.27:3000/api/health)
           if [ "$response" -ne "200" ]; then
             echo "::error::Deployment health check failed with status $response"
             exit 1
           fi
   ```
-- [ ] **Add rollback mechanism**
+- [x] **Add rollback mechanism**
   ```yaml
   # Add to deploy-gcp.yml
   - name: Rollback on Failure

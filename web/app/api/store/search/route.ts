@@ -5,21 +5,30 @@ import type { SearchSuggestion } from '@/lib/types/store'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { createSearchPattern, MIN_SEARCH_LENGTH } from '@/lib/utils/search'
+import { storeSearchQuerySchema } from '@/lib/schemas/store'
 
 // GET - Search products with autocomplete suggestions
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { searchParams } = new URL(request.url)
-
-  const query = searchParams.get('q')?.trim()
-  const clinic = searchParams.get('clinic')
-  const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 20)
-
-  if (!clinic) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Falta parámetro clinic' },
+  
+  // Parse and validate query parameters with Zod
+  const queryParams = Object.fromEntries(searchParams.entries())
+  const validation = storeSearchQuerySchema.safeParse(queryParams)
+  
+  if (!validation.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: {
+        message: 'Parámetros de búsqueda inválidos',
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
     })
   }
+  
+  const { q: query, clinic, limit } = validation.data
 
   if (!query || query.length < MIN_SEARCH_LENGTH) {
     return NextResponse.json({

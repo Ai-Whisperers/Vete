@@ -502,3 +502,14 @@ export const commissionQuerySchema = z.object({
 })
 
 export type CommissionQueryParams = z.infer<typeof commissionQuerySchema>
+
+/**
+ * Schema for store search query parameters
+ */
+export const storeSearchQuerySchema = z.object({
+  q: z.string().min(1, 'Término de búsqueda requerido').max(100, 'Término de búsqueda muy largo').optional(),
+  clinic: z.string().min(1, 'Clínica requerida'),
+  limit: z.coerce.number().int().min(1, 'Límite mínimo es 1').max(20, 'Límite máximo es 20').default(10),
+})
+
+export type StoreSearchQueryParams = z.infer<typeof storeSearchQuerySchema>

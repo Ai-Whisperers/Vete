@@ -522,3 +522,15 @@ export const commissionSummaryQuerySchema = z.object({
 })
 
 export type CommissionSummaryQueryParams = z.infer<typeof commissionSummaryQuerySchema>
+
+/**
+ * Schema for pending prescriptions query parameters
+ */
+export const pendingPrescriptionsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1, 'Página debe ser 1 o mayor').default(1),
+  limit: z.coerce.number().int().min(1, 'Límite mínimo es 1').max(100, 'Límite máximo es 100').default(20),
+  dateFrom: z.string().datetime('Fecha desde inválida').optional(),
+  dateTo: z.string().datetime('Fecha hasta inválida').optional(),
+})
+
+export type PendingPrescriptionsQueryParams = z.infer<typeof pendingPrescriptionsQuerySchema>

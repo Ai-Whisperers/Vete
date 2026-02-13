@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { pendingPrescriptionsQuerySchema } from '@/lib/schemas/store'
 
 /**
  * GET /api/store/orders/pending-prescriptions
@@ -10,10 +11,24 @@ import { logger } from '@/lib/logger'
 export const GET = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const limit = parseInt(searchParams.get('limit') || '20', 10)
-    const dateFrom = searchParams.get('dateFrom')
-    const dateTo = searchParams.get('dateTo')
+    
+    // Parse and validate query parameters with Zod
+    const queryParams = Object.fromEntries(searchParams.entries())
+    const validation = pendingPrescriptionsQuerySchema.safeParse(queryParams)
+    
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          message: 'Parámetros de consulta inválidos',
+          errors: validation.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+      })
+    }
+    
+    const { page, limit, dateFrom, dateTo } = validation.data
 
     // Build query
     let query = supabase

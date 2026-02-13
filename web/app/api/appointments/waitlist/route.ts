@@ -3,6 +3,7 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
+import { waitlistQuerySchema } from '@/lib/schemas/appointment'
 
 // Validation schemas
 const joinWaitlistSchema = z.object({
@@ -23,9 +24,20 @@ const joinWaitlistSchema = z.object({
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const searchParams = new URL(request.url).searchParams
-    const status = searchParams.get('status')
-    const date = searchParams.get('date')
-    const petId = searchParams.get('pet_id')
+    
+    const queryResult = waitlistQuerySchema.safeParse({
+      status: searchParams.get('status'),
+      date: searchParams.get('date'),
+      pet_id: searchParams.get('pet_id'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { status, date, pet_id } = queryResult.data
 
     // Build query
     let query = supabase
@@ -58,8 +70,8 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
     if (date) {
       query = query.eq('preferred_date', date)
     }
-    if (petId) {
-      query = query.eq('pet_id', petId)
+    if (pet_id) {
+      query = query.eq('pet_id', pet_id)
     }
 
     const { data, error } = await query

@@ -122,3 +122,14 @@ export const completeAppointmentSchema = z.object({
 })
 
 export type CompleteAppointmentInput = z.infer<typeof completeAppointmentSchema>
+
+/**
+ * Schema for waitlist query parameters
+ */
+export const waitlistQuerySchema = z.object({
+  status: z.enum(['pending', 'offered', 'accepted', 'declined', 'expired']).optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (YYYY-MM-DD)').optional(),
+  pet_id: uuidSchema.optional(),
+})
+
+export type WaitlistQueryInput = z.infer<typeof waitlistQuerySchema>

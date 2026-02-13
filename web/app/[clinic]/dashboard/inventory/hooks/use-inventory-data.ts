@@ -175,12 +175,12 @@ export function useInventoryData({
     fetchCategories()
     fetchProducts()
     fetchAlerts()
-  }, [clinic])
+  }, [clinic, fetchStats, fetchCategories, fetchProducts, fetchAlerts])
 
   // Refetch when filters change
   useEffect(() => {
     fetchProducts(searchQuery, 1, pagination.limit)
-  }, [selectedCategory, stockFilter, sourceFilter])
+  }, [selectedCategory, stockFilter, sourceFilter, fetchProducts, searchQuery, pagination.limit])
 
   // Debounced search
   useEffect(() => {
@@ -188,7 +188,7 @@ export function useInventoryData({
       fetchProducts(searchQuery, 1, pagination.limit)
     }, 500)
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  }, [searchQuery, fetchProducts, pagination.limit])
 
   // Local filtering and sorting
   const filteredAndSortedProducts = useMemo(() => {

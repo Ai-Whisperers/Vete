@@ -40,11 +40,7 @@ export default function CampaignsClient() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchData()
-  }, [clinic])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     const { data: camps } = await supabase
       .from('store_campaigns')
@@ -55,7 +51,11 @@ export default function CampaignsClient() {
 
     setCampaigns((camps as Campaign[]) || [])
     setLoading(false)
-  }
+  }, [clinic, supabase])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   if (loading)
     return (

@@ -194,7 +194,7 @@ export function useServiceSubscriptions(): UseServiceSubscriptionsReturn {
   })
 
   // Update pagination total when subscriptions data changes
-  const subscriptions = subscriptionsData?.subscriptions || []
+  const subscriptions = useMemo(() => subscriptionsData?.subscriptions || [], [subscriptionsData?.subscriptions])
   const total = subscriptionsData?.total || 0
 
   // Update pagination total

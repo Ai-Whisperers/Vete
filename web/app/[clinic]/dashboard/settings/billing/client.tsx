@@ -50,20 +50,7 @@ export function BillingClient({
   const reportTransferModal = useModalWithData<string>() // invoice_id
   const invoiceDetailModal = useModalWithData<PlatformInvoiceWithItems>()
 
-  // Load billing overview
-  useEffect(() => {
-    loadOverview()
-  }, [])
-
-  // Handle pay query param
-  useEffect(() => {
-    if (payInvoiceId) {
-      setActiveTab('invoices')
-      // Could auto-open pay modal here
-    }
-  }, [payInvoiceId])
-
-  async function loadOverview(): Promise<void> {
+  const loadOverview = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true)
       setError(null)
@@ -77,12 +64,25 @@ export function BillingClient({
 
       const data: BillingOverviewResponse = await response.json()
       setOverview(data)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error desconocido')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [clinic])
+
+  // Load billing overview
+  useEffect(() => {
+    loadOverview()
+  }, [loadOverview])
+
+  // Handle pay query param
+  useEffect(() => {
+    if (payInvoiceId) {
+      setActiveTab('invoices')
+      // Could auto-open pay modal here
+    }
+  }, [payInvoiceId])
 
   function handleTabChange(tabId: string): void {
     setActiveTab(tabId as TabId)

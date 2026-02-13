@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { cartItemOperationSchema, cartItemRemovalSchema } from '@/lib/schemas/store'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,13 +11,22 @@ export const dynamic = 'force-dynamic'
  */
 export const POST = withApiAuth(async ({ supabase, user, profile, log, request }: ApiHandlerContext) => {
   const requestData = await request.json()
-  const { productId, quantity, clinic } = requestData || {}
-
-  if (!productId || typeof quantity !== 'number' || quantity < 0) {
+  
+  // Validate input with Zod schema
+  const validation = cartItemOperationSchema.safeParse(requestData)
+  if (!validation.success) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Producto y cantidad requeridos' },
+      details: {
+        message: 'Validación fallida',
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
     })
   }
+  
+  const { productId, quantity, clinic } = validation.data
 
   // Use provided clinic or fall back to user's tenant
   const tenantId = clinic || profile.tenant_id
@@ -160,13 +170,22 @@ export const POST = withApiAuth(async ({ supabase, user, profile, log, request }
  */
 export const DELETE = withApiAuth(async ({ supabase, user, profile, log, request }: ApiHandlerContext) => {
   const requestData = await request.json()
-  const { productId, clinic } = requestData || {}
-
-  if (!productId) {
+  
+  // Validate input with Zod schema
+  const validation = cartItemRemovalSchema.safeParse(requestData)
+  if (!validation.success) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Producto requerido' },
+      details: {
+        message: 'Validación fallida',
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
     })
   }
+  
+  const { productId, clinic } = validation.data
 
   // Use provided clinic or fall back to user's tenant
   const tenantId = clinic || profile.tenant_id

@@ -5,16 +5,28 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Gift, Mail, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { loginSchema, type LoginInput } from '@/lib/schemas/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 
 export default function AmbassadorLoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const onSubmit = async (data: LoginInput) => {
     setError(null)
     setIsLoading(true)
 
@@ -22,8 +34,8 @@ export default function AmbassadorLoginPage() {
       const supabase = createClient()
 
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       })
 
       if (signInError) {
@@ -51,7 +63,7 @@ export default function AmbassadorLoginPage() {
           <p className="mt-2 text-gray-600">Ingresá a tu cuenta</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
           {error && (
             <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
               {error}
@@ -67,13 +79,18 @@ export default function AmbassadorLoginPage() {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                {...register('email')}
+                className={`w-full rounded-lg border py-3 pl-10 pr-4 focus:outline-none focus:ring-1 ${
+                  errors.email
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500'
+                }`}
                 placeholder="tu@email.com"
               />
             </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
@@ -83,11 +100,16 @@ export default function AmbassadorLoginPage() {
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              {...register('password')}
+              className={`mt-1 w-full rounded-lg border px-4 py-3 focus:outline-none focus:ring-1 ${
+                errors.password
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500'
+              }`}
             />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+            )}
           </div>
 
           <button

@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+
+// Validation schemas
+const addClientTagSchema = z.object({
+  tagId: z.string().uuid('Tag ID must be a valid UUID'),
+})
+
+const removeClientTagSchema = z.object({
+  tagId: z.string().uuid('Tag ID must be a valid UUID'),
+})
 
 /**
  * GET /api/clients/[id]/tags - Get tags for a client
@@ -53,14 +63,30 @@ export const GET = withApiAuthParams(
 export const POST = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const clientId = params.id
-    const body = await request.json()
-    const { tagId } = body
-
-    if (!tagId) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { fields: ['tagId'] },
+    
+    // Parse and validate request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch (_error: unknown) {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Invalid JSON format' },
       })
     }
+
+    const validation = addClientTagSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+      })
+    }
+
+    const { tagId } = validation.data
 
     try {
       const { error } = await supabase.from('client_tags').insert({
@@ -100,14 +126,30 @@ export const POST = withApiAuthParams(
 export const DELETE = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const clientId = params.id
-    const body = await request.json()
-    const { tagId } = body
-
-    if (!tagId) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { fields: ['tagId'] },
+    
+    // Parse and validate request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch (_error: unknown) {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Invalid JSON format' },
       })
     }
+
+    const validation = removeClientTagSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+      })
+    }
+
+    const { tagId } = validation.data
 
     try {
       const { error } = await supabase

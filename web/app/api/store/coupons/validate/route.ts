@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { couponValidationSchema } from '@/lib/schemas/store'
 
 /**
  * POST /api/store/coupons/validate
@@ -10,13 +11,22 @@ import { logger } from '@/lib/logger'
 export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const body = await request.json()
-    const { code, clinic, cart_total } = body
-
-    if (!code || !clinic || cart_total === undefined) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Faltan parámetros requeridos' },
+    
+    // Validate input with Zod schema
+    const validation = couponValidationSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          message: 'Validación fallida',
+          errors: validation.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
       })
     }
+    
+    const { code, clinic, cart_total } = validation.data
 
     // Use the database function for validation
     const { data, error } = await supabase.rpc('validate_coupon', {

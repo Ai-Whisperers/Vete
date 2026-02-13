@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+
+// Validation schemas
+const couponSchema = z.object({
+  code: z.string().min(3, 'El código debe tener al menos 3 caracteres').max(50, 'El código no puede exceder 50 caracteres'),
+  name: z.string().max(100, 'El nombre no puede exceder 100 caracteres').optional().nullable(),
+  description: z.string().max(500, 'La descripción no puede exceder 500 caracteres').optional().nullable(),
+  discount_type: z.enum(['percentage', 'fixed_amount', 'free_shipping'], {
+    errorMap: () => ({ message: 'Tipo de descuento inválido' }),
+  }),
+  discount_value: z.number().min(0, 'El valor del descuento debe ser mayor o igual a 0'),
+  min_purchase_amount: z.number().min(0, 'El monto mínimo de compra debe ser mayor o igual a 0').optional().nullable(),
+  max_discount_amount: z.number().min(0, 'El descuento máximo debe ser mayor o igual a 0').optional().nullable(),
+  usage_limit: z.number().int().min(1, 'El límite de uso debe ser al menos 1').optional().nullable(),
+  usage_limit_per_user: z.number().int().min(1, 'El límite por usuario debe ser al menos 1').optional().nullable(),
+  valid_from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha de inicio inválida (formato: YYYY-MM-DD)'),
+  valid_until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha de vencimiento inválida (formato: YYYY-MM-DD)').optional().nullable(),
+  applicable_products: z.array(z.string().uuid('ID de producto inválido')).optional().nullable(),
+  applicable_categories: z.array(z.string().uuid('ID de categoría inválido')).optional().nullable(),
+  is_active: z.boolean().optional().default(true),
+})
 
 export type CouponDiscountType = 'percentage' | 'fixed_amount' | 'free_shipping'
 
@@ -179,7 +200,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const body = await request.json()
+    // Parse and validate request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch (_error: unknown) {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Formato JSON inválido' },
+      })
+    }
+
+    const validation = couponSchema.safeParse(body)
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validation.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+      })
+    }
+
     const {
       code,
       name,
@@ -195,26 +237,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       applicable_products,
       applicable_categories,
       is_active = true,
-    } = body
-
-    // Validation
-    if (!code || !discount_type || !discount_value) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Código, tipo de descuento y valor son requeridos' },
-      })
-    }
-
-    if (!['percentage', 'fixed_amount', 'free_shipping'].includes(discount_type)) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Tipo de descuento inválido' },
-      })
-    }
-
-    if (discount_type === 'percentage' && (discount_value <= 0 || discount_value > 100)) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'El porcentaje debe estar entre 1 y 100' },
-      })
-    }
+    } = validation.data
 
     // Check if code already exists
     const { data: existing } = await supabase

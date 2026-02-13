@@ -442,3 +442,63 @@ export const checkoutRequestSchema = z.object({
 })
 
 export type CheckoutRequestInput = z.infer<typeof checkoutRequestSchema>
+
+// ============================================
+// Coupons
+// ============================================
+
+/**
+ * Schema for coupon validation
+ */
+export const couponValidationSchema = z.object({
+  code: z.string().min(1, 'Código requerido').max(50, 'Código muy largo'),
+  clinic: z.string().min(1, 'Clínica requerida'),
+  cart_total: z.coerce.number().min(0, 'Total del carrito debe ser positivo'),
+})
+
+export type CouponValidationInput = z.infer<typeof couponValidationSchema>
+
+/**
+ * Schema for cart item operations (add/update/remove)
+ */
+export const cartItemOperationSchema = z.object({
+  productId: uuidSchema,
+  quantity: z.coerce.number().int().min(0, 'Cantidad debe ser 0 o mayor'),
+  clinic: z.string().min(1, 'Clínica requerida').optional(),
+})
+
+export type CartItemOperationInput = z.infer<typeof cartItemOperationSchema>
+
+/**
+ * Schema for cart item removal
+ */
+export const cartItemRemovalSchema = z.object({
+  productId: uuidSchema,
+  clinic: z.string().min(1, 'Clínica requerida').optional(),
+})
+
+export type CartItemRemovalInput = z.infer<typeof cartItemRemovalSchema>
+
+// ============================================
+// Commissions
+// ============================================
+
+/**
+ * Commission statuses
+ */
+export const COMMISSION_STATUSES = ['calculated', 'invoiced', 'paid', 'waived', 'adjusted'] as const
+export type CommissionStatus = (typeof COMMISSION_STATUSES)[number]
+
+/**
+ * Schema for commission query parameters
+ */
+export const commissionQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida'),
+  status: z.enum(COMMISSION_STATUSES, { message: 'Estado de comisión inválido' }).optional(),
+  from: z.string().datetime('Fecha desde inválida').optional(),
+  to: z.string().datetime('Fecha hasta inválida').optional(),
+  page: z.coerce.number().int().min(1, 'Página debe ser 1 o mayor').default(1),
+  limit: z.coerce.number().int().min(1, 'Límite mínimo es 1').max(100, 'Límite máximo es 100').default(20),
+})
+
+export type CommissionQueryParams = z.infer<typeof commissionQuerySchema>

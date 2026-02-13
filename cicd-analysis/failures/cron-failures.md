@@ -43,17 +43,17 @@ HTTP Code: 404
 ## Root Cause Analysis
 
 ### 1. Endpoint Resolution Failure
-**Issue**: Cron jobs calling `https://vetepy.vercel.app/api/cron/*` → 404
+**Issue**: Cron jobs calling `https://vetic.ai-whisperers.org/api/cron/*` → 404
 
 **Possible Causes:**
 - **Wrong Deployment URL**: Production deployment moved or DNS issues
 - **Missing Routes**: API endpoints not deployed correctly
 - **Vercel Configuration**: Project misconfiguration
-- **DNS Resolution**: `vetepy.vercel.app` not resolving to correct deployment
+- **DNS Resolution**: `vetic.ai-whisperers.org` not resolving to correct deployment
 
 ### 2. Vercel Deployment State
 **Current Configuration:**
-- **Production URL**: `https://vetepy.vercel.app` (in cron.yml)
+- **Production URL**: `https://vetic.ai-whisperers.org` (in cron.yml)
 - **Vercel Project**: Assuming active deployment exists
 - **Route Coverage**: 18 cron endpoints should be deployed
 
@@ -63,8 +63,8 @@ HTTP Code: 404
 gh vercel ls
 
 # Check if endpoints exist
-curl -I https://vetepy.vercel.app/api/cron/release-reservations
-curl -I https://vetepy.vercel.app/api/health
+curl -I https://vetic.ai-whisperers.org/api/cron/release-reservations
+curl -I https://vetic.ai-whisperers.org/api/health
 ```
 
 ### 3. Environment Variable Issues
@@ -83,11 +83,11 @@ curl -I https://vetepy.vercel.app/api/health
 1. **Verify Production URL**
    ```bash
    # Test Vercel deployment
-   curl -I https://vetepy.vercel.app/api/health
+   curl -I https://vetic.ai-whisperers.org/api/health
    
    # Test specific cron endpoint
    curl -H "Authorization: Bearer $CRON_SECRET" \
-        https://vetepy.vercel.app/api/cron/release-reservations
+        https://vetic.ai-whisperers.org/api/cron/release-reservations
    ```
 
 2. **Update Cron Configuration**

@@ -8,9 +8,9 @@
 All cron jobs failing with 404: "The deployment could not be found on Vercel"
 
 ### Root Cause Analysis
-1. **Wrong Production URL**: Cron jobs calling `https://vetepy.vercel.app/api/cron/*`
+1. **Wrong Production URL**: Cron jobs calling `https://vetic.ai-whisperers.org/api/cron/*`
 2. **Missing Endpoints**: Vercel deployment may not have these routes
-3. **DNS Issues**: `vetepy.vercel.app` may not resolve to correct deployment
+3. **DNS Issues**: `vetic.ai-whisperers.org` may not resolve to correct deployment
 
 ### Action Items
 - [x] **Verify Vercel deployment status**
@@ -152,7 +152,7 @@ SSH authentication and deployment failures
   for job in release-reservations stock-alerts-customers generate-recurring process-subscriptions reminders-pipeline inventory-alerts billing-daily monthly-invoicing; do
     echo "Testing $job..."
     curl -s -H "Authorization: Bearer $CRON_SECRET" \
-         "https://vetepy.vercel.app/api/cron/$job"
+         "https://vetic.ai-whisperers.org/api/cron/$job"
     echo "Response: $?"
     echo "---"
   done

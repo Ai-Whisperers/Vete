@@ -38,7 +38,7 @@ The Vete platform has **multiple deployment pathways** with good Docker configur
 - **Status**: ❌ Failing (SSH issues)
 
 #### Secondary: Vercel (Serverless)
-- **URL**: `https://vetepy.vercel.app`
+- **URL**: `https://vetic.ai-whisperers.org`
 - **Configuration**: `vercel.json` (root and web)
 - **Workflow**: `.github/workflows/deploy-vercel.yml.disabled`
 - **Status**: ⚠️ Disabled (manual deployment only)

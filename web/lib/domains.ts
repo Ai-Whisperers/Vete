@@ -72,13 +72,29 @@ export function getTenantByDomain(host: string): string | null {
  * Check if a hostname is a custom domain (not the default platform domain)
  *
  * @param host - The hostname to check
- * @returns True if it's a custom domain that should be resolved
+ * @returns True if it's a custom domain that should be resolved to a tenant
  */
 export function isCustomDomain(host: string): boolean {
   const domain = host.split(':')[0].toLowerCase()
 
-  // Skip localhost and default domains
+  // Always skip localhost
   if (domain === 'localhost') return false
+
+  // Check registry for explicit mapping
+  const mapping = getDomainMapping(host)
+
+  // If explicitly mapped to a tenant, it's a custom domain
+  if (mapping && mapping.tenant !== 'platform') {
+    return true
+  }
+
+  // If explicitly mapped to platform, it's NOT a custom domain (serves landing page)
+  if (mapping && mapping.tenant === 'platform') {
+    return false
+  }
+
+  // Skip default platform domains and Vercel system domains
+  // This ensures preview deployments and branch URLs serve the landing page
   if (domain.includes('vercel.app')) return false
   if (domain.includes('vercel-dns.com')) return false
   if (domain.includes('ai-whisperers.org')) return false

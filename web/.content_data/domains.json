@@ -12,6 +12,14 @@
       "createdAt": "2026-02-12T00:00:00Z"
     },
     {
+      "domain": "vetepy-bay.vercel.app",
+      "tenant": "platform",
+      "type": "alias",
+      "provider": "vercel",
+      "status": "active",
+      "createdAt": "2026-02-12T00:00:00Z"
+    },
+    {
       "domain": "terrapet.vetic.vercel.app",
       "tenant": "terrapet",
       "type": "subdomain",

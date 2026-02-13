@@ -243,7 +243,7 @@
 - **Test Pass Rate**: 98.0%
 
 ### **Production** ⏳
-- **URL**: https://vetepy.vercel.app (or similar)
+- **URL**: https://vetic.ai-whisperers.org (or similar)
 - **Status**: Awaiting deployment
 - **Recommended**: Deploy after fixing CI linting
 

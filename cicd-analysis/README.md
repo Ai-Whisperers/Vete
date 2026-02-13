@@ -36,7 +36,7 @@ The Vete platform has a sophisticated but failing CI/CD pipeline with multiple d
 ### 2. Deployment Infrastructure
 
 #### Production Environments
-- **Primary:** Vercel (https://vetepy.vercel.app) - Auto-deploy from main
+- **Primary:** Vercel (https://vetic.ai-whisperers.org) - Auto-deploy from main
 - **Secondary:** GCP VM (34.151.201.27:3000) - Manual SSH deploy
 
 #### Docker Configuration

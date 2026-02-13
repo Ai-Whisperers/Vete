@@ -84,7 +84,7 @@ jobs:
     steps:
       - name: Run My Job
         run: |
-          curl -X GET https://vetepy.vercel.app/api/cron/my-job \
+          curl -X GET https://vetic.ai-whisperers.org/api/cron/my-job \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -f
 ```

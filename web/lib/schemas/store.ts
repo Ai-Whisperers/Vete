@@ -513,3 +513,12 @@ export const storeSearchQuerySchema = z.object({
 })
 
 export type StoreSearchQueryParams = z.infer<typeof storeSearchQuerySchema>
+
+/**
+ * Schema for commission summary query parameters
+ */
+export const commissionSummaryQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida').optional(),
+})
+
+export type CommissionSummaryQueryParams = z.infer<typeof commissionSummaryQuerySchema>

@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { getTierById, type TierId } from '@/lib/pricing/tiers'
+import { commissionSummaryQuerySchema } from '@/lib/schemas/store'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -52,9 +53,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   }
 
-  // 3. Parse query params
+  // 3. Parse and validate query params with Zod
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+  const queryParams = Object.fromEntries(searchParams.entries())
+  const validation = commissionSummaryQuerySchema.safeParse(queryParams)
+  
+  if (!validation.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: {
+        message: 'Parámetros de consulta inválidos',
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
+    })
+  }
+  
+  const { clinic } = validation.data
 
   // Validate clinic matches user's tenant
   if (clinic && clinic !== profile.tenant_id) {

@@ -20,6 +20,8 @@ import {
   generatePlatformInvoiceEmail,
   generatePlatformInvoiceEmailText,
 } from '@/lib/email/templates/platform-invoice'
+import { sendInvoiceSchema } from '@/lib/schemas/billing'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -77,16 +79,30 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
   const supabase = createServiceClient(supabaseUrl, supabaseServiceKey)
 
   try {
-    // Parse optional body
+    // Parse and validate optional body
     let shouldSendEmail = true
     let _channels: string[] = [] // Reserved for future SMS/WhatsApp
 
     try {
       const body = await request.json()
-      shouldSendEmail = body.send_email !== false
-      _channels = body.channels || []
+      const validation = sendInvoiceSchema.safeParse(body)
+      
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: 'Datos inválidos',
+            errors: validation.error.issues.map((issue) => ({
+              field: issue.path.join('.'),
+              message: issue.message,
+            })),
+          },
+        })
+      }
+      
+      shouldSendEmail = validation.data.send_email
+      _channels = validation.data.channels || []
     } catch (_error: unknown) {
-      // Body is optional
+      // Body is optional, use defaults
     }
 
     // 1. Get invoice with all fields needed for email

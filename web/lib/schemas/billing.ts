@@ -64,6 +64,12 @@ export const sendReminderSchema = z.object({
   custom_message: z.string().max(500).optional(),
 })
 
+// Send invoice schema
+export const sendInvoiceSchema = z.object({
+  send_email: z.boolean().default(true),
+  channels: z.array(z.enum(['sms', 'whatsapp'])).optional(),
+})
+
 // Pay invoice schema
 export const payInvoiceSchema = z.object({
   invoice_id: z.string().uuid(),
@@ -82,5 +88,6 @@ export type PaymentMethod = z.infer<typeof paymentMethodSchema>
 export type CreatePlatformInvoiceInput = z.infer<typeof createPlatformInvoiceSchema>
 export type UpdatePlatformInvoiceInput = z.infer<typeof updatePlatformInvoiceSchema>
 export type SendReminderInput = z.infer<typeof sendReminderSchema>
+export type SendInvoiceInput = z.infer<typeof sendInvoiceSchema>
 export type PayInvoiceInput = z.infer<typeof payInvoiceSchema>
 export type BillingOverviewQueryInput = z.infer<typeof billingOverviewQuerySchema>

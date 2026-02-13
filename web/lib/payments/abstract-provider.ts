@@ -35,7 +35,7 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   /**
    * Verify a webhook signature - implemented by concrete providers
    */
-  public abstract verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>>
+  public abstract verifyWebhook(payload: unknown, signature: string, secret: string): Promise<ProviderResult<unknown>>
 
   /**
    * Standardized wrapper for creating payment intents
@@ -64,7 +64,7 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   protected async execute<T>(
     operation: string, 
     action: () => Promise<T>, 
-    context: Record<string, any> = {}
+    context: Record<string, unknown> = {}
   ): Promise<ProviderResult<T>> {
     const startTime = Date.now()
     
@@ -98,7 +98,7 @@ export abstract class AbstractPaymentProvider implements PaymentProvider {
   /**
    * Normalize provider-specific errors into a standard PaymentError
    */
-  protected normalizeError(error: any): PaymentError {
+  protected normalizeError(error: unknown): PaymentError {
     if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
       return {
         code: String(error.code),

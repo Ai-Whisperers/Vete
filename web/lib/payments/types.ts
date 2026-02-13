@@ -44,7 +44,7 @@ export interface PaymentIntent {
 export interface PaymentError {
   code: string
   message: string
-  details?: any
+  details?: unknown
   provider?: string
 }
 
@@ -100,7 +100,7 @@ export interface PaymentProvider {
   /**
    * Verify a webhook signature and parse the event
    */
-  verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>>
+  verifyWebhook(payload: unknown, signature: string, secret: string): Promise<ProviderResult<unknown>>
 }
 
 // =============================================================================

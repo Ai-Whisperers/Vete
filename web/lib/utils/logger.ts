@@ -34,9 +34,11 @@ class Logger {
 
     switch (level) {
       case 'debug':
+        // eslint-disable-next-line no-console
         console.debug(`[${entry.timestamp}] DEBUG: ${message}`, data)
         break
       case 'info':
+        // eslint-disable-next-line no-console
         console.info(`[${entry.timestamp}] INFO: ${message}`, data)
         break
       case 'warn':

@@ -277,8 +277,8 @@ export function withApiAuth(
 
       const duration = perf.finish({ statusCode: 500, path })
       const response = apiError('SERVER_ERROR', 500)
-      response && response.headers && response.headers.set('x-request-id', requestId)
-      response && response.headers && response.headers.set('x-response-time', `${duration}ms`)
+      if (response?.headers) response.headers.set('x-request-id', requestId)
+      if (response?.headers) response.headers.set('x-response-time', `${duration}ms`)
       return response
     }
   }
@@ -489,8 +489,8 @@ export function withApiAuthParams<P extends Record<string, string>>(
 
       const duration = perf.finish({ statusCode: 500, path })
       const response = apiError('SERVER_ERROR', 500)
-      response && response.headers && response.headers.set('x-request-id', requestId)
-      response && response.headers && response.headers.set('x-response-time', `${duration}ms`)
+      if (response?.headers) response.headers.set('x-request-id', requestId)
+      if (response?.headers) response.headers.set('x-response-time', `${duration}ms`)
       return response
     }
   }

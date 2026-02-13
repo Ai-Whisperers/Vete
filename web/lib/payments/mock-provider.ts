@@ -41,7 +41,7 @@ export class MockPaymentProvider extends AbstractPaymentProvider {
     return { refundId: `mock_re_${Math.random().toString(36).slice(2)}` }
   }
 
-  async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {
+  async verifyWebhook(payload: unknown, signature: string, secret: string): Promise<ProviderResult<unknown>> {
     return {
       success: true,
       data: payload,

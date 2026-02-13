@@ -16,20 +16,29 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { AUTH_ERRORS, DATABASE_ERRORS } from '@/lib/i18n/errors'
-import type { PlatformInvoiceStatus } from '@/lib/billing/types'
-
-const VALID_STATUSES: PlatformInvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'void', 'waived']
+import { platformInvoiceQuerySchema } from '@/lib/schemas/billing'
 
 export const GET = withApiAuth(
   async ({ request, profile, user, supabase, log }: ApiHandlerContext) => {
-    // Parse query params
+    // Parse and validate query params
     const { searchParams } = new URL(request.url)
-    const clinic = searchParams.get('clinic')
-    const status = searchParams.get('status') as PlatformInvoiceStatus | null
-    const fromDate = searchParams.get('from')
-    const toDate = searchParams.get('to')
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
+    
+    const queryResult = platformInvoiceQuerySchema.safeParse({
+      clinic: searchParams.get('clinic'),
+      status: searchParams.get('status'),
+      from: searchParams.get('from'),
+      to: searchParams.get('to'),
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { clinic, status, from, to, page, limit } = queryResult.data
     const offset = (page - 1) * limit
 
     // Validate clinic matches user's tenant
@@ -79,16 +88,16 @@ export const GET = withApiAuth(
         .range(offset, offset + limit - 1)
 
       // Apply filters
-      if (status && VALID_STATUSES.includes(status)) {
+      if (status) {
         query = query.eq('status', status)
       }
 
-      if (fromDate) {
-        query = query.gte('period_start', fromDate)
+      if (from) {
+        query = query.gte('period_start', from)
       }
 
-      if (toDate) {
-        query = query.lte('period_end', toDate)
+      if (to) {
+        query = query.lte('period_end', to)
       }
 
       const { data: invoices, error, count } = await query

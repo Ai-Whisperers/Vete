@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type JSX } from 'react'
+import { useState, useEffect, useCallback, type JSX } from 'react'
 import { X, ChevronLeft, ChevronRight, Clock, User, Loader2 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -39,9 +39,9 @@ export function VersionCompare({
 
   useEffect(() => {
     fetchVersion()
-  }, [templateId, versionNumber])
+  }, [templateId, versionNumber, fetchVersion])
 
-  const fetchVersion = async (): Promise<void> => {
+  const fetchVersion = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
 
@@ -60,7 +60,7 @@ export function VersionCompare({
     } finally {
       setLoading(false)
     }
-  }
+  }, [templateId, versionNumber])
 
   const canGoPrevious = versionNumber > 1
   const canGoNext = versionNumber < totalVersions
@@ -230,9 +230,9 @@ export function VersionDiff({
 
   useEffect(() => {
     fetchVersions()
-  }, [templateId, oldVersionNumber, newVersionNumber])
+  }, [templateId, oldVersionNumber, newVersionNumber, fetchVersions])
 
-  const fetchVersions = async (): Promise<void> => {
+  const fetchVersions = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
 
@@ -255,7 +255,7 @@ export function VersionDiff({
     } finally {
       setLoading(false)
     }
-  }
+  }, [templateId, oldVersionNumber, newVersionNumber])
 
   if (loading) {
     return (

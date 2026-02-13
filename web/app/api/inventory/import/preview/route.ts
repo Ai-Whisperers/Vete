@@ -81,7 +81,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // Handle JSON body request (pre-mapped rows from wizard)
     if (isJsonRequest) {
-      const rawBody = await req.json()
+      const rawBody = await req.json() as unknown
       
       // Validate with Zod
       const validation = inventoryImportPreviewBodySchema.safeParse(rawBody)
@@ -226,8 +226,8 @@ async function processPreview(
       .is('deleted_at', null)
 
     // Create lookup maps
-    const productsBySku = new Map((existingProducts || []).map((p) => [p.sku?.toLowerCase(), p]))
-    const productsByName = new Map((existingProducts || []).map((p) => [p.name?.toLowerCase(), p]))
+    const productsBySku = new Map((existingProducts || []).map((p: { sku?: string; name?: string }) => [p.sku?.toLowerCase(), p]))
+    const productsByName = new Map((existingProducts || []).map((p: { sku?: string; name?: string }) => [p.name?.toLowerCase(), p]))
 
     // Get categories
     const { data: categories } = await supabase
@@ -235,8 +235,8 @@ async function processPreview(
       .select('id, name, slug')
       .eq('tenant_id', profile.tenant_id)
 
-    const categoryMap = new Map((categories || []).map((c) => [c.name.toLowerCase(), c]))
-    const categorySlugMap = new Map((categories || []).map((c) => [c.slug.toLowerCase(), c]))
+    const categoryMap = new Map((categories || []).map((c: { name: string; slug: string }) => [c.name.toLowerCase(), c]))
+    const categorySlugMap = new Map((categories || []).map((c: { name: string; slug: string }) => [c.slug.toLowerCase(), c]))
 
     // Preview each row
     const previewRows: PreviewRow[] = []

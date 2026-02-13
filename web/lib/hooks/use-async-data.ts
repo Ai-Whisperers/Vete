@@ -127,7 +127,7 @@ export function useAsyncData<T>(
   // Initial fetch and dependency-based refetch
   useEffect(() => {
     fetchData();
-  }, [fetchData, ...deps]);
+  }, [fetchData, deps]);
 
   // Auto-refetch interval
   useEffect(() => {

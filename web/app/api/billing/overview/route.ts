@@ -25,6 +25,7 @@ import {
   type TenantPaymentMethod,
   TAX_RATE_PY,
 } from '@/lib/billing/types'
+import { billingOverviewQuerySchema } from '@/lib/schemas/billing'
 
 // Map tier IDs to display names
 const TIER_DISPLAY_NAMES: Record<TierId, string> = {
@@ -71,9 +72,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   }
 
-  // 3. Parse query params
+  // 3. Parse and validate query params with Zod
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+  const queryParams = {
+    clinic: searchParams.get('clinic'),
+  };
+
+  const validationResult = billingOverviewQuerySchema.safeParse(queryParams);
+  if (!validationResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: {
+        errors: validationResult.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
+    });
+  }
+
+  const { clinic } = validationResult.data;
 
   // Validate clinic matches user's tenant
   if (clinic && clinic !== profile.tenant_id) {

@@ -3,7 +3,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Pet, CreatePetData, UpdatePetData, PetFilters, PetStats, PetSpecies } from './types'
+import type { Pet, CreatePetData, UpdatePetData, PetFilters, PetStats } from './types'
 
 export class PetRepository {
   constructor(private supabase: SupabaseClient) {}

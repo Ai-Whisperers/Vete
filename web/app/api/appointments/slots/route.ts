@@ -14,29 +14,32 @@ import { NextResponse } from 'next/server';
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper';
 import { apiError } from '@/lib/api/errors';
 import { AppointmentService } from '@/lib/services';
+import { appointmentSlotsQuerySchema } from '@/lib/schemas/appointment';
 
 export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url);
 
-  const clinicSlug = searchParams.get('clinic');
-  const date = searchParams.get('date');
-  const serviceId = searchParams.get('service_id');
-  const vetId = searchParams.get('vet_id');
+  // Extract and validate query parameters with Zod
+  const queryParams = {
+    clinic: searchParams.get('clinic'),
+    date: searchParams.get('date'),
+    service_id: searchParams.get('service_id'),
+    vet_id: searchParams.get('vet_id'),
+  };
 
-  // Validate required parameters
-  if (!clinicSlug || !date) {
-    return apiError('MISSING_FIELDS', 400, {
-      details: { required: ['clinic', 'date'] },
+  const validationResult = appointmentSlotsQuerySchema.safeParse(queryParams);
+  if (!validationResult.success) {
+    return apiError('VALIDATION_ERROR', 400, {
+      details: {
+        errors: validationResult.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
     });
   }
 
-  // Validate date format (YYYY-MM-DD)
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(date)) {
-    return apiError('INVALID_FORMAT', 400, {
-      details: { field: 'date', expected: 'YYYY-MM-DD' },
-    });
-  }
+  const { clinic: clinicSlug, date, service_id: serviceId, vet_id: vetId } = validationResult.data;
 
   // Verify tenant isolation - users can only access slots for their own clinic
   const isStaff = ['vet', 'admin'].includes(profile.role);

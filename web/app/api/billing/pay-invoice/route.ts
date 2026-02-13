@@ -21,11 +21,7 @@ import {
   createPaymentIntent,
   toStripeAmount,
 } from '@/lib/billing/stripe'
-
-interface PayInvoiceRequest {
-  invoice_id: string
-  payment_method_id?: string
-}
+import { payInvoiceSchema } from '@/lib/schemas/billing'
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -60,20 +56,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // 3. Parse request
-    const body: PayInvoiceRequest = await request.json()
+    // 3. Parse and validate request
+    const body = await request.json()
+    const validation = payInvoiceSchema.safeParse(body)
 
-    if (!body.invoice_id) {
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'invoice_id es requerido' },
+        details: { issues: validation.error.issues },
       })
     }
+
+    const { invoice_id, payment_method_id } = validation.data
 
     // 4. Get invoice
     const { data: invoice, error: invoiceError } = await supabase
       .from('platform_invoices')
       .select('*')
-      .eq('id', body.invoice_id)
+      .eq('id', invoice_id)
       .single()
 
     if (invoiceError || !invoice) {
@@ -116,7 +115,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 6. Get payment method
-    const paymentMethodId = body.payment_method_id || tenant.default_payment_method_id
+    const paymentMethodId = payment_method_id || tenant.default_payment_method_id
 
     if (!paymentMethodId) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {

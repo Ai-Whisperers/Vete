@@ -60,7 +60,7 @@ export class StripePaymentProvider extends AbstractPaymentProvider {
     return { refundId: refund.id }
   }
 
-  async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {
+  async verifyWebhook(payload: unknown, signature: string, secret: string): Promise<ProviderResult<Stripe.Event>> {
     // Webhooks are special and usually handled before execute wrapper to avoid body re-reading issues
     return this.execute('verifyWebhook', async () => {
       const stripe = getStripeClient()
@@ -68,7 +68,7 @@ export class StripePaymentProvider extends AbstractPaymentProvider {
     })
   }
 
-  protected override normalizeError(error: any): PaymentError {
+  protected override normalizeError(error: unknown): PaymentError {
     const stripeError = error as Stripe.StripeError
     return {
       code: stripeError.code || stripeError.type || 'stripe_error',
@@ -82,7 +82,7 @@ export class StripePaymentProvider extends AbstractPaymentProvider {
       id: intent.id,
       clientSecret: intent.client_secret,
       amount: intent.amount,
-      currency: intent.currency.toUpperCase() as any,
+      currency: intent.currency.toUpperCase(),
       status: this.mapStripeStatus(intent.status),
       metadata: intent.metadata as Record<string, string>,
       provider: 'stripe',

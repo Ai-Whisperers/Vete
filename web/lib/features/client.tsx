@@ -30,7 +30,7 @@
  * if (hasFeature('ecommerce')) { ... }
  */
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import type { TierFeatures, TierId } from '@/lib/pricing/tiers'
 import type { FeatureName, TenantFeatureAccess } from './types'
 
@@ -106,7 +106,7 @@ export function FeatureFlagsProvider({
   const [isLoading, setIsLoading] = useState(!initialFeatures)
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchFeatures = async () => {
+  const fetchFeatures = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -124,13 +124,13 @@ export function FeatureFlagsProvider({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [tenantId])
 
   useEffect(() => {
     if (!initialFeatures) {
       fetchFeatures()
     }
-  }, [tenantId])
+  }, [tenantId, initialFeatures, fetchFeatures])
 
   const hasFeature = (feature: FeatureName): boolean => {
     if (!features) return false

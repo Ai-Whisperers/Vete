@@ -88,20 +88,22 @@ export function getPeriodBoundaries(
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)
       break
-    case 'weekly':
+    case 'weekly': {
       const dayOfWeek = now.getDay()
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek, 0, 0, 0)
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - dayOfWeek), 23, 59, 59)
       break
+    }
     case 'monthly':
       start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0)
       end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
       break
-    case 'quarterly':
+    case 'quarterly': {
       const quarter = Math.floor(now.getMonth() / 3)
       start = new Date(now.getFullYear(), quarter * 3, 1, 0, 0, 0)
       end = new Date(now.getFullYear(), (quarter + 1) * 3, 0, 23, 59, 59)
       break
+    }
     case 'yearly':
       start = new Date(now.getFullYear(), 0, 1, 0, 0, 0)
       end = new Date(now.getFullYear(), 11, 31, 23, 59, 59)

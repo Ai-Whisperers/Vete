@@ -7,6 +7,7 @@
  * This wrapper is maintained for backward compatibility during migration.
  * See: lib/auth/api-wrapper.ts for the new pattern
  */
+/* eslint-disable no-redeclare */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'

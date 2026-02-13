@@ -48,33 +48,160 @@ A comprehensive SaaS veterinary clinic management platform built with Next.js 15
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or pnpm
-- Supabase account (or local Supabase instance)
+- **Node.js 18+** (Recommended: Node.js 20 or 22)
+- **npm 9+** or **pnpm 8+** (npm comes with Node.js)
+- **Git** for version control
+- **Supabase account** (free tier available at [supabase.com](https://supabase.com))
+- **Upstash Redis account** (free tier available at [upstash.com](https://upstash.com)) for rate limiting
 
-### Installation
+### Step-by-Step Setup
+
+#### 1. Clone and Install
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Ai-Whisperers/Vete.git
 cd Vete/web
 
-# Install dependencies
+# Install dependencies (using npm)
 npm install
+# OR using pnpm (faster)
+pnpm install
+```
 
-# Copy environment variables
+#### 2. Supabase Setup
+
+1. **Create a Supabase project:**
+   - Go to [supabase.com/dashboard](https://supabase.com/dashboard)
+   - Click "New Project"
+   - Choose a name and region (recommended: South America for Paraguay)
+   - Set a secure database password
+
+2. **Get your Supabase credentials:**
+   - Go to Project Settings > API
+   - Copy:
+     - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+     - `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+     - `service_role` key → `SUPABASE_SERVICE_ROLE_KEY` (keep this secret!)
+   - Go to Project Settings > Database > Connection string
+   - Copy the URI → `DATABASE_URL`
+
+3. **Set up Upstash Redis (for rate limiting):**
+   - Go to [console.upstash.com](https://console.upstash.com)
+   - Create a new Redis database
+   - Copy:
+     - `REST URL` → `UPSTASH_REDIS_REST_URL`
+     - `REST Token` → `UPSTASH_REDIS_REST_TOKEN`
+
+#### 3. Configure Environment
+
+```bash
+# Copy the example environment file
 cp .env.example .env.local
-# Edit .env.local with your Supabase credentials
 
-# Set up database (optional - if using fresh Supabase project)
+# Edit .env.local with your credentials
+# You can use nano, vim, or any text editor
+nano .env.local
+```
+
+Fill in the required variables:
+```env
+# REQUIRED - Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+DATABASE_URL=postgresql://postgres:your-password@db.your-project.supabase.co:5432/postgres
+
+# REQUIRED - Upstash Redis
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-redis-token
+
+# OPTIONAL but recommended
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_NAME=Vete
+```
+
+#### 4. Database Setup
+
+```bash
+# Apply database schema and seed with demo data
 npm run db:setup
 
-# Seed with demo data (optional)
-npm run seed:demo
-
-# Start development server
-npm run dev
+# OR run step by step:
+npm run db:schema    # Apply schema only
+npm run seed:demo    # Seed demo data (recommended for development)
 ```
+
+#### 5. Start Development Server
+
+```bash
+# Start the development server
+npm run dev
+
+# The server will start on http://localhost:3000
+```
+
+#### 6. Access Demo Clinics
+
+Once running, you can access:
+
+| URL | Description | Login Credentials |
+|-----|-------------|-------------------|
+| http://localhost:3000/terrapet | Veterinaria Adris (demo clinic) | Staff: `staff@terrapet.com` / `password123` |
+| http://localhost:3000/petlife | PetLife Center (demo clinic) | Staff: `staff@petlife.com` / `password123` |
+| http://localhost:3000/terrapet/portal | Pet owner portal | Owner: `owner@example.com` / `password123` |
+| http://localhost:3000/terrapet/dashboard | Staff dashboard | Staff: `staff@terrapet.com` / `password123` |
+
+### Common Issues & Solutions
+
+#### 1. "Database connection failed"
+- **Cause:** Invalid DATABASE_URL or Supabase project not active
+- **Solution:** Verify your Supabase project is running and credentials are correct
+
+#### 2. "Rate limiting not working"
+- **Cause:** Missing Upstash Redis credentials
+- **Solution:** Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in .env.local
+
+#### 3. "TypeScript errors after installation"
+- **Cause:** Node.js version mismatch or corrupted node_modules
+- **Solution:**
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm cache clean --force
+  npm install
+  ```
+
+#### 4. "Build fails with Tailwind errors"
+- **Cause:** Using Tailwind v4 (project requires v3)
+- **Solution:** Ensure package.json has `"tailwindcss": "^3.4.19"` (not ^4.x)
+
+#### 5. "Cannot find module" errors
+- **Cause:** Missing dependencies or incorrect installation
+- **Solution:**
+  ```bash
+  npm install
+  npm run typecheck  # Check for TypeScript issues
+  ```
+
+### Next Steps After Setup
+
+1. **Run tests** to verify everything works:
+   ```bash
+   npm run test:unit      # Unit tests
+   npm run test:api       # API tests
+   npm run test:coverage  # Coverage report
+   ```
+
+2. **Explore the codebase:**
+   - Check `docs/ARCHITECTURE.md` for system overview
+   - Review `components/ARCHITECTURE_GUIDE.md` for component patterns
+   - Examine `.claude/exemplars/` for code examples
+
+3. **Start developing:**
+   - Create a new branch: `git checkout -b feature/your-feature`
+   - Make changes following existing patterns
+   - Run tests before committing: `npm run test`
+   - Submit a pull request
 
 ### Access the Application
 

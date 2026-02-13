@@ -222,7 +222,7 @@ export async function sendVerificationEmail(
     
     // In development, still log the content for debugging
     if (process.env.NODE_ENV === 'development') {
-      console.info('[GDPR] Email content that failed to send:', {
+      console.warn('[GDPR] Email content that failed to send:', {
         to: emailContent.to,
         subject: emailContent.subject,
       })

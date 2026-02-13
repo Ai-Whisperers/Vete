@@ -3,18 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
-
-/**
- * Public endpoint - no authentication required
- * Returns available services for a clinic
- *
- * @param clinic - Clinic slug (required)
- * @param category - Optional category filter
- * @param active - Filter active services (default: true)
- *
- * Cache: 5 minutes (s-maxage=300)
- */
 import { rateLimit } from '@/lib/rate-limit'
+import { serviceQuerySchema, createServiceSchema } from '@/lib/schemas/service'
 
 /**
  * Public endpoint - no authentication required
@@ -36,13 +26,28 @@ export async function GET(request: Request) {
   const supabase = await createClient()
 
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
-  const category = searchParams.get('category')
-  const active = searchParams.get('active') !== 'false' // Default to active only
+  
+  // Extract and validate query parameters with Zod
+  const queryParams = {
+    clinic: searchParams.get('clinic'),
+    category: searchParams.get('category'),
+    active: searchParams.get('active'),
+  };
 
-  if (!clinic) {
-    return apiError('MISSING_FIELDS', 400, { details: { field: 'clinic' } })
+  const validationResult = serviceQuerySchema.safeParse(queryParams);
+  if (!validationResult.success) {
+    return apiError('VALIDATION_ERROR', 400, {
+      details: {
+        errors: validationResult.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
+    });
   }
+
+  const { clinic, category, active } = validationResult.data;
+  const isActive = active !== 'false'; // Default to active only
 
   try {
     let query = supabase
@@ -55,7 +60,7 @@ export async function GET(request: Request) {
       .order('category')
       .order('name')
 
-    if (active) {
+    if (isActive) {
       query = query.eq('is_active', true)
     }
 
@@ -85,14 +90,29 @@ export async function GET(request: Request) {
 export const POST = withApiAuth(
   async ({ profile, supabase, request }: ApiHandlerContext) => {
     try {
-      const body = await request.json()
-      const { name, description, category, base_price, duration_minutes, is_active } = body
-
-      if (!name || !category || base_price === undefined) {
-        return apiError('MISSING_FIELDS', 400, {
-          details: { required: ['name', 'category', 'base_price'] },
+      // Parse and validate request body with Zod schema
+      let rawBody: unknown
+      try {
+        rawBody = await request.json()
+      } catch (_error: unknown) {
+        return apiError('INVALID_FORMAT', 400, {
+          details: { message: 'Formato de solicitud inválido' },
         })
       }
+
+      const validationResult = createServiceSchema.safeParse(rawBody)
+      if (!validationResult.success) {
+        return apiError('VALIDATION_ERROR', 400, {
+          details: {
+            errors: validationResult.error.issues.map((issue) => ({
+              field: issue.path.join('.'),
+              message: issue.message,
+            })),
+          },
+        })
+      }
+
+      const { name, description, category, base_price, duration_minutes, is_active } = validationResult.data
 
       const { data: service, error } = await supabase
         .from('services')

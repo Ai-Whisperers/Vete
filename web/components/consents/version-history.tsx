@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type JSX } from 'react'
+import { useState, useEffect, useCallback, type JSX } from 'react'
 import { History, RotateCcw, Eye, ChevronRight, Clock, User, FileText, Loader2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -38,9 +38,9 @@ export function VersionHistory({
 
   useEffect(() => {
     fetchVersions()
-  }, [templateId])
+  }, [templateId, fetchVersions])
 
-  const fetchVersions = async (): Promise<void> => {
+  const fetchVersions = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
 
@@ -57,7 +57,7 @@ export function VersionHistory({
     } finally {
       setLoading(false)
     }
-  }
+  }, [templateId])
 
   const handleRollback = async (versionNumber: number): Promise<void> => {
     if (rollingBack) return

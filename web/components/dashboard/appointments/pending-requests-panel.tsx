@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   Clock,
@@ -46,7 +46,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
   const [selectedRequest, setSelectedRequest] = useState<PendingRequest | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -59,11 +59,11 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
     }
 
     setIsLoading(false)
-  }
+  }, [t])
 
   useEffect(() => {
     fetchRequests()
-  }, [])
+  }, [fetchRequests])
 
   const handleSchedule = (request: PendingRequest) => {
     setSelectedRequest(request)

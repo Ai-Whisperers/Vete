@@ -101,3 +101,15 @@ export const bookingWizardSchema = z.object({
 })
 
 export type BookingWizardInput = z.infer<typeof bookingWizardSchema>
+
+/**
+ * Schema for appointment slots query parameters
+ */
+export const appointmentSlotsQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clinic slug is required'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  service_id: uuidSchema.optional(),
+  vet_id: uuidSchema.optional(),
+})
+
+export type AppointmentSlotsQueryParams = z.infer<typeof appointmentSlotsQuerySchema>

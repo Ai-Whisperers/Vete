@@ -55,7 +55,7 @@ export class PaymentService {
   /**
    * Verify a webhook
    */
-  async verifyWebhook(payload: any, signature: string, secret: string): Promise<ProviderResult<any>> {
+  async verifyWebhook(payload: unknown, signature: string, secret: string): Promise<ProviderResult<unknown>> {
     return this.provider.verifyWebhook(payload, signature, secret)
   }
 }

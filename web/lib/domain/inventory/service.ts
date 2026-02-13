@@ -15,7 +15,6 @@ import type {
   UpdateInventoryData,
   StockAdjustmentData,
   InventoryFilters,
-  TransactionFilters,
   InventoryStats,
   LowStockItem,
   ExpiryItem,

@@ -60,6 +60,7 @@ async function sendToAnalytics(metric: VitalsMetric) {
     }
   } catch (error) {
     // Silently fail - analytics shouldn't break user experience
+    // eslint-disable-next-line no-console
     console.debug('Failed to send web vitals to analytics:', error)
   }
 }
@@ -91,6 +92,7 @@ export function initWebVitals() {
     onINP(handleMetric) // Interaction to Next Paint
   } catch (error) {
     // Silently fail if web-vitals library has issues
+    // eslint-disable-next-line no-console
     console.debug('Failed to initialize web vitals:', error)
   }
 }

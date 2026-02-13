@@ -9,6 +9,7 @@ import {
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { productQuerySchema } from '@/lib/schemas/store'
 
 // Schema for creating a new product
 const createProductSchema = z.object({
@@ -33,19 +34,27 @@ const createProductSchema = z.object({
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
-  const page = parseInt(searchParams.get('page') || '1', 10)
-  const limit = parseInt(searchParams.get('limit') || '12', 10)
-  const sort = (searchParams.get('sort') || 'relevance') as SortOption
-  const search = searchParams.get('search')
-  const category = searchParams.get('category')
-  // ... and so on for all filters
+  
+  const queryResult = productQuerySchema.safeParse({
+    clinic: searchParams.get('clinic'),
+    category: searchParams.get('category'),
+    status: searchParams.get('status'),
+    search: searchParams.get('search'),
+    sort: searchParams.get('sort'),
+    min_price: searchParams.get('min_price'),
+    max_price: searchParams.get('max_price'),
+    in_stock: searchParams.get('in_stock'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+  })
 
-  if (!clinic) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Clinic not provided' },
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: queryResult.error.issues },
     })
   }
+
+  const { clinic, category, status, search, sort, min_price, max_price, in_stock, page, limit } = queryResult.data
 
   const supabase = await createClient()
 

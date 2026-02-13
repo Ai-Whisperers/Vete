@@ -67,9 +67,11 @@ export type UpdateProductInput = z.infer<typeof updateProductSchema>
  * Schema for product query parameters
  */
 export const productQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida'),
   category: enumSchema(PRODUCT_CATEGORIES, 'Categoría').optional(),
   status: enumSchema(PRODUCT_STATUSES, 'Estado').optional(),
   search: z.string().max(100).optional(),
+  sort: z.enum(['relevance', 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'newest']).optional(),
   min_price: z.coerce.number().min(0).optional(),
   max_price: z.coerce.number().min(0).optional(),
   in_stock: z.coerce.boolean().optional(),

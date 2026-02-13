@@ -296,6 +296,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number]
  * Schema for order query
  */
 export const orderQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida'),
   status: enumSchema(ORDER_STATUSES, 'Estado').optional(),
   date_from: z.string().datetime().optional(),
   date_to: z.string().datetime().optional(),

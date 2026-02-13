@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { requireFeature } from '@/lib/features/server'
 import { clampLimit, parsePage } from '@/lib/api/pagination'
-import { createStoreOrderSchema, ORDER_STATUSES, type OrderStatus } from '@/lib/schemas/store'
+import { createStoreOrderSchema, orderQuerySchema, ORDER_STATUSES, type OrderStatus } from '@/lib/schemas/store'
 import { rateLimit } from '@/lib/rate-limit'
 
 // GET - Get user's orders
@@ -20,17 +20,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
-  const status = searchParams.get('status') as OrderStatus | null
-  const page = parsePage(searchParams.get('page'))
-  const limit = clampLimit(searchParams.get('limit'), 10)
-  const offset = (page - 1) * limit
+  
+  const queryResult = orderQuerySchema.safeParse({
+    clinic: searchParams.get('clinic'),
+    status: searchParams.get('status'),
+    date_from: searchParams.get('date_from'),
+    date_to: searchParams.get('date_to'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+  })
 
-  if (!clinic) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Falta parámetro clinic' },
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: queryResult.error.issues },
     })
   }
+
+  const { clinic, status, date_from, date_to, page, limit } = queryResult.data
+  const offset = (page - 1) * limit
 
   // Check if tenant has ecommerce feature enabled
   const featureCheck = await requireFeature(clinic, 'ecommerce')

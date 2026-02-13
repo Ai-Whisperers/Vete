@@ -79,6 +79,15 @@ export const productQuerySchema = z.object({
 
 export type ProductQueryParams = z.infer<typeof productQuerySchema>
 
+/**
+ * Schema for product detail query parameters
+ */
+export const productDetailQuerySchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida'),
+})
+
+export type ProductDetailQueryParams = z.infer<typeof productDetailQuerySchema>
+
 // ============================================
 // Cart
 // ============================================

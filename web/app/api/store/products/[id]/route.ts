@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { productDetailQuerySchema } from '@/lib/schemas/store'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -10,13 +11,18 @@ interface Props {
 export async function GET(request: NextRequest, { params }: Props): Promise<NextResponse> {
   const { id } = await params
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+  
+  const queryResult = productDetailQuerySchema.safeParse({
+    clinic: searchParams.get('clinic'),
+  })
 
-  if (!clinic) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Falta el parámetro clinic' },
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: queryResult.error.issues },
     })
   }
+
+  const { clinic } = queryResult.data
 
   const supabase = await createClient()
 

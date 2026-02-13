@@ -133,3 +133,13 @@ export const waitlistQuerySchema = z.object({
 })
 
 export type WaitlistQueryInput = z.infer<typeof waitlistQuerySchema>
+
+/**
+ * Schema for recurrence query parameters
+ */
+export const recurrenceQuerySchema = z.object({
+  pet_id: uuidSchema.optional(),
+  active: z.enum(['true', 'false']).optional().default('true'),
+})
+
+export type RecurrenceQueryInput = z.infer<typeof recurrenceQuerySchema>

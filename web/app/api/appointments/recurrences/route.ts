@@ -3,6 +3,7 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
+import { recurrenceQuerySchema } from '@/lib/schemas/appointment'
 
 // Validation schemas
 const createRecurrenceSchema = z.object({
@@ -28,8 +29,20 @@ const createRecurrenceSchema = z.object({
 export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const searchParams = new URL(request.url).searchParams
-    const petId = searchParams.get('pet_id')
-    const activeOnly = searchParams.get('active') !== 'false'
+    
+    const queryResult = recurrenceQuerySchema.safeParse({
+      pet_id: searchParams.get('pet_id'),
+      active: searchParams.get('active'),
+    })
+
+    if (!queryResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: queryResult.error.issues },
+      })
+    }
+
+    const { pet_id, active } = queryResult.data
+    const activeOnly = active !== 'false'
 
     // Build query
     let query = supabase
@@ -53,8 +66,8 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
       query = query.in('pet_id', petIds.length > 0 ? petIds : ['00000000-0000-0000-0000-000000000000'])
     }
 
-    if (petId) {
-      query = query.eq('pet_id', petId)
+    if (pet_id) {
+      query = query.eq('pet_id', pet_id)
     }
 
     if (activeOnly) {

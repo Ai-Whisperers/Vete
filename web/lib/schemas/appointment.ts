@@ -113,3 +113,12 @@ export const appointmentSlotsQuerySchema = z.object({
 })
 
 export type AppointmentSlotsQueryParams = z.infer<typeof appointmentSlotsQuerySchema>
+
+/**
+ * Schema for completing an appointment
+ */
+export const completeAppointmentSchema = z.object({
+  notes: optionalString(500),
+})
+
+export type CompleteAppointmentInput = z.infer<typeof completeAppointmentSchema>

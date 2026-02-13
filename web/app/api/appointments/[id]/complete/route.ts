@@ -11,6 +11,7 @@
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth';
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors';
 import { AppointmentService } from '@/lib/services';
+import { completeAppointmentSchema } from '@/lib/schemas/appointment';
 
 type Params = { id: string };
 
@@ -18,11 +19,25 @@ export const POST = withApiAuthParams<Params>(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params;
 
-    // 1. Parse optional body for notes
+    // 1. Parse and validate optional body for notes
     let notes: string | undefined;
     try {
       const body = await request.json();
-      notes = body.notes;
+      const validation = completeAppointmentSchema.safeParse(body);
+      
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: 'Datos inválidos',
+            errors: validation.error.issues.map((issue) => ({
+              field: issue.path.join('.'),
+              message: issue.message,
+            })),
+          },
+        });
+      }
+      
+      notes = validation.data.notes;
     } catch (_error: unknown) {
       // No body is fine
     }

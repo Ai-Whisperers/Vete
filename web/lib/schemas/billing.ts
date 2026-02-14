@@ -106,3 +106,13 @@ export const confirmTransferSchema = z.object({
 })
 
 export type ConfirmTransferInput = z.infer<typeof confirmTransferSchema>
+
+/**
+ * Schema for adding a payment method
+ */
+export const addPaymentMethodSchema = z.object({
+  stripe_payment_method_id: z.string().min(1, 'Stripe payment method ID is required'),
+  set_as_default: z.boolean().optional().default(false),
+})
+
+export type AddPaymentMethodInput = z.infer<typeof addPaymentMethodSchema>

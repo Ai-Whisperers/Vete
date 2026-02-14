@@ -19,6 +19,7 @@ import {
   setDefaultPaymentMethod,
 } from '@/lib/billing/stripe'
 import type { PaymentMethodType } from '@/lib/billing/types'
+import { addPaymentMethodSchema } from '@/lib/schemas/billing'
 
 // =============================================================================
 // GET - List payment methods
@@ -105,11 +106,6 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 // POST - Add new payment method
 // =============================================================================
 
-interface AddPaymentMethodRequest {
-  stripe_payment_method_id: string
-  set_as_default?: boolean
-}
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
 
@@ -143,14 +139,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // 3. Parse request body
-    const body: AddPaymentMethodRequest = await request.json()
+    // 3. Parse and validate request body
+    const body = await request.json()
+    const validation = addPaymentMethodSchema.safeParse(body)
 
-    if (!body.stripe_payment_method_id) {
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'stripe_payment_method_id es requerido' },
+        details: { issues: validation.error.issues },
       })
     }
+
+    const data = validation.data
 
     // 4. Get tenant Stripe customer ID
     const { data: tenant } = await supabase
@@ -166,7 +165,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 5. Get payment method details from Stripe
-    const stripeMethod = await getPaymentMethod(body.stripe_payment_method_id)
+    const stripeMethod = await getPaymentMethod(data.stripe_payment_method_id)
 
     if (!stripeMethod) {
       return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
@@ -179,7 +178,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .from('tenant_payment_methods')
       .select('id')
       .eq('tenant_id', profile.tenant_id)
-      .eq('stripe_payment_method_id', body.stripe_payment_method_id)
+      .eq('stripe_payment_method_id', data.stripe_payment_method_id)
       .single()
 
     if (existing) {
@@ -203,7 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       card_exp_month: stripeMethod.card?.exp_month || null,
       card_exp_year: stripeMethod.card?.exp_year || null,
       card_funding: stripeMethod.card?.funding || null,
-      is_default: body.set_as_default || false,
+      is_default: data.set_as_default,
       is_verified: true,
       is_active: true,
       verified_at: new Date().toISOString(),
@@ -211,7 +210,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 8. If setting as default, clear other defaults first
-    if (body.set_as_default) {
+    if (data.set_as_default) {
       await supabase
         .from('tenant_payment_methods')
         .update({ is_default: false })
@@ -234,7 +233,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (insertError) throw insertError
 
     // 10. Update tenant's default payment method ID if this is default
-    if (body.set_as_default && newMethod) {
+    if (data.set_as_default && newMethod) {
       await supabase
         .from('tenants')
         .update({ default_payment_method_id: newMethod.id })
@@ -245,7 +244,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       tenantId: profile.tenant_id,
       methodId: newMethod.id,
       stripeMethodId: stripeMethod.id,
-      isDefault: body.set_as_default,
+      isDefault: data.set_as_default,
     })
 
     return NextResponse.json({

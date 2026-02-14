@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { commissionConfig } from '@/lib/pricing/tiers'
+import { commissionSummaryQuerySchema } from '@/lib/schemas/store'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -55,9 +56,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   }
 
-  // 3. Parse query params
+  // 3. Parse and validate query params
   const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+  
+  const queryResult = commissionSummaryQuerySchema.safeParse({
+    clinic: searchParams.get('clinic'),
+  })
+
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { issues: queryResult.error.issues },
+    })
+  }
+
+  const { clinic } = queryResult.data
 
   // Validate clinic matches user's tenant
   if (clinic && clinic !== profile.tenant_id) {

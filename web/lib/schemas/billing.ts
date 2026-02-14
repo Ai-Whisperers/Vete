@@ -91,3 +91,18 @@ export type SendReminderInput = z.infer<typeof sendReminderSchema>
 export type SendInvoiceInput = z.infer<typeof sendInvoiceSchema>
 export type PayInvoiceInput = z.infer<typeof payInvoiceSchema>
 export type BillingOverviewQueryInput = z.infer<typeof billingOverviewQuerySchema>
+
+/**
+ * Schema for confirming bank transfer
+ */
+export const confirmTransferSchema = z.object({
+  invoice_id: uuidSchema,
+  transfer_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
+  bank_name: z.string().min(1, 'Bank name is required'),
+  reference_number: z.string().optional(),
+  amount: z.number().positive('Amount must be positive'),
+  proof_url: z.string().url('Must be a valid URL').optional(),
+  notes: z.string().max(500).optional(),
+})
+
+export type ConfirmTransferInput = z.infer<typeof confirmTransferSchema>

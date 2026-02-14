@@ -22,16 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
-
-interface ConfirmTransferRequest {
-  invoice_id: string
-  transfer_date: string
-  bank_name: string
-  reference_number?: string
-  amount: number
-  proof_url?: string
-  notes?: string
-}
+import { confirmTransferSchema } from '@/lib/schemas/billing'
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -66,39 +57,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // 3. Parse request
-    const body: ConfirmTransferRequest = await request.json()
+    // 3. Parse and validate request
+    const body = await request.json()
+    const validation = confirmTransferSchema.safeParse(body)
 
-    // Validation
-    if (!body.invoice_id) {
+    if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'invoice_id es requerido' },
+        details: { issues: validation.error.issues },
       })
     }
 
-    if (!body.transfer_date) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'transfer_date es requerido' },
-      })
-    }
-
-    if (!body.bank_name) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'bank_name es requerido' },
-      })
-    }
-
-    if (!body.amount || body.amount <= 0) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'amount debe ser mayor a 0' },
-      })
-    }
+    const data = validation.data
 
     // 4. Get invoice
     const { data: invoice, error: invoiceError } = await supabase
       .from('platform_invoices')
       .select('*')
-      .eq('id', body.invoice_id)
+      .eq('id', data.invoice_id)
       .single()
 
     if (invoiceError || !invoice) {
@@ -130,10 +105,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Validate amount matches (with small tolerance for fees)
     const invoiceTotal = Number(invoice.total)
     const tolerance = invoiceTotal * 0.02 // 2% tolerance
-    if (Math.abs(body.amount - invoiceTotal) > tolerance) {
+    if (Math.abs(data.amount - invoiceTotal) > tolerance) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
         details: {
-          message: `El monto reportado (₲${body.amount.toLocaleString('es-PY')}) no coincide con el total de la factura (₲${invoiceTotal.toLocaleString('es-PY')})`,
+          message: `El monto reportado (₲${data.amount.toLocaleString('es-PY')}) no coincide con el total de la factura (₲${invoiceTotal.toLocaleString('es-PY')})`,
         },
       })
     }
@@ -174,7 +149,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           tenant_id: profile.tenant_id,
           method_type: 'bank_transfer',
           display_name: 'Transferencia Bancaria',
-          bank_name: body.bank_name,
+          bank_name: data.bank_name,
           is_default: false,
           is_verified: false,
           is_active: true,
@@ -191,11 +166,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .insert({
         tenant_id: profile.tenant_id,
         platform_invoice_id: invoice.id,
-        amount: body.amount,
+        amount: data.amount,
         currency: 'PYG',
         payment_method_type: 'bank_transfer',
         payment_method_id: bankMethodId,
-        bank_transfer_reference: body.reference_number || null,
+        bank_transfer_reference: data.reference_number || null,
         status: 'pending', // Awaiting verification
       })
       .select()
@@ -215,12 +190,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       subject: `Transferencia reportada - ${invoice.invoice_number}`,
       content: JSON.stringify({
         type: 'pending_transfer_verification',
-        transfer_date: body.transfer_date,
-        bank_name: body.bank_name,
-        reference_number: body.reference_number,
-        amount: body.amount,
-        proof_url: body.proof_url,
-        notes: body.notes,
+        transfer_date: data.transfer_date,
+        bank_name: data.bank_name,
+        reference_number: data.reference_number,
+        amount: data.amount,
+        proof_url: data.proof_url,
+        notes: data.notes,
         reported_by: profile.full_name,
         reported_by_id: user.id,
         transaction_id: transaction.id,
@@ -233,7 +208,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       invoiceId: invoice.id,
       invoiceNumber: invoice.invoice_number,
       tenantId: profile.tenant_id,
-      amount: body.amount,
+      amount: data.amount,
       transactionId: transaction.id,
     })
 
@@ -243,9 +218,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       transaction: {
         id: transaction.id,
         status: 'pending_verification',
-        amount: body.amount,
-        bank_name: body.bank_name,
-        reference_number: body.reference_number,
+        amount: data.amount,
+        bank_name: data.bank_name,
+        reference_number: data.reference_number,
         invoice_number: invoice.invoice_number,
       },
     })

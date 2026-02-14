@@ -116,3 +116,12 @@ export const addPaymentMethodSchema = z.object({
 })
 
 export type AddPaymentMethodInput = z.infer<typeof addPaymentMethodSchema>
+
+/**
+ * Schema for updating a payment method
+ */
+export const updatePaymentMethodSchema = z.object({
+  is_default: z.boolean().optional(),
+})
+
+export type UpdatePaymentMethodInput = z.infer<typeof updatePaymentMethodSchema>

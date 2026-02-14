@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { detachPaymentMethod, setDefaultPaymentMethod } from '@/lib/billing/stripe'
+import { updatePaymentMethodSchema } from '@/lib/schemas/billing'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -131,10 +132,6 @@ export async function DELETE(request: NextRequest, context: RouteContext): Promi
 // PUT - Update payment method (set as default)
 // =============================================================================
 
-interface UpdatePaymentMethodRequest {
-  is_default?: boolean
-}
-
 export async function PUT(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   const { id } = await context.params
   const supabase = await createClient()
@@ -169,8 +166,17 @@ export async function PUT(request: NextRequest, context: RouteContext): Promise<
   }
 
   try {
-    // 3. Parse request
-    const body: UpdatePaymentMethodRequest = await request.json()
+    // 3. Parse and validate request
+    const body = await request.json()
+    const validation = updatePaymentMethodSchema.safeParse(body)
+
+    if (!validation.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { issues: validation.error.issues },
+      })
+    }
+
+    const data = validation.data
 
     // 4. Get payment method
     const { data: method, error: methodError } = await supabase
@@ -194,7 +200,7 @@ export async function PUT(request: NextRequest, context: RouteContext): Promise<
     }
 
     // 5. Handle set as default
-    if (body.is_default) {
+    if (data.is_default) {
       // Clear other defaults
       await supabase
         .from('tenant_payment_methods')
@@ -232,7 +238,7 @@ export async function PUT(request: NextRequest, context: RouteContext): Promise<
 
     return NextResponse.json({
       success: true,
-      message: body.is_default ? 'Metodo de pago predeterminado actualizado' : 'Metodo de pago actualizado',
+      message: data.is_default ? 'Metodo de pago predeterminado actualizado' : 'Metodo de pago actualizado',
     })
   } catch (e) {
     logger.error('Error updating payment method', {

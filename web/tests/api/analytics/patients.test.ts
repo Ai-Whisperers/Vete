@@ -9,7 +9,7 @@
  * Current scope: Structure validation + API contract testing
  */
 
-import { describe, it, expect, beforeAll, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 describe('TST-QA-003: Patient Analytics API Route', () => {
   

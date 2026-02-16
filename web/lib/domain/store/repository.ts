@@ -7,7 +7,6 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
-  Product,
   ProductWithStock,
   ProductRow,
   Cart,
@@ -17,7 +16,6 @@ import type {
   OrderWithItems,
   ProductFilters,
   OrderFilters,
-  CheckoutInput,
   OrderStatus,
 } from './types';
 

@@ -4,7 +4,7 @@
  * Critical for signup flow - validates clinic slug availability
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { GET } from '@/app/api/signup/check-slug/route'
 import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'

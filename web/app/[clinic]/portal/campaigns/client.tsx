@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Tag, Calendar, Loader2, Percent, DollarSign } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -40,11 +40,7 @@ export default function CampaignsClient() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchData()
-  }, [clinic])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     const { data: camps } = await supabase
       .from('store_campaigns')
@@ -55,7 +51,11 @@ export default function CampaignsClient() {
 
     setCampaigns((camps as Campaign[]) || [])
     setLoading(false)
-  }
+  }, [clinic, supabase])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   if (loading)
     return (

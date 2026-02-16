@@ -8,7 +8,6 @@ import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/analytics/customers/route'
 import {
   mockState,
-  TENANTS,
   resetAllMocks,
   createStatefulSupabaseMock,
 } from '@/lib/test-utils'

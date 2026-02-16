@@ -3,7 +3,6 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ErrorBoundary, ErrorFallback, classifyError, withErrorBoundary, errorMessages } from '@/components/error/error-boundary'
 import { logger } from '@/lib/logger'
 import * as Sentry from '@sentry/nextjs'
-import type { ErrorInfo } from 'react'
 
 // Mock dependencies
 vi.mock('@/lib/logger', () => ({

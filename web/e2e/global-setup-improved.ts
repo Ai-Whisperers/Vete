@@ -518,8 +518,8 @@ async function setupAuthState(config: FullConfig): Promise<void> {
     console.log('[E2E Setup] Login page loaded, filling form...')
 
     // Fill login form with more robust selectors
-    const emailInput = page.locator('#email, input[name=\"email\"][type=\"email\"]').first()
-    const passwordInput = page.locator('#password, input[name=\"password\"], input[type=\"password\"]').first()
+    const emailInput = page.locator('#email, input[name="email"][type="email"]').first()
+    const passwordInput = page.locator('#password, input[name="password"], input[type="password"]').first()
 
     await emailInput.waitFor({ state: 'visible', timeout: 5000 })
     await emailInput.fill(E2E_TEST_OWNER.email)
@@ -539,10 +539,10 @@ async function setupAuthState(config: FullConfig): Promise<void> {
       page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 }).then(() => 'url_change'),
       
       // Portal content
-      page.waitForSelector('nav, main, [data-testid=\"portal-content\"]', { state: 'visible', timeout: 15000 }).then(() => 'content'),
+      page.waitForSelector('nav, main, [data-testid="portal-content"]', { state: 'visible', timeout: 15000 }).then(() => 'content'),
       
       // Dashboard heading
-      page.waitForSelector('h1, h2, [role=\"heading\"]', { state: 'visible', timeout: 15000 }).then(() => 'heading'),
+      page.waitForSelector('h1, h2, [role="heading"]', { state: 'visible', timeout: 15000 }).then(() => 'heading'),
     ])
 
     console.log(`[E2E Setup] Login successful (detected via: ${loginSuccess})`)

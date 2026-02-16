@@ -8,10 +8,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { StoreRepository } from './repository';
 import type {
-  Product,
   ProductWithStock,
   Cart,
-  CartItem,
   CartItemJsonb,
   Order,
   OrderWithItems,

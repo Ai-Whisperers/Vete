@@ -20,7 +20,6 @@ import {
   cleanupIntegrationTest,
   createTestAuthUser,
   createTestProfile,
-  createTestClient,
   TEST_TENANT_ID,
   cleanupManager,
   createTestRequest,

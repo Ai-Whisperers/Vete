@@ -12,7 +12,6 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createMockSupabaseClient } from '../services/__mocks__/supabase-mock'
-import { createMockUser, mockAuthenticatedUser } from '../helpers/auth-mock'
 import type { TestUser } from '../helpers/auth-mock'
 
 // Mock data

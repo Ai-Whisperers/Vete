@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import {
   Clock,
@@ -77,7 +77,7 @@ export default function OperationsAnalyticsPage(): React.ReactElement {
     return `${value.toLocaleString(localeStr)} Gs.`
   }
 
-  const fetchData = async (): Promise<void> => {
+  const fetchData = useCallback(async (): Promise<void> => {
     setIsLoading(true)
     setError(null)
     try {
@@ -92,11 +92,11 @@ export default function OperationsAnalyticsPage(): React.ReactElement {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [clinic, period])
 
   useEffect(() => {
     fetchData()
-  }, [clinic, period])
+  }, [fetchData])
 
   if (isLoading || featuresLoading) {
     return (

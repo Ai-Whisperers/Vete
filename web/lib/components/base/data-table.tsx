@@ -62,12 +62,23 @@ export function DataTable<T extends Record<string, unknown>>({
     if (!sortColumn || !sortDirection) return filteredData
 
     return [...filteredData].sort((a, b) => {
-      const aValue = a[sortColumn] as any
-      const bValue = b[sortColumn] as any
+      const aValue = a[sortColumn]
+      const bValue = b[sortColumn]
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-      return 0
+      if (aValue === bValue) return 0
+      if (aValue === null || aValue === undefined) return 1
+      if (bValue === null || bValue === undefined) return -1
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+      }
+
+      const aString = String(aValue)
+      const bString = String(bValue)
+
+      return sortDirection === 'asc'
+        ? aString.localeCompare(bString)
+        : bString.localeCompare(aString)
     })
   }, [filteredData, sortColumn, sortDirection])
 

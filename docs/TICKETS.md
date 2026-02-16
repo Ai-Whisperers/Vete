@@ -2,8 +2,8 @@
 
 > **Generated:** December 18, 2024
 > **Last Updated:** February 16, 2026 (Audit Pass)
-> **Total Tickets:** 127 | **Closed:** 53 | **Open:** 74
-> **Critical:** 18 (15 closed) | **High:** 42 (26 closed) | **Medium:** 47 (12 closed) | **Low:** 20
+> **Total Tickets:** 127 | **Closed:** 55 | **Open:** 72
+> **Critical:** 18 (15 closed) | **High:** 42 (28 closed) | **Medium:** 47 (12 closed) | **Low:** 20
 
 ---
 
@@ -67,6 +67,10 @@ The following tickets have been verified as **FIXED** in the codebase:
 - [x] **A11Y-001**: Cart Icon Missing aria-label (Added localized labels)
 - [x] **A11Y-004**: Error messages role="alert" (Standardized in form components)
 - [x] **A11Y-005**: Hardcoded Spanish Text (Migrated to i18n with config overrides)
+
+### Feature Gaps (2 Closed)
+- [x] **TODO-001**: Email Delivery (Integrated Resend + invoice/consent endpoints)
+- [x] **TODO-002**: Consent PDF Generation (Implemented with @react-pdf/renderer)
 
 ### Design Decisions (Not Bugs)
 - **SEC-003**: Slots API intentionally public for booking flow
@@ -1161,77 +1165,19 @@ Add print styles:
 
 ## 11. Feature Gaps (TODOs)
 
-### TICKET-TODO-001: Email Delivery Not Implemented
+### ~~TICKET-TODO-001: Email Delivery Not Implemented~~ [CLOSED]
+**Status:** ✅ FIXED (2026-02-16)
 **Priority:** HIGH
 **Type:** Feature Gap
-**Affected Files:**
-- `web/app/actions/invoices.ts` (Line 472)
-- `web/app/api/consents/requests/route.ts` (Line 138)
-
-**Description:**
-Email sending is stubbed - only logs to console:
-```typescript
-// TODO: Implement actual email sending
-console.log('Would send email to owner with message:', emailMessage);
-```
-
-**Solution:**
-Integrate with email service (Resend, SendGrid, etc.):
-```typescript
-import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-await resend.emails.send({
-    from: 'noreply@clinica.com',
-    to: ownerEmail,
-    subject: 'Factura de su visita',
-    html: emailTemplate,
-});
-```
-
-**Acceptance Criteria:**
-- [ ] Choose and integrate email provider
-- [ ] Create email templates (invoice, consent, reminders)
-- [ ] Handle delivery failures
-- [ ] Log email sends for audit
+**Solution:** Integrated Resend for email delivery. Implemented `sendEmail` utility and added automated invoice and consent delivery endpoints.
 
 ---
 
-### TICKET-TODO-002: Consent PDF Generation Not Implemented
+### ~~TICKET-TODO-002: Consent PDF Generation Not Implemented~~ [CLOSED]
+**Status:** ✅ FIXED (2026-02-16)
 **Priority:** HIGH
 **Type:** Feature Gap
-**Affected Files:**
-- `web/app/[clinic]/dashboard/consents/[id]/page.tsx` (Line 147)
-
-**Description:**
-PDF download shows alert instead of generating PDF:
-```typescript
-const handleDownloadPDF = (): void => {
-    alert('Función de descarga de PDF próximamente');
-};
-```
-
-**Solution:**
-Use @react-pdf/renderer (already in dependencies):
-```typescript
-import { pdf } from '@react-pdf/renderer';
-import { ConsentPDF } from '@/components/consents/consent-pdf';
-
-const handleDownloadPDF = async () => {
-    const blob = await pdf(<ConsentPDF consent={consent} />).toBlob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `consentimiento-${consent.id}.pdf`;
-    link.click();
-};
-```
-
-**Acceptance Criteria:**
-- [ ] Create ConsentPDF component
-- [ ] Include signature image
-- [ ] Include all form fields
-- [ ] Test PDF generation
+**Solution:** Implemented client-side PDF generation using `@react-pdf/renderer` and created a reusable `ConsentPDF` component. Added PDF attachment support for emails.
 
 ---
 

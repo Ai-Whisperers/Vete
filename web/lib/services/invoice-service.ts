@@ -20,6 +20,8 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import { sendEmail } from '@/lib/email/client';
+import { generateInvoiceEmail } from '@/lib/email/templates/invoice-email';
 import type {
   Invoice,
   InvoiceWithDetails,
@@ -1107,6 +1109,113 @@ export class InvoiceService extends BaseService {
       },
       'Error al calcular resumen de ingresos',
       { context: { tenantId, periodStart, periodEnd } }
+    );
+  }
+
+  /**
+   * Send an invoice to the owner via email
+   * @param tenantId Tenant ID
+   * @param invoiceId Invoice ID
+   * @param recipientEmail Optional override for recipient email
+   */
+  async emailInvoice(
+    tenantId: string,
+    invoiceId: string,
+    recipientEmail?: string
+  ): Promise<ServiceResult<{ messageId?: string }>> {
+    return this.safeExecute(
+      async () => {
+        // 1. Get invoice with details
+        const { data: invoice, error } = await this.getById(tenantId, invoiceId);
+        if (error || !invoice) {
+          throw new Error('Factura no encontrada');
+        }
+
+        // 2. Get owner email if not provided
+        const toEmail = recipientEmail || invoice.pet?.owner?.email;
+        if (!toEmail) {
+          throw new Error('El propietario no tiene correo electrónico registrado');
+        }
+
+        // 3. Get clinic info for the email template
+        const { data: clinic, error: clinicError } = await this.supabase
+          .from('tenants')
+          .select('name, address, phone, email, logo_url')
+          .eq('id', tenantId)
+          .single();
+
+        if (clinicError) {
+          throw new Error('Error al obtener información de la clínica');
+        }
+
+        // 4. Generate email content
+        const emailData = {
+          clinicName: clinic.name,
+          clinicLogo: clinic.logo_url,
+          clinicAddress: clinic.address,
+          clinicPhone: clinic.phone,
+          clinicEmail: clinic.email,
+          ownerName: invoice.pet?.owner?.full_name || 'Propietario',
+          petName: invoice.pet?.name || 'su mascota',
+          invoiceNumber: invoice.invoice_number,
+          invoiceDate: invoice.invoice_date,
+          dueDate: invoice.due_date,
+          subtotal: invoice.subtotal,
+          taxRate: invoice.tax_rate,
+          taxAmount: invoice.tax_amount,
+          total: invoice.total,
+          amountPaid: invoice.amount_paid,
+          amountDue: invoice.amount_due,
+          items: invoice.items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            discountPercent: item.discount_percent,
+            lineTotal: item.total_price,
+          })),
+          notes: invoice.notes,
+          paymentInstructions: 'Puede realizar su pago en ventanilla o mediante transferencia bancaria.',
+          viewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/${tenantId}/portal/invoices/${invoiceId}`,
+        };
+
+        const html = generateInvoiceEmail(emailData);
+
+        // 5. Send email
+        const result = await sendEmail({
+          to: toEmail,
+          subject: `Factura ${invoice.invoice_number} - ${clinic.name}`,
+          html,
+          replyTo: clinic.email,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || 'Error al enviar el correo');
+        }
+
+        // 6. Log activity
+        await this.supabase.from('audit_logs').insert({
+          tenant_id: tenantId,
+          resource_type: 'invoice',
+          resource_id: invoiceId,
+          action: 'email_sent',
+          details: {
+            sent_to: toEmail,
+            message_id: result.messageId,
+          },
+        });
+
+        // 7. Update invoice sent status if it was in draft
+        if (invoice.status === 'draft') {
+          await this.supabase
+            .from('invoices')
+            .update({ status: 'sent', sent_at: new Date().toISOString() })
+            .eq('id', invoiceId);
+        }
+
+        return { messageId: result.messageId };
+      },
+      'Error al enviar factura por email',
+      { context: { tenantId, invoiceId, recipientEmail } }
     );
   }
 }

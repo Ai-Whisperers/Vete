@@ -8,10 +8,10 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "**/*.d.ts",
     "tests/**/*",
-    "e2e/**/*"
+    "e2e/**/*",
+    "lib/test-utils/**/*"
   ],
   "exclude": ["node_modules"]
 }

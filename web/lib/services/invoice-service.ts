@@ -463,6 +463,7 @@ export class InvoiceService extends BaseService {
             .from('invoices')
             .update(limitedUpdates)
             .eq('id', id)
+            .eq('tenant_id', tenantId)
             .select()
             .single();
 
@@ -487,6 +488,7 @@ export class InvoiceService extends BaseService {
             updated_at: new Date().toISOString(),
           })
           .eq('id', id)
+          .eq('tenant_id', tenantId)
           .select()
           .single();
 
@@ -536,7 +538,8 @@ export class InvoiceService extends BaseService {
               total,
               amount_due: amountDue,
             })
-            .eq('id', id);
+            .eq('id', id)
+            .eq('tenant_id', tenantId);
         }
 
         const { logAudit } = await import('@/lib/audit');
@@ -583,7 +586,8 @@ export class InvoiceService extends BaseService {
           const { error: deleteError } = await this.supabase
             .from('invoices')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('tenant_id', tenantId);
 
           if (deleteError) {
             throw new Error(this.mapDatabaseError(deleteError));
@@ -605,7 +609,8 @@ export class InvoiceService extends BaseService {
               voided_at: new Date().toISOString(),
               voided_by: userId,
             })
-            .eq('id', id);
+            .eq('id', id)
+            .eq('tenant_id', tenantId);
 
           if (voidError) {
             throw new Error(this.mapDatabaseError(voidError));
@@ -703,7 +708,8 @@ export class InvoiceService extends BaseService {
             status: isPaid ? 'paid' : invoice.status,
             paid_at: isPaid ? new Date().toISOString() : null,
           })
-          .eq('id', invoice_id);
+          .eq('id', invoice_id)
+          .eq('tenant_id', tenantId);
 
         const { logAudit } = await import('@/lib/audit');
         await logAudit('RECORD_PAYMENT', `payments/${payment.id}`, {
@@ -815,6 +821,7 @@ export class InvoiceService extends BaseService {
           .from('invoices')
           .select('total, amount_paid')
           .eq('id', payment.invoice_id)
+          .eq('tenant_id', tenantId)
           .single();
 
         if (invoice) {
@@ -829,7 +836,8 @@ export class InvoiceService extends BaseService {
               amount_due: newAmountDue,
               status: newAmountDue > 0 ? 'sent' : 'paid',
             })
-            .eq('id', payment.invoice_id);
+            .eq('id', payment.invoice_id)
+            .eq('tenant_id', tenantId);
         }
 
         const { logAudit } = await import('@/lib/audit');
@@ -1123,13 +1131,14 @@ export class InvoiceService extends BaseService {
     invoiceId: string,
     recipientEmail?: string
   ): Promise<ServiceResult<{ messageId?: string }>> {
-    return this.safeExecute(
+    return this.handleError(
       async () => {
         // 1. Get invoice with details
-        const { data: invoice, error } = await this.getById(tenantId, invoiceId);
-        if (error || !invoice) {
+        const result = await this.getById(tenantId, invoiceId);
+        if (!result.success) {
           throw new Error('Factura no encontrada');
         }
+        const invoice = result.data;
 
         // 2. Get owner email if not provided
         const toEmail = recipientEmail || invoice.pet?.owner?.email;
@@ -1158,22 +1167,22 @@ export class InvoiceService extends BaseService {
           ownerName: invoice.pet?.owner?.full_name || 'Propietario',
           petName: invoice.pet?.name || 'su mascota',
           invoiceNumber: invoice.invoice_number,
-          invoiceDate: invoice.invoice_date,
-          dueDate: invoice.due_date,
+          invoiceDate: invoice.created_at,
+          dueDate: invoice.due_date || '',
           subtotal: invoice.subtotal,
           taxRate: invoice.tax_rate,
           taxAmount: invoice.tax_amount,
-          total: invoice.total,
+          total: invoice.total_amount,
           amountPaid: invoice.amount_paid,
-          amountDue: invoice.amount_due,
-          items: invoice.items.map((item) => ({
+          amountDue: invoice.balance_due,
+          items: invoice.items.map((item: any) => ({
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unit_price,
             discountPercent: item.discount_percent,
             lineTotal: item.total_price,
           })),
-          notes: invoice.notes,
+          notes: invoice.notes || undefined,
           paymentInstructions: 'Puede realizar su pago en ventanilla o mediante transferencia bancaria.',
           viewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/${tenantId}/portal/invoices/${invoiceId}`,
         };
@@ -1181,15 +1190,15 @@ export class InvoiceService extends BaseService {
         const html = generateInvoiceEmail(emailData);
 
         // 5. Send email
-        const result = await sendEmail({
+        const sendResult = await sendEmail({
           to: toEmail,
           subject: `Factura ${invoice.invoice_number} - ${clinic.name}`,
           html,
           replyTo: clinic.email,
         });
 
-        if (!result.success) {
-          throw new Error(result.error || 'Error al enviar el correo');
+        if (!sendResult.success) {
+          throw new Error(sendResult.error || 'Error al enviar el correo');
         }
 
         // 6. Log activity
@@ -1200,7 +1209,7 @@ export class InvoiceService extends BaseService {
           action: 'email_sent',
           details: {
             sent_to: toEmail,
-            message_id: result.messageId,
+            message_id: sendResult.messageId,
           },
         });
 
@@ -1209,10 +1218,11 @@ export class InvoiceService extends BaseService {
           await this.supabase
             .from('invoices')
             .update({ status: 'sent', sent_at: new Date().toISOString() })
-            .eq('id', invoiceId);
+            .eq('id', invoiceId)
+            .eq('tenant_id', tenantId);
         }
 
-        return { messageId: result.messageId };
+        return { messageId: sendResult.messageId };
       },
       'Error al enviar factura por email',
       { context: { tenantId, invoiceId, recipientEmail } }

@@ -47,7 +47,7 @@ async function auditRateLimiting() {
         const usesWithApiAuth = /withApiAuth/.test(context);
         
         findings.push({
-          file: file.replace(/\/g, '/'),
+          file: file.replace(/\\/g, '/'),
           method,
           hasRateLimit,
           usesWithApiAuth,

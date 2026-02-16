@@ -51,7 +51,7 @@ export function createMockPet(overrides: Partial<Pet> = {}): Pet {
     sex: Math.random() > 0.5 ? 'male' : 'female',
     weight_kg: Math.round(Math.random() * 30 * 10) / 10,
     is_neutered: Math.random() > 0.5,
-    microchip_id: Math.random() > 0.5 ? `CHIP${Math.random().toString(36).slice(2, 17)}` : null,
+    microchip_number: Math.random() > 0.5 ? `CHIP${Math.random().toString(36).slice(2, 17)}` : null,
     photo_url: null,
     color: null,
     temperament: null,

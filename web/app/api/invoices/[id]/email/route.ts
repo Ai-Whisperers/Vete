@@ -30,9 +30,9 @@ export const POST = withApiAuthParams(
         recipientEmail
       )
 
-      if (result.error) {
-        return apiError('BUSINESS_LOGIC_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          message: result.error.message,
+      if (!result.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: result.error },
         })
       }
 

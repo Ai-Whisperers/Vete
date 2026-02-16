@@ -99,8 +99,8 @@ export const POST = withApiAuthParams(
       if (error) {
         // Handle custom exception from RPC
         if (error.code === 'P0001') {
-          return apiError('BUSINESS_LOGIC_ERROR', HTTP_STATUS.BAD_REQUEST, {
-            message: error.message,
+          return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+            details: { message: error.message },
           })
         }
         throw error

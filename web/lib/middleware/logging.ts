@@ -52,6 +52,7 @@ export function withLogging(options: LoggingOptions = {}) {
       requestId: string
       headers?: Record<string, string>
       body?: unknown
+      [key: string]: unknown
     }
 
     const logData: LogData = {

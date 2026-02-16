@@ -2,8 +2,8 @@
 
 > **Generated:** December 18, 2024
 > **Last Updated:** February 16, 2026 (Audit Pass)
-> **Total Tickets:** 127 | **Closed:** 52 | **Open:** 75
-> **Critical:** 18 (15 closed) | **High:** 42 (25 closed) | **Medium:** 47 (12 closed) | **Low:** 20
+> **Total Tickets:** 127 | **Closed:** 53 | **Open:** 74
+> **Critical:** 18 (15 closed) | **High:** 42 (26 closed) | **Medium:** 47 (12 closed) | **Low:** 20
 
 ---
 
@@ -23,13 +23,14 @@ The following tickets have been verified as **FIXED** in the codebase:
 - [x] **SEC-009**: Inventory import file validation (Strict size and type checks added)
 - [x] **SEC-010**: Missing Rate Limiting (Comprehensive rateLimit utility implemented)
 
-### Business Logic (8 Closed)
+### Business Logic (9 Closed)
 - [x] **BIZ-001**: Double-Booking Prevention (Uses atomic RPC with exclusion constraints)
 - [x] **BIZ-002**: Appointment End Time Lost (Calculated from service duration)
 - [x] **BIZ-003**: Stock Never Decremented (Handled atomically via process_checkout RPC)
 - [x] **BIZ-004**: Cart Stock Validation (Server-side validation in checkout API)
 - [x] **BIZ-005**: Invoice refund race condition (Uses atomic RPC)
 - [x] **BIZ-006**: Invoice Floating Point Arithmetic (Uses roundCurrency/Math.round)
+- [x] **BIZ-007**: Loyalty points negative check (Atomic RPC validation implemented)
 - [x] **BIZ-008**: Vaccine status based on role (Staff-created are 'verified')
 - [x] **BIZ-009**: Vaccine date validation (next_due_date > administered_date check)
 - [x] **BIZ-010**: Appointment status transitions (Validated state machine in RPC)
@@ -251,35 +252,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 ---
 
-### TICKET-BIZ-007: Loyalty Points Can Go Negative
+### ~~TICKET-BIZ-007: Loyalty Points Can Go Negative~~ [CLOSED]
+**Status:** ✅ FIXED (2026-02-16)
 **Priority:** HIGH
 **Type:** Business Logic Bug
-**Affected Files:**
-- `web/app/api/loyalty_points/route.ts` (Lines 71-85)
-
-**Description:**
-No validation that points don't go negative. Staff can submit negative points without checking if pet has enough balance.
-
-**Solution:**
-```typescript
-// Check current balance
-const { data: transactions } = await supabase
-    .from('loyalty_transactions')
-    .select('points')
-    .eq('pet_id', petId);
-const currentBalance = transactions.reduce((sum, t) => sum + t.points, 0);
-
-if (points < 0 && currentBalance + points < 0) {
-    return NextResponse.json({
-        error: `Saldo insuficiente. Balance actual: ${currentBalance}`
-    }, { status: 400 });
-}
-```
-
-**Acceptance Criteria:**
-- [ ] Check balance before allowing negative points
-- [ ] Return clear error with current balance
-- [ ] Add constraint in database as safety net
+**Solution:** Implemented `adjust_loyalty_points` atomic RPC with balance validation and row locking. Added explicit error handling in the API route.
 
 ---
 

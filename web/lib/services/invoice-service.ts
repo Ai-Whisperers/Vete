@@ -25,6 +25,7 @@ import { generateInvoiceEmail } from '@/lib/email/templates/invoice-email';
 import type {
   Invoice,
   InvoiceWithDetails,
+  InvoiceItemWithDetails,
   InvoiceItemFormData,
   Payment,
   RecordPaymentInput,
@@ -1175,7 +1176,7 @@ export class InvoiceService extends BaseService {
           total: invoice.total_amount,
           amountPaid: invoice.amount_paid,
           amountDue: invoice.balance_due,
-          items: invoice.items.map((item: any) => ({
+          items: invoice.items.map((item: InvoiceItemWithDetails) => ({
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unit_price,

@@ -5,26 +5,26 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
-import { kv } from '@vercel/kv'
+import { Redis } from '@upstash/redis'
 import { logger } from '@/lib/logger'
 
 // Rate limiters for different endpoints
 const authLimiter = new Ratelimit({
-  redis: kv,
+  redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(5, '10 m'), // 5 requests per 10 minutes
   analytics: true,
   prefix: 'ratelimit:auth',
 })
 
 const apiLimiter = new Ratelimit({
-  redis: kv,
+  redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
   analytics: true,
   prefix: 'ratelimit:api',
 })
 
 const bookingLimiter = new Ratelimit({
-  redis: kv,
+  redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, '1 h'), // 10 bookings per hour
   analytics: true,
   prefix: 'ratelimit:booking',
@@ -44,7 +44,7 @@ export function withRateLimit(options: RateLimitOptions = {}) {
   } = options
 
   return async function middleware(request: NextRequest) {
-    const ip = request.ip ?? '127.0.0.1'
+    const ip = (request as any).ip ?? '127.0.0.1'
 
     try {
       const { success, limit, reset, remaining } = await limiter.limit(ip)

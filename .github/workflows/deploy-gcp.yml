@@ -35,7 +35,6 @@ jobs:
       - name: Run unit tests
         working-directory: web
         run: npm run test:unit -- --silent
-        continue-on-error: true
 
   deploy:
     needs: test

@@ -1,0 +1,23 @@
+.PHONY: deploy pull build restart status logs
+
+deploy: pull  ## Pull latest image and deploy
+pull:
+	./deploy.sh pull
+
+build:  ## Build locally and deploy
+	./deploy.sh build
+
+update:  ## Git pull + build + deploy
+	./deploy.sh update
+
+restart:  ## Restart service
+	./deploy.sh restart
+
+status:  ## Show status
+	./deploy.sh status
+
+logs:  ## Tail logs
+	./deploy.sh logs
+
+health:  ## Health check
+	@curl -sk https://paragu-ai.com/api/health | python3 -m json.tool

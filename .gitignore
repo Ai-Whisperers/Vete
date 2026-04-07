@@ -93,3 +93,4 @@ archive/
 *.patch
 
 # (inventory domain layer now complete - removed from ignore)
+.env.production

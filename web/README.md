@@ -324,3 +324,4 @@ Private - All rights reserved
 ---
 
 *Last updated: January 2026*
+<!-- AIW code agent smoke test marker 2026-04-09T12:47:50-03:00 — safe to remove -->

@@ -353,10 +353,5 @@
       "500_message": "Ocurrio un error. Intenta nuevamente.",
       "go_home": "Volver al Inicio"
     }
-  },
-  "_consolidation_source": {
-    "from_repo": "Ai-Whisperers/fun4me-store",
-    "merged_at": "2026-04-09",
-    "note": "Real contact data sourced from fun4me-store/src/lib/constants.ts. Code-level features (admin panel, product catalog in Supabase, cart) remain in fun4me-store repo pending platform-level consolidation."
   }
 }

@@ -48,6 +48,22 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY web/ ./
 
+# -----------------------------------------------------------------------------
+# Build-time public env vars (inlined into client JS bundle)
+# NEXT_PUBLIC_* vars MUST be present at build time — runtime env is too late.
+# Pass values via: docker build --build-arg NEXT_PUBLIC_SUPABASE_URL=... .
+# deploy.sh reads /root/vete/.env.production and forwards them.
+# -----------------------------------------------------------------------------
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_BASE_URL=https://paragu-ai.com
+ARG NEXT_PUBLIC_SENTRY_DSN=
+
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+
 # Set build-time environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production

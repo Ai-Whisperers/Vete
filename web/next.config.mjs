@@ -20,20 +20,20 @@ const isDev = process.env.NODE_ENV === 'development';
 const ContentSecurityPolicy = isDev
   ? `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
 img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://acdn-us.mitiendanube.com https://adimax.com.br https://agropecuariaelproductor.com https://budgetvetcare.b-cdn.net https://canadapetcare.b-cdn.net https://koniglab.com https://mma.prnewswire.com https://naricitas.pet https://www.alisul.com.br https://www.ciudaddemascotas.com https://www.direct4pet.co.uk https://www.farmina.com https://www.ferplast.com https://www.msd-animal-health-hub.co.uk https://www.nutrire.ind.br https://www.pedigree.com.mx https://www.petshed.com https://www.schroedercia.com.py https://www.vetoquinolusa.com https://placehold.co;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://cloudflareinsights.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
   `
   : `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com;
+    script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; script-src-elem 'self' 'unsafe-inline' https://static.cloudflareinsights.com;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
     img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py https://images.pexels.com https://acdn-us.mitiendanube.com https://adimax.com.br https://agropecuariaelproductor.com https://budgetvetcare.b-cdn.net https://canadapetcare.b-cdn.net https://koniglab.com https://mma.prnewswire.com https://naricitas.pet https://www.alisul.com.br https://www.ciudaddemascotas.com https://www.direct4pet.co.uk https://www.farmina.com https://www.ferplast.com https://www.msd-animal-health-hub.co.uk https://www.nutrire.ind.br https://www.pedigree.com.mx https://www.petshed.com https://www.schroedercia.com.py https://www.vetoquinolusa.com https://placehold.co;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://cloudflareinsights.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
   `;
 

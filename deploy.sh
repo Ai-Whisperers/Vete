@@ -11,7 +11,16 @@ case $ACTION in
   build)
     echo "Building Docker image locally..."
     cd /root/vete
-    docker build -t $IMAGE .
+    # Source .env.production so NEXT_PUBLIC_* vars are available as build args
+    if [ -f .env.production ]; then
+      set -a; source .env.production; set +a
+    fi
+    docker build \
+      --build-arg NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-}" \
+      --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" \
+      --build-arg NEXT_PUBLIC_BASE_URL="${NEXT_PUBLIC_BASE_URL:-https://paragu-ai.com}" \
+      --build-arg NEXT_PUBLIC_SENTRY_DSN="${NEXT_PUBLIC_SENTRY_DSN:-}" \
+      -t $IMAGE .
     echo "Pushing to GHCR..."
     docker push $IMAGE
     echo "Updating service..."
@@ -32,7 +41,16 @@ case $ACTION in
     cd /root/vete
     git pull origin main
     echo "Building and deploying..."
-    docker build -t $IMAGE .
+    # Source .env.production so NEXT_PUBLIC_* vars are available as build args
+    if [ -f .env.production ]; then
+      set -a; source .env.production; set +a
+    fi
+    docker build \
+      --build-arg NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-}" \
+      --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" \
+      --build-arg NEXT_PUBLIC_BASE_URL="${NEXT_PUBLIC_BASE_URL:-https://paragu-ai.com}" \
+      --build-arg NEXT_PUBLIC_SENTRY_DSN="${NEXT_PUBLIC_SENTRY_DSN:-}" \
+      -t $IMAGE .
     docker push $IMAGE
     docker service update --image $IMAGE vete_web --force
     ;;

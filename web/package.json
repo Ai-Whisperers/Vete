@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "paragu-ai-web",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -114,7 +114,7 @@
     "seed:demo-data:all": "npx tsx db/seeds/scripts/seed-demo-data.ts --tenants terrapet,petlife --verbose",
     "demo:reset": "npx tsx scripts/reset-demo-clinic.ts",
     "demo:seed": "npx tsx scripts/seed-demo-clinic.ts",
-    "demo:prep": "npm run demo:reset && echo '\n🎬 Demo ready! Access: [domain]/terapet'",
+    "demo:prep": "npm run demo:reset && echo '\n\ud83c\udfac Demo ready! Access: [domain]/terapet'",
     "db:fixes": "node db/setup-db.mjs fixes",
     "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1",
     "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force",

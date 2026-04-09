@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "title": "Nuestros Productos",
+    "subtitle": "Huevos frescos, pollos y fertilizante — disponibilidad diaria"
+  },
+  "services": [
+    {
+      "id": "eggs-30",
+      "visible": true,
+      "category": "eggs",
+      "title": "Maple de Huevos (30 uds)",
+      "icon": "egg",
+      "summary": "Huevos frescos del día, clasificados por tamaño",
+      "details": {
+        "description": "Maple estándar de 30 huevos frescos, recolectados el mismo día. Disponible en tamaños S, M, L y XL.",
+        "includes": [
+          "Recolección diaria",
+          "Clasificación por tamaño",
+          "Empaque reutilizable"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Mediano (M)",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Tamaño estándar"
+        },
+        {
+          "name": "Grande (L)",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Tamaño grande"
+        },
+        {
+          "name": "Extra Grande (XL)",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Tamaño jumbo"
+        }
+      ]
+    },
+    {
+      "id": "eggs-wholesale",
+      "visible": true,
+      "category": "eggs",
+      "title": "Venta Mayorista",
+      "icon": "boxes-stacked",
+      "summary": "Pedidos por cajas — supermercados, panaderías, hoteles, restaurantes",
+      "details": {
+        "description": "Servicio mayorista con entrega regular. Precios preferenciales por volumen. Ideal para negocios en Coronel Oviedo y Ruta 2."
+      },
+      "variants": [
+        {
+          "name": "Por caja (360 uds)",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Precio según volumen"
+        }
+      ]
+    },
+    {
+      "id": "poultry",
+      "visible": true,
+      "category": "meat",
+      "title": "Pollos de Carne",
+      "icon": "drumstick-bite",
+      "summary": "Pollos criados en la granja, listos para faena",
+      "details": {
+        "description": "Pollos de carne de nuestra propia crianza."
+      },
+      "variants": [
+        {
+          "name": "Por unidad",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "fertilizer",
+      "visible": true,
+      "category": "agro",
+      "title": "Fertilizante Orgánico",
+      "icon": "leaf",
+      "summary": "Guano procesado de gallinero — fertilizante natural",
+      "details": {
+        "description": "Abono orgánico de alta calidad proveniente de nuestro gallinero. Ideal para cultivos y huertas."
+      },
+      "variants": [
+        {
+          "name": "Por bolsa",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ]
+    }
+  ]
+}

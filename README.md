@@ -1,6 +1,25 @@
-# Vete - Multi-Tenant Veterinary Platform
+# Paragu-AI — Multi-Tenant Business Website Platform
 
-A SaaS veterinary clinic management platform built with Next.js 15, Supabase, and TypeScript. Hosts multiple clinics from a single codebase using dynamic routing and a JSON-based CMS.
+> **Formerly "Vete".** SaaS platform that powers professional websites for service businesses across Paraguay — veterinary clinics, cafes, farms, salons, clinics, and more — from a single Next.js 15 + Supabase codebase with a JSON-based per-tenant CMS.
+
+**What you get per tenant:**
+- Landing page with brand theme (colors, fonts, logo)
+- Modular page templates: `home`, `about`, `services`/`products`, `menu`, `faq`, `legal`, `testimonials`, `gallery`
+- Optional modules: online store, booking, delivery, wholesale catalog, interactive tools
+- Custom domain + Vercel subdomain via `domains.json`
+- Row-level security (RLS) per tenant in Supabase
+
+**Current tenants:**
+| Slug               | Business              | Vertical          | Status  |
+|--------------------|-----------------------|-------------------|---------|
+| `terrapet`         | Terrapet              | Veterinary clinic | active  |
+| `petlife`          | PetLife               | Veterinary clinic | active  |
+| `CavillPet`        | CavillPet             | Veterinary clinic | active  |
+| `fun4me`           | Fun4Me Store          | Retail / adult    | active  |
+| `stroopwafel-huis` | Stroopwafel Huis      | Dutch cafe        | new     |
+| `granja-cabral`    | Granja Cabral         | Avian farm (eggs) | new     |
+
+---
 
 ## 🚀 Quick Start
 

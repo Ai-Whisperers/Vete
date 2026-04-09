@@ -1,0 +1,76 @@
+{
+  "id": "granja-cabral",
+  "name": "Granja Cabral",
+  "tagline": "Del campo a tu mesa",
+  "contact": {
+    "whatsapp_number": "595900000000",
+    "phone_display": "+595 900 000 000",
+    "email": "contacto@granjacabral.com.py",
+    "address": "Ruta 2, Coronel Oviedo, Caaguazú",
+    "city": "Coronel Oviedo",
+    "country": "Paraguay",
+    "google_maps_id": ""
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "tiktok": "",
+    "youtube": ""
+  },
+  "hours": {
+    "weekdays": "07:00 - 17:00",
+    "saturday": "07:00 - 12:00",
+    "sunday": "Cerrado",
+    "holidays": "Cerrado"
+  },
+  "settings": {
+    "currency": "PYG",
+    "currency_symbol": "Gs",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "modules": {
+      "toxic_checker": false,
+      "age_calculator": false,
+      "online_store": true,
+      "booking": false,
+      "menu": false,
+      "services_page": false,
+      "products_page": true,
+      "wholesale_catalog": true,
+      "delivery": true
+    }
+  },
+  "branding": {
+    "logo_url": "/branding/granja-cabral/images/logo.svg",
+    "logo_dark_url": "/branding/granja-cabral/images/logo-white.svg",
+    "logo_width": 160,
+    "logo_height": 48,
+    "favicon_url": "/branding/granja-cabral/images/favicon.ico",
+    "hero_image_url": "/branding/granja-cabral/images/hero-bg.jpg",
+    "og_image_url": "/branding/granja-cabral/images/og-image.jpg"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "products": "Productos",
+      "about": "La Granja",
+      "contact": "Contacto",
+      "book_btn": "Hacer Pedido"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados. Familia Cabral — Coronel Oviedo, Paraguay."
+    },
+    "home": {
+      "visit_us": "Visítanos"
+    },
+    "products": {
+      "wholesale_badge": "Precio Mayorista",
+      "retail_badge": "Precio Minorista",
+      "size_label": "Tamaño"
+    },
+    "about": {
+      "team_title": "Nuestra Familia"
+    }
+  }
+}

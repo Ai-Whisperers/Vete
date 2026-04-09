@@ -1,0 +1,20 @@
+{
+  "intro": {
+    "title": "Sobre la Clínica",
+    "text": "Con más de 26 años dedicados a la odontología, el Dr. Victor Duerksen ha transformado miles de sonrisas en Asunción. Su compromiso con la excelencia y la formación continua garantizan un cuidado dental de primer nivel para cada paciente. Atendemos en el Centro Médico Bautista, ofreciendo odontología integral con tecnología de vanguardia."
+  },
+  "team": [
+    {
+      "name": "Dr. Victor Duerksen",
+      "role": "Odontólogo — Director",
+      "bio": "Más de 26 años de experiencia clínica. Especialista en implantes y prótesis. Formación continua internacional. Atención en Centro Médico Bautista. Tecnología de diagnóstico digital."
+    }
+  ],
+  "credentials": [
+    "Más de 26 años de experiencia clínica",
+    "Especialista en implantes y prótesis",
+    "Formación continua internacional",
+    "Atención en Centro Médico Bautista",
+    "Tecnología de diagnóstico digital"
+  ]
+}

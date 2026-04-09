@@ -1,0 +1,32 @@
+[
+  {
+    "id": "delivery-zones",
+    "category": "entrega",
+    "question": "¿A qué zonas entregan?",
+    "answer": "Entregamos en Coronel Oviedo y sobre la Ruta 2 hacia Asunción y Ciudad del Este. Para zonas fuera de Ruta 2 consultanos por WhatsApp."
+  },
+  {
+    "id": "wholesale",
+    "category": "mayorista",
+    "question": "¿Hacen venta mayorista?",
+    "answer": "Sí. Trabajamos con supermercados, panaderías, hoteles y restaurantes. Ofrecemos precios preferenciales por volumen y entregas regulares."
+  },
+  {
+    "id": "freshness",
+    "category": "calidad",
+    "question": "¿Qué tan frescos son los huevos?",
+    "answer": "Recolectamos todos los días en la mañana. Los huevos que entregamos tienen menos de 24 horas desde la postura."
+  },
+  {
+    "id": "payment",
+    "category": "pagos",
+    "question": "¿Qué medios de pago aceptan?",
+    "answer": "Efectivo, transferencia bancaria y billeteras electrónicas (Tigo Money, Personal Pay). Para clientes mayoristas ofrecemos crédito según acuerdo."
+  },
+  {
+    "id": "minimum-order",
+    "category": "pedidos",
+    "question": "¿Cuál es el pedido mínimo?",
+    "answer": "Para entregas dentro de Coronel Oviedo el mínimo es 1 maple (30 uds). Para entregas fuera de la ciudad el mínimo varía según distancia — consultanos."
+  }
+]

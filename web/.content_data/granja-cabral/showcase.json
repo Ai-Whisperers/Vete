@@ -1,0 +1,28 @@
+{
+  "displayInShowcase": false,
+  "testimonial": "",
+  "shortTestimonial": "",
+  "joinedDate": "2026-04-09",
+  "metrics": {
+    "appointmentsGrowth": "",
+    "onlineBookingsPercent": "",
+    "patientsRegistered": "",
+    "satisfactionScore": ""
+  },
+  "contactPerson": {
+    "name": "Laura Cabral",
+    "role": "Propietaria",
+    "quote": ""
+  },
+  "specialties": [
+    "Huevos frescos",
+    "Venta mayorista",
+    "Pollos de carne",
+    "Fertilizante orgánico"
+  ],
+  "highlights": [
+    "Granja familiar en Ruta 2",
+    "Recolección diaria",
+    "Entrega a supermercados y panaderías"
+  ]
+}

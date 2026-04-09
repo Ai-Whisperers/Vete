@@ -1,0 +1,99 @@
+{
+  "$comment": "Clínica Duerksen image manifest",
+  "version": "1.0",
+  "basePath": "/branding/clinica-duerksen/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero-bg.jpg",
+        "alt": "Clínica Duerksen — Odontología de excelencia",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "about-hero.jpg",
+        "alt": "Dr. Victor Duerksen",
+        "width": 1920,
+        "height": 1080
+      },
+      "services": {
+        "src": "services-hero.jpg",
+        "alt": "Servicios odontológicos",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "team": {
+      "dr-duerksen": {
+        "src": "team/dr-victor-duerksen.jpg",
+        "alt": "Dr. Victor Duerksen",
+        "width": 400,
+        "height": 533
+      }
+    },
+    "facilities": {
+      "reception": {
+        "src": "facilities/reception.jpg",
+        "alt": "Recepción",
+        "width": 800,
+        "height": 600
+      },
+      "consultation": {
+        "src": "facilities/consultation.jpg",
+        "alt": "Consultorio",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "services": {
+      "implants": {
+        "src": "services/implants.jpg",
+        "alt": "Implantes dentales",
+        "width": 800,
+        "height": 600
+      },
+      "orthodontics": {
+        "src": "services/orthodontics.jpg",
+        "alt": "Ortodoncia",
+        "width": 800,
+        "height": 600
+      },
+      "aesthetics": {
+        "src": "services/aesthetics.jpg",
+        "alt": "Estética dental",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.svg",
+        "alt": "Clínica Duerksen logo",
+        "width": 300,
+        "height": 112
+      },
+      "logo-dark": {
+        "src": "logo-white.svg",
+        "alt": "Clínica Duerksen logo (dark)",
+        "width": 300,
+        "height": 112
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "Clínica Duerksen — Open Graph",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  },
+  "placeholders": {
+    "team": "/images/placeholders/team-placeholder.jpg",
+    "service": "/images/placeholders/service-placeholder.jpg"
+  }
+}

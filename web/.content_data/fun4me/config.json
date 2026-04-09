@@ -3,8 +3,8 @@
   "name": "Fun4Me",
   "tagline": "Tu tienda de placer - Hacemos delivery a todo el pais",
   "contact": {
-    "whatsapp_number": "595981000000",
-    "phone_display": "+595 981 000 000",
+    "whatsapp_number": "595976569739",
+    "phone_display": "+595 976 569 739",
     "email": "hola@fun4me.com.py",
     "address": "Herrera 875",
     "city": "Asuncion",
@@ -37,7 +37,13 @@
     "insurance_providers": [],
     "delivery_enabled": true,
     "delivery_minimum": 200000,
-    "delivery_zones": ["Asuncion", "Fernando de la Mora", "San Lorenzo", "Lambare", "Luque"],
+    "delivery_zones": [
+      "Asuncion",
+      "Fernando de la Mora",
+      "San Lorenzo",
+      "Lambare",
+      "Luque"
+    ],
     "modules": {
       "toxic_checker": false,
       "age_calculator": false,
@@ -347,5 +353,10 @@
       "500_message": "Ocurrio un error. Intenta nuevamente.",
       "go_home": "Volver al Inicio"
     }
+  },
+  "_consolidation_source": {
+    "from_repo": "Ai-Whisperers/fun4me-store",
+    "merged_at": "2026-04-09",
+    "note": "Real contact data sourced from fun4me-store/src/lib/constants.ts. Code-level features (admin panel, product catalog in Supabase, cart) remain in fun4me-store repo pending platform-level consolidation."
   }
 }

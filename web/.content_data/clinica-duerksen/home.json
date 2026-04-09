@@ -1,0 +1,53 @@
+{
+  "hero": {
+    "headline": "Tu sonrisa en las mejores manos",
+    "subhead": "Más de 26 años brindando atención odontológica de excelencia en Asunción",
+    "cta_primary": "Agendá tu cita",
+    "cta_secondary": "Conocenos"
+  },
+  "features": [
+    {
+      "icon": "award",
+      "title": "26+ Años de Experiencia",
+      "text": "Más de dos décadas transformando sonrisas en Asunción."
+    },
+    {
+      "icon": "star",
+      "title": "5.0 ★ en Google",
+      "text": "Pacientes satisfechos que confían en nuestro trabajo."
+    },
+    {
+      "icon": "building",
+      "title": "Centro Médico Bautista",
+      "text": "Atención en uno de los centros médicos más prestigiosos del país."
+    }
+  ],
+  "trust_bar": [
+    {
+      "value": "26+",
+      "label": "Años de Experiencia"
+    },
+    {
+      "value": "5.0 ★",
+      "label": "en Google"
+    },
+    {
+      "value": "Centro Médico",
+      "label": "Bautista"
+    }
+  ],
+  "promo_banner": {
+    "enabled": false,
+    "text": "",
+    "link": ""
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Opiniones de nuestros pacientes",
+    "subtitle": ""
+  },
+  "seo": {
+    "meta_title": "Clínica Duerksen | Odontología de Excelencia en Asunción",
+    "meta_description": "Clínica dental del Dr. Victor Duerksen en Asunción, Paraguay. Implantes dentales, ortodoncia, estética dental y más. Atención personalizada con tecnología de vanguardia."
+  }
+}

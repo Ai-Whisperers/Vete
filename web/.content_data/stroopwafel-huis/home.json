@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "headline": "Verse Stroopwafels & Specialty Coffee",
+    "subhead": "La primera cafetería holandesa del Paraguay. Stroopwafels frescos hechos frente a vos, todos los días.",
+    "cta_primary": "Ver Menú",
+    "cta_secondary": "Visitanos"
+  },
+  "features": [
+    {
+      "icon": "sparkles",
+      "title": "Hecho al Momento",
+      "text": "Cada stroopwafel se presiona, rellena y decora frente a vos. Nada congelado."
+    },
+    {
+      "icon": "coffee",
+      "title": "Specialty Coffee",
+      "text": "Granos de especialidad con barista entrenado. Desde espresso hasta nuestro Stroopwafel Latte exclusivo."
+    },
+    {
+      "icon": "heart",
+      "title": "Ambiente Gezellig",
+      "text": "Un rincón de Holanda en Asunción. Delft Blue, madera cálida y la auténtica hospitalidad holandesa."
+    }
+  ],
+  "promo_banner": {
+    "enabled": true,
+    "text": "🧇 Nuevo en Asunción — Probá nuestro Stroopwafel del Mes",
+    "link": "/menu"
+  },
+  "signature_section": {
+    "title": "¿Qué es un Stroopwafel?",
+    "copy": "Dos capas finas y crujientes de masa, unidas por un relleno caliente de caramelo con canela. Nacido en Holanda en 1784, ahora freshly pressed en Asunción."
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Lo que dicen nuestros clientes",
+    "subtitle": ""
+  },
+  "seo": {
+    "meta_title": "Stroopwafel Huis — Dutch Coffee & Stroopwafels en Asunción",
+    "meta_description": "La primera cafetería holandesa de Paraguay. Stroopwafels frescos hechos al momento + specialty coffee. Gezellig ambiente en Asunción."
+  }
+}

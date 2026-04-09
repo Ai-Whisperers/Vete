@@ -1,0 +1,104 @@
+[
+  {
+    "id": "location",
+    "category": "general",
+    "question": "¿Dónde está ubicada la clínica?",
+    "answer": "Atendemos en el Centro Médico Bautista, Asunción, Paraguay. Contactanos para indicaciones exactas de cómo llegar."
+  },
+  {
+    "id": "hours",
+    "category": "general",
+    "question": "¿Cuál es el horario de atención?",
+    "answer": "Lunes a Viernes de 08:00 a 12:00 y de 14:30 a 18:00. Sábados y domingos cerrado."
+  },
+  {
+    "id": "appointment-needed",
+    "category": "general",
+    "question": "¿Necesito sacar cita previa?",
+    "answer": "Sí, recomendamos agendar tu cita por WhatsApp o teléfono para garantizar disponibilidad y evitar tiempos de espera."
+  },
+  {
+    "id": "emergencies",
+    "category": "general",
+    "question": "¿Atienden emergencias?",
+    "answer": "Sí, durante horario de atención. Para emergencias fuera de horario, enviános un WhatsApp y te responderemos lo antes posible."
+  },
+  {
+    "id": "services-offered",
+    "category": "tratamientos",
+    "question": "¿Qué servicios ofrecen?",
+    "answer": "Odontología general, implantes dentales, ortodoncia, estética dental, endodoncia, prótesis, periodoncia, odontopediatría, cirugía oral y emergencias dentales."
+  },
+  {
+    "id": "pain",
+    "category": "tratamientos",
+    "question": "¿Los tratamientos son dolorosos?",
+    "answer": "No. Utilizamos anestesia moderna y técnicas mínimamente invasivas. La mayoría de nuestros pacientes se sorprenden de lo cómodo que es el tratamiento."
+  },
+  {
+    "id": "implant-duration",
+    "category": "tratamientos",
+    "question": "¿Cuánto dura un implante dental?",
+    "answer": "Con cuidado adecuado, los implantes pueden durar toda la vida. La corona sobre el implante puede necesitar reemplazo después de 15-20 años."
+  },
+  {
+    "id": "orthodontics-age",
+    "category": "tratamientos",
+    "question": "¿Qué edad mínima para ortodoncia?",
+    "answer": "Recomendamos una primera evaluación ortodóntica a los 7 años. El tratamiento activo puede comenzar a cualquier edad."
+  },
+  {
+    "id": "book-appointment",
+    "category": "citas",
+    "question": "¿Cómo agendo una cita?",
+    "answer": "Podés agendar por WhatsApp (más rápido), por teléfono al +595 21 298 755, o completando nuestro formulario de contacto."
+  },
+  {
+    "id": "reschedule",
+    "category": "citas",
+    "question": "¿Puedo cancelar o cambiar mi cita?",
+    "answer": "Sí, te pedimos avisar con al menos 24 horas de anticipación para poder reasignar el horario."
+  },
+  {
+    "id": "consultation-duration",
+    "category": "citas",
+    "question": "¿Cuánto dura una consulta?",
+    "answer": "Una consulta general dura aproximadamente 30-45 minutos. Los tratamientos especializados varían según el procedimiento."
+  },
+  {
+    "id": "payment-methods",
+    "category": "pagos",
+    "question": "¿Qué formas de pago aceptan?",
+    "answer": "Aceptamos efectivo, tarjetas de crédito y débito, y transferencias bancarias."
+  },
+  {
+    "id": "insurance",
+    "category": "pagos",
+    "question": "¿Aceptan seguro médico?",
+    "answer": "Aceptamos IPS y consultanos sobre tu seguro privado específico para verificar cobertura."
+  },
+  {
+    "id": "financing",
+    "category": "pagos",
+    "question": "¿Ofrecen financiamiento?",
+    "answer": "Sí, ofrecemos opciones de pago en cuotas para tratamientos de mayor envergadura. Consultanos para más detalles."
+  },
+  {
+    "id": "broken-tooth",
+    "category": "emergencias",
+    "question": "¿Qué hago si se me rompe un diente?",
+    "answer": "Guardá el fragmento en leche o saliva, aplicá hielo en la zona y contactanos inmediatamente."
+  },
+  {
+    "id": "severe-pain",
+    "category": "emergencias",
+    "question": "Tengo dolor de muela fuerte, ¿qué hago?",
+    "answer": "Tomá ibuprofeno 400mg y contactanos por WhatsApp inmediatamente para atención prioritaria."
+  },
+  {
+    "id": "knocked-out-tooth",
+    "category": "emergencias",
+    "question": "Se me salió un diente por un golpe, ¿qué hago?",
+    "answer": "NO toques la raíz. Enjuagalo suavemente, intentá recolocarlo o guardalo en leche. Contactanos INMEDIATAMENTE — cada minuto cuenta."
+  }
+]

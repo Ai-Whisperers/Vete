@@ -1,0 +1,298 @@
+{
+  "meta": {
+    "title": "Servicios Odontológicos",
+    "subtitle": "Atención dental integral con tecnología de vanguardia para toda la familia"
+  },
+  "services": [
+    {
+      "id": "odontologia-general",
+      "visible": true,
+      "category": "general",
+      "title": "Odontología General y Preventiva",
+      "icon": "stethoscope",
+      "summary": "Limpiezas profesionales, restauraciones, sellantes y cuidado preventivo.",
+      "details": {
+        "description": "Mantenimiento óptimo de tu salud bucal. La prevención es la mejor medicina.",
+        "includes": [
+          "Limpiezas profesionales",
+          "Restauraciones estéticas",
+          "Sellantes dentales",
+          "Control periódico"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta general",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "implantes-dentales",
+      "visible": true,
+      "category": "specialty",
+      "title": "Implantes Dentales",
+      "icon": "smile",
+      "summary": "Restauración permanente con implantes de titanio de última generación.",
+      "details": {
+        "description": "Resultados naturales y duraderos que devuelven tu sonrisa completa.",
+        "includes": [
+          "Titanio biocompatible",
+          "Resultados permanentes",
+          "Aspecto natural",
+          "Función completa"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Implante unitario",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "ortodoncia",
+      "visible": true,
+      "category": "specialty",
+      "title": "Ortodoncia",
+      "icon": "shield",
+      "summary": "Brackets metálicos, estéticos y alineadores invisibles.",
+      "details": {
+        "description": "Corrección de la mordida y alineación dental para todas las edades.",
+        "includes": [
+          "Brackets metálicos y estéticos",
+          "Alineadores invisibles",
+          "Todas las edades",
+          "Seguimiento personalizado"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Tratamiento completo",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "estetica-dental",
+      "visible": true,
+      "category": "aesthetic",
+      "title": "Estética Dental",
+      "icon": "sparkles",
+      "summary": "Blanqueamiento, carillas de porcelana y diseño de sonrisa.",
+      "details": {
+        "description": "Transformá tu sonrisa con resultados espectaculares.",
+        "includes": [
+          "Blanqueamiento láser",
+          "Carillas de porcelana",
+          "Diseño digital de sonrisa",
+          "Resultados inmediatos"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta estética",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "endodoncia",
+      "visible": true,
+      "category": "specialty",
+      "title": "Endodoncia",
+      "icon": "heart",
+      "summary": "Tratamientos de conducto modernos e indoloros.",
+      "details": {
+        "description": "Salvamos dientes dañados con técnicas avanzadas y anestesia de última generación.",
+        "includes": [
+          "Procedimiento indoloro",
+          "Tecnología avanzada",
+          "Salva el diente natural",
+          "Recuperación rápida"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Por conducto",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "protesis-dental",
+      "visible": true,
+      "category": "restorative",
+      "title": "Prótesis Dental",
+      "icon": "zap",
+      "summary": "Prótesis fijas y removibles de alta calidad.",
+      "details": {
+        "description": "Devuelven funcionalidad y estética con materiales premium.",
+        "includes": [
+          "Coronas y puentes",
+          "Prótesis removibles",
+          "Materiales premium",
+          "Ajuste perfecto"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta prótesis",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "periodoncia",
+      "visible": true,
+      "category": "specialty",
+      "title": "Periodoncia",
+      "icon": "scan",
+      "summary": "Tratamiento especializado de encías.",
+      "details": {
+        "description": "Prevención y tratamiento de gingivitis y periodontitis.",
+        "includes": [
+          "Limpieza profunda",
+          "Tratamiento de gingivitis",
+          "Cirugía periodontal",
+          "Mantenimiento preventivo"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta periodoncia",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "odontopediatria",
+      "visible": true,
+      "category": "pediatric",
+      "title": "Odontopediatría",
+      "icon": "baby",
+      "summary": "Cuidado dental especializado para niños.",
+      "details": {
+        "description": "Ambiente amigable y sin miedo para los más pequeños.",
+        "includes": [
+          "Ambiente amigable",
+          "Técnicas sin dolor",
+          "Prevención temprana",
+          "Educación dental"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta pediátrica",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "cirugia-oral",
+      "visible": true,
+      "category": "surgery",
+      "title": "Cirugía Oral",
+      "icon": "siren",
+      "summary": "Extracciones complejas y procedimientos quirúrgicos.",
+      "details": {
+        "description": "Cirugía de terceros molares con tecnología y precisión.",
+        "includes": [
+          "Extracciones complejas",
+          "Terceros molares",
+          "Cirugía menor",
+          "Recuperación guiada"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Consulta quirúrgica",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": false
+      }
+    },
+    {
+      "id": "emergencias-dentales",
+      "visible": true,
+      "category": "emergency",
+      "title": "Emergencias Dentales",
+      "icon": "shield-check",
+      "summary": "Atención rápida para dolor agudo, traumatismos y fracturas.",
+      "details": {
+        "description": "Contactanos inmediatamente por WhatsApp para atención prioritaria.",
+        "includes": [
+          "Atención prioritaria",
+          "Dolor agudo",
+          "Traumatismos dentales",
+          "Fracturas"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Emergencia",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": ""
+        }
+      ],
+      "booking": {
+        "online_enabled": true,
+        "emergency_available": true
+      }
+    }
+  ]
+}

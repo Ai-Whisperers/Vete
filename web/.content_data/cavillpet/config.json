@@ -35,10 +35,18 @@
     "timezone": "America/Asuncion",
     "emergency_24h": true,
     "accepts_insurance": true,
-    "insurance_providers": ["Mascota Segura", "PetPlan"],
+    "insurance_providers": [
+      "Mascota Segura",
+      "PetPlan"
+    ],
     "delivery_enabled": true,
     "delivery_minimum": 150000,
-    "delivery_zones": ["Santa Teresa", "Villa Morra", "Carmelitas", "Manorá"],
+    "delivery_zones": [
+      "Santa Teresa",
+      "Villa Morra",
+      "Carmelitas",
+      "Manorá"
+    ],
     "modules": {
       "toxic_checker": true,
       "age_calculator": true,
@@ -133,31 +141,45 @@
             {
               "age": "45 días (6 semanas)",
               "n": 1,
-              "vaccines": ["Puppy DP (Moquillo, Parvo)"],
+              "vaccines": [
+                "Puppy DP (Moquillo, Parvo)"
+              ],
               "note": "Primera dosis crítica para cachorros."
             },
             {
               "age": "3 meses (12 semanas)",
               "n": 2,
-              "vaccines": ["Séxtuple / Polivalente", "Antirrábica (Obligatoria)"],
+              "vaccines": [
+                "Séxtuple / Polivalente",
+                "Antirrábica (Obligatoria)"
+              ],
               "note": "Ley Nacional en Paraguay. Certificado SENACSA."
             },
             {
               "age": "4 meses (16 semanas)",
               "n": 3,
-              "vaccines": ["Refuerzo Séxtuple"],
+              "vaccines": [
+                "Refuerzo Séxtuple"
+              ],
               "note": "Cierre del esquema primario."
             },
             {
               "age": "Anual",
               "n": 4,
-              "vaccines": ["Séxtuple", "Antirrábica"],
+              "vaccines": [
+                "Séxtuple",
+                "Antirrábica"
+              ],
               "note": "Refuerzo obligatorio cada 12 meses de por vida."
             },
             {
               "age": "Opcional",
               "n": 5,
-              "vaccines": ["Tos de las Perreras (KC)", "Leishmaniasis", "Giardia"],
+              "vaccines": [
+                "Tos de las Perreras (KC)",
+                "Leishmaniasis",
+                "Giardia"
+              ],
               "note": "Recomendado según estilo de vida y zona endémica."
             }
           ],
@@ -165,25 +187,35 @@
             {
               "age": "2 meses (8 semanas)",
               "n": 1,
-              "vaccines": ["Triple Felina (PRC)"],
+              "vaccines": [
+                "Triple Felina (PRC)"
+              ],
               "note": "Panleucopenia, Rinotraqueitis, Calicivirus"
             },
             {
               "age": "3 meses (12 semanas)",
               "n": 2,
-              "vaccines": ["Refuerzo Triple Felina", "Antirrábica"],
+              "vaccines": [
+                "Refuerzo Triple Felina",
+                "Antirrábica"
+              ],
               "note": "Ley Nacional en Paraguay."
             },
             {
               "age": "4 meses (16 semanas)",
               "n": 3,
-              "vaccines": ["Leucemia Felina (FeLV)"],
+              "vaccines": [
+                "Leucemia Felina (FeLV)"
+              ],
               "note": "Requiere test previo. Para gatos que salen al exterior."
             },
             {
               "age": "Anual",
               "n": 4,
-              "vaccines": ["Triple Felina", "Antirrábica"],
+              "vaccines": [
+                "Triple Felina",
+                "Antirrábica"
+              ],
               "note": "Refuerzo obligatorio de por vida."
             }
           ]

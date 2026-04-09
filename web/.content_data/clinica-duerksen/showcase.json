@@ -1,0 +1,29 @@
+{
+  "displayInShowcase": true,
+  "testimonial": "26+ años de excelencia odontológica en Asunción.",
+  "shortTestimonial": "Excelencia odontológica desde 1999.",
+  "joinedDate": "2026-04-06",
+  "metrics": {
+    "appointmentsGrowth": "",
+    "onlineBookingsPercent": "",
+    "patientsRegistered": "",
+    "satisfactionScore": "5.0"
+  },
+  "contactPerson": {
+    "name": "Dr. Victor Duerksen",
+    "role": "Odontólogo — Director",
+    "quote": "Tu sonrisa en las mejores manos."
+  },
+  "specialties": [
+    "Implantes Dentales",
+    "Ortodoncia",
+    "Estética Dental",
+    "Odontopediatría"
+  ],
+  "highlights": [
+    "26+ años de experiencia",
+    "5.0 ★ en Google",
+    "Centro Médico Bautista",
+    "i18n es/en/pt"
+  ]
+}

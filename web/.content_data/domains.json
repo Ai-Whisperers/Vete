@@ -45,7 +45,7 @@
     },
     {
       "domain": "cavillpet.vetic.vercel.app",
-      "tenant": "CavillPet",
+      "tenant": "cavillpet",
       "type": "subdomain",
       "provider": "vercel",
       "ssl": {
@@ -125,6 +125,30 @@
         "autoRenew": true
       },
       "status": "pending",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "clinicaduerksen.com.py",
+      "tenant": "clinica-duerksen",
+      "type": "primary",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "pending",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "clinica-duerksen.vetic.vercel.app",
+      "tenant": "clinica-duerksen",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
       "createdAt": "2026-04-09T00:00:00Z"
     }
   ],

@@ -1,0 +1,84 @@
+{
+  "id": "clinica-duerksen",
+  "name": "Clínica Duerksen",
+  "tagline": "Odontología de excelencia en Asunción",
+  "contact": {
+    "whatsapp_number": "59521298755",
+    "phone_display": "+595 21 298 755",
+    "email": "info@clinicaduerksen.com.py",
+    "address": "Centro Médico Bautista, Asunción",
+    "city": "Asunción",
+    "country": "Paraguay",
+    "google_maps_id": ""
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "tiktok": "",
+    "youtube": ""
+  },
+  "hours": {
+    "weekdays": "08:00 - 12:00 / 14:30 - 18:00",
+    "saturday": "Cerrado",
+    "sunday": "Cerrado",
+    "holidays": "Cerrado"
+  },
+  "settings": {
+    "currency": "PYG",
+    "currency_symbol": "Gs",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "modules": {
+      "toxic_checker": false,
+      "age_calculator": false,
+      "online_store": false,
+      "booking": true,
+      "menu": false,
+      "services_page": true,
+      "smile_assessment": true,
+      "treatment_comparison": true,
+      "dental_tourism": true
+    },
+    "locales": [
+      "es",
+      "en",
+      "pt"
+    ]
+  },
+  "branding": {
+    "logo_url": "/branding/clinica-duerksen/images/logo.svg",
+    "logo_dark_url": "/branding/clinica-duerksen/images/logo-white.svg",
+    "logo_width": 180,
+    "logo_height": 48,
+    "favicon_url": "/branding/clinica-duerksen/images/favicon.ico",
+    "hero_image_url": "/branding/clinica-duerksen/images/hero-bg.jpg",
+    "og_image_url": "/branding/clinica-duerksen/images/og-image.jpg"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "about": "Sobre Nosotros",
+      "gallery": "Galería",
+      "contact": "Contacto",
+      "book_btn": "Agendá tu cita"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados."
+    },
+    "home": {
+      "visit_us": "Visitanos"
+    },
+    "services": {
+      "online_badge": "Disponible",
+      "description_label": "Descripción:",
+      "includes_label": "Incluye:",
+      "book_floating_btn": "Agendá tu cita"
+    },
+    "about": {
+      "team_title": "Nuestro Equipo"
+    }
+  }
+}

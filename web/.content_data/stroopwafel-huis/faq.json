@@ -1,0 +1,38 @@
+[
+  {
+    "id": "what-is-stroopwafel",
+    "category": "producto",
+    "question": "¿Qué es un stroopwafel?",
+    "answer": "Es una galleta tradicional holandesa: dos capas finas y crujientes de masa unidas por un relleno de caramelo caliente con canela. Inventado en 1784 en Gouda, Países Bajos."
+  },
+  {
+    "id": "fresh-made",
+    "category": "producto",
+    "question": "¿Los stroopwafels son realmente hechos en el momento?",
+    "answer": "Sí. Cada stroopwafel se presiona, abre, rellena y decora frente a vos. Nada congelado, nada prehecho."
+  },
+  {
+    "id": "delivery",
+    "category": "pedidos",
+    "question": "¿Hacen delivery?",
+    "answer": "Sí, trabajamos con PedidosYa y delivery propio en zona Asunción. Los stroopwafels premium se empacan para mantener la frescura."
+  },
+  {
+    "id": "payment",
+    "category": "pagos",
+    "question": "¿Qué medios de pago aceptan?",
+    "answer": "Aceptamos efectivo, tarjetas de débito y crédito, y transferencia bancaria."
+  },
+  {
+    "id": "events",
+    "category": "eventos",
+    "question": "¿Hacen catering o eventos?",
+    "answer": "Sí. Ofrecemos estaciones de stroopwafels para eventos, cumpleaños y empresas. Contactanos por WhatsApp para cotización."
+  },
+  {
+    "id": "dutch-words",
+    "category": "cultura",
+    "question": "¿Qué significa 'Huis' y 'gezellig'?",
+    "answer": "'Huis' significa 'casa' en holandés. 'Gezellig' es una palabra sin traducción directa — significa acogedor, cálido, con buena compañía. Es la esencia de nuestra cafetería."
+  }
+]

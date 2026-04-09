@@ -1,0 +1,13 @@
+{
+  "intro": {
+    "title": "Nuestra Historia",
+    "text": "Granja Cabral es una granja avícola familiar ubicada sobre la Ruta 2, en Coronel Oviedo, dedicada a la producción de huevos frescos de alta calidad. Criamos nuestras gallinas con cuidado y respeto, alimentándolas con los mejores ingredientes para producir huevos nutritivos y deliciosos. Cada huevo que vendemos es recolectado, seleccionado y entregado fresco — del campo a tu mesa."
+  },
+  "team": [
+    {
+      "name": "Familia Cabral",
+      "role": "Propietarios",
+      "bio": "Más de una década dedicados a la producción avícola familiar en Coronel Oviedo."
+    }
+  ]
+}

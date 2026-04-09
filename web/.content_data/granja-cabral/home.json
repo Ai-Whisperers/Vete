@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "headline": "Huevos Frescos de Granja, Todos los Días",
+    "subhead": "Granja Cabral — Huevos de calidad directo del campo a tu mesa. Coronel Oviedo, Ruta 2.",
+    "cta_primary": "Ver Productos",
+    "cta_secondary": "Hacer Pedido"
+  },
+  "features": [
+    {
+      "icon": "egg",
+      "title": "Frescura Garantizada",
+      "text": "Recolectados todos los días. Del gallinero al cliente en menos de 24 horas."
+    },
+    {
+      "icon": "leaf",
+      "title": "Alimentación Natural",
+      "text": "Nuestras gallinas se alimentan con balanceados de calidad y cuidado familiar."
+    },
+    {
+      "icon": "truck",
+      "title": "Entrega Directa",
+      "text": "Servimos a supermercados, panaderías, restaurantes y hoteles en Ruta 2 y alrededores."
+    }
+  ],
+  "promo_banner": {
+    "enabled": true,
+    "text": "🥚 Pedidos mayoristas disponibles — Contactanos por WhatsApp",
+    "link": "#contacto"
+  },
+  "products_section": {
+    "title": "Nuestros Productos",
+    "subtitle": "Huevos frescos, pollos de carne y fertilizante orgánico"
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Nuestros Clientes",
+    "subtitle": "Lo que dicen quienes confían en nosotros"
+  },
+  "seo": {
+    "meta_title": "Granja Cabral — Huevos Frescos en Coronel Oviedo | Ruta 2",
+    "meta_description": "Granja avícola familiar en Coronel Oviedo. Huevos frescos diarios, pollos de carne y fertilizante. Venta mayorista y minorista. Ruta 2, Paraguay."
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "title": "Nuestro Menú",
+    "subtitle": "Stroopwafels frescos, café de especialidad y treats holandeses"
+  },
+  "services": [
+    {
+      "id": "classic-stroopwafel",
+      "visible": true,
+      "category": "stroopwafels",
+      "title": "Classic Stroopwafel",
+      "icon": "cookie",
+      "summary": "Fresh-pressed, relleno de caramelo tibio con canela",
+      "details": {
+        "description": "Nuestra versión clásica del stroopwafel tradicional holandés, hecho frente a vos.",
+        "includes": [
+          "Presionado al momento",
+          "Caramelo con canela caliente"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Unidad",
+          "price_display": "15.000 Gs",
+          "price_value": 15000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "double-stroopwafel",
+      "visible": true,
+      "category": "stroopwafels",
+      "title": "Double Stroopwafel",
+      "icon": "cookie",
+      "summary": "Dos apilados con caramelo extra",
+      "details": {
+        "description": "Para los verdaderos amantes del caramelo."
+      },
+      "variants": [
+        {
+          "name": "Unidad",
+          "price_display": "25.000 Gs",
+          "price_value": 25000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "nutella-banana",
+      "visible": true,
+      "category": "premium",
+      "title": "Nutella & Banana",
+      "icon": "cookie",
+      "summary": "Nutella drizzle + banana fresca (Van Wonderen style)",
+      "details": {
+        "description": "Stroopwafel premium estilo Van Wonderen con Nutella y banana fresca."
+      },
+      "variants": [
+        {
+          "name": "Unidad",
+          "price_display": "28.000 Gs",
+          "price_value": 28000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "dulce-de-leche",
+      "visible": true,
+      "category": "premium",
+      "title": "Dulce de Leche",
+      "icon": "cookie",
+      "summary": "Twist local — dulce de leche + coco",
+      "details": {
+        "description": "Nuestra versión paraguaya con dulce de leche artesanal."
+      },
+      "variants": [
+        {
+          "name": "Unidad",
+          "price_display": "25.000 Gs",
+          "price_value": 25000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "stroopwafel-latte",
+      "visible": true,
+      "category": "coffee",
+      "title": "Stroopwafel Latte",
+      "icon": "coffee",
+      "summary": "Latte con nuestro sirope de stroopwafel casero",
+      "details": {
+        "description": "Nuestra bebida signature. Espresso doble, leche vaporizada, y sirope de stroopwafel hecho en casa."
+      },
+      "variants": [
+        {
+          "name": "Caliente",
+          "price_display": "25.000 Gs",
+          "price_value": 25000,
+          "description": ""
+        },
+        {
+          "name": "Frío",
+          "price_display": "27.000 Gs",
+          "price_value": 27000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "cappuccino",
+      "visible": true,
+      "category": "coffee",
+      "title": "Cappuccino",
+      "icon": "coffee",
+      "summary": "Espresso clásico con leche vaporizada",
+      "details": {
+        "description": "Cappuccino tradicional con arte latte."
+      },
+      "variants": [
+        {
+          "name": "Regular",
+          "price_display": "18.000 Gs",
+          "price_value": 18000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "poffertjes",
+      "visible": true,
+      "category": "dutch-treats",
+      "title": "Poffertjes (8 uds)",
+      "icon": "utensils",
+      "summary": "Mini pancakes holandeses con manteca y azúcar impalpable",
+      "details": {
+        "description": "Los pancakes miniatura tradicionales de Holanda, servidos calentitos."
+      },
+      "variants": [
+        {
+          "name": "Clásicos",
+          "price_display": "22.000 Gs",
+          "price_value": 22000,
+          "description": ""
+        },
+        {
+          "name": "Deluxe (+Nutella+frutas)",
+          "price_display": "28.000 Gs",
+          "price_value": 28000,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "appeltaart",
+      "visible": true,
+      "category": "dutch-treats",
+      "title": "Appeltaart",
+      "icon": "pie",
+      "summary": "Dutch apple pie — especiada, profunda, con crema",
+      "details": {
+        "description": "La tarta de manzana holandesa tradicional."
+      },
+      "variants": [
+        {
+          "name": "Porción",
+          "price_display": "20.000 Gs",
+          "price_value": 20000,
+          "description": ""
+        }
+      ]
+    }
+  ]
+}

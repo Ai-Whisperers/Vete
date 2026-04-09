@@ -1,0 +1,74 @@
+{
+  "id": "stroopwafel-huis",
+  "name": "Stroopwafel Huis",
+  "tagline": "Verse Stroopwafels & Specialty Coffee",
+  "contact": {
+    "whatsapp_number": "595981000000",
+    "phone_display": "+595 981 000 000",
+    "email": "hola@stroopwafelhuis.com.py",
+    "address": "Asunción, Paraguay",
+    "city": "Asunción",
+    "country": "Paraguay",
+    "google_maps_id": ""
+  },
+  "social": {
+    "instagram": "https://instagram.com/stroopwafelhuis",
+    "facebook": "",
+    "tiktok": "",
+    "youtube": ""
+  },
+  "hours": {
+    "weekdays": "07:30 - 20:00",
+    "saturday": "08:00 - 21:00",
+    "sunday": "08:00 - 18:00",
+    "holidays": "Ver redes sociales"
+  },
+  "settings": {
+    "currency": "PYG",
+    "currency_symbol": "Gs",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "modules": {
+      "toxic_checker": false,
+      "age_calculator": false,
+      "online_store": true,
+      "booking": false,
+      "menu": true,
+      "services_page": false,
+      "gallery": true,
+      "delivery": true
+    }
+  },
+  "branding": {
+    "logo_url": "/branding/stroopwafel-huis/images/logo.svg",
+    "logo_dark_url": "/branding/stroopwafel-huis/images/logo-white.svg",
+    "logo_width": 180,
+    "logo_height": 48,
+    "favicon_url": "/branding/stroopwafel-huis/images/favicon.ico",
+    "hero_image_url": "/branding/stroopwafel-huis/images/hero-bg.jpg",
+    "og_image_url": "/branding/stroopwafel-huis/images/og-image.jpg"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "menu": "Menú",
+      "about": "Nosotros",
+      "contact": "Contacto",
+      "book_btn": "Visitanos"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados. Welkom in Paraguay."
+    },
+    "home": {
+      "visit_us": "Visitanos"
+    },
+    "menu": {
+      "category_label": "Categoría",
+      "price_label": "Precio"
+    },
+    "about": {
+      "team_title": "Nuestro Equipo"
+    }
+  }
+}

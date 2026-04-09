@@ -1,0 +1,94 @@
+{
+  "$comment": "Granja Cabral image manifest",
+  "version": "1.0",
+  "basePath": "/branding/granja-cabral/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero-bg.jpg",
+        "alt": "Granja Cabral — Huevos frescos en Coronel Oviedo",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "about-hero.jpg",
+        "alt": "Nuestra granja familiar",
+        "width": 1920,
+        "height": 1080
+      },
+      "products": {
+        "src": "products-hero.jpg",
+        "alt": "Productos de Granja Cabral",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "team": {
+      "$comment": "Add family photos here"
+    },
+    "facilities": {
+      "farm": {
+        "src": "facilities/farm.jpg",
+        "alt": "Vista de la granja",
+        "width": 800,
+        "height": 600
+      },
+      "coop": {
+        "src": "facilities/coop.jpg",
+        "alt": "Gallinero",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "products": {
+      "eggs": {
+        "src": "products/eggs.jpg",
+        "alt": "Huevos frescos clasificados",
+        "width": 800,
+        "height": 600
+      },
+      "maple": {
+        "src": "products/maple.jpg",
+        "alt": "Maple de 30 huevos",
+        "width": 800,
+        "height": 600
+      },
+      "poultry": {
+        "src": "products/poultry.jpg",
+        "alt": "Pollos de carne",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.svg",
+        "alt": "Granja Cabral logo",
+        "width": 300,
+        "height": 112
+      },
+      "logo-dark": {
+        "src": "logo-white.svg",
+        "alt": "Granja Cabral logo (dark bg)",
+        "width": 300,
+        "height": 112
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "Granja Cabral — Open Graph",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  },
+  "placeholders": {
+    "product": "/images/placeholders/product-placeholder.jpg",
+    "team": "/images/placeholders/team-placeholder.jpg"
+  }
+}

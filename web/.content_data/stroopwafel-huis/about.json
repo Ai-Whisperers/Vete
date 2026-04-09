@@ -1,0 +1,18 @@
+{
+  "intro": {
+    "title": "Nuestra Historia",
+    "text": "Stroopwafel Huis nació de un sueño simple: traer un pedacito de Holanda al corazón de Paraguay. El stroopwafel es el snack más querido de los Países Bajos — esa galleta crujiente con caramelo caliente que se derrite sobre tu café. Nosotros quisimos traer esa experiencia aquí. No solo el producto, sino la cultura: el café perfecto, el ambiente 'gezellig', y la tradición de tomarse un momento para disfrutar algo simple, bien hecho. Welkom!"
+  },
+  "team": [
+    {
+      "name": "Bram",
+      "role": "Co-fundador",
+      "bio": "Apasionado por el café de especialidad y la cultura holandesa."
+    },
+    {
+      "name": "Rach",
+      "role": "Co-fundadora",
+      "bio": "Responsable de operaciones y experiencia del cliente."
+    }
+  ]
+}

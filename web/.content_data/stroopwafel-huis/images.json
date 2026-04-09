@@ -1,0 +1,94 @@
+{
+  "$comment": "Stroopwafel Huis image manifest",
+  "version": "1.0",
+  "basePath": "/branding/stroopwafel-huis/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero-bg.jpg",
+        "alt": "Stroopwafel Huis — Dutch coffee & stroopwafels in Asunción",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "about-hero.jpg",
+        "alt": "Nuestra historia holandesa",
+        "width": 1920,
+        "height": 1080
+      },
+      "menu": {
+        "src": "menu-hero.jpg",
+        "alt": "Menú Stroopwafel Huis",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "team": {
+      "$comment": "Add team member photos here"
+    },
+    "facilities": {
+      "interior": {
+        "src": "facilities/interior.jpg",
+        "alt": "Interior con tiles Delft Blue",
+        "width": 800,
+        "height": 600
+      },
+      "press_station": {
+        "src": "facilities/press-station.jpg",
+        "alt": "Estación de prensado de stroopwafels",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "products": {
+      "classic": {
+        "src": "products/classic.jpg",
+        "alt": "Classic Stroopwafel",
+        "width": 800,
+        "height": 600
+      },
+      "premium": {
+        "src": "products/premium.jpg",
+        "alt": "Premium Stroopwafels",
+        "width": 800,
+        "height": 600
+      },
+      "coffee": {
+        "src": "products/coffee.jpg",
+        "alt": "Specialty coffee",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.svg",
+        "alt": "Stroopwafel Huis logo",
+        "width": 300,
+        "height": 112
+      },
+      "logo-dark": {
+        "src": "logo-white.svg",
+        "alt": "Stroopwafel Huis logo (dark bg)",
+        "width": 300,
+        "height": 112
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "Stroopwafel Huis — Open Graph",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  },
+  "placeholders": {
+    "product": "/images/placeholders/product-placeholder.jpg",
+    "team": "/images/placeholders/team-placeholder.jpg"
+  }
+}

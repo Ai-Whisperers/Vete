@@ -1,0 +1,26 @@
+{
+  "displayInShowcase": false,
+  "testimonial": "",
+  "shortTestimonial": "",
+  "joinedDate": "2026-04-09",
+  "metrics": {
+    "appointmentsGrowth": "",
+    "onlineBookingsPercent": "",
+    "patientsRegistered": "",
+    "satisfactionScore": ""
+  },
+  "contactPerson": {
+    "name": "Rach",
+    "role": "Co-fundadora",
+    "quote": ""
+  },
+  "specialties": [
+    "Stroopwafels",
+    "Specialty Coffee",
+    "Dutch Treats"
+  ],
+  "highlights": [
+    "Primera cafetería holandesa en Paraguay",
+    "Hecho al momento frente al cliente"
+  ]
+}

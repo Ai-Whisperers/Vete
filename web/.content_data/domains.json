@@ -66,6 +66,66 @@
       },
       "status": "active",
       "createdAt": "2025-01-31T00:00:00Z"
+    },
+    {
+      "domain": "stroopwafelhuis.com.py",
+      "tenant": "stroopwafel-huis",
+      "type": "primary",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "pending",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "stroopwafel-huis.vetic.vercel.app",
+      "tenant": "stroopwafel-huis",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "granjacabral.com.py",
+      "tenant": "granja-cabral",
+      "type": "primary",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "pending",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "granja-cabral.vetic.vercel.app",
+      "tenant": "granja-cabral",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "fun4me.com.py",
+      "tenant": "fun4me",
+      "type": "primary",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "pending",
+      "createdAt": "2026-04-09T00:00:00Z"
     }
   ],
   "cloudflare": {

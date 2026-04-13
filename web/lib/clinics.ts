@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { cache } from 'react'
 import merge from 'lodash.merge'
 import { validateConfig, validateTheme } from './schemas/clinic-config'
 
@@ -103,7 +104,7 @@ import type {
 
 const CONTENT_DIR = path.join(process.cwd(), '.content_data')
 
-export async function getClinicData(slug: string): Promise<ClinicData | null> {
+const _getClinicData = async (slug: string): Promise<ClinicData | null> => {
   const clinicDir = path.join(CONTENT_DIR, slug)
 
   // Check if clinic exists
@@ -196,6 +197,13 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
     legal: legal || undefined,
   }
 }
+
+/**
+ * Cached clinic data getter - deduplicates within a single request
+ * Uses React cache() to avoid reading the same clinic files multiple times
+ * during a single server render (e.g. layout + page + components)
+ */
+export const getClinicData = cache(_getClinicData)
 
 export async function getAllClinics(): Promise<string[]> {
   if (!fs.existsSync(CONTENT_DIR)) return []

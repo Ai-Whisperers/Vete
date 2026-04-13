@@ -324,3 +324,51 @@ export function successResponse<T>(
     { status }
   );
 }
+
+/**
+ * Paginated API response wrapper
+ * 
+ * Standard shape for list endpoints with pagination metadata.
+ * All list API routes should use this to ensure consistent responses.
+ */
+export interface PaginatedResponse<T> {
+  success: true
+  data: T[]
+  pagination: {
+    page: number
+    pageSize: number
+    total: number
+    totalPages: number
+    hasMore: boolean
+  }
+}
+
+/**
+ * Create a paginated success response
+ * 
+ * @example
+ * ```typescript
+ * return paginatedResponse(pets, { page: 1, pageSize: 20, total: 150 });
+ * ```
+ */
+export function paginatedResponse<T>(
+  data: T[],
+  options: {
+    page: number
+    pageSize: number
+    total: number
+  }
+): NextResponse<PaginatedResponse<T>> {
+  const totalPages = Math.ceil(options.total / options.pageSize)
+  return NextResponse.json({
+    success: true,
+    data,
+    pagination: {
+      page: options.page,
+      pageSize: options.pageSize,
+      total: options.total,
+      totalPages,
+      hasMore: options.page < totalPages,
+    },
+  })
+}

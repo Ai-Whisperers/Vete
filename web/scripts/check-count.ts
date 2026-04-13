@@ -11,7 +11,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
 async function main() {
   const databaseUrl = process.env.DATABASE_URL
   const dbPassword = process.env.DB_PASSWORD
-  const dbHost = process.env.DB_HOST || 'db.okddppczckbjdotrxiev.supabase.co'
+  const dbHost = process.env.DB_HOST || 'db.(${process.env.NEXT_PUBLIC_SUPABASE_URL})'
   const dbUser = process.env.DB_USER || 'postgres'
   const dbName = process.env.DB_NAME || 'postgres'
 

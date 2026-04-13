@@ -100,7 +100,7 @@ async function main() {
 
   // Check for database credentials
   const databaseUrl = process.env.DATABASE_URL
-  const dbHost = process.env.DB_HOST || 'db.okddppczckbjdotrxiev.supabase.co'
+  const dbHost = process.env.DB_HOST || 'db.(${process.env.NEXT_PUBLIC_SUPABASE_URL})'
   const dbPort = parseInt(process.env.DB_PORT || '5432')
   const dbUser = process.env.DB_USER || 'postgres'
   const dbPassword = process.env.DB_PASSWORD

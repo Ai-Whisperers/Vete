@@ -1,18 +1,19 @@
 const { Client } = require('pg')
 
-// Test both direct and pooler connections
 async function testConnections() {
-  const password = 'VetePlatform2024!'
+  const password = process.env.DB_PASSWORD || process.env.DATABASE_URL?.match(/:([^@]+)@/)?.[1]
+  if (!password) {
+    console.error('Error: Set DB_PASSWORD or DATABASE_URL environment variable')
+    process.exit(1)
+  }
 
   console.log('Testing database connections...\n')
-  console.log('Password:', password)
-  console.log('')
 
   // Test 1: Direct connection (may fail due to IPv6)
   console.log('Test 1: Direct connection (IPv6 only)')
   try {
     const client1 = new Client({
-      host: 'db.okddppczckbjdotrxiev.supabase.co',
+      host: 'process.env.DB_HOST || 'localhost'',
       port: 5432,
       user: 'postgres',
       password: password,
@@ -25,7 +26,7 @@ async function testConnections() {
     await client1.end()
     return {
       method: 'direct',
-      host: 'db.okddppczckbjdotrxiev.supabase.co',
+      host: 'process.env.DB_HOST || 'localhost'',
       port: 5432,
       user: 'postgres',
     }
@@ -39,7 +40,7 @@ async function testConnections() {
     const client2 = new Client({
       host: 'aws-0-us-east-1.pooler.supabase.com',
       port: 5432,
-      user: 'postgres.okddppczckbjdotrxiev',
+      user: 'process.env.DB_USER || 'postgres'',
       password: password,
       database: 'postgres',
       ssl: { rejectUnauthorized: false },
@@ -52,7 +53,7 @@ async function testConnections() {
       method: 'session_pooler',
       host: 'aws-0-us-east-1.pooler.supabase.com',
       port: 5432,
-      user: 'postgres.okddppczckbjdotrxiev',
+      user: 'process.env.DB_USER || 'postgres'',
     }
   } catch (e) {
     console.log('  ❌ Session pooler:', e.message)
@@ -64,7 +65,7 @@ async function testConnections() {
     const client3 = new Client({
       host: 'aws-0-us-east-1.pooler.supabase.com',
       port: 6543,
-      user: 'postgres.okddppczckbjdotrxiev',
+      user: 'process.env.DB_USER || 'postgres'',
       password: password,
       database: 'postgres',
       ssl: { rejectUnauthorized: false },
@@ -77,7 +78,7 @@ async function testConnections() {
       method: 'transaction_pooler',
       host: 'aws-0-us-east-1.pooler.supabase.com',
       port: 6543,
-      user: 'postgres.okddppczckbjdotrxiev',
+      user: 'process.env.DB_USER || 'postgres'',
     }
   } catch (e) {
     console.log('  ❌ Transaction pooler:', e.message)

@@ -115,6 +115,7 @@ export default async function BookingPage({
     .from('pets')
     .select('id, name, species, breed')
     .eq('owner_id', user.id)
+  .eq('tenant_id', clinic)
 
   const userPets = pets || []
 

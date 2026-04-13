@@ -108,6 +108,9 @@ export const createConversation = withActionAuth(
     })
 
     if (msgError) {
+      // Clean up the orphaned conversation
+      await supabase.from('conversations').delete().eq('id', conversation.id)
+
       logger.error('Failed to create first message', {
         error: msgError,
         tenant: clinicSlug,

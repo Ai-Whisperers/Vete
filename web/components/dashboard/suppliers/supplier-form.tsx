@@ -43,11 +43,12 @@ interface Supplier {
 
 interface SupplierFormProps {
   supplier?: Supplier | null
+  clinicId: string
   onClose: () => void
   onSuccess: () => void
 }
 
-export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps): React.ReactElement {
+export function SupplierForm({ supplier, clinicId, onClose, onSuccess }: SupplierFormProps): React.ReactElement {
   const { toast } = useToast()
   const isEditing = !!supplier
 
@@ -104,6 +105,7 @@ export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps
 
     try {
       const payload = {
+        tenant_id: clinicId,
         name: formData.name.trim(),
         legal_name: formData.legal_name.trim() || undefined,
         tax_id: formData.tax_id.trim() || undefined,

@@ -300,8 +300,32 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const url = request.nextUrl.clone()
 
   // Redirect authenticated users away from login page
+  // Only redirect if they have a profile for this clinic to avoid loops
   if (user && path.endsWith('/portal/login')) {
     const clinicSlug = path.split('/')[1]
+    
+    // Check if user has a profile for this clinic
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('tenant_id')
+      .eq('id', user.id)
+      .eq('tenant_id', clinicSlug)
+      .maybeSingle()
+
+    if (!profile) {
+      const duration = Math.round(performance.now() - startTime)
+      middlewareLog('info', 'Authenticated user has no profile for this clinic, staying on login', {
+        ...baseLogContext,
+        userId: user.id,
+        duration,
+        path,
+      })
+      // Don't redirect - let them stay on login to sign up or switch account
+      const passThrough = NextResponse.next()
+      passThrough.headers.set('x-request-id', requestId)
+      return passThrough
+    }
+
     // Redirect to /portal which handles role-based routing
     url.pathname = `/${clinicSlug}/portal`
 
@@ -367,18 +391,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 3. Role Check (Authorization)
   if (user && isStaffDashboard) {
     // Staff dashboards are for Staff (vet/admin) only
-    // We need to fetch the profile role.
-    // Optimization: Check metadata first if available, otherwise DB
-    let role = user.user_metadata?.role
-
-    if (!role) {
-      const { data: profile } = await supabase
+    // Always fetch role from DB - never trust user_metadata (client-writable)
+    const { data: _profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
-      role = profile?.role
-    }
+    const role = _profile?.role
 
     if (!['vet', 'admin'].includes(role)) {
       // Forbidden: Redirect to portal or home

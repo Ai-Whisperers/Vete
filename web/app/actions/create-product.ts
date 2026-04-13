@@ -205,7 +205,7 @@ export const createProduct = withActionAuth(
     }
 
     // Insert initial inventory record
-    const { error: inventoryError } = await supabase.from('store_inventory').insert({
+    let { error: inventoryError } = await supabase.from('store_inventory').insert({
       product_id: newProduct.id,
       tenant_id: profile.tenant_id,
       stock_quantity: validData.stock,
@@ -213,12 +213,27 @@ export const createProduct = withActionAuth(
     })
 
     if (inventoryError) {
-      logger.warn('Failed to create initial inventory record', {
-        error: inventoryError.message,
+      logger.warn('Inventory insert failed, retrying...', {
         productId: newProduct.id,
-        tenantId: profile.tenant_id,
+        error: inventoryError.message,
       })
-      // Don't fail - product was created, inventory can be set later
+      const { error: retryError } = await supabase.from('store_inventory').insert({
+        product_id: newProduct.id,
+        tenant_id: profile.tenant_id,
+        stock_quantity: validData.stock,
+        min_stock_level: 0,
+      })
+      inventoryError = retryError
+    }
+
+    if (inventoryError) {
+      logger.error('Failed to create inventory record after retry', {
+        productId: newProduct.id,
+        error: inventoryError.message,
+      })
+      revalidatePath(`/${clinic}/portal/products`)
+      revalidatePath(`/${clinic}/store`)
+      redirect(`/${clinic}/portal/products?success=product_created&warning=inventory_failed`)
     }
 
     revalidatePath(`/${clinic}/portal/products`)

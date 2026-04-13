@@ -57,6 +57,24 @@ export const voidInvoice = withActionAuth(
         })
         return actionError('Error al anular la factura')
       }
+
+      // Cancel associated payments for accounting consistency
+      if (invoice.amount_paid > 0) {
+        const { error: paymentError } = await supabase
+          .from('payments')
+          .update({ status: 'cancelled' })
+          .eq('invoice_id', invoiceId)
+          .eq('tenant_id', profile.tenant_id)
+
+        if (paymentError) {
+          logger.error('Failed to cancel payments on void', {
+            tenantId: profile.tenant_id,
+            invoiceId,
+            error: paymentError instanceof Error ? paymentError.message : String(paymentError),
+          })
+          // Continue - invoice is already voided
+        }
+      }
     }
 
     revalidatePath('/[clinic]/dashboard/invoices')

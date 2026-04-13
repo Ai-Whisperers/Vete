@@ -349,7 +349,7 @@ export const createPetForClient = withActionAuth(
           breed: validData.petBreed,
           sex: validData.petSex,
           weight_kg: validData.petWeight,
-          date_of_birth: validData.petBirthdate,
+          birth_date: validData.petBirthdate,
           color: validData.petColor,
           notes: validData.petNotes,
           created_by: user.id,

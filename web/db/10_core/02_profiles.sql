@@ -466,6 +466,5 @@ CREATE POLICY "Authenticated users view own tenant" ON public.tenants
                 AND profiles.tenant_id = tenants.id
             )
             -- Or public discovery (limited info via column security in views)
-            OR true
         )
     );

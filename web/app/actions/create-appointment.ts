@@ -131,8 +131,10 @@ export async function createAppointment(
   const start = new Date(start_time)
   const end = new Date(start.getTime() + 30 * 60000)
 
-  // Check for Same Pet multiple appointments on same day (Business Rule)
-  // This check stays here as it's a business rule, not a race condition concern
+  // TOCTOU note: The same-day check below is a UX guard only, not a security boundary.
+  // A concurrent request could pass this check before the INSERT executes. The atomic RPC
+  // (create_appointment_atomic) should ideally enforce this constraint server-side as well.
+  // The 'same_pet_same_day' error code is handled after the RPC call to catch race-condition cases.
   const { data: existingAppointments } = await supabase
     .from('appointments')
     .select('id, start_time')
@@ -198,6 +200,16 @@ export async function createAppointment(
         error: result?.error || ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         fieldErrors: {
           start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+        },
+      }
+    }
+
+    if (errorCode === 'same_pet_same_day') {
+      return {
+        success: false,
+        error: result?.error || `${pet.name} ya tiene una cita programada para este día`,
+        fieldErrors: {
+          start_time: 'Ya existe una cita para este día',
         },
       }
     }
@@ -402,6 +414,16 @@ export async function createAppointmentJson(input: {
         error: result?.error || ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         fieldErrors: {
           start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+        },
+      }
+    }
+
+    if (errorCode === 'same_pet_same_day') {
+      return {
+        success: false,
+        error: result?.error || `${pet.name} ya tiene una cita programada para este día`,
+        fieldErrors: {
+          start_time: 'Ya existe una cita para este día',
         },
       }
     }

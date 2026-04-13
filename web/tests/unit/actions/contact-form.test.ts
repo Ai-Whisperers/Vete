@@ -19,7 +19,6 @@ vi.mock('next/headers', () => ({
   })),
 }))
 
-// Mock action rate limiting to always allow
 vi.mock('@/lib/auth/action-rate-limit', () => ({
   checkActionRateLimit: vi.fn(async () => ({ success: true, remaining: 5, retryAfter: 0 })),
   ACTION_RATE_LIMITS: {
@@ -27,6 +26,14 @@ vi.mock('@/lib/auth/action-rate-limit', () => ({
     foundPetReport: { type: 'refund' },
   },
   clearActionRateLimits: vi.fn(),
+}))
+
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(async () => ({
+    from: vi.fn(() => ({
+      insert: vi.fn(() => Promise.resolve({ error: null })),
+    })),
+  })),
 }))
 
 // Import after mocking

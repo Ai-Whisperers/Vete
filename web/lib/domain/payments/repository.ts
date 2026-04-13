@@ -28,7 +28,7 @@ export class PaymentRepository {
       .from('payments')
       .select(`
         *,
-        receiver:profiles!payments_processed_by_fkey(full_name)
+        receiver:profiles!payments_received_by_fkey(full_name)
       `)
       .eq('id', id)
       .eq('tenant_id', tenantId)
@@ -50,7 +50,7 @@ export class PaymentRepository {
       .select('*')
       .eq('invoice_id', invoiceId)
       .eq('tenant_id', tenantId)
-      .order('paid_at', { ascending: false })
+      .order('payment_date', { ascending: false })
 
     if (error) {
       throw new Error(`Error al cargar pagos: ${error.message}`)
@@ -81,8 +81,7 @@ export class PaymentRepository {
       .from('payments')
       .select('*', { count: 'exact' })
       .eq('tenant_id', tenantId)
-      .is('deleted_at', null)
-      .order('paid_at', { ascending: false })
+      .order('payment_date', { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (invoiceId) {
@@ -92,13 +91,13 @@ export class PaymentRepository {
       query = query.eq('status', status)
     }
     if (paymentMethod) {
-      query = query.eq('payment_method', paymentMethod)
+      query = query.eq('payment_method_name', paymentMethod)
     }
     if (fromDate) {
-      query = query.gte('paid_at', fromDate)
+      query = query.gte('payment_date', fromDate)
     }
     if (toDate) {
-      query = query.lte('paid_at', toDate)
+      query = query.lte('payment_date', toDate)
     }
 
     const { data, error, count } = await query
@@ -123,11 +122,11 @@ export class PaymentRepository {
     data: {
       invoice_id: string
       amount: number
-      payment_method: string
+      payment_method_name: string
       payment_reference?: string | null
       status: string
-      paid_at: string
-      processed_by: string
+      payment_date: string
+      received_by: string
       notes?: string | null
     }
   ): Promise<Payment> {
@@ -195,12 +194,27 @@ export class PaymentRepository {
     invoiceId: string,
     tenantId: string
   ): Promise<Refund[]> {
+    const { data: payments, error: paymentsError } = await this.supabase
+      .from('payments')
+      .select('id')
+      .eq('invoice_id', invoiceId)
+      .eq('tenant_id', tenantId)
+
+    if (paymentsError) {
+      throw new Error(`Error al cargar reembolsos: ${paymentsError.message}`)
+    }
+
+    if (!payments || payments.length === 0) {
+      return []
+    }
+
+    const paymentIds = payments.map((p) => p.id)
+
     const { data, error } = await this.supabase
       .from('refunds')
       .select('*')
-      .eq('invoice_id', invoiceId)
-      .eq('tenant_id', tenantId)
-      .order('refunded_at', { ascending: false })
+      .in('payment_id', paymentIds)
+      .order('created_at', { ascending: false })
 
     if (error) {
       throw new Error(`Error al cargar reembolsos: ${error.message}`)
@@ -216,13 +230,11 @@ export class PaymentRepository {
     tenantId: string,
     data: {
       payment_id: string
-      invoice_id: string
       amount: number
       reason: string
-      refund_method: string
       status: string
-      refunded_at: string
       processed_by: string
+      notes?: string | null
     }
   ): Promise<Refund> {
     const { data: refund, error } = await this.supabase
@@ -254,9 +266,8 @@ export class PaymentRepository {
       .select('amount')
       .eq('tenant_id', tenantId)
       .eq('status', 'completed')
-      .gte('paid_at', periodStart)
-      .lte('paid_at', periodEnd)
-      .is('deleted_at', null)
+      .gte('payment_date', periodStart)
+      .lte('payment_date', periodEnd)
 
     if (error) {
       throw new Error(`Error al calcular totales: ${error.message}`)
@@ -282,8 +293,8 @@ export class PaymentRepository {
       .select('amount')
       .eq('tenant_id', tenantId)
       .eq('status', 'completed')
-      .gte('refunded_at', periodStart)
-      .lte('refunded_at', periodEnd)
+      .gte('created_at', periodStart)
+      .lte('created_at', periodEnd)
 
     if (error) {
       throw new Error(`Error al calcular reembolsos: ${error.message}`)

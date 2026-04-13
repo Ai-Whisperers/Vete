@@ -381,6 +381,12 @@ export async function updateStaffSchedule(
 
   // Update entries if provided
   if (data.entries !== undefined) {
+    // Snapshot old entries for rollback if insert fails
+    const { data: oldEntries } = await supabase
+      .from('staff_schedule_entries')
+      .select('*')
+      .eq('schedule_id', scheduleId)
+
     // Delete existing entries
     const { error: deleteError } = await supabase
       .from('staff_schedule_entries')
@@ -414,6 +420,14 @@ export async function updateStaffSchedule(
           scheduleId,
           error: insertError instanceof Error ? insertError.message : String(insertError),
         })
+
+        // Attempt to restore old entries to prevent data loss
+        if (oldEntries && oldEntries.length > 0) {
+          const restoreEntries = oldEntries.map(({ id, ...rest }: { id: string; [key: string]: unknown }) => rest)
+          await supabase.from('staff_schedule_entries').insert(restoreEntries)
+          logger.warn('Restored old schedule entries after insert failure', { scheduleId })
+        }
+
         return { error: 'Error al guardar entradas del horario' }
       }
     }

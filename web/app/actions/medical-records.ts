@@ -22,6 +22,17 @@ export const createMedicalRecord = withActionAuth(
       rr: formData.get('rr') ? Number(formData.get('rr')) : null,
     }
 
+    // Verify pet belongs to the same tenant
+    const { data: pet } = await supabase.from('pets').select('tenant_id').eq('id', petId).single()
+
+    if (!pet) {
+      return actionError('Mascota no encontrada.')
+    }
+
+    if (pet.tenant_id !== profile.tenant_id) {
+      return actionError('No tienes acceso a esta mascota.')
+    }
+
     // Get Files
     const files = formData.getAll('attachments') as File[]
     const uploadedUrls: string[] = []
@@ -41,7 +52,7 @@ export const createMedicalRecord = withActionAuth(
             fileName,
             error: uploadError.message,
           })
-          continue // Skip failed uploads but continue
+          continue
         }
 
         const {
@@ -50,17 +61,6 @@ export const createMedicalRecord = withActionAuth(
 
         uploadedUrls.push(publicUrl)
       }
-    }
-
-    // Verify pet belongs to the same tenant
-    const { data: pet } = await supabase.from('pets').select('tenant_id').eq('id', petId).single()
-
-    if (!pet) {
-      return actionError('Mascota no encontrada.')
-    }
-
-    if (pet.tenant_id !== profile.tenant_id) {
-      return actionError('No tienes acceso a esta mascota.')
     }
 
     // Insert Record

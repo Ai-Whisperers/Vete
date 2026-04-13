@@ -126,7 +126,7 @@ BEGIN
         p_created_by,
         p_vet_id,
         p_service_id,
-        'pending'
+        'scheduled'
     )
     RETURNING id INTO v_appointment_id;
 

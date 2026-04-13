@@ -99,7 +99,7 @@ export function isCustomDomain(host: string): boolean {
   if (domain.includes('vercel-dns.com')) return false
   if (domain.includes('ai-whisperers.org')) return false
 
-  return true
+  return false
 }
 
 /**

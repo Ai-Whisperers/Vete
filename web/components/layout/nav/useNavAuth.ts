@@ -45,7 +45,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   // PERF: If there's a stored session, don't show loading skeleton
   // This gives instant UI while we verify in the background
-  const [isLoading, setIsLoading] = useState(() => !hasStoredSession())
+  const [isLoading, setIsLoading] = useState(true) // FE-5 FIX: Always start loading to prevent flash
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [logoutError, setLogoutError] = useState<string | null>(null)
 
@@ -56,23 +56,13 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
     setIsLoggingOut(true)
     setLogoutError(null)
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        throw error
-      }
-      // Clear cache on logout
-      profileCache.clear()
-      setUser(null)
-      setProfile(null)
-      router.push(`/${clinic}/portal/login`)
-      router.refresh()
+      router.push(`/${clinic}/portal/logout`)
     } catch (_error: unknown) {
       setLogoutError('Error al cerrar sesión. Intente de nuevo.')
       setTimeout(() => setLogoutError(null), 5000)
-    } finally {
       setIsLoggingOut(false)
     }
-  }, [supabase, clinic, router])
+  }, [clinic, router])
 
   useEffect(() => {
     let isMounted = true

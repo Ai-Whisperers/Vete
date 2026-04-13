@@ -61,7 +61,7 @@ export const getClinicPets = withActionAuth(
       .limit(50)
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%`)
+      query = query.ilike('name', `%${search.replace(/[.%_]/g, '\\$&')}%`)
     }
 
     const { data: pets, error } = await query

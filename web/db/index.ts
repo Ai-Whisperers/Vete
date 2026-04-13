@@ -1,73 +1,57 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
-import { env } from '@/lib/env'
 
-const connectionString = env.DATABASE_URL
+let _client: ReturnType<typeof postgres> | null = null
+let _db: ReturnType<typeof drizzle> | null = null
 
-/**
- * PostgreSQL Connection Pool Configuration
- *
- * These settings are optimized for:
- * - Supabase Supavisor pooling (transaction mode)
- * - Next.js serverless functions (short-lived connections)
- * - Multi-tenant SaaS workloads
- *
- * Adjust based on your deployment:
- * - Vercel/serverless: max 5-10 (per function instance)
- * - Traditional server: max 20-50 (shared across requests)
- * - Development: max 5 (local testing)
- */
-const client = postgres(connectionString, {
-  // Disable prepared statements for transaction pooling compatibility
-  // Required when using Supabase Supavisor in "Transaction" mode
-  prepare: false,
+function getDb() {
+  if (!_db) {
+    const connectionString = process.env.DATABASE_URL
+    if (!connectionString) {
+      throw new Error(
+        '[DB] DATABASE_URL is not configured. Set DATABASE_URL in your environment.'
+      )
+    }
+    _client = postgres(connectionString, {
+      prepare: false,
+      max: parseInt(process.env.DB_POOL_MAX || '10', 10),
+      idle_timeout: parseInt(process.env.DB_IDLE_TIMEOUT || '20', 10),
+      connect_timeout: parseInt(process.env.DB_CONNECT_TIMEOUT || '10', 10),
+      max_lifetime: 60 * 30,
+      onnotice: () => {},
+      transform: { undefined: undefined },
+    })
+    _db = drizzle(_client, { schema })
+  }
+  return _db
+}
 
-  // Connection pool size
-  // For serverless: keep low since each function has its own pool
-  // For traditional servers: increase based on expected concurrency
-  max: parseInt(process.env.DB_POOL_MAX || '10', 10),
-
-  // Close idle connections after this many seconds
-  // Lower for serverless to free resources faster
-  idle_timeout: parseInt(process.env.DB_IDLE_TIMEOUT || '20', 10),
-
-  // Maximum time to wait for a connection from the pool (ms)
-  connect_timeout: parseInt(process.env.DB_CONNECT_TIMEOUT || '10', 10),
-
-  // Query timeout - cancel queries running longer than this (ms)
-  // Prevents runaway queries from exhausting connections
-  max_lifetime: 60 * 30, // 30 minutes
-
-  // Called when a new connection is established
-  // Use to set session-level configuration
-  onnotice: () => {}, // Suppress NOTICE messages in production
-
-  // Transformations
-  transform: {
-    // Convert BigInt columns to numbers (JavaScript limitation)
-    // undefined preserves default behavior
-    undefined: undefined,
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getDb(), prop, receiver)
   },
 })
 
-export const db = drizzle(client, { schema })
-
-/**
- * Close database connections gracefully
- * Call this during application shutdown
- */
 export async function closeDatabase(): Promise<void> {
-  await client.end()
+  if (_client) {
+    await _client.end()
+    _client = null
+    _db = null
+  }
 }
 
-/**
- * Health check for database connection
- * Returns true if database is reachable
- */
 export async function isDatabaseHealthy(): Promise<boolean> {
   try {
-    await client`SELECT 1`
+    if (!process.env.DATABASE_URL) return false
+    const c = postgres(process.env.DATABASE_URL, {
+      prepare: false,
+      max: 1,
+      idle_timeout: 5,
+      connect_timeout: 5,
+    })
+    await c`SELECT 1`
+    await c.end()
     return true
   } catch (_error: unknown) {
     return false

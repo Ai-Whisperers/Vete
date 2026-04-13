@@ -28,6 +28,27 @@ export const requestAccess = withActionAuth<void, [string, string]>(
 
     const { supabase } = context
 
+    // Verify the user owns the pet
+    const { data: pet } = await supabase
+      .from('pets')
+      .select('owner_id')
+      .eq('id', petId)
+      .single()
+
+    if (!pet) {
+      return actionError('Mascota no encontrada')
+    }
+
+    if (pet.owner_id !== context.user.id) {
+      logger.warn('Non-owner attempted to grant clinic access', {
+        userId: context.user.id,
+        petId,
+        clinicId,
+        actualOwnerId: pet.owner_id,
+      })
+      return actionError('Solo el dueño de la mascota puede solicitar acceso')
+    }
+
     try {
       const { data, error } = await supabase.rpc('grant_clinic_access', {
         target_pet_id: petId,

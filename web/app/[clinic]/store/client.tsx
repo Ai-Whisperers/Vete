@@ -50,9 +50,10 @@ const LazyQuickViewModal = lazy(() =>
 import { useCart } from '@/context/cart-context'
 import BuyAgainSection from '@/components/store/buy-again-section'
 
-const queryClient = new QueryClient()
-
 export default function StorePageClientWrapper(props: StorePageClientProps) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { staleTime: 1000 * 60 * 2 } }
+  }))
   return (
     <QueryClientProvider client={queryClient}>
       <StorePageClient {...props} />

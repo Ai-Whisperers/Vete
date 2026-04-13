@@ -150,18 +150,20 @@ export const env = {
   get DATABASE_URL(): string {
     const value = process.env.DATABASE_URL
     if (!value) {
-      // During build time, DATABASE_URL might not be available
-      // This is okay for static page generation
       if (process.env.NEXT_PHASE === 'phase-production-build') {
-        console.warn('[ENV] DATABASE_URL not available during build - using placeholder')
-        return 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
+        console.warn('[ENV] DATABASE_URL not set during build - some features will be unavailable at runtime without it')
+        return 'postgresql://build-placeholder:build-placeholder@localhost:5432/build-placeholder'
       }
       throw new Error(
-        `[ENV ERROR] Missing required environment variable: DATABASE_URL\n` +
-          `Please ensure this variable is set in your .env.local file.`
+        '[ENV] DATABASE_URL is not configured. ' +
+        'Set DATABASE_URL in your environment to enable full functionality.'
       )
     }
     return value
+  },
+
+  get HAS_DATABASE_URL(): boolean {
+    return !!process.env.DATABASE_URL
   },
 
   // =============================================================================
@@ -169,7 +171,7 @@ export const env = {
   // =============================================================================
 
   /** Application base URL */
-  APP_URL: optionalEnv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000'),
+  APP_URL: optionalEnv('NEXT_PUBLIC_BASE_URL', optionalEnv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000')),
 
   /** Current environment */
   NODE_ENV: optionalEnv('NODE_ENV', 'development'),
@@ -299,16 +301,16 @@ export const env = {
   // =============================================================================
 
   /** Enable store module */
-  ENABLE_STORE: boolEnv('ENABLE_STORE', true),
+  ENABLE_STORE: boolEnv('ENABLE_STORE', false),
 
   /** Enable WhatsApp integration */
   ENABLE_WHATSAPP: boolEnv('ENABLE_WHATSAPP', false),
 
   /** Enable hospitalization module */
-  ENABLE_HOSPITALIZATION: boolEnv('ENABLE_HOSPITALIZATION', true),
+  ENABLE_HOSPITALIZATION: boolEnv('ENABLE_HOSPITALIZATION', false),
 
   /** Enable lab module */
-  ENABLE_LAB: boolEnv('ENABLE_LAB', true),
+  ENABLE_LAB: boolEnv('ENABLE_LAB', false),
 
   /** Enable insurance module */
   ENABLE_INSURANCE: boolEnv('ENABLE_INSURANCE', false),

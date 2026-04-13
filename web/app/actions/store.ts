@@ -11,7 +11,7 @@ import type { SortOption } from '@/lib/types/store'
  */
 export const getStoreProducts = withActionAuth(
   async (
-    { user, supabase },
+    { user, profile, supabase },
     clinicSlug: string,
     params: {
       page?: number
@@ -23,6 +23,11 @@ export const getStoreProducts = withActionAuth(
       species?: string[]
     }
   ) => {
+    // Validate tenant access
+    if (clinicSlug !== profile.tenant_id) {
+      return actionError('Acceso denegado')
+    }
+
     const { page = 1, limit = 12, sort = 'relevance', search, category, brand, species } = params
 
     let query = supabase
@@ -86,7 +91,12 @@ export const getStoreProducts = withActionAuth(
  * Get a single product with details
  */
 export const getStoreProduct = withActionAuth(
-  async ({ user, supabase }, clinicSlug: string, productId: string) => {
+  async ({ user, profile, supabase }, clinicSlug: string, productId: string) => {
+    // Validate tenant access
+    if (clinicSlug !== profile.tenant_id) {
+      return actionError('Acceso denegado')
+    }
+
     const { data: product, error } = await supabase
       .from('store_products')
       .select('*')
@@ -112,7 +122,12 @@ export const getStoreProduct = withActionAuth(
 /**
  * Get wishlist for current user
  */
-export const getWishlist = withActionAuth(async ({ user, supabase }, clinicSlug: string) => {
+export const getWishlist = withActionAuth(async ({ user, profile, supabase }, clinicSlug: string) => {
+  // Validate tenant access
+  if (clinicSlug !== profile.tenant_id) {
+    return actionError('Acceso denegado')
+  }
+
   const { data, error } = await supabase
     .from('store_wishlist')
     .select('product_id')
@@ -135,7 +150,12 @@ export const getWishlist = withActionAuth(async ({ user, supabase }, clinicSlug:
  * Toggle product in wishlist
  */
 export const toggleWishlist = withActionAuth(
-  async ({ user, supabase }, clinicSlug: string, productId: string) => {
+  async ({ user, profile, supabase }, clinicSlug: string, productId: string) => {
+    // Validate tenant access
+    if (clinicSlug !== profile.tenant_id) {
+      return actionError('Acceso denegado')
+    }
+
     // Check if exists
     const { data: existing } = await supabase
       .from('store_wishlist')

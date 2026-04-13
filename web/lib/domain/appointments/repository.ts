@@ -26,7 +26,7 @@ export class AppointmentRepository {
   /**
    * Find appointment by ID with full relations
    */
-  async findById(id: string): Promise<Appointment | null> {
+  async findById(id: string, tenantId: string): Promise<Appointment | null> {
     const { data, error } = await this.supabase
       .from('appointments')
       .select(
@@ -52,6 +52,7 @@ export class AppointmentRepository {
       `
       )
       .eq('id', id)
+      .eq('tenant_id', tenantId)
       .single()
 
     if (error || !data) return null
@@ -62,7 +63,7 @@ export class AppointmentRepository {
   /**
    * Find appointments with filters
    */
-  async findMany(filters: AppointmentFilters = {}): Promise<Appointment[]> {
+  async findMany(filters: AppointmentFilters = {}, tenantId: string): Promise<Appointment[]> {
     let query = this.supabase.from('appointments').select(`
         *,
         pets (
@@ -83,6 +84,8 @@ export class AppointmentRepository {
           full_name
         )
       `)
+
+    query = query.eq('tenant_id', tenantId)
 
     // Apply filters
     if (filters.status?.length) {
@@ -119,23 +122,24 @@ export class AppointmentRepository {
     created_by: string,
     tenant_id: string
   ): Promise<Appointment> {
-    const { data: appointment, error } = await this.supabase
-      .from('appointments')
-      .insert({
-        ...data,
-        tenant_id,
-        created_by,
-        status: 'pending',
-      })
-      .select()
-      .single()
+    const { data: result, error } = await this.supabase.rpc('create_appointment_atomic', {
+      p_tenant_id: tenant_id,
+      p_pet_id: data.pet_id,
+      p_start_time: data.start_time.toISOString(),
+      p_end_time: data.end_time.toISOString(),
+      p_reason: data.reason || null,
+      p_notes: null,
+      p_created_by: created_by,
+      p_vet_id: data.vet_id || null,
+    })
 
     if (error) throw error
 
-    const result = await this.findById(appointment.id)
-    if (!result) throw new Error('Failed to create appointment')
+    const appointmentId = (result as Record<string, unknown>).id as string
+    const appointment = await this.findById(appointmentId, tenant_id)
+    if (!appointment) throw new Error('Failed to create appointment')
 
-    return result
+    return appointment
   }
 
   /**
@@ -155,7 +159,7 @@ export class AppointmentRepository {
 
     if (error) throw error
 
-    const result = await this.findById(appointment.id)
+    const result = await this.findById(appointment.id, appointment.tenant_id as string)
     if (!result) throw new Error('Failed to update appointment')
 
     return result
@@ -174,17 +178,19 @@ export class AppointmentRepository {
    * Check if appointment slot is available
    */
   async checkSlotAvailability(params: AvailabilityCheckParams): Promise<boolean> {
-    const { data, error } = await this.supabase.rpc('check_appointment_overlap', {
+    const startTime = `${params.date}T${params.work_start || '08:00'}:00`
+    const endTime = `${params.date}T${params.work_end || '18:00'}:00`
+
+    const { data, error } = await this.supabase.rpc('is_slot_available', {
       p_tenant_id: params.tenant_id,
-      p_date: params.date,
-      p_start_time: params.work_start || '08:00',
-      p_end_time: params.work_end || '18:00',
+      p_start_time: startTime,
+      p_end_time: endTime,
       p_vet_id: params.vet_id || null,
     })
 
     if (error) throw error
 
-    return !data // If no overlap, slot is available
+    return data as boolean
   }
 
   /**

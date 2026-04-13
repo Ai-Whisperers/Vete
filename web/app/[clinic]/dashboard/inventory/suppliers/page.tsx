@@ -121,6 +121,7 @@ export default function SuppliersPage(): React.ReactElement {
       {showForm && (
         <SupplierForm
           supplier={editingSupplier}
+          clinicId={clinic}
           onClose={() => {
             setShowForm(false)
             setEditingSupplier(null)

@@ -4,14 +4,25 @@ import { withActionAuth, actionError, actionSuccess } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { logger } from '@/lib/logger'
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending_scheduling: ['scheduled', 'cancelled'],
+  scheduled: ['confirmed', 'cancelled', 'no_show', 'rescheduled'],
+  confirmed: ['in_progress', 'cancelled', 'no_show', 'rescheduled'],
+  in_progress: ['completed', 'cancelled'],
+  waiting: ['in_progress', 'cancelled'],
+  completed: [],
+  cancelled: ['scheduled'],
+  no_show: ['scheduled'],
+  rescheduled: ['scheduled', 'cancelled'],
+}
+
 /**
- * REF-005: Migrated to withActionAuth
- * Note: This is a simpler version that doesn't enforce state transitions.
- * For full state machine validation, use updateAppointmentStatus from update-appointment.ts
+ * @deprecated Use specific status transition functions from appointments.ts instead:
+ * - startAppointment, completeAppointment, markNoShow, cancelAppointment
+ * This file will be removed in a future version.
  */
 export const updateAppointmentStatus = withActionAuth(
   async ({ supabase, profile }, appointmentId: string, newStatus: string, clinic: string) => {
-    // BUG-007: Verify clinic matches user's tenant for defense-in-depth
     if (clinic !== profile.tenant_id) {
       logger.warn('Tenant mismatch in appointment update', {
         userId: profile.id,
@@ -21,7 +32,35 @@ export const updateAppointmentStatus = withActionAuth(
       return actionError('Acceso denegado')
     }
 
-    // BUG-007: Add tenant_id filter for defense-in-depth
+    const { data: appointment, error: fetchError } = await supabase
+      .from('appointments')
+      .select('status')
+      .eq('id', appointmentId)
+      .eq('tenant_id', profile.tenant_id)
+      .single()
+
+    if (fetchError || !appointment) {
+      logger.error('Failed to fetch appointment for status check', {
+        error: fetchError,
+        appointmentId,
+        tenant: clinic,
+      })
+      return actionError('Cita no encontrada')
+    }
+
+    const currentStatus = appointment.status
+    const allowed = VALID_TRANSITIONS[currentStatus]
+
+    if (!allowed || !allowed.includes(newStatus)) {
+      logger.warn('Invalid appointment status transition', {
+        appointmentId,
+        currentStatus,
+        newStatus,
+        tenant: clinic,
+      })
+      return actionError(`Transición de estado no válida: ${currentStatus} → ${newStatus}`)
+    }
+
     const { error } = await supabase
       .from('appointments')
       .update({ status: newStatus })

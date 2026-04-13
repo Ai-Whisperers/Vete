@@ -70,7 +70,7 @@ export class PaymentService {
     // Get invoice to validate
     const { data: invoice, error: invoiceError } = await this.supabase
       .from('invoices')
-      .select('id, tenant_id, total, amount_paid, amount_due, status')
+      .select('id, tenant_id, total, amount_paid, balance_due, status')
       .eq('id', invoice_id)
       .eq('tenant_id', tenantId)
       .single()
@@ -79,32 +79,31 @@ export class PaymentService {
       throw new Error('Factura no encontrada')
     }
 
-    if (amount > invoice.amount_due) {
+    if (amount > invoice.balance_due) {
       throw new Error('El monto del pago excede el saldo pendiente')
     }
 
-    // Record payment
     const payment = await this.repository.create(tenantId, {
       invoice_id,
       amount,
-      payment_method,
+      payment_method_name: payment_method,
       payment_reference: reference_number || null,
       status: 'completed',
-      paid_at: paid_at || new Date().toISOString(),
-      processed_by: userId,
+      payment_date: paid_at || new Date().toISOString(),
+      received_by: userId,
       notes: notes || null,
     })
 
     // Update invoice amounts
     const newAmountPaid = roundCurrency(invoice.amount_paid + amount)
-    const newAmountDue = roundCurrency(invoice.total - newAmountPaid)
-    const isPaid = newAmountDue === 0
+    const newBalanceDue = roundCurrency(invoice.total - newAmountPaid)
+    const isPaid = newBalanceDue === 0
 
     await this.supabase
       .from('invoices')
       .update({
         amount_paid: newAmountPaid,
-        amount_due: newAmountDue,
+        balance_due: newBalanceDue,
         status: isPaid ? 'paid' : invoice.status,
         paid_at: isPaid ? new Date().toISOString() : null,
       })
@@ -163,12 +162,9 @@ export class PaymentService {
     // Create refund
     const refund = await this.repository.createRefund(tenantId, {
       payment_id: paymentId,
-      invoice_id: payment.invoice_id,
       amount,
       reason,
-      refund_method: payment.payment_method,
       status: 'completed',
-      refunded_at: new Date().toISOString(),
       processed_by: userId,
     })
 

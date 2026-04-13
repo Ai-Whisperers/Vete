@@ -46,7 +46,7 @@ export function withAuthMiddleware(options: AuthMiddlewareOptions = {}) {
         return NextResponse.redirect(loginUrl)
       }
 
-      if (context.isAuthenticated && roles && roles.length > 0) {
+      if (context.isAuthenticated && context.profile && roles && roles.length > 0) {
         // Check role authorization
         if (!roles.includes(context.profile.role)) {
           // Redirect to unauthorized page or return 403
@@ -56,7 +56,7 @@ export function withAuthMiddleware(options: AuthMiddlewareOptions = {}) {
 
       // Add user context to headers for server components
       const response = NextResponse.next()
-      if (context.isAuthenticated) {
+      if (context.isAuthenticated && context.profile) {
         response.headers.set('x-user-id', context.user.id)
         response.headers.set('x-user-role', context.profile.role)
         response.headers.set('x-tenant-id', context.profile.tenant_id)

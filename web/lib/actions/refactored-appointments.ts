@@ -146,9 +146,9 @@ export const getOwnerAppointments = withActionAuth(
 
       // Get appointments for this user's pets in this clinic
       const appointments = await appointmentService.getAppointments({
-        pet_id: undefined, // We'll filter by owner through the domain
+        pet_id: undefined,
         status: undefined,
-      })
+      }, profile.tenant_id)
 
       // Filter for owner's pets (domain service should handle this better)
       const ownerAppointments = appointments.filter(

@@ -1,7 +1,6 @@
 'use server'
 
-import { withActionAuth } from '@/lib/auth/action-wrapper'
-
+import { AuthService } from '@/lib/auth/core'
 import { setSystemConfig, getSystemConfigs } from './system-configs'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
@@ -14,11 +13,10 @@ export const PAYMENT_PROVIDERS = [
 
 export const getPaymentProviderConfig = async (clinicSlug: string) => {
     // ACT-1 FIX: Require admin auth for payment config access
-    const authResult = await withActionAuth(
-      async (ctx) => ctx,
-      { roles: ['admin'] }
-    )
-    if ('error' in authResult) return authResult
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
 
   const result = await getSystemConfigs(clinicSlug)
   
@@ -50,12 +48,10 @@ export const getPaymentProviderConfig = async (clinicSlug: string) => {
 }
 
 export const setPaymentProvider = async (clinicSlug: string, provider: string) => {
-    // ACT-1 FIX: Require admin auth for payment config access
-    const authResult = await withActionAuth(
-      async (ctx) => ctx,
-      { roles: ['admin'] }
-    )
-    if ('error' in authResult) return authResult
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
 
   try {
     const result = await setSystemConfig(
@@ -79,12 +75,10 @@ export const updateStripeConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; publishableKey: string; webhookSecret: string }
 ) => {
-    // ACT-1 FIX: Require admin auth for payment config access
-    const authResult = await withActionAuth(
-      async (ctx) => ctx,
-      { roles: ['admin'] }
-    )
-    if ('error' in authResult) return authResult
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
 
   try {
     await Promise.all([
@@ -106,12 +100,10 @@ export const updateBancardConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; publicKey: string; environment: 'sandbox' | 'production' }
 ) => {
-    // ACT-1 FIX: Require admin auth for payment config access
-    const authResult = await withActionAuth(
-      async (ctx) => ctx,
-      { roles: ['admin'] }
-    )
-    if ('error' in authResult) return authResult
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
 
   try {
     await Promise.all([
@@ -133,12 +125,10 @@ export const updateTigoMoneyConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; apiKey: string; environment: 'sandbox' | 'production' }
 ) => {
-    // ACT-1 FIX: Require admin auth for payment config access
-    const authResult = await withActionAuth(
-      async (ctx) => ctx,
-      { roles: ['admin'] }
-    )
-    if ('error' in authResult) return authResult
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
 
   try {
     await Promise.all([

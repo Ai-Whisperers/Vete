@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import type {
   UserRole,
   UserProfile,
+  AuthContext,
   AppAuthContext,
   AuthResult,
 } from './types'
@@ -163,7 +164,18 @@ export class AuthService {
       }
     }
 
-    const { profile } = context
+    const profile = context.profile
+
+    if (!profile) {
+      return {
+        success: false,
+        error: {
+          code: 'PROFILE_MISSING',
+          message: 'User profile not found',
+          statusCode: 403,
+        },
+      }
+    }
 
     // Check if user is active
     if (options.requireActive && !profile.is_active) {
@@ -217,7 +229,7 @@ export class AuthService {
 
     return {
       success: true,
-      context,
+      context: context as AuthContext,
     }
   }
 

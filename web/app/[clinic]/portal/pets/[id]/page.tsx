@@ -109,7 +109,7 @@ export default async function PetProfilePage({
 
   // Check if current user is staff
   const authContext = await AuthService.getContext()
-  const isStaff = authContext.isAuthenticated && ['vet', 'admin'].includes(authContext.profile.role)
+  const isStaff = !!(authContext.isAuthenticated && authContext.profile && ['vet', 'admin'].includes(authContext.profile.role))
 
   // Process medical records and prescriptions for timeline
   const records =

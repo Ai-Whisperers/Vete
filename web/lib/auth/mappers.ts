@@ -70,7 +70,7 @@ export function drizzleProfileToUserProfile(row: DrizzleProfileRow): UserProfile
     email: row.email,
     phone: row.phone ?? null,
     avatar_url: row.avatarUrl ?? null,
-    is_active: (row as Record<string, unknown>).is_active ?? true, // Read from DB if available
+    is_active: (((row as unknown) as Record<string, unknown>).is_active ?? true) as boolean, // Read from DB if available
     is_platform_admin: row.isPlatformAdmin ?? false,
     created_at: typeof row.createdAt === 'string' ? row.createdAt : row.createdAt.toISOString(),
     updated_at: typeof row.updatedAt === 'string' ? row.updatedAt : row.updatedAt.toISOString(),

@@ -42,7 +42,8 @@ export class ClinicalToolsService {
   }
 
   async getDiagnosisCodeByCode(code: string): Promise<DiagnosisCode | null> {
-    return this.repository.findDiagnosisCodeByCode(code)
+    const results = await this.repository.findDiagnosisCodes({ search: code })
+    return results.find(r => r.code === code) || null
   }
 
   // ===========================================================================

@@ -188,10 +188,10 @@ class ApiClient {
     data: Partial<T>
   ): Promise<{ data: T | null; error: string | null }> {
     const client = this.getAdminClient()
-    const { data: result, error } = await client
-      .from(table)
-      .update(data)
-      .eq('id', id)
+      const { data: result, error } = await client
+        .from(table)
+        .update(data as Record<string, unknown>)
+        .eq('id', id)
       .select()
       .single()
 
@@ -213,7 +213,7 @@ class ApiClient {
     onConflict?: string
   ): Promise<{ data: T[] | null; error: string | null }> {
     const client = this.getAdminClient()
-    const { data: result, error } = await client.from(table).upsert(data, { onConflict }).select()
+    const { data: result, error } = await client.from(table).upsert(data as Record<string, unknown>[], { onConflict }).select()
 
     return {
       data: result as T[] | null,

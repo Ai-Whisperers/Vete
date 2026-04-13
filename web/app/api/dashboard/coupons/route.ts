@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createSearchPattern } from '@/lib/utils/search'
 
 export type CouponDiscountType = 'percentage' | 'fixed_amount' | 'free_shipping'
 
@@ -83,7 +84,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Apply search filter
     if (search) {
-      query = query.or(`code.ilike.%${search}%,name.ilike.%${search}%`)
+      const safePattern = createSearchPattern(search);
+      query = query.or(`code.ilike.${safePattern},name.ilike.${safePattern}`)
     }
 
     // Apply status filter

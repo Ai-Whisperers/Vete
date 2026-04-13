@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createSearchPattern } from '@/lib/utils/search'
 import { pendingProductsQuerySchema } from '@/lib/schemas/admin'
 
 /**
@@ -57,7 +58,8 @@ export const GET = withApiAuth(
 
       // Apply search filter
       if (search) {
-        query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`)
+        const safePattern = createSearchPattern(search);
+        query = query.or(`name.ilike.${safePattern},sku.ilike.${safePattern}`)
       }
 
       const {

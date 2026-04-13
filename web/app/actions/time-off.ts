@@ -326,7 +326,8 @@ export async function createTimeOffRequest(
     .select('id')
     .eq('staff_profile_id', staffProfile.id)
     .in('status', ['approved', 'pending'])
-    .or(`and(start_date.lte.${data.end_date},end_date.gte.${data.start_date})`)
+    .lte('start_date', data.end_date)
+    .gte('end_date', data.start_date)
 
   if (overlapping && overlapping.length > 0) {
     return { error: 'Ya tienes una solicitud para estas fechas' }

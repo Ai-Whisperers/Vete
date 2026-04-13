@@ -98,7 +98,7 @@ export function ToolsDropdown({
             transition={{ duration: 0.15 }}
             role="menu"
             aria-label={t('toolsOptions')}
-            className="absolute left-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-100 bg-white py-2 shadow-xl"
+            className="absolute left-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-100 bg-[var(--bg-default)] py-2 shadow-xl"
           >
             {toolsItems.map((tool) => {
               const ToolIcon = tool.icon

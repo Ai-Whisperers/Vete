@@ -68,7 +68,7 @@ export { requireOwnership } from './core'
  */
 export function requireTenantAccess(tenantId: string, context: AuthContext): boolean {
   return (
-    AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isAdmin(context.profile)
+    AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isPlatformAdmin(context.profile)
   )
 }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { createSearchPattern } from '@/lib/utils/search'
 import { isCategoryJoin, isBrandJoin } from '@/lib/utils/type-guards'
 import { createLookup } from '@/lib/utils/map'
 
@@ -127,7 +128,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .is('deleted_at', null)
 
       if (search) {
-        ownQuery = ownQuery.or(`name.ilike.%${search}%,sku.ilike.%${search}%`)
+        const safePattern = createSearchPattern(search);
+        ownQuery = ownQuery.or(`name.ilike.${safePattern},sku.ilike.${safePattern}`)
       }
 
       if (source === 'own') {
@@ -265,7 +267,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           .eq('is_active', true)
 
         if (search) {
-          catalogQuery = catalogQuery.or(`name.ilike.%${search}%,sku.ilike.%${search}%`)
+          const safePattern = createSearchPattern(search);
+          catalogQuery = catalogQuery.or(`name.ilike.${safePattern},sku.ilike.${safePattern}`)
         }
 
         if (source === 'catalog') {

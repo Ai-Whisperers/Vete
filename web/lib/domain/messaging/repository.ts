@@ -5,6 +5,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createSearchPattern } from '@/lib/utils/search'
 import type {
   Conversation,
   ConversationFilters,
@@ -77,7 +78,8 @@ export class MessagingRepository {
     }
 
     if (filters.search) {
-      query = query.ilike('subject', `%${filters.search}%`)
+      const safePattern = createSearchPattern(filters.search);
+      query = query.ilike('subject', safePattern)
     }
 
     const { data, error } = await query
@@ -323,7 +325,8 @@ export class MessagingRepository {
     }
 
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,code.ilike.%${filters.search}%`)
+      const safePattern = createSearchPattern(filters.search);
+      query = query.or(`name.ilike.${safePattern},code.ilike.${safePattern}`)
     }
 
     const { data, error } = await query

@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 import { DATABASE_ERRORS } from '@/lib/i18n/errors'
+import { createSearchPattern } from '@/lib/utils/search'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,8 +64,8 @@ export const GET = withApiAuth(
 
       // Apply search filter
       if (search) {
-        // Search in pet name or owner name
-        query = query.or(`pet.name.ilike.%${search}%,pet.owner.full_name.ilike.%${search}%`)
+        const safePattern = createSearchPattern(search);
+        query = query.or(`pet.name.ilike.${safePattern},pet.owner.full_name.ilike.${safePattern}`)
       }
 
       // Apply pagination

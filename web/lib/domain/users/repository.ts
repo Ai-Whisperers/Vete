@@ -6,6 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createSearchPattern } from '@/lib/utils/search';
 import type {
   UserProfile,
   UserListFilters,
@@ -121,8 +122,9 @@ export class UserRepository {
     }
 
     if (filters?.search) {
+      const safePattern = createSearchPattern(filters.search);
       query = query.or(
-        `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,client_code.ilike.%${filters.search}%`
+        `full_name.ilike.${safePattern},email.ilike.${safePattern},client_code.ilike.${safePattern}`
       );
     }
 
@@ -226,8 +228,9 @@ export class UserRepository {
 
     // Apply filters
     if (filters?.search) {
+      const safePattern = createSearchPattern(filters.search);
       query = query.or(
-        `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,client_code.ilike.%${filters.search}%`
+        `full_name.ilike.${safePattern},email.ilike.${safePattern},client_code.ilike.${safePattern}`
       );
     }
 

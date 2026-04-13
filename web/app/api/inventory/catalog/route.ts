@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { createSearchPattern } from '@/lib/utils/search'
 
 /**
  * GET /api/inventory/catalog
@@ -59,7 +60,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Add search filter
     if (search) {
-      query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`)
+      const safePattern = createSearchPattern(search);
+      query = query.or(`name.ilike.${safePattern},sku.ilike.${safePattern}`)
     }
 
     // Add category filter

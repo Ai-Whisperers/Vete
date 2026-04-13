@@ -5,6 +5,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createSearchPattern } from '@/lib/utils/search'
 import type {
   DiagnosisCode,
   DiagnosisCodeFilters,
@@ -37,7 +38,8 @@ export class ClinicalToolsRepository {
       .order('term', { ascending: true })
 
     if (filters.search) {
-      query = query.or(`code.ilike.%${filters.search}%,term.ilike.%${filters.search}%`)
+      const safePattern = createSearchPattern(filters.search);
+      query = query.or(`code.ilike.${safePattern},term.ilike.${safePattern}`)
     }
 
     if (filters.standard) {
@@ -62,22 +64,9 @@ export class ClinicalToolsRepository {
     return (data || []) as DiagnosisCode[]
   }
 
-  async findDiagnosisCodeByCode(code: string): Promise<DiagnosisCode | null> {
-    const { data, error } = await this.supabase
-      .from('diagnosis_codes')
-      .select('*')
-      .eq('code', code)
-      .is('deleted_at', null)
-      .maybeSingle()
-
-    if (error) throw new Error(`Error al obtener código de diagnóstico: ${error.message}`)
-    return data as DiagnosisCode | null
-  }
-
-  // ===========================================================================
-  // DRUG DOSAGES
-  // ===========================================================================
-
+  /**
+   * Find drug dosages
+   */
   async findDrugs(filters: DrugFilters = {}): Promise<DrugDosage[]> {
     let query = this.supabase
       .from('drug_dosages')
@@ -86,7 +75,8 @@ export class ClinicalToolsRepository {
       .order('name', { ascending: true })
 
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,generic_name.ilike.%${filters.search}%`)
+      const safePattern = createSearchPattern(filters.search);
+      query = query.or(`name.ilike.${safePattern},generic_name.ilike.${safePattern}`)
     }
 
     if (filters.species) {
@@ -216,8 +206,9 @@ export class ClinicalToolsRepository {
     }
 
     if (filters.search) {
+      const safePattern = createSearchPattern(filters.search);
       query = query.or(
-        `vaccine_name.ilike.%${filters.search}%,vaccine_code.ilike.%${filters.search}%`
+        `vaccine_name.ilike.${safePattern},vaccine_code.ilike.${safePattern}`
       )
     }
 

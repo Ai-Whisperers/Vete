@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-04-13T19:31:49.155Z",
+  "environment": "test",
+  "measurements_per_endpoint": 20,
+  "warmup_runs": 3,
+  "endpoints": [
+    {
+      "endpoint": "/api/pets",
+      "method": "GET",
+      "description": "List all pets for a user",
+      "target_p95": 500,
+      "stats": {
+        "min": 0.9410709999999654,
+        "max": 14.136796999999888,
+        "mean": 3.524734449999971,
+        "p50": 2.2205549999998766,
+        "p95": 14.136796999999888,
+        "p99": 14.136796999999888
+      }
+    },
+    {
+      "endpoint": "/api/pets",
+      "method": "POST",
+      "description": "Create new pet",
+      "target_p95": 800,
+      "stats": {
+        "min": 1.5356060000003708,
+        "max": 93.86793800000032,
+        "mean": 23.93324855000005,
+        "p50": 15.95706700000028,
+        "p95": 93.86793800000032,
+        "p99": 93.86793800000032
+      }
+    },
+    {
+      "endpoint": "/api/booking",
+      "method": "GET",
+      "description": "Booking page data (services + slots)",
+      "target_p95": 600,
+      "stats": {
+        "min": 0.6894270000002507,
+        "max": 10.909381999999823,
+        "mean": 2.3082433000000493,
+        "p50": 1.2315419999999904,
+        "p95": 10.909381999999823,
+        "p99": 10.909381999999823
+      }
+    },
+    {
+      "endpoint": "/api/appointments/slots",
+      "method": "GET",
+      "description": "Available appointment slots",
+      "target_p95": 700,
+      "stats": {
+        "min": 0.9639850000003207,
+        "max": 40.02945399999999,
+        "mean": 5.231641250000052,
+        "p50": 2.6186290000000554,
+        "p95": 40.02945399999999,
+        "p99": 40.02945399999999
+      }
+    },
+    {
+      "endpoint": "/api/dashboard/vaccines",
+      "method": "GET",
+      "description": "Vaccine dashboard (upcoming + overdue)",
+      "target_p95": 600,
+      "stats": {
+        "min": 1.192565000000286,
+        "max": 20.89658099999997,
+        "mean": 4.508272150000039,
+        "p50": 3.6330190000003313,
+        "p95": 20.89658099999997,
+        "p99": 20.89658099999997
+      }
+    },
+    {
+      "endpoint": "/api/vaccines",
+      "method": "GET",
+      "description": "List all vaccines",
+      "target_p95": 500,
+      "stats": {
+        "min": 0.9973549999999705,
+        "max": 5.418558000000303,
+        "mean": 2.158603049999988,
+        "p50": 1.876893999999993,
+        "p95": 5.418558000000303,
+        "p99": 5.418558000000303
+      }
+    },
+    {
+      "endpoint": "/api/billing/invoices",
+      "method": "GET",
+      "description": "List invoices with pagination",
+      "target_p95": 700,
+      "stats": {
+        "min": 0.8823040000002038,
+        "max": 26.4044600000002,
+        "mean": 5.434250950000115,
+        "p50": 2.1376720000002933,
+        "p95": 26.4044600000002,
+        "p99": 26.4044600000002
+      }
+    },
+    {
+      "endpoint": "/api/inventory/catalog",
+      "method": "GET",
+      "description": "Global inventory catalog",
+      "target_p95": 800,
+      "stats": {
+        "min": 0.6183300000002419,
+        "max": 40.113388000000214,
+        "mean": 7.695740950000004,
+        "p50": 2.7282310000000507,
+        "p95": 40.113388000000214,
+        "p99": 40.113388000000214
+      }
+    },
+    {
+      "endpoint": "/api/dashboard/inventory",
+      "method": "GET",
+      "description": "Inventory dashboard",
+      "target_p95": 600,
+      "stats": {
+        "min": 0.7598510000002534,
+        "max": 4.177059000000099,
+        "mean": 1.085287700000049,
+        "p50": 0.9373460000001614,
+        "p95": 4.177059000000099,
+        "p99": 4.177059000000099
+      }
+    },
+    {
+      "endpoint": "/api/analytics",
+      "method": "GET",
+      "description": "Analytics overview",
+      "target_p95": 1000,
+      "stats": {
+        "min": 0.6401839999998629,
+        "max": 1.522215999999844,
+        "mean": 0.9077537999999776,
+        "p50": 0.8786880000002384,
+        "p95": 1.522215999999844,
+        "p99": 1.522215999999844
+      }
+    }
+  ]
+}

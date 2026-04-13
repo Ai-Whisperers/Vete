@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createSearchPattern } from '@/lib/utils/search'
 import { z } from 'zod'
 
 // Validation schema for creating/updating suppliers
@@ -49,7 +50,8 @@ export const GET = withApiAuth(
         .order('name', { ascending: true })
 
       if (search) {
-        query = query.or(`name.ilike.%${search}%,legal_name.ilike.%${search}%,tax_id.ilike.%${search}%`)
+        const safePattern = createSearchPattern(search);
+        query = query.or(`name.ilike.${safePattern},legal_name.ilike.${safePattern},tax_id.ilike.${safePattern}`)
       }
 
       if (supplierType) {

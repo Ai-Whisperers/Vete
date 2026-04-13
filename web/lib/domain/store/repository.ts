@@ -6,6 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createSearchPattern } from '@/lib/utils/search';
 import type {
   ProductWithStock,
   ProductRow,
@@ -55,7 +56,8 @@ export class StoreRepository {
 
     // Search by name/description
     if (query) {
-      productsQuery = productsQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+      const safePattern = createSearchPattern(query);
+      productsQuery = productsQuery.or(`name.ilike.${safePattern},description.ilike.${safePattern}`);
     }
 
     const { data, error } = await productsQuery;

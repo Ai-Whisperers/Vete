@@ -16,6 +16,7 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import { createSearchPattern } from '@/lib/utils/search';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -305,7 +306,8 @@ export class LabService extends BaseService {
       }
 
       if (filters?.search) {
-        query = query.or(`name.ilike.%${filters.search}%,code.ilike.%${filters.search}%`);
+        const safePattern = createSearchPattern(filters.search);
+        query = query.or(`name.ilike.${safePattern},code.ilike.${safePattern}`);
       }
 
       const { data, error } = await query;

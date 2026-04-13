@@ -12,6 +12,7 @@
 
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BaseService, ServiceResult } from './base-service';
+import { createSearchPattern } from '@/lib/utils/search';
 
 // ============================================================================
 // Types
@@ -261,7 +262,8 @@ export class ClinicalToolsService extends BaseService {
         .order('term', { ascending: true });
 
       if (filters?.search) {
-        query = query.or(`code.ilike.%${filters.search}%,term.ilike.%${filters.search}%`);
+        const safePattern = createSearchPattern(filters.search);
+        query = query.or(`code.ilike.${safePattern},term.ilike.${safePattern}`);
       }
 
       if (filters?.standard) {
@@ -314,7 +316,8 @@ export class ClinicalToolsService extends BaseService {
         .order('name', { ascending: true });
 
       if (filters?.search) {
-        query = query.or(`name.ilike.%${filters.search}%,generic_name.ilike.%${filters.search}%`);
+        const safePattern = createSearchPattern(filters.search);
+        query = query.or(`name.ilike.${safePattern},generic_name.ilike.${safePattern}`);
       }
 
       if (filters?.species) {
@@ -537,8 +540,9 @@ export class ClinicalToolsService extends BaseService {
       }
 
       if (filters?.search) {
+        const safePattern = createSearchPattern(filters.search);
         query = query.or(
-          `vaccine_name.ilike.%${filters.search}%,vaccine_code.ilike.%${filters.search}%`
+          `vaccine_name.ilike.${safePattern},vaccine_code.ilike.${safePattern}`
         );
       }
 

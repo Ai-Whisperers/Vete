@@ -5,6 +5,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createSearchPattern } from '@/lib/utils/search'
 import type {
   LabTest,
   TestFilters,
@@ -44,7 +45,8 @@ export class LabRepository {
     if (filters.sample_type) query = query.eq('sample_type', filters.sample_type)
     if (filters.is_active !== undefined) query = query.eq('is_active', filters.is_active)
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,code.ilike.%${filters.search}%`)
+      const safePattern = createSearchPattern(filters.search);
+      query = query.or(`name.ilike.${safePattern},code.ilike.${safePattern}`)
     }
 
     const { data, error } = await query

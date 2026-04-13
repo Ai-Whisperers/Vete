@@ -23,6 +23,7 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import { createSearchPattern } from '@/lib/utils/search';
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -190,7 +191,8 @@ export class StoreService extends BaseService {
 
         // Search by name/description
         if (query) {
-          productsQuery = productsQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+          const safePattern = createSearchPattern(query);
+          productsQuery = productsQuery.or(`name.ilike.${safePattern},description.ilike.${safePattern}`);
         }
 
         const { data, error } = await productsQuery;

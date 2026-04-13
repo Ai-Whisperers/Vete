@@ -15,6 +15,7 @@
  */
 
 import { BaseService, type ServiceResult } from './base-service';
+import { createSearchPattern } from '@/lib/utils/search';
 import type { MessageStatus } from '@/lib/types/status';
 
 // Re-export for consumers
@@ -667,7 +668,8 @@ export class MessagingService extends BaseService {
       }
 
       if (filters?.search) {
-        query = query.or(`name.ilike.%${filters.search}%,code.ilike.%${filters.search}%`);
+        const safePattern = createSearchPattern(filters.search);
+        query = query.or(`name.ilike.${safePattern},code.ilike.${safePattern}`);
       }
 
       const { data, error } = await query;

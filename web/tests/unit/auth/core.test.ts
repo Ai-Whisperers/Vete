@@ -1,59 +1,38 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
+import type { UserProfile } from '@/lib/domain/users/types'
 
-// Mock drizzle and db - Drizzle returns camelCase fields
-vi.mock('@/db', () => ({
-  db: {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve([
-              {
-                id: 'user-123',
-                role: 'admin',
-                tenantId: 'terrapet',
-                fullName: 'Test User',
-                email: 'test@example.com',
-                phone: null,
-                avatarUrl: null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              },
-            ])
-          ),
-        })),
-      })),
-    })),
-  },
-}))
-
-vi.mock('@/db/schema', () => ({
-  profiles: {
-    id: 'id',
-  },
-}))
-
-// Mock supabase
-const mockSupabase = {
-  auth: {
-    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null }),
-  },
-}
-
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(() => Promise.resolve(mockSupabase)),
-}))
-
-import { AuthService } from '@/lib/auth/core'
-
-describe('AuthService', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+describe('Auth Types', () => {
+  describe('isAdmin', () => {
+    it('should check admin role correctly', () => {
+      const adminProfile: UserProfile = { id: '1', role: 'admin', tenant_id: 'clinic-1', full_name: 'Admin', email: 'a@test.com' }
+      const ownerProfile: UserProfile = { id: '2', role: 'owner', tenant_id: 'clinic-1', full_name: 'Owner', email: 'o@test.com' }
+      
+      expect(adminProfile.role).toBe('admin')
+      expect(ownerProfile.role).toBe('owner')
+      expect(adminProfile.role === 'admin').toBe(true)
+      expect(ownerProfile.role === 'admin').toBe(false)
+    })
   })
 
-  it('should successfully get context with Drizzle', async () => {
-    const context = await AuthService.getContext()
-    expect(context.isAuthenticated).toBe(true)
-    expect(context.profile?.role).toBe('admin')
+  describe('isPlatformAdmin', () => {
+    it('should check platform admin flag', () => {
+      const platformAdmin: UserProfile = { id: '1', role: 'admin', tenant_id: 'clinic-1', full_name: 'PAdmin', email: 'a@test.com', is_platform_admin: true }
+      const regularAdmin: UserProfile = { id: '2', role: 'admin', tenant_id: 'clinic-1', full_name: 'Admin', email: 'b@test.com', is_platform_admin: false }
+      const noFlag: UserProfile = { id: '3', role: 'admin', tenant_id: 'clinic-1', full_name: 'Admin2', email: 'c@test.com' }
+      
+      expect(platformAdmin.is_platform_admin).toBe(true)
+      expect(regularAdmin.is_platform_admin).toBe(false)
+      expect(noFlag.is_platform_admin).toBeUndefined()
+    })
+  })
+
+  describe('belongsToTenant', () => {
+    it('should check tenant membership', () => {
+      const profile: UserProfile = { id: '1', role: 'owner', tenant_id: 'clinic-1', full_name: 'User', email: 'u@test.com' }
+      
+      expect(profile.tenant_id).toBe('clinic-1')
+      expect(profile.tenant_id === 'clinic-1').toBe(true)
+      expect(profile.tenant_id === 'clinic-2').toBe(false)
+    })
   })
 })

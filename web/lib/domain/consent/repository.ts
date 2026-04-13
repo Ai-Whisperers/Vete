@@ -6,6 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createSearchPattern } from '@/lib/utils/search';
 import type {
   ConsentTemplate,
   ConsentTemplateVersion,
@@ -58,8 +59,9 @@ export class ConsentRepository {
     }
 
     if (filters.search) {
+      const safePattern = createSearchPattern(filters.search);
       query = query.or(
-        `name.ilike.%${filters.search}%,title.ilike.%${filters.search}%,code.ilike.%${filters.search}%`
+        `name.ilike.${safePattern},title.ilike.${safePattern},code.ilike.${safePattern}`
       );
     }
 

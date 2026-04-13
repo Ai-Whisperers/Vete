@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createSearchPattern } from '@/lib/utils/search'
 
 export type OrderStatus =
   | 'pending'
@@ -62,7 +63,8 @@ export const GET = withApiAuth(
 
       // Apply search filter (order number or customer name)
       if (search) {
-        query = query.or(`order_number.ilike.%${search}%`)
+        const safePattern = createSearchPattern(search);
+        query = query.or(`order_number.ilike.${safePattern}`)
       }
 
       // Apply requires prescription filter

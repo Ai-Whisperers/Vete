@@ -373,10 +373,6 @@ const nextConfig = {
 
   // Experimental features
   experimental: {
-    // Partial Prerendering - combines static shell with dynamic content
-    // Enables fast initial paint for public clinic pages
-    ppr: 'incremental',
-
     // Server actions configuration
     serverActions: {
       bodySizeLimit: '2mb',

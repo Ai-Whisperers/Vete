@@ -87,7 +87,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
   })
 
   useEffect(() => {
-    if (configResult?.success && configResult.data) {
+    if (configResult && typeof configResult === 'object' && 'success' in configResult && configResult.success && 'data' in configResult && configResult.data) {
       providerForm.setValue('provider', configResult.data.provider)
       stripeForm.reset(configResult.data.stripe)
       bancardForm.reset(configResult.data.bancard)

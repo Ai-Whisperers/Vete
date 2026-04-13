@@ -346,7 +346,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockOwnerUser)
+      mockAuthenticatedUser(mockSupabaseClient, mockOwnerUser)
       
       // Test: Owner role should not have staff privileges
       const { data: existing } = await mockSupabase.from().select().eq('id', mockLostPetTenantA.id).single()
@@ -468,7 +468,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockOwnerUser)
+      mockAuthenticatedUser(mockSupabaseClient, mockOwnerUser)
       
       // Owner should only see their own pets
       const result = mockSupabase.from().select().eq('tenant_id', TENANT_A).eq('pet.owner_id', mockOwnerUser.ownerId)

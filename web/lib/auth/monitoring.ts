@@ -4,7 +4,7 @@
  * Task: T002 - Implement failed login monitoring
  */
 
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 
 export interface AuthAttempt {
@@ -29,7 +29,7 @@ export interface AuthAttemptAlert {
  */
 export async function logAuthAttempt(attempt: AuthAttempt): Promise<void> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     const { error } = await supabase
       .from('auth_logs')
@@ -112,7 +112,7 @@ export async function checkSuspiciousActivity(
   ip?: string
 ): Promise<AuthAttemptAlert[]> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const alerts: AuthAttemptAlert[] = []
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString()
     
@@ -210,7 +210,7 @@ export function withAuthMonitoring<T extends (...args: any[]) => Promise<any>>(
  */
 export async function getAuthActivitySummary(hours: number = 24) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
     
     // Get total attempts

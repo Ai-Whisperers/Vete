@@ -222,12 +222,12 @@ export default async function ClinicLayout({
   const isDashboardRoute = pathname.includes('/dashboard')
   const isPortalRoute = pathname.includes('/portal')
 
-  // Fetch tenant subscription tier for feature flags and ads
-  const { data: tenantData } = await supabase
+  // Fetch tenant subscription tier for feature flags and ads (only for non-dashboard routes)
+  const { data: tenantData } = !isDashboardRoute ? await supabase
     .from('tenants')
     .select('subscription_tier, is_trial, trial_end_date')
     .eq('id', clinic)
-    .single()
+    .single() : { data: null }
 
   const tier: TierId = (tenantData?.subscription_tier as TierId) || 'gratis'
   const tierConfig = getTierById(tier)

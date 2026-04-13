@@ -4,8 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
 
-// TICKET-TYPE-002: Define proper state interface for server actions
+const medicalRecordSchema = z.object({
+  petId: z.string().uuid('ID de mascota inválido'),
+  type: z.string().min(1, 'El tipo es obligatorio'),
+  title: z.string().min(1, 'El título es obligatorio').max(200),
+  diagnosis: z.string().optional(),
+  notes: z.string().optional(),
+})
+
 interface ActionState {
   error?: string
   success?: boolean
@@ -17,7 +25,6 @@ export async function createMedicalRecord(
 ): Promise<ActionState> {
   const supabase = await createClient()
 
-  // 1. Auth Check
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -40,20 +47,27 @@ export async function createMedicalRecord(
   const diagnosis = formData.get('diagnosis') as string
   const notes = formData.get('notes') as string
 
-  if (!title || !type) {
-    return { error: 'Título y Tipo son obligatorios' }
+  const validatedData = medicalRecordSchema.safeParse({ petId, type, title, diagnosis, notes })
+  if (!validatedData.success) {
+    const firstError = validatedData.error.errors[0]
+    return { error: firstError.message }
+  }
+
+  const { data: pet } = await supabase.from('pets').select('tenant_id').eq('id', validatedData.data.petId).single()
+  if (!pet || pet.tenant_id !== profile.tenant_id) {
+    return { error: 'Mascota no encontrada o acceso denegado' }
   }
 
   try {
     const { error } = await supabase.from('medical_records').insert({
       tenant_id: profile.tenant_id,
-      pet_id: petId,
+      pet_id: validatedData.data.petId,
       performed_by: user.id,
-      type,
-      title,
-      diagnosis,
-      notes,
-      attachments: [], // Todo: Handle file uploads
+      type: validatedData.data.type,
+      title: validatedData.data.title,
+      diagnosis: validatedData.data.diagnosis ?? null,
+      notes: validatedData.data.notes ?? null,
+      attachments: [],
     })
 
     if (error) throw error

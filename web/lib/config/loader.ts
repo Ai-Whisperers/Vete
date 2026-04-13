@@ -134,10 +134,10 @@ const featureFlagsSchema = z.object({
   appointments: z.coerce.boolean().default(true),
   payments: z.coerce.boolean().default(true),
   notifications: z.coerce.boolean().default(true),
-  analytics: z.coerce.boolean().default(true),
+  analytics: z.coerce.boolean().default(false),
   multiTenant: z.coerce.boolean().default(true),
-  apiRateLimiting: z.coerce.boolean().default(true),
-  emailNotifications: z.coerce.boolean().default(true),
+  apiRateLimiting: z.coerce.boolean().default(false),
+  emailNotifications: z.coerce.boolean().default(false),
   smsNotifications: z.coerce.boolean().default(false),
 })
 

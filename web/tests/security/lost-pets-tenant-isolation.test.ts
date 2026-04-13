@@ -264,7 +264,7 @@ describe('Lost Pets Tenant Isolation', () => {
       })
 
       // Mock staff user from same tenant
-      mockAuthenticatedState(mockUserTenantA)
+      mockAuthenticatedUser(mockSupabaseClient, mockUserTenantA)
       
       // Test: Verify update is allowed for same tenant
       const fetchResult = mockSupabase.from().select().eq('id', mockLostPetTenantA.id).single()
@@ -296,7 +296,7 @@ describe('Lost Pets Tenant Isolation', () => {
       })
 
       // Mock staff user from Tenant A trying to access Tenant B data
-      mockAuthenticatedState(mockUserTenantA)
+      mockAuthenticatedUser(mockSupabaseClient, mockUserTenantA)
       
       // Test: Query with tenant filter should return no results
       const result = mockSupabase.from().select().eq('tenant_id', TENANT_A).eq('id', mockLostPetTenantB.id).single()
@@ -321,7 +321,7 @@ describe('Lost Pets Tenant Isolation', () => {
       })
 
       // Clear authentication state
-      mockAuthenticatedState(null as any)
+      mockAuthenticatedUser(mockSupabaseClient, null as any)
       
       // Attempt to access without authentication should fail
       const result = mockSupabase.from().select().eq('id', mockLostPetTenantA.id).single()
@@ -346,7 +346,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockOwnerUser)
+      mockAuthenticatedUser(mockSupabaseClient, mockOwnerUser)
       
       // Test: Owner role should not have staff privileges
       const { data: existing } = await mockSupabase.from().select().eq('id', mockLostPetTenantA.id).single()
@@ -388,7 +388,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockUserTenantA)
+      mockAuthenticatedUser(mockSupabaseClient, mockUserTenantA)
       
       // Test status transition to 'reunited'
       const updates = {
@@ -434,7 +434,7 @@ describe('Lost Pets Tenant Isolation', () => {
       })
 
       // Test: Even with correct auth, wrong tenant_id should return no rows
-      mockAuthenticatedState(mockUserTenantA)
+      mockAuthenticatedUser(mockSupabaseClient, mockUserTenantA)
       
       // Attempt to access wrong tenant data
       const wrongResult = mockSupabase.from().select().eq('tenant_id', TENANT_B).single()
@@ -468,7 +468,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockOwnerUser)
+      mockAuthenticatedUser(mockSupabaseClient, mockOwnerUser)
       
       // Owner should only see their own pets
       const result = mockSupabase.from().select().eq('tenant_id', TENANT_A).eq('pet.owner_id', mockOwnerUser.ownerId)
@@ -493,7 +493,7 @@ describe('Lost Pets Tenant Isolation', () => {
         })
       })
 
-      mockAuthenticatedState(mockUserTenantA) // vet role
+      mockAuthenticatedUser(mockSupabaseClient, mockUserTenantA) // vet role
       
       // Staff can see all pets in tenant
       const result = mockSupabase.from().select().eq('tenant_id', TENANT_A)

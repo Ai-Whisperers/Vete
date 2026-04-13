@@ -58,7 +58,7 @@ export const getOwnerPets = withActionAuth(
       .order('name', { ascending: true })
 
     if (query) {
-      supabaseQuery = supabaseQuery.ilike('name', `%${query}%`)
+      supabaseQuery = supabaseQuery.ilike('name', `%${query.replace(/[.%_]/g, '\\$&')}%`)
     }
 
     const { data: pets, error } = await supabaseQuery

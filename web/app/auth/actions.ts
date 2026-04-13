@@ -172,6 +172,8 @@ export async function signup(
     options: {
       data: {
         full_name: data.fullName,
+        tenant_id: data.clinic,
+        role: 'owner',
       },
     },
   })
@@ -195,6 +197,16 @@ export async function signup(
 }
 
 export async function loginWithGoogle(clinic: string) {
+  // Validate clinic exists
+  if (!clinic || typeof clinic !== 'string') {
+    throw new Error('Clínica no especificada')
+  }
+
+  // Sanitize: only allow alphanumeric + hyphens
+  if (!/^[a-z0-9-]+$/i.test(clinic)) {
+    throw new Error('Nombre de clínica inválido')
+  }
+
   const supabase = await createClient()
 
   // We need the origin to redirect back correctly
@@ -206,7 +218,7 @@ export async function loginWithGoogle(clinic: string) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?redirect=/${clinic}/portal/dashboard`,
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?redirect=/${clinic}/portal/dashboard`,
     },
   })
 
@@ -253,7 +265,7 @@ export async function requestPasswordReset(
   const supabase = await createClient()
 
   const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/${data.clinic}/portal/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/${data.clinic}/portal/reset-password`,
   })
 
   if (error) {

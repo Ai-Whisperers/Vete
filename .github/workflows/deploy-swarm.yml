@@ -1,0 +1,227 @@
+name: Build & Deploy (Docker Swarm)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository }}/vete
+  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+  DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'root' }}
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & TypeCheck
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_tests != 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - run: cd web && npm ci
+      - run: cd web && npm run lint
+      - run: cd web && npm run typecheck
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_tests != 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - run: cd web && npm ci
+      - run: cd web && npm run test:unit
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-report
+          path: web/coverage
+          retention-days: 7
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_tests != 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - run: cd web && npm ci
+      - run: cd web && npm run test:security
+
+  docker-build:
+    name: Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, unit-tests, security-tests]
+    if: ${{ always() && !cancelled() && needs.lint-and-typecheck.result == 'success' && needs.unit-tests.result == 'success' }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+            NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Docker Swarm
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "=== Deploying Vete $(date) ==="
+
+            docker pull ${{ env.IMAGE_NAME }}:latest
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to pull image"
+              exit 1
+            fi
+
+            docker service update --image ${{ env.IMAGE_NAME }}:latest vete_web --force
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to update service"
+              exit 1
+            fi
+
+            echo "=== Waiting for service to stabilize ==="
+            sleep 30
+
+            # Verify service is running
+            RUNNING=$(docker service ps vete_web --filter "desired-state=running" --format "{{.CurrentState}}" | head -1)
+            echo "Service status: $RUNNING"
+
+            # Health check
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 --max-time 10 || echo "000")
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+              echo "=== Deploy successful (HTTP $HTTP_CODE) ==="
+            else
+              echo "WARNING: Health check returned HTTP $HTTP_CODE"
+              echo "Rolling back..."
+              docker service rollback vete_web
+              exit 1
+            fi
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Deployment succeeded"
+          else
+            echo "Deployment failed - check logs"
+          fi
+
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: ${{ always() && needs.deploy.result == 'success' }}
+    steps:
+      - name: Run smoke tests
+        run: |
+          BASE_URL="${{ secrets.NEXT_PUBLIC_BASE_URL }}"
+          CLINIC="cavillpet"
+          FAILURES=0
+
+          echo "=== Running Smoke Tests ==="
+
+          # Test 1: Public homepage
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$BASE_URL/$CLINIC" --max-time 15)
+          echo "Homepage: HTTP $HTTP"
+          [ "$HTTP" -ge 200 ] && [ "$HTTP" -lt 400 ] || { echo "FAIL: Homepage"; FAILURES=$((FAILURES+1)); }
+
+          # Test 2: Login page
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$BASE_URL/$CLINIC/portal/login" --max-time 15)
+          echo "Login: HTTP $HTTP"
+          [ "$HTTP" -ge 200 ] && [ "$HTTP" -lt 400 ] || { echo "FAIL: Login page"; FAILURES=$((FAILURES+1)); }
+
+          # Test 3: Booking page
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$BASE_URL/$CLINIC/book" --max-time 15)
+          echo "Booking: HTTP $HTTP"
+          [ "$HTTP" -ge 200 ] && [ "$HTTP" -lt 400 ] || { echo "FAIL: Booking page"; FAILURES=$((FAILURES+1)); }
+
+          # Test 4: Store page
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$BASE_URL/$CLINIC/store" --max-time 15)
+          echo "Store: HTTP $HTTP"
+          [ "$HTTP" -ge 200 ] && [ "$HTTP" -lt 400 ] || { echo "FAIL: Store page"; FAILURES=$((FAILURES+1)); }
+
+          # Test 5: Dashboard redirects to login (307 is correct)
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$BASE_URL/$CLINIC/dashboard" --max-time 15)
+          echo "Dashboard: HTTP $HTTP (expect 307)"
+          [ "$HTTP" == "307" ] || [ "$HTTP" == "302" ] || { echo "FAIL: Dashboard redirect"; FAILURES=$((FAILURES+1)); }
+
+          # Test 6: Canonical URL
+          CANONICAL=$(curl -s "https://$BASE_URL/$CLINIC" | grep -o 'canonical[^>]*href="[^"]*"' | grep -o 'https://[^"]*' || echo "")
+          echo "Canonical: $CANONICAL"
+          [ -n "$CANONICAL" ] || { echo "FAIL: Missing canonical"; FAILURES=$((FAILURES+1)); }
+
+          echo ""
+          echo "=== Results: $FAILURES failures ==="
+
+          if [ "$FAILURES" -gt 0 ]; then
+            echo "Smoke tests failed!"
+            exit 1
+          fi
+          echo "All smoke tests passed!"

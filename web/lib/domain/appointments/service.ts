@@ -27,15 +27,12 @@ export class AppointmentService {
   /**
    * Get appointment by ID
    */
-  async getAppointment(id: string): Promise<Appointment | null> {
-    return this.repository.findById(id)
+  async getAppointment(id: string, tenantId: string): Promise<Appointment | null> {
+    return this.repository.findById(id, tenantId)
   }
 
-  /**
-   * Get appointments with filters
-   */
-  async getAppointments(filters: AppointmentFilters = {}): Promise<Appointment[]> {
-    return this.repository.findMany(filters)
+  async getAppointments(filters: AppointmentFilters = {}, tenantId: string): Promise<Appointment[]> {
+    return this.repository.findMany(filters, tenantId)
   }
 
   /**
@@ -73,9 +70,10 @@ export class AppointmentService {
     id: string,
     data: UpdateAppointmentData,
     userId: string,
-    isStaff: boolean = false
+    isStaff: boolean = false,
+    tenantId?: string
   ): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId || '')
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -121,7 +119,7 @@ export class AppointmentService {
       }
 
       // Refetch the updated appointment
-      const updated = await this.repository.findById(id)
+      const updated = await this.repository.findById(id, tenantId || '')
       if (!updated) throw new Error('Error al obtener cita actualizada')
       return updated
     }
@@ -136,9 +134,10 @@ export class AppointmentService {
     id: string,
     userId: string,
     reason?: string,
-    isStaff: boolean = false
+    isStaff: boolean = false,
+    tenantId?: string
   ): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId || '')
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -165,7 +164,7 @@ export class AppointmentService {
    * Check in patient (staff only)
    */
   async checkInAppointment(id: string, userId: string, tenantId: string): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId)
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -193,7 +192,7 @@ export class AppointmentService {
    * Start appointment (staff only)
    */
   async startAppointment(id: string, userId: string, tenantId: string): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId)
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -224,7 +223,7 @@ export class AppointmentService {
     tenantId: string,
     notes?: string
   ): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId)
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -254,7 +253,7 @@ export class AppointmentService {
    * Mark as no-show (staff only)
    */
   async markNoShow(id: string, userId: string, tenantId: string): Promise<Appointment> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId)
     if (!appointment) {
       throw notFound('Cita')
     }
@@ -297,7 +296,7 @@ export class AppointmentService {
    * Delete appointment
    */
   async deleteAppointment(id: string, userId: string, tenantId: string): Promise<void> {
-    const appointment = await this.repository.findById(id)
+    const appointment = await this.repository.findById(id, tenantId)
     if (!appointment) {
       throw notFound('Cita')
     }

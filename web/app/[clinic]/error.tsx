@@ -11,19 +11,18 @@ interface Props {
   reset: () => void
 }
 
-/**
- * Error boundary for [clinic] routes.
- * Catches runtime errors and displays a user-friendly message.
- */
 export default function ClinicError({ error, reset }: Props) {
   useEffect(() => {
-    // Log error to our logger
     logger.error('Clinic page error', {
       message: error.message,
       digest: error.digest,
       stack: error.stack?.slice(0, 1000),
     })
   }, [error])
+
+  const clinicSlug = typeof window !== 'undefined'
+    ? window.location.pathname.split('/')[1]
+    : ''
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 p-8">
@@ -57,7 +56,7 @@ export default function ClinicError({ error, reset }: Props) {
           <RefreshCw className="h-4 w-4" />
           Intentar de nuevo
         </Button>
-        <Link href="/">
+        <Link href={`/${clinicSlug}`}>
           <Button
             variant="outline"
             className="flex items-center gap-2 rounded-lg border border-gray-300 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50"

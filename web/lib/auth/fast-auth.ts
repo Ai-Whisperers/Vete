@@ -36,7 +36,11 @@ interface FastAuthResult {
  */
 export async function getFastAuth(): Promise<FastAuthResult> {
   const cookieStore = await cookies()
-  const authCookie = cookieStore.get(`sb-${env.SUPABASE_URL.split('//')[1]?.split('.')[0]}-auth-token`)?.value
+  const supabaseHost = new URL(env.SUPABASE_URL).hostname
+  const cookiePrefix = supabaseHost === 'localhost'
+    ? supabaseHost
+    : env.SUPABASE_URL.split('//')[1]?.split('.')[0] ?? supabaseHost
+  const authCookie = cookieStore.get(`sb-${cookiePrefix}-auth-token`)?.value
 
   // Create Supabase client
   const supabase = createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {

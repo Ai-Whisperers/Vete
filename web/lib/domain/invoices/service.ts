@@ -102,9 +102,14 @@ export class InvoiceService {
 
     // Check for idempotent request
     if (idempotency_key) {
-      const existing = await this.repository.findByIdempotencyKey(tenantId, idempotency_key)
+      const { data: existing } = await this.supabase
+        .from('invoices')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('idempotency_key', idempotency_key)
+        .single()
       if (existing) {
-        return existing
+        return existing as unknown as Invoice
       }
     }
 
@@ -137,8 +142,8 @@ export class InvoiceService {
         description: item.description,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        discount_percent: discount,
-        line_total: lineTotal,
+        discount_amount: roundCurrency(item.quantity * item.unit_price * (discount / 100)),
+        total: lineTotal,
       }
     })
 
@@ -150,15 +155,13 @@ export class InvoiceService {
     const invoice = await this.repository.create(tenantId, {
       invoice_number: invoiceNumber,
       pet_id,
-      owner_id: pet.owner_id,
+      client_id: pet.owner_id,
       subtotal,
-      tax_rate,
       tax_amount: taxAmount,
       total,
       notes,
       due_date: due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       created_by: userId,
-      idempotency_key,
     })
 
     // Create invoice items
@@ -235,8 +238,8 @@ export class InvoiceService {
           description: item.description,
           quantity: item.quantity,
           unit_price: item.unit_price,
-          discount_percent: item.discount_percent || 0,
-          line_total: lineTotal,
+          discount_amount: roundCurrency(item.quantity * item.unit_price * ((item.discount_percent || 0) / 100)),
+          total: lineTotal,
         }
       })
 
@@ -251,9 +254,9 @@ export class InvoiceService {
       updated = await this.repository.update(id, tenantId, {
         subtotal,
         tax_amount: taxAmount,
-        total_amount: total,
+        total,
         balance_due: amountDue,
-      })
+      } as Partial<Invoice>)
     }
 
     await logAudit('UPDATE_INVOICE', `invoices/${id}`, { status: updated.status })
@@ -405,7 +408,7 @@ export class InvoiceService {
 
     invoices.forEach((inv) => {
       const total = Number(inv.total)
-      const amountDue = Number(inv.amount_due)
+      const amountDue = Number(inv.balance_due)
 
       if (inv.status === 'paid') {
         totalRevenue += total

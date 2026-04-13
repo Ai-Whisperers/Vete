@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import type {
   UserRole,
   UserProfile,
+  AuthContext,
   AppAuthContext,
   AuthResult,
 } from './types'
@@ -96,10 +97,11 @@ export class AuthService {
       if (!row) {
         logger.warn('[Auth] Profile not found for authenticated user', { userId: user.id })
         return {
-          user: null,
+          user,
           profile: null,
           supabase,
-          isAuthenticated: false,
+          isAuthenticated: true,
+          profileMissing: true,
         }
       }
 
@@ -162,7 +164,18 @@ export class AuthService {
       }
     }
 
-    const { profile } = context
+    const profile = context.profile
+
+    if (!profile) {
+      return {
+        success: false,
+        error: {
+          code: 'PROFILE_MISSING',
+          message: 'User profile not found',
+          statusCode: 403,
+        },
+      }
+    }
 
     // Check if user is active
     if (options.requireActive && !profile.is_active) {
@@ -191,7 +204,17 @@ export class AuthService {
     }
 
     // Check tenant authorization
-    if (options.requireTenant && options.tenantId) {
+    if (options.requireTenant) {
+      if (!options.tenantId) {
+        return {
+          success: false,
+          error: {
+            code: 'TENANT_REQUIRED',
+            message: 'Tenant ID is required for this operation',
+            statusCode: 400,
+          },
+        }
+      }
       if (profile.tenant_id !== options.tenantId) {
         return {
           success: false,
@@ -206,7 +229,7 @@ export class AuthService {
 
     return {
       success: true,
-      context,
+      context: context as AuthContext,
     }
   }
 
@@ -584,10 +607,10 @@ export function belongsToTenant(profile: MinimalProfile, tenantId: string): bool
  */
 export function requireOwnership(
   resourceOwnerId: string,
-  context: { profile: MinimalProfile }
+  context: { profile: MinimalProfile; targetTenantId?: string }
 ): boolean {
   if (isAdmin(context.profile)) return true
-  if (isStaff(context.profile) && belongsToTenant(context.profile, context.profile.tenant_id)) {
+  if (isStaff(context.profile) && context.targetTenantId && belongsToTenant(context.profile, context.targetTenantId)) {
     return true
   }
   return ownsResource(context.profile, resourceOwnerId)

@@ -36,7 +36,15 @@ export interface UnauthenticatedContext {
   isAuthenticated: false
 }
 
-export type AppAuthContext = AuthContext | UnauthenticatedContext
+export interface ProfileMissingContext {
+  user: User
+  profile: null
+  supabase: SupabaseClient
+  isAuthenticated: true
+  profileMissing: true
+}
+
+export type AppAuthContext = AuthContext | UnauthenticatedContext | ProfileMissingContext
 
 export interface AuthOptions {
   roles?: UserRole[]

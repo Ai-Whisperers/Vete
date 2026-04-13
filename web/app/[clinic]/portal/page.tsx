@@ -33,13 +33,30 @@ export default async function PortalIndexPage({ params }: Props) {
     .single()
 
   if (!profile) {
-    // No profile found - redirect to onboarding
+    const { data: allProfiles } = await supabase
+      .from('profiles')
+      .select('tenant_id')
+      .eq('id', user.id)
+
+    if (allProfiles && allProfiles.length > 0) {
+      const userClinic = allProfiles[0].tenant_id
+      redirect(`/${userClinic}/portal`)
+    }
     redirect(`/${clinic}/portal/onboarding`)
   }
 
   // Verify user belongs to this clinic
   if (profile.tenant_id !== clinic) {
-    notFound()
+    const { data: correctProfile } = await supabase
+      .from('profiles')
+      .select('tenant_id')
+      .eq('id', user.id)
+      .limit(1)
+      .single()
+    if (correctProfile) {
+      redirect(`/${correctProfile.tenant_id}/portal`)
+    }
+    redirect(`/${clinic}/portal/login`)
   }
 
   // Redirect based on role

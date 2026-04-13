@@ -162,7 +162,7 @@ export function MobileMenu({
                 aria-modal="true"
                 aria-label={tNav('navigationMenu')}
               >
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border,#e5e7eb)] bg-[var(--bg-default,#fff)] px-4 py-4">
                   <span className="text-lg font-bold text-[var(--text-primary)]">
                     {config.ui_labels?.nav?.menu || tNav('menu')}
                   </span>

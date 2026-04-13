@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
 import { checkActionRateLimit, ACTION_RATE_LIMITS } from '@/lib/auth/action-rate-limit'
+import { createClient } from '@/lib/supabase/server'
 
 type FormState = { success: true; message?: string } | { success: false; error: string } | null
 
@@ -37,11 +38,25 @@ export async function submitContactForm(
   }
 
   try {
-    // Simulate network delay for demo
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const supabase = await createClient()
 
-    // In production, send email via Resend/Nodemailer or create a lead record
-    // await resend.emails.send({ ... })
+    // Save lead to database
+    const { error: dbError } = await supabase.from('contact_submissions').insert({
+      tenant_id: formData.get('clinic') as string,
+      name: validation.data.name,
+      phone: validation.data.phone,
+      pet_name: validation.data.petName,
+      reason: validation.data.reason,
+      created_at: new Date().toISOString(),
+    })
+
+    if (dbError) {
+      logger.error('Failed to save contact form submission', {
+        error: dbError.message,
+        tenantId: formData.get('clinic'),
+      })
+      // Fall through to success - don't reveal DB errors to user
+    }
 
     return {
       success: true,

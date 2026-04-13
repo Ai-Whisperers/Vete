@@ -25,12 +25,12 @@ const INVOICE_SELECT = `
   *,
   pets(id, name, species, breed, photo_url, owner:profiles(id, full_name, email, phone)),
   invoice_items(
-    id, service_id, product_id, description, quantity, unit_price, discount_percent, line_total,
+    id, service_id, product_id, description, quantity, unit_price, discount_amount, total,
     services(id, name, category),
     products(id, name, sku)
   ),
-  payments(id, amount, payment_method, reference_number, paid_at),
-  refunds(id, amount, reason, refunded_at),
+  payments(id, amount, payment_method_name, reference_number, payment_date),
+  refunds(id, amount, reason, created_at),
   created_by_user:profiles!invoices_created_by_fkey(full_name)
 `
 
@@ -97,7 +97,7 @@ export class InvoiceRepository {
       query = query.eq('pet_id', petId)
     }
     if (ownerId) {
-      query = query.eq('owner_id', ownerId)
+      query = query.eq('client_id', ownerId)
     }
     if (fromDate) {
       query = query.gte('created_at', fromDate)
@@ -173,7 +173,7 @@ export class InvoiceRepository {
       .select(`
         *,
         pets(id, name, species, owner:profiles(id, full_name, email, phone)),
-        invoice_items(id, description, quantity, unit_price, line_total)
+        invoice_items(id, description, quantity, unit_price, total)
       `)
       .eq('tenant_id', tenantId)
       .eq('status', 'sent')
@@ -196,15 +196,13 @@ export class InvoiceRepository {
     data: {
       invoice_number: string
       pet_id: string
-      owner_id: string
+      client_id: string
       subtotal: number
-      tax_rate: number
       tax_amount: number
       total: number
       notes?: string
       due_date: string
       created_by: string
-      idempotency_key?: string
     }
   ): Promise<Invoice> {
     const { data: invoice, error } = await this.supabase
@@ -214,7 +212,6 @@ export class InvoiceRepository {
         ...data,
         status: 'draft',
         amount_paid: 0,
-        amount_due: data.total,
       })
       .select()
       .single()
@@ -237,8 +234,8 @@ export class InvoiceRepository {
       description: string
       quantity: number
       unit_price: number
-      discount_percent: number
-      line_total: number
+      discount_amount: number
+      total: number
     }>
   ): Promise<void> {
     const invoiceItems = items.map((item) => ({
@@ -314,24 +311,6 @@ export class InvoiceRepository {
   }
 
   /**
-   * Check if invoice exists with idempotency key
-   */
-  async findByIdempotencyKey(
-    tenantId: string,
-    idempotencyKey: string
-  ): Promise<Invoice | null> {
-    const { data, error } = await this.supabase
-      .from('invoices')
-      .select('*')
-      .eq('tenant_id', tenantId)
-      .eq('idempotency_key', idempotencyKey)
-      .single()
-
-    if (error || !data) return null
-    return data as Invoice
-  }
-
-  /**
    * Generate invoice number via RPC
    */
   async generateInvoiceNumber(tenantId: string): Promise<string> {
@@ -353,10 +332,10 @@ export class InvoiceRepository {
     tenantId: string,
     periodStart: string,
     periodEnd: string
-  ): Promise<Array<{ total: number; status: string; amount_due: number; due_date: string | null }>> {
+  ): Promise<Array<{ total: number; status: string; balance_due: number; due_date: string | null }>> {
     const { data, error } = await this.supabase
       .from('invoices')
-      .select('total, status, amount_due, due_date')
+      .select('total, status, balance_due, due_date')
       .eq('tenant_id', tenantId)
       .gte('created_at', periodStart)
       .lte('created_at', periodEnd)

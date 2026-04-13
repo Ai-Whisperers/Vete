@@ -56,7 +56,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
   // Get context for isStaff check
   const authContext = await AuthService.getContext()
-  const isStaff = authContext.isAuthenticated && ['vet', 'admin'].includes(authContext.profile.role)
+  const isStaff = authContext.isAuthenticated && authContext.profile && ['vet', 'admin'].includes(authContext.profile.role)
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">

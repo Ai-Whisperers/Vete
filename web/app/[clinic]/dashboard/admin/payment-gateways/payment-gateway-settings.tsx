@@ -86,12 +86,17 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     },
   })
 
+  function isObjectResult(r: unknown): r is Record<string, unknown> {
+    return typeof r === 'object' && r !== null
+  }
+
   useEffect(() => {
-    if (configResult?.success && configResult.data) {
-      providerForm.setValue('provider', configResult.data.provider)
-      stripeForm.reset(configResult.data.stripe)
-      bancardForm.reset(configResult.data.bancard)
-      tigoMoneyForm.reset(configResult.data.tigo_money)
+    if (isObjectResult(configResult) && configResult.success === true && configResult.data) {
+      const d = configResult.data as { provider: string; stripe: Record<string, unknown>; bancard: Record<string, unknown>; tigo_money: Record<string, unknown> }
+      providerForm.setValue('provider', d.provider)
+      stripeForm.reset(d.stripe)
+      bancardForm.reset(d.bancard)
+      tigoMoneyForm.reset(d.tigo_money)
     }
   }, [configResult, providerForm, stripeForm, bancardForm, tigoMoneyForm])
 
@@ -99,7 +104,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     setIsSaving(true)
     try {
       const result = await setPaymentProvider(clinicSlug, data.provider)
-      if (result.success) {
+      if (typeof result === 'object' && 'success' in result && result.success) {
         setIsSaving(false)
       }
     } catch (error) {
@@ -111,7 +116,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     setIsSaving(true)
     try {
       const result = await updateStripeConfig(clinicSlug, data)
-      if (result.success) {
+      if (typeof result === 'object' && 'success' in result && result.success) {
         setIsSaving(false)
       }
     } catch (error) {
@@ -123,7 +128,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     setIsSaving(true)
     try {
       const result = await updateBancardConfig(clinicSlug, data)
-      if (result.success) {
+      if (typeof result === 'object' && 'success' in result && result.success) {
         setIsSaving(false)
       }
     } catch (error) {
@@ -135,7 +140,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     setIsSaving(true)
     try {
       const result = await updateTigoMoneyConfig(clinicSlug, data)
-      if (result.success) {
+      if (typeof result === 'object' && 'success' in result && result.success) {
         setIsSaving(false)
       }
     } catch (error) {
@@ -151,7 +156,7 @@ export function PaymentGatewaySettings({ clinicSlug }: PaymentGatewaySettingsPro
     )
   }
 
-  if (error || !configResult?.success || !configResult.data) {
+  if (error || !(isObjectResult(configResult) && configResult.success === true && configResult.data)) {
     return (
       <div className="text-center py-12">
         <p className="text-[var(--text-secondary)]">Error cargando configuración de pago</p>

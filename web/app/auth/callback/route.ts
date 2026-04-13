@@ -22,6 +22,14 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
+    if (error) {
+      console.error('[Auth Callback] exchangeCodeForSession failed:', {
+        error: error.message,
+        code: error.code,
+        status: error.status,
+      })
+    }
+
     if (!error && data.user) {
       // Wait for the database trigger to create the profile
       // The trigger fires async after user creation, so we poll briefly

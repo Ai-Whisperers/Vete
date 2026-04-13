@@ -1,5 +1,6 @@
 'use server'
 
+import { AuthService } from '@/lib/auth/core'
 import { setSystemConfig, getSystemConfigs } from './system-configs'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
@@ -11,6 +12,12 @@ export const PAYMENT_PROVIDERS = [
 ] as const
 
 export const getPaymentProviderConfig = async (clinicSlug: string) => {
+    // ACT-1 FIX: Require admin auth for payment config access
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
+
   const result = await getSystemConfigs(clinicSlug)
   
   if (!result.success) {
@@ -41,6 +48,11 @@ export const getPaymentProviderConfig = async (clinicSlug: string) => {
 }
 
 export const setPaymentProvider = async (clinicSlug: string, provider: string) => {
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
+
   try {
     const result = await setSystemConfig(
       clinicSlug, 
@@ -63,6 +75,11 @@ export const updateStripeConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; publishableKey: string; webhookSecret: string }
 ) => {
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
+
   try {
     await Promise.all([
       setSystemConfig(clinicSlug, 'stripe_enabled', config.enabled.toString(), 'Activar pagos con Stripe'),
@@ -83,6 +100,11 @@ export const updateBancardConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; publicKey: string; environment: 'sandbox' | 'production' }
 ) => {
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
+
   try {
     await Promise.all([
       setSystemConfig(clinicSlug, 'bancard_enabled', config.enabled.toString(), 'Activar pagos con Bancard'),
@@ -103,6 +125,11 @@ export const updateTigoMoneyConfig = async (
   clinicSlug: string, 
   config: { enabled: boolean; apiKey: string; environment: 'sandbox' | 'production' }
 ) => {
+    const authCheck = await AuthService.validateAuth({ roles: ['admin'] })
+    if (!authCheck.success || !authCheck.context) {
+      return actionError(authCheck.error?.message || 'No autorizado')
+    }
+
   try {
     await Promise.all([
       setSystemConfig(clinicSlug, 'tigo_money_enabled', config.enabled.toString(), 'Activar pagos con Tigo Money'),

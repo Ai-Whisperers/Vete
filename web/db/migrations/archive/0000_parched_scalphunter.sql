@@ -3267,7 +3267,7 @@ CREATE VIEW "public"."recent_job_executions" AS (SELECT job_name, started_at, co
 CREATE VIEW "public"."job_statistics" AS (SELECT job_name, count(*) AS total_runs, count(*) FILTER (WHERE status = 'completed'::text) AS successful_runs, count(*) FILTER (WHERE status = 'failed'::text) AS failed_runs, round(100.0 * count(*) FILTER (WHERE status = 'completed'::text)::numeric / NULLIF(count(*), 0)::numeric, 2) AS success_rate, avg(duration_ms) FILTER (WHERE status = 'completed'::text) AS avg_duration_ms, max(started_at) AS last_run FROM scheduled_job_log WHERE started_at > (now() - '7 days'::interval) GROUP BY job_name ORDER BY job_name);--> statement-breakpoint
 CREATE POLICY "Authenticated users view own tenant" ON "tenants" AS PERMISSIVE FOR SELECT TO "authenticated" USING (((is_active = true) AND ((EXISTS ( SELECT 1
    FROM profiles
-  WHERE ((profiles.id = auth.uid()) AND (profiles.tenant_id = tenants.id)))) OR true)));--> statement-breakpoint
+  WHERE ((profiles.id = auth.uid()) AND (profiles.tenant_id = tenants.id)))) )));--> statement-breakpoint
 CREATE POLICY "Service role full access" ON "tenants" AS PERMISSIVE FOR ALL TO "service_role";--> statement-breakpoint
 CREATE POLICY "Service role full access" ON "profiles" AS PERMISSIVE FOR ALL TO "service_role" USING (true) WITH CHECK (true);--> statement-breakpoint
 CREATE POLICY "Staff update tenant profiles" ON "profiles" AS PERMISSIVE FOR UPDATE TO "authenticated";--> statement-breakpoint

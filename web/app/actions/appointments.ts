@@ -672,6 +672,11 @@ export async function checkAvailableSlots(
 ): Promise<{ data: AvailabilitySlot[] | null; error: string | null }> {
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { data: null, error: 'Debe iniciar sesión' }
+  }
+
   const {
     clinicSlug,
     date,
@@ -778,7 +783,8 @@ export const rescheduleAppointmentByDrag = withActionAuth(
         p_appointment_id: appointmentId,
         p_new_start_time: newStartTime.toISOString(),
         p_new_end_time: newEndTime.toISOString(),
-        p_performed_by: user.id,
+        p_user_id: user.id,
+        p_is_staff: ['vet', 'admin'].includes(profile.role),
       }
     )
 

@@ -26,6 +26,7 @@ import {
   ArrowLeft,
   BarChart3,
   Percent,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -323,6 +324,13 @@ export function DashboardSidebar({
             Herramientas
           </p>
           <div className="flex flex-wrap gap-1">
+            <Link
+              href={`/${clinic}/dashboard/guide`}
+              className="hover:bg-[var(--bg-subtle)]/80 rounded-lg bg-[var(--bg-subtle)] px-2 py-1 text-xs font-medium text-[var(--text-muted)] transition-colors"
+              title="Guía de onboarding"
+            >
+              Guía
+            </Link>
             <Link
               href={`/${clinic}/drug_dosages`}
               className="hover:bg-[var(--bg-subtle)]/80 rounded-lg bg-[var(--bg-subtle)] px-2 py-1 text-xs font-medium text-[var(--text-muted)] transition-colors"

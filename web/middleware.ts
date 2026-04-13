@@ -231,6 +231,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Create response with pathname and request ID headers
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-request-id', requestId)
+  requestHeaders.set('x-pathname', path)
 
   let response = NextResponse.next({
     request: {
@@ -278,7 +279,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         // Create new response with updated cookies
         response = NextResponse.next({
           request: {
-            headers: request.headers,
+            headers: requestHeaders,
           },
         })
         response.headers.set('x-pathname', path)
@@ -321,8 +322,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         path,
       })
       // Don't redirect - let them stay on login to sign up or switch account
-      const passThrough = NextResponse.next()
-      passThrough.headers.set('x-request-id', requestId)
+      const passThroughHeaders = new Headers(request.headers)
+      passThroughHeaders.set('x-request-id', requestId)
+      passThroughHeaders.set('x-pathname', path)
+      const passThrough = NextResponse.next({
+        request: { headers: passThroughHeaders },
+      })
       return passThrough
     }
 

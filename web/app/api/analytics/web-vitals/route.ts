@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/utils/logger'
 import { webVitalsPayloadSchema } from '@/lib/schemas/analytics'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * Analytics endpoint for Web Vitals collection
@@ -8,6 +9,15 @@ import { webVitalsPayloadSchema } from '@/lib/schemas/analytics'
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      )
+    }
+
     const rawData = await request.json()
     
     // Validate the payload with Zod

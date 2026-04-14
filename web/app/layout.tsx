@@ -1,43 +1,27 @@
-import type { Metadata } from 'next'
-import { Playfair_Display, Inter } from 'next/font/google'
-import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, getLocale } from 'next-intl/server'
-import { getMetadataBaseUrl } from '@/lib/config'
-import './globals.css'
+import type { ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import { getNextIntlMessages } from '../lib/next-intl';
 
-const playfairDisplay = Playfair_Display({
-  variable: '--font-playfair',
-  subsets: ['latin'],
-})
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-})
-
-export const metadata: Metadata = {
-  title: {
-    default: 'LEALTIS — Paraguay Establishment for Europeans',
-    template: '%s | LEALTIS',
-  },
-  description:
-    'Professional relocation to Paraguay: residency, company formation, and bank account in one integrated program.',
-  metadataBase: getMetadataBaseUrl(),
+interface LayoutProps {
+  children: ReactNode;
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  const locale = await getLocale()
-  const messages = await getMessages()
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const router = useRouter();
+  const localeCode = router.locale;
+
+  const messages = getNextIntlMessages(localeCode);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${playfairDisplay.variable} ${inter.variable} antialiased`}>
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-      </body>
-    </html>
-  )
-}
+    <div>
+      {children}
+      <footer>
+        <p>{messages.footer.copyright}</p>
+      </footer>
+    </div>
+  );
+};
+
+export default Layout;
+
+Note: The above files are just examples and may need to be adjusted according to your specific use case. Additionally, you will need to create the Guarani translations file (`gn.json`) and add the necessary translations.

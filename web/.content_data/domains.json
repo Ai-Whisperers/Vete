@@ -7,188 +7,32 @@
       "domain": "paragu-ai.com",
       "tenant": "platform",
       "type": "primary",
-      "provider": "vercel",
+      "provider": "cloudflare",
       "ssl": {
         "enabled": true,
         "autoRenew": true
       },
-      "status": "pending",
-      "createdAt": "2026-02-12T00:00:00Z"
-    },
-    {
-      "domain": "vetic.ai-whisperers.org",
-      "tenant": "platform",
-      "type": "primary",
-      "provider": "vercel",
       "status": "active",
       "createdAt": "2026-02-12T00:00:00Z"
     },
     {
-      "domain": "vetepy-bay.vercel.app",
+      "domain": "www.paragu-ai.com",
       "tenant": "platform",
       "type": "alias",
-      "provider": "vercel",
+      "provider": "cloudflare",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
       "status": "active",
       "createdAt": "2026-02-12T00:00:00Z"
-    },
-    {
-      "domain": "terrapet.vetic.vercel.app",
-      "tenant": "terrapet",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2025-01-31T00:00:00Z"
-    },
-    {
-      "domain": "petlife.vetic.vercel.app",
-      "tenant": "petlife",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2025-01-31T00:00:00Z"
-    },
-    {
-      "domain": "cavillpet.vetic.vercel.app",
-      "tenant": "cavillpet",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2025-01-31T00:00:00Z"
-    },
-    {
-      "domain": "fun4me.vetic.vercel.app",
-      "tenant": "fun4me",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2025-01-31T00:00:00Z"
-    },
-    {
-      "domain": "stroopwafelhuis.com.py",
-      "tenant": "stroopwafel-huis",
-      "type": "primary",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "pending",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "stroopwafel-huis.vetic.vercel.app",
-      "tenant": "stroopwafel-huis",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "granjacabral.com.py",
-      "tenant": "granja-cabral",
-      "type": "primary",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "pending",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "granja-cabral.vetic.vercel.app",
-      "tenant": "granja-cabral",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "fun4me.com.py",
-      "tenant": "fun4me",
-      "type": "primary",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "pending",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "clinicaduerksen.com.py",
-      "tenant": "clinica-duerksen",
-      "type": "primary",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "pending",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "clinica-duerksen.vetic.vercel.app",
-      "tenant": "clinica-duerksen",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2026-04-09T00:00:00Z"
-    },
-    {
-      "domain": "arasy.paragu-ai.com",
-      "tenant": "arasy",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "active",
-      "createdAt": "2026-04-14T00:00:00Z"
-    },
-    {
-      "domain": "dayah.paragu-ai.com",
-      "tenant": "dayah",
-      "type": "subdomain",
-      "provider": "vercel",
-      "ssl": {
-        "enabled": true,
-        "autoRenew": true
-      },
-      "status": "pending",
-      "createdAt": "2026-04-14T00:00:00Z"
     }
   ],
   "cloudflare": {
-    "tunnels": []
+    "pages_project": "paragu-ai",
+    "deployment_type": "github-connected",
+    "branch": "main",
+    "build_command": "npm run build",
+    "build_output": ".next"
   }
 }

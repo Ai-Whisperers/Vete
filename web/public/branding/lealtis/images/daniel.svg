@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#1B3A6B"/>
+  <circle cx="100" cy="80" r="50" fill="#2C4F7D"/>
+  <text x="100" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="bold" fill="#FFFFFF">D</text>
+  <text x="100" y="160" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#C9A84C">Operations Lead</text>
+</svg>

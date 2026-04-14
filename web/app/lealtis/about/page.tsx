@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import { lealtisConfig } from '../config'
+
+export const metadata: Metadata = {
+  title: 'About LEALTIS — Your Bridge to Paraguay',
+  description: 'Learn about LEALTIS, our mission to make relocation to Paraguay seamless, transparent, and accessible for Europeans.',
+  keywords: ['about LEALTIS', 'Paraguay relocation company', 'relocation experts', 'our team'],
+}
 
 export default function LealtisAboutPage() {
   const { trust } = lealtisConfig

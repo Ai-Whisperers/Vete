@@ -1,5 +1,12 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { lealtisConfig } from '../config'
+
+export const metadata: Metadata = {
+  title: 'Programs — LEALTIS',
+  description: 'Complete relocation programs to Paraguay. Paraguay Business ($4,400) or Investor Program ($6,900). All-inclusive pricing.',
+  keywords: ['Paraguay programs', 'relocation programs', 'Paraguay residency', 'business program', 'investor program'],
+}
 
 export default function LealtisProgramPage() {
   const { programs, process } = lealtisConfig

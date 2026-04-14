@@ -1,5 +1,12 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { lealtisConfig } from '../config'
+
+export const metadata: Metadata = {
+  title: 'FAQ — LEALTIS',
+  description: 'Frequently asked questions about relocating to Paraguay, residency requirements, timelines, and our services.',
+  keywords: ['FAQ Paraguay relocation', 'relocation questions', 'Paraguay residency FAQ', 'move to Paraguay questions'],
+}
 
 export default function LealtisFaqPage() {
   const { faq } = lealtisConfig

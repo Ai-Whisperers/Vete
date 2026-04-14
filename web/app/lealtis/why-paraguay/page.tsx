@@ -1,5 +1,12 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { lealtisConfig } from '../config'
+
+export const metadata: Metadata = {
+  title: 'Why Paraguay — LEALTIS',
+  description: 'Discover why Europeans are choosing Paraguay for a better quality of life, tax advantages, and investment opportunities.',
+  keywords: ['why Paraguay', 'relocate to Paraguay benefits', 'Paraguay advantages', 'Paraguay investment opportunities', 'move to Paraguay'],
+}
 
 export default function WhyParaguayPage() {
   const { whyParaguay } = lealtisConfig

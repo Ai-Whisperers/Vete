@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#1B3A6B"/>
+  <rect width="1200" height="630" fill="url(#grad)" opacity="0.3"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1B3A6B"/>
+      <stop offset="50%" style="stop-color:#2C4F7D"/>
+      <stop offset="100%" style="stop-color:#1B3A6B"/>
+    </linearGradient>
+  </defs>
+  <circle cx="200" cy="315" r="150" fill="#C9A84C" opacity="0.2"/>
+  <circle cx="1000" cy="315" r="200" fill="#C9A84C" opacity="0.1"/>
+  <text x="600" y="280" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#FFFFFF" letter-spacing="8">LEALTIS</text>
+  <text x="600" y="340" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#C9A84C">Your Bridge to Paraguay</text>
+  <text x="600" y="400" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#E5E5E5">Relocation &amp; Investment Solutions for Europeans</text>
+  <rect x="450" y="450" width="300" height="60" rx="30" fill="#C9A84C"/>
+  <text x="600" y="490" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" font-weight="bold" fill="#1B3A6B">Start Your Journey</text>
+</svg>

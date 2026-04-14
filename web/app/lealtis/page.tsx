@@ -1,5 +1,24 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { lealtisConfig } from './config'
+
+export const metadata: Metadata = {
+  title: lealtisConfig.seo.title,
+  description: lealtisConfig.seo.description,
+  keywords: lealtisConfig.seo.keywords,
+  openGraph: {
+    title: lealtisConfig.seo.title,
+    description: lealtisConfig.seo.description,
+    type: 'website',
+    images: ['/branding/lealtis/images/og-image.svg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: lealtisConfig.seo.title,
+    description: lealtisConfig.seo.description,
+    images: ['/branding/lealtis/images/og-image.svg'],
+  },
+}
 
 export default function LealtisHomePage() {
   const { programs, process, trust, faq, seo } = lealtisConfig

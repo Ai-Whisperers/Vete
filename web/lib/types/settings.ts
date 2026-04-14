@@ -1,13 +1,13 @@
 /**
  * Settings and configuration types for clinic management
  *
- * Note: ClinicSettings (from config.json) is defined in clinic-config.ts
+ * Note: TenantSettings (from config.json) is defined in tenant-config.ts
  * This file contains operational settings stored in the database.
  */
 
 /**
  * Operational clinic settings (database-stored)
- * This is different from ClinicSettings in clinic-config.ts which comes from JSON
+ * This is different from TenantSettings in tenant-config.ts which comes from JSON
  */
 export interface ClinicOperationalSettings {
   general: GeneralSettings

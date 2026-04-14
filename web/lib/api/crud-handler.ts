@@ -22,7 +22,7 @@
  *     update: updateSupplierSchema,
  *   },
  *   roles: {
- *     read: ['owner', 'vet', 'admin'],
+ *     read: ['client', 'practitioner', 'admin'],
  *     write: ['admin'],
  *   },
  *   defaultSelect: '*, contact_info',

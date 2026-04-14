@@ -31,11 +31,11 @@ export const bookingMessages = {
   /**
    * Full booking context
    */
-  bookFull: ({ petName, serviceName, clinicName }: AppointmentBookingParams) => {
+  bookFull: ({ petName, serviceName, tenantName }: AppointmentBookingParams) => {
     const parts = ['Hola! Quiero agendar una cita']
     if (serviceName) parts.push(`para ${serviceName}`)
     if (petName) parts.push(`para ${petName}`)
-    if (clinicName) parts.push(`en ${clinicName}`)
+    if (tenantName) parts.push(`en ${tenantName}`)
     return parts.join(' ')
   },
 

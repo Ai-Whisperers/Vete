@@ -29,8 +29,8 @@ export const supportMessages = {
   /**
    * Contact form submission with name and clinic
    */
-  contactForm: ({ contactName, clinicName }: ContactFormParams) =>
-    `Hola! Soy ${contactName} de ${clinicName}. Me gustaría recibir más información sobre Vetic.`,
+  contactForm: ({ contactName, tenantName }: ContactFormParams) =>
+    `Hola! Soy ${contactName} de ${tenantName}. Me gustaría recibir más información sobre Vetic.`,
 
   // ============ Account Support ============
 

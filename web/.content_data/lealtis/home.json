@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "badge": "Paraguay Establishment",
+    "headline": "Your European Gateway to Paraguay",
+    "subhead": "Professional relocation: residency, company formation, and bank account in one integrated program.",
+    "cta": {
+      "primary": { "label": "Explore Programs", "href": "/lealtis/programas" },
+      "secondary": { "label": "Free Guide", "href": "/lealtis/guia-gratis" }
+    }
+  },
+  "features": [
+    {
+      "icon": "shield",
+      "title": "Legal Residency",
+      "description": "Full residency permit processed by experienced Paraguayan legal team."
+    },
+    {
+      "icon": "building",
+      "title": "Company Formation",
+      "description": "SA or ERL company setup with bank account and tax registration."
+    },
+    {
+      "icon": "banknote",
+      "title": "Bank Account",
+      "description": "Paraguayan bank account with international wire capabilities."
+    }
+  ],
+  "cta": {
+    "headline": "Start Your Paraguay Journey",
+    "subhead": "Two programs designed for European entrepreneurs and investors.",
+    "button_label": "View Programs"
+  },
+  "seo": {
+    "title": "LEALTIS — Paraguay Establishment for Europeans",
+    "description": "Professional relocation to Paraguay: residency, company formation, and bank account."
+  }
+}

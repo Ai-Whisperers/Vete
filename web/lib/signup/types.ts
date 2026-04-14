@@ -14,7 +14,7 @@ import type { TierId } from '@/lib/pricing/tiers'
  * Step 1: Clinic Info
  */
 export interface ClinicInfoData {
-  clinicName: string
+  tenantName: string
   slug: string
   ruc: string | null
 }
@@ -67,7 +67,7 @@ export interface SignupFormData
  */
 export interface SignupRequest {
   // Clinic Info (Step 1)
-  clinicName: string
+  tenantName: string
   slug: string
   ruc: string | null
 
@@ -199,7 +199,7 @@ export interface TenantSettings {
  */
 export interface ConfigGeneratorInput {
   slug: string
-  clinicName: string
+  tenantName: string
   email: string
   phone: string
   whatsapp: string
@@ -305,7 +305,7 @@ export type ParaguayCity = (typeof PARAGUAY_CITIES)[number]
  * Reserved slugs that cannot be used
  */
 export const RESERVED_SLUGS = [
-  'admin',
+ 'client' | 'practitioner' | 'admin',
   'api',
   'auth',
   'registro',

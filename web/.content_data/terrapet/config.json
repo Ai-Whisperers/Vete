@@ -1,5 +1,7 @@
 {
   "id": "terrapet",
+  "vertical": "clinic",
+  "subVertical": "pet",
   "name": "Terra Pet",
   "tagline": "Para Nosotros, Ellos Son Familia",
   "contact": {

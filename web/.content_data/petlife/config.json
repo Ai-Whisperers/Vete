@@ -1,5 +1,7 @@
 {
   "id": "petlife",
+  "vertical": "clinic",
+  "subVertical": "pet",
   "name": "PetLife Center",
   "tagline": "Tecnología y Salud Animal de Vanguardia",
   "contact": {

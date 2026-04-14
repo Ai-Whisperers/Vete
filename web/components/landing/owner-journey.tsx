@@ -61,7 +61,7 @@ const benefits = [
     icon: Calendar,
     title: 'Citas Online',
     description:
-      'Agenda turnos sin llamar. Elige fecha, hora y veterinario desde la comodidad de tu casa.',
+      'Agenda turnos sin llamar. Elige fecha, hora y profesional desde la comodidad de tu casa.',
   },
   {
     icon: Bell,

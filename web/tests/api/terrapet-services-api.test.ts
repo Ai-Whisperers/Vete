@@ -12,12 +12,12 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { getClinicData } from '@/lib/clinics'
+import { getTenantData } from '@/lib/tenant-content'
 
 describe('TerraPet Services API - Service Data Loading', () => {
   describe('GET all services for TerraPet', () => {
     it('returns 200 with services list', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data).toBeDefined()
       expect(data?.services).toBeDefined()
@@ -25,21 +25,21 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns all 9 terrapet services', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.services.list.length).toBe(9)
     })
 
     it('filters by visible=true only', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const allVisible = data?.services.list.every((service) => service.visible === true)
       expect(allVisible).toBe(true)
     })
 
     it('does NOT return terrapet services', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       // Ensure we're getting different service sets
       const terrapetServices = terrapetData?.services.list.map((s) => s.id) || []
@@ -51,7 +51,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('includes service variants (14 total)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       let totalVariants = 0
       data?.services.list.forEach((service) => {
@@ -65,7 +65,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('includes "Consulta a Domicilio" variant (UNIQUE)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       expect(consultationService).toBeDefined()
@@ -78,7 +78,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns booking configuration for each service', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         expect(service.booking).toBeDefined()
@@ -88,7 +88,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns service categories (medical, preventative, cosmetic)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const categories = new Set(data?.services.list.map((s) => s.category))
       
@@ -99,7 +99,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns service durations', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         if (service.details) {
@@ -110,7 +110,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns "includes" list for each service', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         if (service.details?.includes) {
@@ -121,7 +121,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('services have correct structure', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const firstService = data?.services.list[0]
       expect(firstService).toBeDefined()
@@ -132,7 +132,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('services include icons', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         expect(service.icon).toBeDefined()
@@ -142,7 +142,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('services have summary text', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         expect(service.summary).toBeDefined()
@@ -152,7 +152,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('services are in a logical order', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.services.list.length).toBeGreaterThan(0)
       
@@ -162,7 +162,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('response includes metadata', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.services.meta).toBeDefined()
       expect(data?.services.meta.title).toBeDefined()
@@ -170,7 +170,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('handles pagination if implemented (future)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       // Currently returns all services
       // Future: may support pagination
@@ -180,7 +180,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
 
   describe('GET single service details', () => {
     it('returns single service by ID', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       expect(consultationService).toBeDefined()
@@ -188,7 +188,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns service title and description', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const service = data?.services.list.find((s) => s.id === 'vaccination')
       expect(service?.title).toBe('Vacunación')
@@ -196,7 +196,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns service variants', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const vaccinationService = data?.services.list.find((s) => s.id === 'vaccination')
       expect(vaccinationService?.variants).toBeDefined()
@@ -204,15 +204,15 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('returns 404 for invalid service ID (simulated)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const invalidService = data?.services.list.find((s) => s.id === 'invalid-xyz-123')
       expect(invalidService).toBeUndefined()
     })
 
     it('returns 404 for terrapet service ID in terrapet context', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       // Verify tenant isolation - terrapet can't access terrapet services
       const terrapetServiceIds = terrapetData?.services.list.map((s) => s.id) || []
@@ -224,7 +224,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('includes related data (variants, booking)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const service = data?.services.list[0]
       expect(service?.variants).toBeDefined()
@@ -232,7 +232,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('service details include duration and includes', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const service = data?.services.list.find((s) => s.id === 'consultation')
       expect(service?.details).toBeDefined()
@@ -241,7 +241,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('validates service ID format', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         // IDs should be lowercase kebab-case
@@ -252,14 +252,14 @@ describe('TerraPet Services API - Service Data Loading', () => {
 
   describe('Service Variants', () => {
     it('consultation service has 2 variants', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       expect(consultationService?.variants?.length).toBe(2)
     })
 
     it('renders "Consulta General" variant', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       const generalVariant = consultationService?.variants?.find(
@@ -269,7 +269,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('renders "Consulta a Domicilio" variant (UNIQUE FEATURE)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       const homeVisitVariant = consultationService?.variants?.find(
@@ -280,21 +280,21 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('vaccination service has 3 variants', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const vaccinationService = data?.services.list.find((s) => s.id === 'vaccination')
       expect(vaccinationService?.variants?.length).toBeGreaterThanOrEqual(2)
     })
 
     it('deworming service has 2 variants', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const dewormingService = data?.services.list.find((s) => s.id === 'deworming')
       expect(dewormingService?.variants?.length).toBe(2)
     })
 
     it('variant prices display correctly', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const service = data?.services.list[0]
       service?.variants?.forEach((variant) => {
@@ -304,7 +304,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('variant descriptions display', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       consultationService?.variants?.forEach((variant) => {
@@ -316,7 +316,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('home visit variant shows address requirement (implicit)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const consultationService = data?.services.list.find((s) => s.id === 'consultation')
       const homeVisitVariant = consultationService?.variants?.find(
@@ -330,7 +330,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
 
   describe('Booking Configuration', () => {
     it('shows "online_enabled: true" for 8 services', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const onlineBookableCount = data?.services.list.filter(
         (s) => s.booking.online_enabled === true
@@ -341,7 +341,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('hides online booking for euthanasia service', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const euthanasiaService = data?.services.list.find((s) => s.id === 'euthanasia')
       if (euthanasiaService) {
@@ -350,7 +350,7 @@ describe('TerraPet Services API - Service Data Loading', () => {
     })
 
     it('emergency availability displayed correctly', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       data?.services.list.forEach((service) => {
         expect(service.booking.emergency_available).toBeDefined()
@@ -361,20 +361,20 @@ describe('TerraPet Services API - Service Data Loading', () => {
 
   describe('Error Handling', () => {
     it('returns error for invalid tenant', async () => {
-      const data = await getClinicData('invalid-tenant-xyz')
+      const data = await getTenantData('invalid-tenant-xyz')
 
       expect(data).toBeNull()
     })
 
     it('returns error for non-existent service (simulated)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       const service = data?.services.list.find((s) => s.id === 'non-existent-service')
       expect(service).toBeUndefined()
     })
 
     it('handles malformed requests gracefully', async () => {
-      const data = await getClinicData('../../../etc/passwd')
+      const data = await getTenantData('../../../etc/passwd')
 
       expect(data).toBeNull()
     })

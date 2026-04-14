@@ -155,7 +155,7 @@ export function withOptionalTenantGuard(
 
 /**
  * Strict tenant guard for admin-only routes
- * Requires user to have 'admin' role
+ * Requires user to have'client' | 'practitioner' | 'admin' role
  */
 export function withAdminTenantGuard(handler: TenantGuardHandler) {
   return async (request: NextRequest): Promise<Response> => {
@@ -185,7 +185,7 @@ export function withAdminTenantGuard(handler: TenantGuardHandler) {
     }
 
     // Step 3: Role check
-    if (profile.role !== 'admin') {
+    if (profile.role !=='client' | 'practitioner' | 'admin') {
       logger.warn('[AdminGuard] Unauthorized access attempt', { userId: user.id, role: profile.role });
       return NextResponse.json(
         { error: 'Solo administradores pueden acceder a este recurso' },

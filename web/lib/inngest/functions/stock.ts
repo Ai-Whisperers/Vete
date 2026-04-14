@@ -160,7 +160,7 @@ async function processStockNotification(notification: {
       .eq('id', tenant_id)
       .single()
 
-    const clinicName = tenant?.name || 'Veterinaria'
+    const tenantName = tenant?.name || 'Veterinaria'
 
     // Get pending alerts for this product
     const { data: alerts, error: alertsError } = await supabase
@@ -190,9 +190,9 @@ async function processStockNotification(notification: {
       try {
         await sendEmailWithRetry({
           to: alert.email,
-          subject: `¡${product.name} está disponible! - ${clinicName}`,
-          html: buildStockAlertEmail(product, clinicName, productUrl, new_quantity),
-          text: `¡${product.name} está disponible en ${clinicName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades.`,
+          subject: `¡${product.name} está disponible! - ${tenantName}`,
+          html: buildStockAlertEmail(product, tenantName, productUrl, new_quantity),
+          text: `¡${product.name} está disponible en ${tenantName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades.`,
         })
 
         await supabase
@@ -236,7 +236,7 @@ async function processStockNotification(notification: {
 
 function buildStockAlertEmail(
   product: { name: string; image_url: string | null; base_price: number | null },
-  clinicName: string,
+  tenantName: string,
   productUrl: string,
   newQuantity: number
 ): string {
@@ -250,7 +250,7 @@ function buildStockAlertEmail(
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #374151; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="color: #4f46e5; margin: 0;">¡Buenas noticias!</h1>
-        <p style="color: #6b7280; font-size: 14px;">${clinicName}</p>
+        <p style="color: #6b7280; font-size: 14px;">${tenantName}</p>
       </div>
 
       <p>Hola,</p>
@@ -344,7 +344,7 @@ export const staffStockAlerts = inngest.createFunction(
           .from('profiles')
           .select('id, email, full_name')
           .eq('tenant_id', tenantId)
-          .eq('role', 'admin')
+          .eq('role','client' | 'practitioner' | 'admin')
           .limit(1)
           .single()
 
@@ -433,7 +433,7 @@ export const expiryAlerts = inngest.createFunction(
           .from('profiles')
           .select('id, email')
           .eq('tenant_id', tenantId)
-          .eq('role', 'admin')
+          .eq('role','client' | 'practitioner' | 'admin')
           .limit(1)
           .single()
 

@@ -5,9 +5,9 @@
  */
 
 import { Stethoscope, Clock, Syringe, TestTube } from 'lucide-react'
-import type { ClinicLocation } from './types'
+import type { TenantLocation } from './types'
 
-export const clinicLocations: ClinicLocation[] = [
+export const tenantLocations: TenantLocation[] = [
   {
     id: 'terrapet',
     name: 'Veterinaria Adris',
@@ -55,5 +55,5 @@ export const specialtyIcons: Record<string, React.ElementType> = {
   Laboratorio: TestTube,
 }
 
-export const allCities = [...new Set(clinicLocations.map((c) => c.city))]
-export const allSpecialties = [...new Set(clinicLocations.flatMap((c) => c.specialties))]
+export const allCities = [...new Set(tenantLocations.map((c) => c.city))]
+export const allSpecialties = [...new Set(tenantLocations.flatMap((c) => c.specialties))]

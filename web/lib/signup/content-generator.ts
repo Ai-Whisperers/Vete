@@ -40,8 +40,8 @@ async function readTemplate<T>(filename: string): Promise<T> {
  * Write JSON to the new clinic folder
  */
 async function writeClinicFile(slug: string, filename: string, data: unknown): Promise<void> {
-  const clinicPath = path.join(CONTENT_DATA_PATH, slug)
-  const filePath = path.join(clinicPath, filename)
+  const tenantPath = path.join(CONTENT_DATA_PATH, slug)
+  const filePath = path.join(tenantPath, filename)
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
 }
 
@@ -85,7 +85,7 @@ interface ConfigJson {
 export function generateConfig(input: ConfigGeneratorInput): ConfigJson {
   return {
     id: input.slug,
-    name: input.clinicName,
+    name: input.tenantName,
     contact: {
       whatsapp_number: input.whatsapp,
       phone_display: input.phone,
@@ -294,10 +294,10 @@ interface HomeJson {
 /**
  * Generate home.json customized with clinic name
  */
-export function generateHome(clinicName: string, city: string): HomeJson {
+export function generateHome(tenantName: string, city: string): HomeJson {
   return {
     hero: {
-      headline: `Bienvenido a ${clinicName}`,
+      headline: `Bienvenido a ${tenantName}`,
       subhead: `Tu clinica veterinaria de confianza en ${city}. Cuidamos a tu mascota como parte de nuestra familia.`,
       cta_primary: 'Agendar Cita',
       cta_secondary: 'Conocenos',
@@ -336,8 +336,8 @@ export function generateHome(clinicName: string, city: string): HomeJson {
       subtitle: 'Experiencias reales de quienes confian en nosotros.',
     },
     seo: {
-      meta_title: `${clinicName} | Clinica Veterinaria en ${city}`,
-      meta_description: `${clinicName} - Servicios veterinarios profesionales en ${city}. Consultas, vacunacion, cirugia, emergencias y mas. Agenda tu cita hoy.`,
+      meta_title: `${tenantName} | Clinica Veterinaria en ${city}`,
+      meta_description: `${tenantName} - Servicios profesionals profesionales en ${city}. Consultas, vacunacion, cirugia, emergencias y mas. Agenda tu cita hoy.`,
     },
   }
 }
@@ -361,11 +361,11 @@ interface AboutJson {
 /**
  * Generate about.json customized with clinic name
  */
-export function generateAbout(clinicName: string): AboutJson {
+export function generateAbout(tenantName: string): AboutJson {
   return {
     intro: {
-      title: `Sobre ${clinicName}`,
-      text: `En ${clinicName} nos dedicamos al cuidado integral de tus mascotas. Nuestro compromiso es brindar atencion veterinaria de calidad con un equipo profesional y dedicado.`,
+      title: `Sobre ${tenantName}`,
+      text: `En ${tenantName} nos dedicamos al cuidado integral de tus mascotas. Nuestro compromiso es brindar atencion veterinaria de calidad con un equipo profesional y dedicado.`,
     },
     team: [], // Empty team, to be filled by clinic admin
   }
@@ -391,18 +391,18 @@ interface LegalJson {
 /**
  * Generate legal.json with placeholder content
  */
-export function generateLegal(clinicName: string): LegalJson {
+export function generateLegal(tenantName: string): LegalJson {
   const today = new Date().toISOString().split('T')[0]
 
   return {
     privacy_policy: {
       title: 'Politica de Privacidad',
-      content: `${clinicName} se compromete a proteger la privacidad de sus usuarios. Esta politica describe como recopilamos, usamos y protegemos su informacion personal.\n\nRecopilamos informacion que usted nos proporciona directamente, como datos de contacto y informacion de sus mascotas. Esta informacion se utiliza unicamente para brindar nuestros servicios veterinarios.\n\nNo compartimos su informacion personal con terceros, excepto cuando sea necesario para proporcionar nuestros servicios o cuando la ley lo requiera.`,
+      content: `${tenantName} se compromete a proteger la privacidad de sus usuarios. Esta politica describe como recopilamos, usamos y protegemos su informacion personal.\n\nRecopilamos informacion que usted nos proporciona directamente, como datos de contacto y informacion de sus mascotas. Esta informacion se utiliza unicamente para brindar nuestros servicios profesionals.\n\nNo compartimos su informacion personal con terceros, excepto cuando sea necesario para proporcionar nuestros servicios o cuando la ley lo requiera.`,
       effective_date: today,
     },
     terms_of_service: {
       title: 'Terminos de Servicio',
-      content: `Al utilizar los servicios de ${clinicName}, usted acepta estos terminos y condiciones.\n\nNuestros servicios veterinarios se proporcionan de acuerdo con las mejores practicas profesionales. Las citas pueden ser reprogramadas con al menos 24 horas de anticipacion.\n\nNos reservamos el derecho de modificar estos terminos en cualquier momento. Los cambios seran efectivos inmediatamente despues de su publicacion.`,
+      content: `Al utilizar los servicios de ${tenantName}, usted acepta estos terminos y condiciones.\n\nNuestros servicios profesionals se proporcionan de acuerdo con las mejores practicas profesionales. Las citas pueden ser reprogramadas con al menos 24 horas de anticipacion.\n\nNos reservamos el derecho de modificar estos terminos en cualquier momento. Los cambios seran efectivos inmediatamente despues de su publicacion.`,
       effective_date: today,
     },
   }
@@ -414,7 +414,7 @@ export function generateLegal(clinicName: string): LegalJson {
 
 export interface GenerateContentInput {
   slug: string
-  clinicName: string
+  tenantName: string
   email: string
   phone: string
   whatsapp: string
@@ -429,15 +429,15 @@ export interface GenerateContentInput {
  * Generate all content files for a new clinic
  */
 export async function generateAllContent(input: GenerateContentInput): Promise<void> {
-  const clinicPath = path.join(CONTENT_DATA_PATH, input.slug)
+  const tenantPath = path.join(CONTENT_DATA_PATH, input.slug)
 
   // Create clinic directory
-  await fs.mkdir(clinicPath, { recursive: true })
+  await fs.mkdir(tenantPath, { recursive: true })
 
   // Generate config.json
   const config = generateConfig({
     slug: input.slug,
-    clinicName: input.clinicName,
+    tenantName: input.tenantName,
     email: input.email,
     phone: input.phone,
     whatsapp: input.whatsapp,
@@ -455,15 +455,15 @@ export async function generateAllContent(input: GenerateContentInput): Promise<v
   await writeClinicFile(input.slug, 'theme.json', theme)
 
   // Generate home.json
-  const home = generateHome(input.clinicName, input.city)
+  const home = generateHome(input.tenantName, input.city)
   await writeClinicFile(input.slug, 'home.json', home)
 
   // Generate about.json
-  const about = generateAbout(input.clinicName)
+  const about = generateAbout(input.tenantName)
   await writeClinicFile(input.slug, 'about.json', about)
 
   // Generate legal.json
-  const legal = generateLegal(input.clinicName)
+  const legal = generateLegal(input.tenantName)
   await writeClinicFile(input.slug, 'legal.json', legal)
 
   // Copy template files that don't need customization
@@ -485,10 +485,10 @@ export async function generateAllContent(input: GenerateContentInput): Promise<v
  * Delete all content files for a clinic (cleanup on error)
  */
 export async function deleteClinicContent(slug: string): Promise<void> {
-  const clinicPath = path.join(CONTENT_DATA_PATH, slug)
+  const tenantPath = path.join(CONTENT_DATA_PATH, slug)
 
   try {
-    await fs.rm(clinicPath, { recursive: true, force: true })
+    await fs.rm(tenantPath, { recursive: true, force: true })
   } catch (_error: unknown) {
     // Ignore errors during cleanup
   }
@@ -497,11 +497,11 @@ export async function deleteClinicContent(slug: string): Promise<void> {
 /**
  * Check if a clinic content folder exists
  */
-export async function clinicContentExists(slug: string): Promise<boolean> {
-  const clinicPath = path.join(CONTENT_DATA_PATH, slug)
+export async function tenantContentExists(slug: string): Promise<boolean> {
+  const tenantPath = path.join(CONTENT_DATA_PATH, slug)
 
   try {
-    await fs.access(clinicPath)
+    await fs.access(tenantPath)
     return true
   } catch (_error: unknown) {
     return false

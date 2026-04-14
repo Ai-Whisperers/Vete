@@ -48,7 +48,7 @@ try {
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-export type UserRole = 'owner' | 'vet' | 'admin'
+export type UserRole = 'client' | 'practitioner' | 'admin'
 
 export interface LogContext {
   // Request tracking

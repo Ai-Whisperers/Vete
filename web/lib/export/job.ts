@@ -350,7 +350,7 @@ async function fetchTableData(
     query = query.eq('tenant_id', tenantId)
   } else {
     // For profiles (clients), filter by role and tenant
-    query = query.eq('tenant_id', tenantId).eq('role', 'owner')
+    query = query.eq('tenant_id', tenantId).eq('role', 'client')
   }
 
   // Apply date range filter

@@ -1,10 +1,10 @@
 /**
  * Network Map Types
  *
- * Type definitions for clinic network map components.
+ * Type definitions for tenant network map components.
  */
 
-export interface ClinicLocation {
+export interface TenantLocation {
   id: string
   name: string
   address: string

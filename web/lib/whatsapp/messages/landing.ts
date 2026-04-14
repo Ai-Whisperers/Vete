@@ -52,7 +52,7 @@ export const landingMessages = {
   /**
    * Quick message options for floating widget
    */
-  quickVeterinarian: () => 'Hola! Soy veterinario y me interesa Vetic para mi clinica',
+  quickVeterinarian: () => 'Hola! Soy profesional y me interesa Vetic para mi clinica',
 
   quickPetOwner: () => 'Hola! Soy dueno de mascota y quiero saber mas sobre Vetic',
 

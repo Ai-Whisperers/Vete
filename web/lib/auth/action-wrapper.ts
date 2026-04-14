@@ -31,7 +31,7 @@ type ActionHandler<T, Args extends unknown[]> = (
  *     // Business logic here
  *     return actionSuccess(result)
  *   },
- *   { roles: ['vet', 'admin'] }
+ *   { roles: ['practitioner', 'admin'] }
  * )
  * ```
  */

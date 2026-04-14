@@ -22,13 +22,13 @@ export async function sendAppointmentReminder(options: {
   petName: string
   appointmentDate: string
   appointmentTime: string
-  clinicName?: string
+  tenantName?: string
   channels?: ('email' | 'in_app' | 'sms')[]
 }) {
   const payload: NotificationPayload = {
     type: 'appointment_reminder',
     recipientId: options.userId,
-    recipientType: 'owner',
+    recipientType: 'client',
     tenantId: options.tenantId,
     title: `Recordatorio de Cita para ${options.petName}`,
     message: `Tienes una cita programada para ${options.petName} el ${options.appointmentDate} a las ${options.appointmentTime}.`,
@@ -40,7 +40,7 @@ export async function sendAppointmentReminder(options: {
       petName: options.petName,
       date: options.appointmentDate,
       time: options.appointmentTime,
-      clinicName: options.clinicName,
+      tenantName: options.tenantName,
     },
   }
 
@@ -63,7 +63,7 @@ export async function sendLabResultsReady(options: {
   const payload: NotificationPayload = {
     type: isUrgent ? 'lab_critical_result' : 'lab_results_ready',
     recipientId: options.userId,
-    recipientType: 'owner',
+    recipientType: 'client',
     tenantId: options.tenantId,
     title: isUrgent 
       ? `⚠️ Resultado URGENTE para ${options.petName}` 
@@ -98,7 +98,7 @@ export async function sendOrderConfirmation(options: {
   const payload: NotificationPayload = {
     type: 'order_confirmation',
     recipientId: options.userId,
-    recipientType: 'owner',
+    recipientType: 'client',
     tenantId: options.tenantId,
     title: 'Pedido Confirmado',
     message: `Tu pedido #${options.orderId} por ${options.orderTotal} ha sido confirmado.${
@@ -133,7 +133,7 @@ export async function sendLowStockAlert(options: {
     title: 'Alerta de Stock Bajo',
     message: `El producto "${options.productName}" tiene stock bajo (${options.currentStock} unidades). Punto de reorden: ${options.reorderPoint}.`,
     channels: ['email', 'in_app'],
-    roles: ['admin', 'vet'], // Only notify admins and vets
+    roles: ['admin', 'practitioner'], // Only notify admins and vets
     data: {
       productName: options.productName,
       currentStock: options.currentStock,
@@ -157,7 +157,7 @@ export async function sendWaitlistSlotAvailable(options: {
   const payload: NotificationPayload = {
     type: 'waitlist_slot_available',
     recipientId: options.userId,
-    recipientType: 'owner',
+    recipientType: 'client',
     tenantId: options.tenantId,
     title: '¡Cita Disponible!',
     message: `Se ha liberado una cita para el ${options.availableDate} a las ${options.availableTime}.${

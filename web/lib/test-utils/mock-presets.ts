@@ -46,7 +46,7 @@ export interface MockUser {
 export interface MockProfile {
   id: string
   tenant_id: string
-  role: 'owner' | 'vet' | 'admin'
+  role: 'client' | 'practitioner' | 'admin'
   full_name?: string
   email?: string
   phone?: string
@@ -66,7 +66,7 @@ export const DEFAULT_MOCK_USER: MockUser = {
 export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000001',
   tenant_id: TENANT_IDS.ADRIS,
-  role: 'vet',
+  role: 'practitioner',
   full_name: 'Dr. Test Vet',
   email: 'vet@clinic.com',
 }
@@ -74,7 +74,7 @@ export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
 export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000002',
   tenant_id: TENANT_IDS.ADRIS,
-  role: 'admin',
+  role:'client' | 'practitioner' | 'admin',
   full_name: 'Admin User',
   email: 'admin@clinic.com',
 }
@@ -82,7 +82,7 @@ export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
 export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
   id: '00000000-0000-0000-0000-000000000003',
   tenant_id: TENANT_IDS.ADRIS,
-  role: 'owner',
+  role: 'client',
   full_name: 'Pet Owner',
   email: 'owner@gmail.com',
   phone: '+595981123456',
@@ -762,9 +762,9 @@ export function getAuthMock() {
       }
     },
 
-    isStaff: (profile: { role: string }) => ['vet', 'admin'].includes(profile.role),
-    isAdmin: (profile: { role: string }) => profile.role === 'admin',
-    isOwner: (profile: { role: string }) => profile.role === 'owner',
+    isStaff: (profile: { role: string }) => ['practitioner', 'admin'].includes(profile.role),
+    isAdmin: (profile: { role: string }) => profile.role ==='client' | 'practitioner' | 'admin',
+    isOwner: (profile: { role: string }) => profile.role === 'client',
   }
 }
 

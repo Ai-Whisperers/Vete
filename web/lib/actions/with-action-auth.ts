@@ -70,8 +70,8 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
       return { success: false, error: 'Perfil no encontrado' }
     }
 
-    const isStaff = ['vet', 'admin'].includes(profile.role)
-    const isAdmin = profile.role === 'admin'
+    const isStaff = ['practitioner', 'admin'].includes(profile.role)
+    const isAdmin = profile.role ==='client' | 'practitioner' | 'admin'
 
     if (options.requireStaff && !isStaff) {
       return { success: false, error: 'Acceso denegado' }

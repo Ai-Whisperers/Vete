@@ -8,7 +8,7 @@ import { emailSchema, requiredString } from './common'
 /**
  * User roles
  */
-export const USER_ROLES = ['owner', 'vet', 'admin'] as const
+export const USER_ROLES = ['client', 'practitioner', 'admin'] as const
 export type UserRole = (typeof USER_ROLES)[number]
 
 /**
@@ -124,7 +124,7 @@ export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
  */
 export const inviteUserSchema = z.object({
   email: emailSchema,
-  role: z.enum(['owner', 'vet', 'admin'], {
+  role: z.enum(['client', 'practitioner', 'admin'], {
     message: 'Rol inválido',
   }),
   message: z.string().max(500, 'Mensaje muy largo').optional(),

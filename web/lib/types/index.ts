@@ -5,7 +5,7 @@
  * Import types from here instead of individual files for consistency.
  *
  * Note: Some type names conflict across files (e.g., AppointmentStatus in
- * status.ts vs clinic-config.ts). We export with aliases to resolve conflicts.
+ * status.ts vs tenant-config.ts). We export with aliases to resolve conflicts.
  *
  * @example
  * ```typescript
@@ -321,10 +321,10 @@ export type {
   SocialLinks,
   HoursInfo,
   ModuleSettings,
-  ClinicSettings,
+  TenantSettings,
   BrandingAssets,
   StatsInfo,
-  ClinicConfig,
+  TenantConfig,
   // Home page data
   HeroSection,
   FeatureItem,
@@ -349,13 +349,13 @@ export type {
   // Legal
   LegalData,
   // Theme
-  ClinicTheme,
+  TenantTheme,
   // Images
-  ClinicImage,
-  ClinicImages,
+  TenantImage,
+  TenantImages,
   // Complete clinic data
-  ClinicData,
-} from './clinic-config'
+  TenantData,
+} from './tenant-config'
 
 // =============================================================================
 // ERROR TYPES

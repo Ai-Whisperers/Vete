@@ -303,7 +303,7 @@ export const TABLE_CONFIGS: Record<ExportableTable, TableExportConfig> = {
       { column: 'address', header: 'Dirección', anonymize: true, anonymizedValue: '***' },
       { column: 'created_at', header: 'Registrado', transform: formatDateTime },
     ],
-    // Filter: WHERE role = 'owner'
+    // Filter: WHERE role = 'client'
   },
 
   products: {

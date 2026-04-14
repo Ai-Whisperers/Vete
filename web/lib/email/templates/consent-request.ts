@@ -5,7 +5,7 @@
  */
 
 export interface ConsentRequestEmailData {
-  clinicName: string
+  tenantName: string
   clinicLogo?: string
   clinicPhone?: string
   clinicEmail?: string
@@ -24,7 +24,7 @@ export interface ConsentRequestEmailData {
  */
 export function generateConsentRequestEmail(data: ConsentRequestEmailData): string {
   const {
-    clinicName,
+    tenantName,
     clinicLogo,
     clinicPhone,
     clinicEmail,
@@ -76,8 +76,8 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
           <!-- Header -->
           <tr>
             <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px 8px 0 0;">
-              ${clinicLogo ? `<img src="${clinicLogo}" alt="${clinicName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${clinicName}</h1>
+              ${clinicLogo ? `<img src="${clinicLogo}" alt="${tenantName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${tenantName}</h1>
               <div style="margin-top: 12px;">
                 ${clinicPhone ? `<span style="color: #e0e0e0; font-size: 14px; margin-right: 15px;">📞 ${clinicPhone}</span>` : ''}
                 ${clinicEmail ? `<span style="color: #e0e0e0; font-size: 14px;">✉️ ${clinicEmail}</span>` : ''}
@@ -228,7 +228,7 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
  */
 export function generateConsentRequestEmailText(data: ConsentRequestEmailData): string {
   const {
-    clinicName,
+    tenantName,
     ownerName,
     petName,
     consentType,
@@ -249,8 +249,8 @@ export function generateConsentRequestEmailText(data: ConsentRequestEmailData): 
     })
   }
 
-  let text = `${clinicName}\n`
-  text += `${'='.repeat(clinicName.length)}\n\n`
+  let text = `${tenantName}\n`
+  text += `${'='.repeat(tenantName.length)}\n\n`
   text += `SOLICITUD DE CONSENTIMIENTO\n\n`
   text += `Hola ${ownerName},\n\n`
   text += `Necesitamos tu autorización para proceder con el siguiente consentimiento relacionado a ${petName}:\n\n`

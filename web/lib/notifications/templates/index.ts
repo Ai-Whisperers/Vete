@@ -360,7 +360,7 @@ const templates: Record<
 
     const abnormalNotice = hasAbnormal
       ? `<p style="background-color: #fef3c7; padding: 12px; border-radius: 6px; color: #92400e;">
-          <strong>⚠️ Nota:</strong> Algunos resultados requieren atención. Te recomendamos revisarlos con el veterinario.
+          <strong>⚠️ Nota:</strong> Algunos resultados requieren atención. Te recomendamos revisarlos con el profesional.
         </p>`
       : ''
 

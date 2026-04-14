@@ -25,7 +25,7 @@ export interface StaffProfileExtended {
   full_name: string
   email: string
   phone?: string
-  role: 'vet' | 'admin'
+  role:'client' | 'practitioner' | 'admin'|'client' | 'practitioner' | 'admin'
 }
 
 /**

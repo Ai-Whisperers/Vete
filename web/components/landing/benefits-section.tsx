@@ -81,7 +81,7 @@ const ownerBenefits = [
   {
     icon: Calendar,
     title: 'Agenda Sin Llamar',
-    description: 'Elegi fecha, hora y veterinario desde el celular. Confirmacion instantanea.',
+    description: 'Elegi fecha, hora y profesional desde el celular. Confirmacion instantanea.',
     highlight: 'Online 24/7',
   },
   {

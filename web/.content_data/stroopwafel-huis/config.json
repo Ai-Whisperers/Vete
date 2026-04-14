@@ -1,5 +1,7 @@
 {
   "id": "stroopwafel-huis",
+  "vertical": "retail",
+  "subVertical": "food",
   "name": "Stroopwafel Huis",
   "tagline": "Verse Stroopwafels & Specialty Coffee",
   "contact": {

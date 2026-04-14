@@ -92,7 +92,7 @@ export async function collectUserData(userId: string): Promise<UserDataExport> {
     fullName: profile.full_name || '',
     tenantId: profile.tenant_id,
     tenantName: getRelationFirst<{ name: string }>(profile.tenants)?.name || '',
-    role: profile.role || 'owner',
+    role: profile.role || 'client',
     accountCreatedAt: profile.created_at,
   }
 

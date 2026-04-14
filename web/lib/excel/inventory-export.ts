@@ -257,7 +257,7 @@ function createCategoriesSheet(): { data: unknown[][], widths: number[], validat
     ['', '🦠 Antiparasitarios', 'antiparasitarios', 'Productos contra pulgas, garrapatas y parásitos'],
     ['', '🎾 Accesorios', 'accesorios', 'Collares, correas, juguetes y más'],
     ['', '🧴 Higiene', 'higiene', 'Shampoos, cepillos y productos de limpieza'],
-    ['', '💊 Medicamentos', 'medicamentos', 'Medicamentos veterinarios con receta'],
+    ['', '💊 Medicamentos', 'medicamentos', 'Medicamentos profesionals con receta'],
     ['', '💪 Suplementos', 'suplementos', 'Vitaminas, minerales y suplementos nutricionales'],
     ['', '🛏️ Camas y Casas', 'camas-casas', 'Camas, cuchas y casas para mascotas'],
     ['', '✈️ Transportadoras', 'transportadoras', 'Jaulas y transportadoras para viajes'],

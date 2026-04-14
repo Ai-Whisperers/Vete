@@ -276,165 +276,165 @@ export class AuthService {
     switch (permission) {
       // === APPOINTMENT PERMISSIONS ===
       case 'appointments.view':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'appointments.create':
-        return ['vet', 'admin'].includes(role) || role === 'owner'
+        return ['practitioner', 'admin'].includes(role) || role === 'client'
       case 'appointments.update':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'appointments.delete':
-        return role === 'admin' || (role === 'vet' && context?.action === 'reschedule')
+        return role ==='client' | 'practitioner' | 'admin' || (role ==='client' | 'practitioner' | 'admin'&& context?.action === 'reschedule')
       case 'appointments.view_all':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'appointments.manage_calendar':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === PET MANAGEMENT ===
       case 'pets.view':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'pets.create':
-        return role === 'owner' || ['vet', 'admin'].includes(role)
+        return role === 'client' | 'practitioner' | 'admin'|| ['practitioner', 'admin'].includes(role)
       case 'pets.update':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'pets.delete':
-        return role === 'admin' || (role === 'owner' && isOwner)
+        return role ==='client' | 'practitioner' | 'admin' || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'pets.view_all':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'pets.manage_medical_records':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === MEDICAL RECORDS ===
       case 'medical_records.view':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'medical_records.create':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'medical_records.update':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'medical_records.delete':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'medical_records.view_all':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === INVENTORY MANAGEMENT ===
       case 'inventory.view':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'inventory.update':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'inventory.create':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'inventory.delete':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'inventory.manage_orders':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'inventory.view_reports':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === STAFF MANAGEMENT ===
       case 'staff.view':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'staff.create':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'staff.update':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'staff.delete':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'staff.manage_roles':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'staff.view_schedules':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === BILLING & PAYMENTS ===
       case 'billing.view':
-        return role === 'admin' || (role === 'owner' && isOwner)
+        return role ==='client' | 'practitioner' | 'admin' || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'billing.create':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'billing.update':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'billing.delete':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'billing.process_payments':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'billing.refund':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'billing.view_reports':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === REPORTING & ANALYTICS ===
       case 'reports.view_basic':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'reports.view_financial':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'reports.view_operational':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'reports.export':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'reports.create_custom':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === LOST PETS & SAFETY ===
       case 'lost_pets.view_public':
         return true // Public access for lost pet board
       case 'lost_pets.view':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'lost_pets.create':
-        return role === 'owner' || ['vet', 'admin'].includes(role)
+        return role === 'client' | 'practitioner' | 'admin'|| ['practitioner', 'admin'].includes(role)
       case 'lost_pets.update':
-        return ['vet', 'admin'].includes(role) || (role === 'owner' && isOwner)
+        return ['practitioner', 'admin'].includes(role) || (role === 'client' | 'practitioner' | 'admin'&& isOwner)
       case 'lost_pets.delete':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'lost_pets.manage_all':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
 
       // === NOTIFICATIONS & MESSAGING ===
       case 'notifications.view':
         return true // All authenticated users can view their notifications
       case 'notifications.send_to_owners':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'notifications.broadcast':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'notifications.manage_templates':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === SETTINGS & CONFIGURATION ===
       case 'settings.view':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'settings.update_clinic':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'settings.manage_integrations':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'settings.manage_permissions':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === GDPR & PRIVACY ===
       case 'gdpr.view_own_data':
         return true // All users can view their own data
       case 'gdpr.request_deletion':
-        return role === 'owner' // Only pet owners can request account deletion
+        return role === 'client' | 'practitioner' | 'admin'// Only pet owners can request account deletion
       case 'gdpr.export_data':
         return true // All users can export their data
       case 'gdpr.manage_requests':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === AUDIT & SECURITY ===
       case 'audit.view_logs':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'audit.export_logs':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'security.manage_access':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
 
       // === LEGACY PERMISSIONS (for backward compatibility) ===
       case 'manage_appointments':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'manage_inventory':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'manage_staff':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'manage_billing':
-        return role === 'admin'
+        return role ==='client' | 'practitioner' | 'admin'
       case 'view_reports':
-        return ['vet', 'admin'].includes(role)
+        return ['practitioner', 'admin'].includes(role)
       case 'manage_own_appointments':
-        return role === 'owner'
+        return role === 'client'
 
       default:
         // Deny unknown permissions
@@ -518,14 +518,14 @@ export class AuthService {
    * Check if user is staff (vet or admin)
    */
   static isStaff(profile: UserProfile): boolean {
-    return ['vet', 'admin'].includes(profile.role)
+    return ['practitioner', 'admin'].includes(profile.role)
   }
 
   /**
    * Check if user is admin
    */
   static isAdmin(profile: UserProfile): boolean {
-    return profile.role === 'admin'
+    return profile.role ==='client' | 'practitioner' | 'admin'
   }
 
   /**
@@ -567,14 +567,14 @@ export interface MinimalProfile {
  * Check if user is staff (vet or admin)
  */
 export function isStaff(profile: MinimalProfile): boolean {
-  return profile.role === 'vet' || profile.role === 'admin'
+  return profile.role ==='client' | 'practitioner' | 'admin'|| profile.role ==='client' | 'practitioner' | 'admin'
 }
 
 /**
  * Check if user is admin
  */
 export function isAdmin(profile: MinimalProfile): boolean {
-  return profile.role === 'admin'
+  return profile.role ==='client' | 'practitioner' | 'admin'
 }
 
 /**

@@ -72,6 +72,6 @@ export async function requireOwner(tenantId?: string): Promise<OwnerUser> {
       role: profile.role,
       full_name: profile.full_name,
     },
-    isOwner: profile.role === 'owner',
+    isOwner: profile.role === 'client',
   }
 }

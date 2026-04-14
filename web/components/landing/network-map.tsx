@@ -12,4 +12,4 @@
 'use client'
 
 export { NetworkMap } from './network-map/index'
-export type { ClinicLocation } from './network-map/index'
+export type { TenantLocation } from './network-map/index'

@@ -109,7 +109,7 @@ export async function sendAmbassadorNewReferralNotification(
     phone: string
     email: string
   },
-  clinicName: string,
+  tenantName: string,
   commissionRate: number
 ): Promise<AmbassadorNotificationResult> {
   const template = await getTemplate('AMB_NEW_REFERRAL')
@@ -119,7 +119,7 @@ export async function sendAmbassadorNewReferralNotification(
 
   const variables = {
     ambassador_name: ambassador.full_name,
-    clinic_name: clinicName,
+    clinic_name: tenantName,
     commission_rate: commissionRate.toString(),
   }
 
@@ -147,7 +147,7 @@ export async function sendAmbassadorConversionNotification(
     email: string
     pending_payout: number
   },
-  clinicName: string,
+  tenantName: string,
   commissionAmount: number,
   commissionRate: number
 ): Promise<AmbassadorNotificationResult> {
@@ -158,7 +158,7 @@ export async function sendAmbassadorConversionNotification(
 
   const variables = {
     ambassador_name: ambassador.full_name,
-    clinic_name: clinicName,
+    clinic_name: tenantName,
     commission_amount: commissionAmount.toLocaleString('es-PY'),
     commission_rate: commissionRate.toString(),
     total_balance: ambassador.pending_payout.toLocaleString('es-PY'),
@@ -269,7 +269,7 @@ export async function sendAmbassadorLeadFollowupNotification(
     phone: string
     referral_code: string
   },
-  clinicName: string
+  tenantName: string
 ): Promise<AmbassadorNotificationResult> {
   const template = await getTemplate('AMB_LEAD_FOLLOWUP')
   if (!template) {
@@ -278,7 +278,7 @@ export async function sendAmbassadorLeadFollowupNotification(
 
   const variables = {
     ambassador_name: ambassador.full_name,
-    clinic_name: clinicName,
+    clinic_name: tenantName,
     referral_code: ambassador.referral_code,
   }
 

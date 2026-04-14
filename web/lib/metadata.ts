@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getClinicData } from '@/lib/clinics'
+import { getTenantData } from '@/lib/tenant-content'
 import { getCanonicalUrl } from '@/lib/config'
 
 interface PageMetadata {
@@ -20,25 +20,25 @@ export async function generateClinicMetadata(
   clinic: string,
   page: PageMetadata
 ): Promise<Metadata> {
-  const clinicData = await getClinicData(clinic)
-  const clinicName = clinicData?.config?.name || 'Veterinaria'
+  const tenantData = await getTenantData(clinic)
+  const tenantName = tenantData?.config?.name || 'Veterinaria'
 
   return {
-    title: `${page.title} | ${clinicName}`,
+    title: `${page.title} | ${tenantName}`,
     description: page.description,
     robots: page.noIndex ? 'noindex, nofollow' : 'index, follow',
     openGraph: {
-      title: `${page.title} | ${clinicName}`,
+      title: `${page.title} | ${tenantName}`,
       description: page.description,
       type: 'website',
       url: page.path ? getCanonicalUrl(clinic, page.path) : undefined,
-      siteName: clinicName,
+      siteName: tenantName,
       locale: 'es_PY',
       images: page.image ? [{ url: page.image, width: 1200, height: 630 }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${page.title} | ${clinicName}`,
+      title: `${page.title} | ${tenantName}`,
       description: page.description,
       images: page.image ? [page.image] : undefined,
     },
@@ -51,16 +51,16 @@ export async function generateClinicMetadata(
 /**
  * Generate metadata for product pages
  * @param product - Product data
- * @param clinicName - Clinic name
+ * @param tenantName - Clinic name
  * @returns Next.js Metadata object
  */
 export function generateProductMetadata(
   product: { name: string; description?: string; image_url?: string; base_price: number },
-  clinicName: string
+  tenantName: string
 ): Metadata {
   return {
-    title: `${product.name} | ${clinicName}`,
-    description: product.description || `Compra ${product.name} en ${clinicName}`,
+    title: `${product.name} | ${tenantName}`,
+    description: product.description || `Compra ${product.name} en ${tenantName}`,
     openGraph: {
       title: product.name,
       description: product.description,
@@ -73,16 +73,16 @@ export function generateProductMetadata(
 /**
  * Generate metadata for service pages
  * @param service - Service data
- * @param clinicName - Clinic name
+ * @param tenantName - Clinic name
  * @returns Next.js Metadata object
  */
 export function generateServiceMetadata(
   service: { name: string; description?: string; base_price?: number },
-  clinicName: string
+  tenantName: string
 ): Metadata {
   return {
-    title: `${service.name} | ${clinicName}`,
-    description: service.description || `Servicio de ${service.name} en ${clinicName}`,
+    title: `${service.name} | ${tenantName}`,
+    description: service.description || `Servicio de ${service.name} en ${tenantName}`,
     openGraph: {
       title: service.name,
       description: service.description,

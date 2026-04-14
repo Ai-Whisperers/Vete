@@ -13,13 +13,13 @@
 
 export { NetworkMap } from './NetworkMap'
 
-export type { ClinicLocation } from './types'
+export type { TenantLocation } from './types'
 
 // Sub-components (for advanced usage)
-export { ClinicListItem } from './ClinicListItem'
-export { ClinicDetailPanel } from './ClinicDetailPanel'
+export { TenantListItem } from './TenantListItem'
+export { TenantDetailPanel } from './TenantDetailPanel'
 export { SearchFilters } from './SearchFilters'
 export { MapDisplay } from './MapDisplay'
 
 // Data exports
-export { clinicLocations, specialtyIcons, allCities, allSpecialties } from './data'
+export { tenantLocations, specialtyIcons, allCities, allSpecialties } from './data'

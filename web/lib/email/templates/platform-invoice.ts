@@ -6,7 +6,7 @@
  */
 
 export interface PlatformInvoiceEmailData {
-  clinicName: string
+  tenantName: string
   adminName?: string
   invoiceNumber: string
   invoiceDate: string
@@ -32,7 +32,7 @@ export interface PlatformInvoiceEmailData {
  */
 export function generatePlatformInvoiceEmail(data: PlatformInvoiceEmailData): string {
   const {
-    clinicName,
+    tenantName,
     adminName,
     invoiceNumber,
     invoiceDate,
@@ -95,7 +95,7 @@ export function generatePlatformInvoiceEmail(data: PlatformInvoiceEmailData): st
                 ${adminName ? `Hola ${adminName},` : `Estimado/a administrador/a,`}
               </h2>
               <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.5;">
-                Se ha generado una nueva factura para <strong>${clinicName}</strong>.
+                Se ha generado una nueva factura para <strong>${tenantName}</strong>.
               </p>
             </td>
           </tr>
@@ -281,7 +281,7 @@ export function generatePlatformInvoiceEmail(data: PlatformInvoiceEmailData): st
  */
 export function generatePlatformInvoiceEmailText(data: PlatformInvoiceEmailData): string {
   const {
-    clinicName,
+    tenantName,
     adminName,
     invoiceNumber,
     invoiceDate,
@@ -316,7 +316,7 @@ export function generatePlatformInvoiceEmailText(data: PlatformInvoiceEmailData)
   text += `${'='.repeat(40)}\n\n`
 
   text += `${adminName ? `Hola ${adminName},` : 'Estimado/a administrador/a,'}\n\n`
-  text += `Se ha generado una nueva factura para ${clinicName}.\n\n`
+  text += `Se ha generado una nueva factura para ${tenantName}.\n\n`
 
   text += `FACTURA Nº: ${invoiceNumber}\n`
   text += `FECHA: ${formatDate(invoiceDate)}\n`

@@ -56,7 +56,7 @@ export function SolutionSection() {
             Tecnologia profesional precio accesible
           </h2>
           <p className="mx-auto max-w-2xl text-sm text-white/60 md:text-base lg:text-lg">
-            Vetic es una red de sitios veterinarios que comparten tecnologia. Vos obtenes un sitio
+            Vetic es una red de sitios profesionals que comparten tecnologia. Vos obtenes un sitio
             profesional completo, nosotros manejamos todo lo tecnico.
           </p>
         </div>

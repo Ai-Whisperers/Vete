@@ -7,13 +7,13 @@
 'use client'
 
 import { MapPin, Navigation } from 'lucide-react'
-import { ClinicDetailPanel } from './ClinicDetailPanel'
-import type { ClinicLocation } from './types'
+import { TenantDetailPanel } from './TenantDetailPanel'
+import type { TenantLocation } from './types'
 
 interface MapDisplayProps {
-  clinics: ClinicLocation[]
-  selectedClinic: ClinicLocation | null
-  onSelectClinic: (clinic: ClinicLocation | null) => void
+  clinics: TenantLocation[]
+  selectedClinic: TenantLocation | null
+  onSelectClinic: (clinic: TenantLocation | null) => void
 }
 
 // Static marker positions for the visual map
@@ -88,7 +88,7 @@ export function MapDisplay({ clinics, selectedClinic, onSelectClinic }: MapDispl
 
         {/* Selected Clinic Detail Overlay */}
         {selectedClinic && (
-          <ClinicDetailPanel clinic={selectedClinic} onClose={() => onSelectClinic(null)} />
+          <TenantDetailPanel clinic={selectedClinic} onClose={() => onSelectClinic(null)} />
         )}
 
         {/* No Selection Hint */}

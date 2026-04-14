@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import AboutPage from '@/app/[clinic]/about/page'
-import { getClinicData } from '@/lib/clinics'
-import type { ClinicData } from '@/lib/types/clinic-config'
+import { getTenantData } from '@/lib/tenant-content'
+import type { TenantData } from '@/lib/types/tenant-config'
 
-// Mock the getClinicData function
+// Mock the getTenantData function
 vi.mock('@/lib/clinics', () => ({
-  getClinicData: vi.fn(),
+  getTenantData: vi.fn(),
 }))
 
 // Mock child components
@@ -39,13 +39,13 @@ vi.mock('@/lib/config', () => ({
 }))
 
 describe('TerraPet About Page Component Tests', () => {
-  let mockClinicData: ClinicData
+  let mockTenantData: TenantData
 
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Setup comprehensive mock clinic data
-    mockClinicData = {
+    mockTenantData = {
       config: {
         id: 'terrapet',
         name: 'TerraPet',
@@ -195,9 +195,9 @@ describe('TerraPet About Page Component Tests', () => {
           },
         ],
       },
-    } as ClinicData
+    } as TenantData
 
-    vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+    vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
   })
 
   describe('Page Structure', () => {
@@ -207,11 +207,11 @@ describe('TerraPet About Page Component Tests', () => {
       expect(container).toBeTruthy()
     })
 
-    it('should call getClinicData with correct clinic slug', async () => {
+    it('should call getTenantData with correct clinic slug', async () => {
       const params = Promise.resolve({ clinic: 'terrapet' })
       await AboutPage({ params })
-      expect(getClinicData).toHaveBeenCalledWith('terrapet')
-      expect(getClinicData).toHaveBeenCalledTimes(1)
+      expect(getTenantData).toHaveBeenCalledWith('terrapet')
+      expect(getTenantData).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -323,7 +323,7 @@ describe('TerraPet About Page Component Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle missing clinic data gracefully', async () => {
-      vi.mocked(getClinicData).mockResolvedValue(null)
+      vi.mocked(getTenantData).mockResolvedValue(null)
 
       const params = Promise.resolve({ clinic: 'nonexistent' })
 

@@ -94,7 +94,7 @@ export interface RecoveryStep {
   description: string
   commands?: string[]
   estimatedMinutes: number
-  requiredRole: 'engineer' | 'admin' | 'dba' | 'security'
+  requiredRole: 'engineer' |'client' | 'practitioner' | 'admin' | 'dba' | 'security'
 }
 
 /**

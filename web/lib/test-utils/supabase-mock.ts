@@ -13,7 +13,7 @@ export interface MockUser {
 
 export interface MockProfile {
   tenant_id: string
-  role: 'owner' | 'vet' | 'admin'
+  role: 'client' | 'practitioner' | 'admin'
   full_name: string
 }
 
@@ -36,19 +36,19 @@ export const DEFAULT_MOCK_USER: MockUser = {
 
 export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
   tenant_id: 'tenant-terrapet',
-  role: 'vet',
+  role: 'practitioner',
   full_name: 'Dr. Test',
 }
 
 export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
   tenant_id: 'tenant-terrapet',
-  role: 'admin',
+  role:'client' | 'practitioner' | 'admin',
   full_name: 'Admin User',
 }
 
 export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
   tenant_id: 'tenant-terrapet',
-  role: 'owner',
+  role: 'client',
   full_name: 'Pet Owner',
 }
 
@@ -313,8 +313,8 @@ export function getAuthHandlerMock(
         )
       }
     },
-    isStaff: (p: { role: string }) => ['vet', 'admin'].includes(p.role),
-    isOwner: (p: { role: string }) => p.role === 'owner',
+    isStaff: (p: { role: string }) => ['practitioner', 'admin'].includes(p.role),
+    isOwner: (p: { role: string }) => p.role === 'client',
   }
 }
 

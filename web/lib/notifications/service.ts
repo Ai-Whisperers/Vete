@@ -86,7 +86,7 @@ async function getStaffMembers(
       .from('profiles')
       .select('id, email, role')
       .eq('tenant_id', tenantId)
-      .neq('role', 'owner')
+      ..eq('role', 'client')
       .not('email', 'is', null)
 
     if (roles && roles.length > 0) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, type ReactNode } from 'react'
-import type { DashboardLabels } from '@/lib/types/clinic-config'
+import type { DashboardLabels } from '@/lib/types/tenant-config'
 
 // Default labels (Spanish) - these match ui_labels.json
 const defaultDashboardLabels: DashboardLabels = {

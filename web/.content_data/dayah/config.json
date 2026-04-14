@@ -1,5 +1,7 @@
 {
   "id": "dayah",
+  "vertical": "services",
+  "subVertical": "design",
   "name": "Dayah LitWorks",
   "tagline": "Diseño de portadas de libros que cuentan historias",
   "contact": {

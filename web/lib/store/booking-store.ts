@@ -22,7 +22,7 @@ import type {
   BookableService,
   Pet,
 } from '@/components/booking/booking-wizard/types'
-import type { ClinicData } from '@/lib/types/clinic-config'
+import type { TenantData } from '@/lib/types/tenant-config'
 import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'
 
 // Icon mapping from string names to Lucide components
@@ -111,7 +111,7 @@ interface BookingState {
   toggleService: (serviceId: string) => void
   clearServices: () => void
   initialize: (
-    clinic: ClinicData,
+    clinic: TenantData,
     userPets: Pet[],
     initialServiceIds?: string[],
     initialPetId?: string

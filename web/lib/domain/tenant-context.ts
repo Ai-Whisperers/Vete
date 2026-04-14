@@ -9,8 +9,8 @@ import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { TierId } from '@/lib/pricing/tiers'
 import { getTierById } from '@/lib/pricing/tiers'
-import type { ClinicData } from '@/lib/clinics'
-import { getClinicData } from '@/lib/clinics'
+import type { TenantData } from '@/lib/tenant-content'
+import { getTenantData } from '@/lib/tenant-content'
 
 export interface TenantContext {
   tenantId: string
@@ -18,16 +18,16 @@ export interface TenantContext {
   tier: TierId
   isTrial: boolean
   trialEndDate: string | null
-  clinicData: ClinicData | null
+  tenantData: TenantData | null
 }
 
 /**
  * Get tenant context - cached per request
- * Combines filesystem clinic data + Supabase subscription tier
+ * Combines filesystem tenant data + Supabase subscription tier
  */
 export const getTenantContext = cache(async (slug: string): Promise<TenantContext | null> => {
-  const clinicData = await getClinicData(slug)
-  if (!clinicData) return null
+  const tenantData = await getTenantData(slug)
+  if (!tenantData) return null
 
   const supabase = await createClient()
   const { data: tenant } = await supabase
@@ -44,7 +44,7 @@ export const getTenantContext = cache(async (slug: string): Promise<TenantContex
     tier: (tenant.subscription_tier as TierId) || 'gratis',
     isTrial: tenant.is_trial || false,
     trialEndDate: tenant.trial_end_date,
-    clinicData,
+    tenantData,
   }
 })
 

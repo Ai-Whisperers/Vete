@@ -51,7 +51,7 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
   }
 
   // Verify staff role (vet or admin)
-  const isStaff = ['vet', 'admin'].includes(profile.role)
+  const isStaff = ['practitioner', 'admin'].includes(profile.role)
   if (!isStaff) {
     redirect(`/${profile.tenant_id}/portal`)
   }
@@ -63,7 +63,7 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
       severity: 'medium',
       userId: user.id,
       tenant: profile.tenant_id,
-      userRole: profile.role as 'owner' | 'vet' | 'admin',
+      userRole: profile.role as 'client' | 'practitioner' | 'admin',
       details: `Staff from tenant '${profile.tenant_id}' attempted to access tenant '${tenantId}' dashboard`,
     })
     redirect(`/${profile.tenant_id}/dashboard`)
@@ -81,7 +81,7 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
       full_name: profile.full_name,
     },
     isStaff: true,
-    isAdmin: profile.role === 'admin',
+    isAdmin: profile.role ==='client' | 'practitioner' | 'admin',
   }
 }
 
@@ -100,7 +100,7 @@ interface AdminUser extends StaffUser {
 export async function requireAdmin(tenantId?: string): Promise<AdminUser> {
   const { user, profile } = await requireStaff(tenantId)
 
-  if (profile.role !== 'admin') {
+  if (profile.role !=='client' | 'practitioner' | 'admin') {
     redirect(`/${profile.tenant_id}/dashboard`)
   }
 

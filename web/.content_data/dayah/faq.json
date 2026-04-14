@@ -1,0 +1,50 @@
+[
+  {
+    "id": "pricing",
+    "category": "precios",
+    "question": "¿Cómo funciona el pricing?",
+    "answer": "Los precios listed son para proyectos estándar. Cada libro es único, así que el precio final depende del género, complejidad y necesidades específicas. Incluye una consulta inicial gratuita."
+  },
+  {
+    "id": "timeline",
+    "category": "tiempo",
+    "question": "¿Cuánto tiempo toma el proceso?",
+    "answer": "Para portadas custom: primera propuesta en 5-7 días hábiles, revisiones adicionales según el paquete. Para premades: personalización en 48-72 horas."
+  },
+  {
+    "id": "revisions",
+    "category": "proceso",
+    "question": "¿Cuántas revisiones incluye?",
+    "answer": "Los paquetes incluyen hasta 3 rounds de revisiones. Revisiones adicionales tienen un costo extra de $25 USD por ronda."
+  },
+  {
+    "id": "files",
+    "category": "entrega",
+    "question": "¿Qué archivos recibo al final?",
+    "answer": "Recibirás archivos en PDF, PNG y JPG en alta resolución (300dpi), listos para Amazon KDP, IngramSpark, Draft2Digital, y cualquier otra plataforma de publicación."
+  },
+  {
+    "id": "payment",
+    "category": "pagos",
+    "question": "¿Cómo puedo pagar?",
+    "answer": "Acepto PayPal, Wise, y transferencia bancaria (cuenta local Paraguay). Se requiere 50% de anticipo para comenzar el proyecto."
+  },
+  {
+    "id": "cover-types",
+    "category": "servicios",
+    "question": "¿Para qué tipo de libro necesitas la portada?",
+    "answer": "Trabajo con todos los géneros: Romance (contemporary, historical, dark, paranormal), Fantasy, Thriller, Sci-Fi, No Ficción, y más."
+  },
+  {
+    "id": "information-needed",
+    "category": "proceso",
+    "question": "¿Qué información necesitas de mi libro?",
+    "answer": "Para crear una portada que represente tu historia, necesito: género, tono (comedia, drama, etc.), audiencia objetivo, palabras clave que describan la historia, y si tienes alguna preferencia visual."
+  },
+  {
+    "id": "premade-customization",
+    "category": "premades",
+    "question": "¿Qué puedo personalizar en un premade?",
+    "answer": "Puedes personalizar: título, nombre de autor, subtítulo, colores (dentro de lo posible), y algunas imágenes secundarias. El diseño base no se modifica."
+  }
+]

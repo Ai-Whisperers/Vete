@@ -1,0 +1,8 @@
+<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="900" fill="#0f0f23"/>
+  <rect x="50" y="50" width="500" height="800" fill="#1a1a3e"/>
+  <circle cx="300" cy="400" r="150" fill="#4ade80" opacity="0.3"/>
+  <text x="300" y="380" font-family="Georgia, serif" font-size="32" fill="#4ade80" text-anchor="middle" font-weight="bold">El Último</text>
+  <text x="300" y="420" font-family="Georgia, serif" font-size="32" fill="#4ade80" text-anchor="middle" font-weight="bold">Reino</text>
+  <text x="300" y="750" font-family="Inter, sans-serif" font-size="18" fill="#4ade80" text-anchor="middle">Fantasy</text>
+</svg>

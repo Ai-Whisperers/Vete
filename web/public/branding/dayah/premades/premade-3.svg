@@ -1,0 +1,8 @@
+<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="900" fill="#022c22"/>
+  <rect x="50" y="50" width="500" height="800" fill="#064e3b"/>
+  <circle cx="300" cy="300" r="120" fill="#10b981" opacity="0.3"/>
+  <text x="300" y="300" font-family="Georgia, serif" font-size="24" fill="#34d399" text-anchor="middle">PREMADE</text>
+  <text x="300" y="600" font-family="Inter, sans-serif" font-size="14" fill="#34d399" text-anchor="middle">Fantasy Epic</text>
+  <text x="300" y="620" font-family="Inter, sans-serif" font-size="12" fill="#34d399" text-anchor="middle">$60 USD</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="900" fill="#fce7f3"/>
+  <circle cx="300" cy="350" r="100" fill="#f9a8d4"/>
+  <text x="300" y="350" font-family="Georgia, serif" font-size="24" fill="#be185d" text-anchor="middle">PREMADE</text>
+  <text x="300" y="600" font-family="Inter, sans-serif" font-size="14" fill="#be185d" text-anchor="middle">Romance Floral</text>
+  <text x="300" y="620" font-family="Inter, sans-serif" font-size="12" fill="#be185d" text-anchor="middle">$60 USD</text>
+</svg>

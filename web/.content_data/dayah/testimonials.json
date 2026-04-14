@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "author": "María González",
+    "rating": 5,
+    "text": "Mi libro pasó de vender 20 copias al mes a más de 200 después del rediseño de portada. El diseño capturó perfectamente la esencia de mi historia.",
+    "date": "2025-12-15",
+    "source": "Instagram"
+  },
+  {
+    "id": 2,
+    "author": "Carlos Rivera",
+    "rating": 5,
+    "text": "Excelente trabajo. La portada de mi novela de fantasía quedó increíble y los lectores no paran de comentarla en reseñas.",
+    "date": "2025-11-20",
+    "source": "Email"
+  },
+  {
+    "id": 3,
+    "author": "Ana López",
+    "rating": 5,
+    "text": "Proceso súper profesional. Entendió exactamente lo que quería desde el briefing y la propuesta inicial ya estaba muy cerca de lo que buscaba.",
+    "date": "2025-10-05",
+    "source": "WhatsApp"
+  },
+  {
+    "id": 4,
+    "author": "Roberto Díaz",
+    "rating": 4,
+    "text": "Muy buen diseño para mi libro de no ficción. La送达 fue rápida y los archivos funcionaron perfectamente en Amazon.",
+    "date": "2025-09-12",
+    "source": "Email"
+  },
+  {
+    "id": 5,
+    "author": "Laura Mendoza",
+    "rating": 5,
+    "text": "Compré un premade y el resultado fue mejor de lo que esperaba. En 3 días tenía mi portada lista para publicar. ¡Totalmente recomendada!",
+    "date": "2025-08-28",
+    "source": "Instagram"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "intro": {
+    "title": "Mi Historia",
+    "text": "Me apasiona transformar historias en portadas que cuentan mucho más que un libro. Con más de 5 años de experiencia en diseño editorial, he ayudado a cientos de autores independientes a dar el primer impacto visual que sus libros merecen."
+  },
+  "process": {
+    "title": "Mi Proceso de Trabajo",
+    "steps": [
+      {
+        "step": 1,
+        "title": "Briefing",
+        "description": "Conversamos sobre tu historia, género, público objetivo y visión."
+      },
+      {
+        "step": 2,
+        "title": "Investigación",
+        "description": "Analizo el mercado y competidores para posicionar tu libro."
+      },
+      {
+        "step": 3,
+        "title": "Propuestas",
+        "description": "Te presento 3 opciones iniciales basadas en tu historia."
+      },
+      {
+        "step": 4,
+        "title": "Revisiones",
+        "description": "Ajustamos hasta que la portada sea perfecta."
+      },
+      {
+        "step": 5,
+        "title": "Entrega",
+        "description": "Recibes todos los archivos listos para publicar."
+      }
+    ]
+  },
+  "certifications": [
+    "Diseñador Gráfico Certificado",
+    "Especializado en Book Cover Design",
+    "Experiencia con Amazon KDP, IngramSpark, Draft2Digital"
+  ]
+}

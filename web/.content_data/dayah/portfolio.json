@@ -1,0 +1,58 @@
+{
+  "intro": {
+    "title": "Portafolio",
+    "text": "Una selección de mis trabajos recientes"
+  },
+  "categories": [
+    {
+      "id": "all",
+      "name": "Todos"
+    },
+    {
+      "id": "romance",
+      "name": "Romance"
+    },
+    {
+      "id": "fantasy",
+      "name": "Fantasy"
+    },
+    {
+      "id": "thriller",
+      "name": "Thriller"
+    },
+    {
+      "id": "non-fiction",
+      "name": "No Ficción"
+    },
+    {
+      "id": "scifi",
+      "name": "Ciencia Ficción"
+    }
+  ],
+  "items": [
+    {
+      "title": "Corazón de Hielo",
+      "genre": "romance",
+      "year": "2025",
+      "image": "/branding/bookcovers/portfolio/romance-1.svg"
+    },
+    {
+      "title": "El Último Reino",
+      "genre": "fantasy",
+      "year": "2025",
+      "image": "/branding/bookcovers/portfolio/fantasy-1.svg"
+    },
+    {
+      "title": "Sombras en la Noche",
+      "genre": "thriller",
+      "year": "2025",
+      "image": "/branding/bookcovers/portfolio/thriller-1.svg"
+    },
+    {
+      "title": "Despertar",
+      "genre": "scifi",
+      "year": "2024",
+      "image": "/branding/bookcovers/portfolio/scifi-1.svg"
+    }
+  ]
+}

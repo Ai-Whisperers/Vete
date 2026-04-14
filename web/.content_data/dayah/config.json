@@ -1,0 +1,117 @@
+{
+  "id": "dayah",
+  "name": "Dayah Designs",
+  "tagline": "Diseño profesional de portadas para autores independientes",
+  "contact": {
+    "whatsapp_number": "595900000000",
+    "phone_display": "+595 9XX XXX XXX",
+    "email": "contacto@bookcoverstudio.com",
+    "city": "Asunción",
+    "country": "Paraguay",
+    "instagram": "bookcoverstudio",
+    "tiktok": "bookcoverstudio",
+    "threads": "bookcoverstudio"
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "bookcoverstudio",
+    "tiktok": "bookcoverstudio",
+    "threads": "bookcoverstudio"
+  },
+  "hours": {
+    "weekdays": "08:00 - 18:00",
+    "saturday": "09:00 - 14:00",
+    "sunday": "Cerrado"
+  },
+  "settings": {
+    "currency": "USD",
+    "currency_symbol": "$",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "delivery_enabled": false,
+    "modules": {
+      "premade_covers": true,
+      "custom_covers": true,
+      "special_editions": true,
+      "book_mockups": true,
+      "portfolio": true
+    }
+  },
+  "branding": {
+    "logo_url": "/branding/bookcovers/images/logo.svg",
+    "logo_width": 200,
+    "logo_height": 50,
+    "favicon_url": "/branding/bookcovers/images/favicon.ico",
+    "hero_image_url": "/branding/bookcovers/images/hero.svg",
+    "og_image_url": "/branding/bookcovers/images/og-image.svg"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "portfolio": "Portafolio",
+      "premade": "Premades",
+      "about": "Nosotros",
+      "contact": "Contacto",
+      "book_btn": "Cotizar"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados.",
+      "privacy": "Política de Privacidad",
+      "terms": "Términos y Condiciones",
+      "contact_us": "Contáctanos",
+      "follow_us": "Síguenos"
+    },
+    "home": {
+      "hero_title": "Portadas de Libro que Capturan Historias",
+      "hero_subtitle": "Diseño profesional de portadas para autores independientes. Haz que tu libro sea visible y atractivo desde el primer взгляд.",
+      "hero_cta_primary": "Ver Portafolio",
+      "hero_cta_secondary": "Solicitar Cotización",
+      "features_badge": "Por Qué Elegirnos",
+      "features_title": "Transforma tu Manuscrito en un Best-Seller visual",
+      "features_subtitle": "Más de 5 años creando portadas que destacan en el mercado.",
+      "testimonials_badge": "Testimonios",
+      "visit_us": "Contáctanos"
+    },
+    "services": {
+      "meta_title": "Servicios de Diseño",
+      "meta_subtitle": "Soluciones profesionales para tu libro.",
+      "custom_cover": "Portada Custom",
+      "premade": "Premade",
+      "special_edition": "Special Edition",
+      "book_mockup": "Video 3D"
+    },
+    "portfolio": {
+      "title": "Nuestro Portafolio",
+      "subtitle": "Trabajos recientes",
+      "filter_all": "Todos",
+      "filter_romance": "Romance",
+      "filter_fantasy": "Fantasy",
+      "filter_thriller": "Thriller",
+      "filter_non_fiction": "No Ficción"
+    },
+    "premade": {
+      "title": "Premade Covers",
+      "subtitle": "Diseños listos para personalizar con tu título y nombre de autor.",
+      "cta": "Personalizar",
+      "learn_more": "Más información"
+    },
+    "booking": {
+      "title": "Solicitar Cotización",
+      "select_service": "Selecciona un Servicio",
+      "your_info": "Tus Datos",
+      "book_title": "Título del Libro",
+      "book_genre": "Género",
+      "book_synopsis": "Breve descripción de la historia",
+      "confirm_btn": "Enviar Solicitud",
+      "success_title": "¡Solicitud Enviada!",
+      "success_message": "Te contactaré pronto."
+    },
+    "common": {
+      "loading": "Cargando...",
+      "error": "Ocurrió un error",
+      "retry": "Reintentar"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="900" fill="#0a0a0a"/>
+  <rect x="50" y="50" width="500" height="800" fill="#1a1a1a"/>
+  <rect x="100" y="200" width="400" height="8" fill="#ef4444"/>
+  <text x="300" y="400" font-family="Georgia, serif" font-size="28" fill="white" text-anchor="middle" font-weight="bold">Sombras en</text>
+  <text x="300" y="440" font-family="Georgia, serif" font-size="28" fill="white" text-anchor="middle" font-weight="bold">la Noche</text>
+  <text x="300" y="750" font-family="Inter, sans-serif" font-size="18" fill="#ef4444" text-anchor="middle">Thriller</text>
+</svg>

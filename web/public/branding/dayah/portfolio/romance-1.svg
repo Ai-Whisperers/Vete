@@ -1,0 +1,7 @@
+<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="900" fill="#1a1a2e"/>
+  <rect x="50" y="50" width="500" height="800" fill="#16213e"/>
+  <text x="300" y="400" font-family="Georgia, serif" font-size="36" fill="#e94560" text-anchor="middle" font-weight="bold">Corazón</text>
+  <text x="300" y="450" font-family="Georgia, serif" font-size="36" fill="#e94560" text-anchor="middle" font-weight="bold">de Hielo</text>
+  <text x="300" y="750" font-family="Inter, sans-serif" font-size="18" fill="#e94560" text-anchor="middle">Romance</text>
+</svg>

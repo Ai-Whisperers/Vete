@@ -1,0 +1,79 @@
+{
+  "version": "1.0",
+  "basePath": "/branding/bookcovers/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero.jpg",
+        "alt": "Book Cover Studio - Diseño de portadas profesionales",
+        "width": 1920,
+        "height": 1080
+      },
+      "services": {
+        "src": "services-hero.jpg",
+        "alt": "Servicios de diseño de portadas",
+        "width": 1920,
+        "height": 1080
+      },
+      "portfolio": {
+        "src": "portfolio-hero.jpg",
+        "alt": "Portafolio de portadas",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.svg",
+        "alt": "BookCover Studio",
+        "width": 200,
+        "height": 50
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "BookCover Studio - Portadas profesionales",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    "portfolio": {
+      "example-1": {
+        "src": "portfolio/example-1.jpg",
+        "alt": "Portada - Romance",
+        "width": 600,
+        "height": 900
+      },
+      "example-2": {
+        "src": "portfolio/example-2.jpg",
+        "alt": "Portada - Fantasy",
+        "width": 600,
+        "height": 900
+      },
+      "example-3": {
+        "src": "portfolio/example-3.jpg",
+        "alt": "Portada - Thriller",
+        "width": 600,
+        "height": 900
+      }
+    },
+    "team": {
+      "owner": {
+        "src": "team/owner.jpg",
+        "alt": "Diseñadora de portadas",
+        "width": 400,
+        "height": 533
+      }
+    }
+  },
+  "placeholders": {
+    "cover": "/images/placeholders/cover-placeholder.jpg",
+    "portfolio": "/images/placeholders/portfolio-placeholder.jpg",
+    "service": "/images/placeholders/service-placeholder.jpg"
+  }
+}

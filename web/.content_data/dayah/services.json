@@ -1,0 +1,205 @@
+{
+  "meta": {
+    "title": "Servicios de Diseño de Portadas",
+    "subtitle": "Soluciones profesionales para autores independientes"
+  },
+  "services": [
+    {
+      "id": "custom-cover",
+      "visible": true,
+      "category": "design",
+      "title": "Portada Custom",
+      "icon": "paintbrush",
+      "summary": "Diseño único creado desde cero para tu historia",
+      "details": {
+        "description": "Diseño de portada 100% personalizado basado en tu historia, género y visión. Incluye直到 3 revisiones y todos los archivos necesarios para publicación (Amazon, KDP, IngramSpark, etc.).",
+        "duration_minutes": 4800,
+        "includes": [
+          "Briefing detallado de tu historia y visión",
+          "Investigación de mercado y competidores",
+          "3 propuestas iniciales",
+          "Hasta 3 rounds de revisiones",
+          "Archivos finales: PDF, PNG, JPG (300dpi)",
+          "Contraportada opcional",
+          "Spine para tapa dura"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Ebook Only",
+          "price_display": "$150 USD",
+          "price_value": 150,
+          "description": "Solo tapa (ebook/Kindle)"
+        },
+        {
+          "name": "Ebook + Print",
+          "price_display": "$200 USD",
+          "price_value": 200,
+          "description": "Tapa + contraportada + spine"
+        },
+        {
+          "name": "Full Package",
+          "price_display": "$280 USD",
+          "price_value": 280,
+          "description": "Paquete completo + diseño de redes sociales"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "premade-cover",
+      "visible": true,
+      "category": "design",
+      "title": "Portada Premade",
+      "icon": "layer",
+      "summary": "Diseños pre-diseñados que personalizo con tu título",
+      "details": {
+        "description": "Diseños exclusivos disponibles para compra inmediata. Personalized con tu título, nombre de autor y colores en 48-72 horas. Perfecto para autores con presupuesto limitado.",
+        "duration_minutes": 1440,
+        "includes": [
+          "Selección de diseño premade",
+          "Personalización de título y autor",
+          "Ajuste de colores",
+          "1 revisión pequeña",
+          "Archivos finales (PDF, PNG, JPG)"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Basic Premade",
+          "price_display": "$60 USD",
+          "price_value": 60,
+          "description": "Solo tapa, entrega en 72h"
+        },
+        {
+          "name": "Full Premade",
+          "price_display": "$80 USD",
+          "price_value": 80,
+          "description": "Tapa + contraportada + spine"
+        },
+        {
+          "name": "Genre Bundle",
+          "price_display": "$150 USD",
+          "price_value": 150,
+          "description": "3 portadas para diferentes géneros"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "special-edition",
+      "visible": true,
+      "category": "premium",
+      "title": "Special Edition Design",
+      "icon": "star",
+      "summary": "Ediciones especiales para Hardcover, Signed, Kickstarter",
+      "details": {
+        "description": "Diseños premium para ediciones especiales, hardcover, signed copies, preorders o campañas de Kickstarter. Acabados de lujo, páginas de bordes, y diseño integral.",
+        "duration_minutes": 7200,
+        "includes": [
+          "Diseño de tapa premium",
+          "Contraportada con información extendida",
+          "Diseño de spine para Hardcover",
+          "Páginas de bordes (end pages)",
+          "Diseño de caja/box set opcional",
+          "Mockup digital para promoción",
+          "Archivos para impresión offset"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Hardcover",
+          "price_display": "$350 USD",
+          "price_value": 350,
+          "description": "Diseño completo para tapa dura"
+        },
+        {
+          "name": "Special Edition",
+          "price_display": "$450 USD",
+          "price_value": 450,
+          "description": "Incluye end pages y box design"
+        },
+        {
+          "name": "Kickstarter Bundle",
+          "price_display": "$600 USD",
+          "price_value": 600,
+          "description": "Paquete completo + mockups + stretch goals"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "book-mockup",
+      "visible": true,
+      "category": "video",
+      "title": "Video 3D / Book Mockup",
+      "icon": "video",
+      "summary": "Videos profesionales para展示 tu libro en redes",
+      "details": {
+        "description": "Videos 3D animados de tu portada para usar en Instagram, TikTok, Facebook o tu landing page. Puedes elegir un template o solicitar un video custom.",
+        "duration_minutes": 2880,
+        "includes": [
+          "Video 3D animado de tu portada",
+          "Duración 5-15 segundos",
+          "Audio/música opcional",
+          "Formatos: MP4, GIF",
+          "Optimizado para redes sociales"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Template Video",
+          "price_display": "$40 USD",
+          "price_value": 40,
+          "description": "Elige de mis templates disponibles"
+        },
+        {
+          "name": "Custom Animation",
+          "price_display": "$100 USD",
+          "price_value": 100,
+          "description": "Animación personalizada única"
+        },
+        {
+          "name": "Social Bundle",
+          "price_display": "$120 USD",
+          "price_value": 120,
+          "description": "3 videos para diferentes plataformas"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "redesign",
+      "visible": true,
+      "category": "design",
+      "title": "Rediseño de Portada",
+      "icon": "arrow-path",
+      "summary": "Actualiza la portada de tu libro publicado",
+      "details": {
+        "description": "¿Ya publicaste tu libro pero no estás satisfecho con la portada? Puedo rediseñarla manteniendo el ISBN existente o crear una nueva versión.",
+        "duration_minutes": 3600,
+        "includes": [
+          "Análisis de la portada actual",
+          "Nueva propuesta de diseño",
+          "Mantener o actualizar marca",
+          "Archivos para todas las plataformas"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Rediseño Básico",
+          "price_display": "$120 USD",
+          "price_value": 120,
+          "description": "Nueva tapa + contraportada"
+        },
+        {
+          "name": "Rediseño Completo",
+          "price_display": "$180 USD",
+          "price_value": 180,
+          "description": "Incluye diseño de redes sociales"
+        }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    }
+  ]
+}

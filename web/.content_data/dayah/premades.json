@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "Premade Covers",
+    "subtitle": "Diseños listos para personalizar con tu historia"
+  },
+  "note": "Para comprar un premade, selecciónalo y te contactaré para personalizarlo con tu título y nombre de autor. Entrega en 48-72 horas.",
+  "categories": [
+    {
+      "id": "all",
+      "name": "Todos"
+    },
+    {
+      "id": "romance",
+      "name": "Romance"
+    },
+    {
+      "id": "fantasy",
+      "name": "Fantasy"
+    },
+    {
+      "id": "thriller",
+      "name": "Thriller"
+    },
+    {
+      "id": "literary",
+      "name": "Literario"
+    }
+  ],
+  "covers": [
+    {
+      "id": "pm-001",
+      "title": "Romance Floral",
+      "category": "romance",
+      "mood": "romántico, suave",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-1.svg",
+      "available": true
+    },
+    {
+      "id": "pm-002",
+      "title": "Dark Romance",
+      "category": "romance",
+      "mood": "oscuro, dramático",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-2.svg",
+      "available": true
+    },
+    {
+      "id": "pm-003",
+      "title": "Fantasy Epic",
+      "category": "fantasy",
+      "mood": "épico, majestuoso",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-3.svg",
+      "available": true
+    },
+    {
+      "id": "pm-004",
+      "title": "Fantasy Mystical",
+      "category": "fantasy",
+      "mood": "místico, enigmático",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-4.svg",
+      "available": true
+    },
+    {
+      "id": "pm-005",
+      "title": "Thriller Dark",
+      "category": "thriller",
+      "mood": "suspenso, oscuro",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-5.svg",
+      "available": true
+    },
+    {
+      "id": "pm-006",
+      "title": "Thriller Minimal",
+      "category": "thriller",
+      "mood": "moderno, limpio",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-6.svg",
+      "available": true
+    },
+    {
+      "id": "pm-007",
+      "title": "Literary Classic",
+      "category": "literary",
+      "mood": "elegante, atemporal",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-7.svg",
+      "available": true
+    },
+    {
+      "id": "pm-008",
+      "title": "Contemporary Romance",
+      "category": "romance",
+      "mood": "moderno, vibrante",
+      "price": 60,
+      "image": "/branding/bookcovers/premades/premade-8.svg",
+      "available": true
+    }
+  ],
+  "cta": {
+    "title": "¿No encontraste lo que buscas?",
+    "text": "También hago diseños 100% personalizados. Solicita una cotización.",
+    "button": "Ver Servicios Custom"
+  }
+}

@@ -29,76 +29,44 @@ export function PullToRefresh({
   const startYRef = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const handleTouchStart = (e: TouchEvent): void => {
-    if (isRefreshing) return
-    // Only allow pull when scrolled to top
-    if (containerRef.current?.scrollTop === 0) {
-      startYRef.current = e.touches[0].clientY
-      setCanPull(true)
-    } else {
+  const handleTouchStart = (event: TouchEvent) => {
+    startYRef.current = event.touches[0].clientY
+  }
+
+  const handleTouchMove = (event: TouchEvent) => {
+    const currentY = event.touches[0].clientY
+    const distance = currentY - startYRef.current
+    setPullDistance(distance)
+    if (distance > threshold && canPull) {
       setCanPull(false)
     }
   }
 
-  const handleTouchMove = (e: TouchEvent): void => {
-    if (!canPull || isRefreshing) return
-    const diff = e.touches[0].clientY - startYRef.current
-    if (diff > 0) {
-      // Apply resistance
-      const resistance = 0.5
-      setPullDistance(Math.min(diff * resistance, threshold * 1.5))
-    }
-  }
-
-  const handleTouchEnd = async (): Promise<void> => {
-    if (!canPull || isRefreshing) return
-    if (pullDistance >= threshold) {
-      setIsRefreshing(true)
-      setPullDistance(threshold / 2)
-      try {
-        await onRefresh()
-      } finally {
+  const handleTouchEnd = () => {
+    if (pullDistance > threshold) {
+      onRefresh().then(() => {
         setIsRefreshing(false)
         setPullDistance(0)
-      }
+        setCanPull(true)
+      })
     } else {
       setPullDistance(0)
     }
   }
 
-  const progress = Math.min(pullDistance / threshold, 1)
-
   return (
     <div
+      className={cn('pull-to-refresh', className)}
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className={cn('overflow-auto', className)}
     >
-      {/* Pull Indicator */}
-      <div
-        className="flex items-center justify-center overflow-hidden transition-all duration-200"
-        style={{ height: pullDistance }}
-      >
-        <div
-          className={cn(
-            'bg-[var(--primary)]/10 flex h-10 w-10 items-center justify-center rounded-full',
-            isRefreshing && 'animate-spin'
-          )}
-          style={{
-            transform: `rotate(${progress * 180}deg)`,
-            opacity: progress,
-          }}
-        >
-          {isRefreshing ? (
-            <Loader2 className="h-5 w-5 text-[var(--primary)]" />
-          ) : (
-            <ArrowDown className="h-5 w-5 text-[var(--primary)]" />
-          )}
-        </div>
-      </div>
-
+      {isRefreshing ? (
+        <Loader2 className="loader" />
+      ) : (
+        <ArrowDown className="arrow" />
+      )}
       {children}
     </div>
   )

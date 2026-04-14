@@ -36,45 +36,19 @@ export function MobileListItem({
   href,
   swipeActions,
   className,
-}: MobileListItemProps): React.ReactElement {
-  const content = (
-    <div
-      className={cn(
-        'flex items-center gap-4 p-4',
-        TOUCH_TARGETS.MIN,
-        onClick && 'cursor-pointer active:bg-gray-50',
-        className
-      )}
+}: MobileListItemProps) {
+  return (
+    <SwipeableCard
+      className={cn('mobile-list-item', className)}
       onClick={onClick}
+      href={href}
+      swipeActions={swipeActions}
     >
-      {leading && <div className="shrink-0">{leading}</div>}
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-bold text-[var(--text-primary)]">{title}</p>
-        {subtitle && <p className="truncate text-sm text-[var(--text-secondary)]">{subtitle}</p>}
-      </div>
-      {trailing && <div className="shrink-0">{trailing}</div>}
-      {(onClick || href) && !trailing && (
-        <ChevronRight className="h-5 w-5 shrink-0 text-gray-400" />
-      )}
-    </div>
-  )
-
-  const wrappedContent = swipeActions ? (
-    <SwipeableCard leftActions={swipeActions.left} rightActions={swipeActions.right}>
-      {content}
+      {leading && <div className="leading">{leading}</div>}
+      <div className="title">{title}</div>
+      {subtitle && <div className="subtitle">{subtitle}</div>}
+      {trailing && <div className="trailing">{trailing}</div>}
+      <ChevronRight className="chevron" />
     </SwipeableCard>
-  ) : (
-    content
   )
-
-  if (href) {
-    const Link = require('next/link').default
-    return (
-      <Link href={href} className="block">
-        {wrappedContent}
-      </Link>
-    )
-  }
-
-  return wrappedContent
 }

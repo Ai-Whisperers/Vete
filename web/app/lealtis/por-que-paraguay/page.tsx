@@ -81,7 +81,7 @@ export default async function WhyParaguayPage() {
           <div className="py-20 bg-slate-50 rounded-2xl px-8 text-center">
             <h2 className="text-3xl font-bold text-[#1B3A6B] mb-4">{t('whyParaguay.cta')}</h2>
             <Link
-              href="/contacto"
+              href="/lealtis/contacto"
               className="inline-block rounded-full bg-[#1B3A6B] text-white font-bold px-8 py-4 transition-all hover:bg-[#0f2447] hover:-translate-y-1 shadow-lg"
             >
               {t('nav.bookConsultation')}

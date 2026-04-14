@@ -75,7 +75,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contacto" className="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 font-bold text-white hover:bg-[#a67c2e] transition-all">
+              <Link href="/lealtis/contacto" className="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 font-bold text-white hover:bg-[#a67c2e] transition-all">
                 Get Started
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -103,7 +103,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/contacto" className="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#1B3A6B] px-6 py-3 font-bold text-white hover:bg-[#0f2447] transition-all">
+              <Link href="/lealtis/contacto" className="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#1B3A6B] px-6 py-3 font-bold text-white hover:bg-[#0f2447] transition-all">
                 Get Started
                 <ArrowRight className="h-4 w-4" />
               </Link>

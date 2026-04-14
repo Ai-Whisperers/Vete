@@ -43,7 +43,7 @@
       "paper": "#FFFFFF",
       "subtle": "#F4F4F5",
       "dark": "#18181B",
-      "hero": "linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)",
+      "hero": "#8B5CF6",
       "surface": "#FFFFFF",
       "surfaceElevated": "#FEFEFE",
       "surfaceOverlay": "rgba(0, 0, 0, 0.5)"

@@ -13,7 +13,7 @@ import {
   X,
   Home,
   Flame,
-  Ball,
+  CircleDot,
   Smile
 } from 'lucide-react'
 
@@ -56,7 +56,7 @@ export function ArasyHome({ tenantData }: ArasyHomeProps) {
   const amenities = [
     { icon: Waves, title: 'Piscina', desc: 'Área de piscina con solárium' },
     { icon: Flame, title: 'Quinchos', desc: 'Quinchos con parrilla' },
-    { icon: Ball, title: 'Cancha', desc: 'Cancha multiuso' },
+    { icon: CircleDot, title: 'Cancha', desc: 'Cancha multiuso' },
     { icon: Smile, title: 'Parque', desc: 'Juegos para niños' },
     { icon: Shield, title: 'Seguridad', desc: 'Control de acceso 24hs' },
     { icon: Trees, title: 'Naturaleza', desc: 'Jardines y senderos' },

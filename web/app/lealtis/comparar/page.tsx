@@ -184,7 +184,7 @@ export default async function ComparePage() {
           <div className="max-w-2xl mx-auto mt-20 p-12 bg-[#1B3A6B] rounded-2xl text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to explore Paraguay?</h2>
             <p className="text-slate-300 mb-8">Book a free consultation and we&apos;ll help you compare your options honestly.</p>
-            <Link href="/contacto" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-white shadow-lg hover:bg-[#a67c2e] transition-all">
+            <Link href="/lealtis/contacto" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-white shadow-lg hover:bg-[#a67c2e] transition-all">
               Book Free Consultation
               <ArrowRight className="h-5 w-5" />
             </Link>

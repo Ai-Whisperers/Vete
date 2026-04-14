@@ -143,7 +143,7 @@ export default function ParaguayVsPanamaPage() {
           <div className="max-w-2xl mx-auto p-12 bg-[#1B3A6B] rounded-2xl text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Both are good options. Let&apos;s find the right one.</h2>
             <p className="text-slate-300 mb-8">We have experience with both markets. In a 30-minute call, we can tell you which one fits your situation better.</p>
-            <Link href="/contacto" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-white shadow-lg hover:bg-[#a67c2e] transition-all">
+            <Link href="/lealtis/contacto" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-white shadow-lg hover:bg-[#a67c2e] transition-all">
               Book Free Consultation
               <ArrowRight className="h-5 w-5" />
             </Link>

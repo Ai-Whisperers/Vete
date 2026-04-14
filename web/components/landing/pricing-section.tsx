@@ -53,7 +53,7 @@ export function PricingSection() {
 
             {/* CTA Button */}
             <Link
-              href="/contacto"
+              href="/lealtis/contacto"
               className="block w-full rounded-full bg-[#1B3A6B] text-white font-bold py-4 text-center transition-all hover:bg-[#0f2447] hover:-translate-y-1 shadow-lg"
             >
               {t('programBusiness.cta')}
@@ -96,7 +96,7 @@ export function PricingSection() {
 
             {/* CTA Button */}
             <Link
-              href="/contacto"
+              href="/lealtis/contacto"
               className="block w-full rounded-full bg-[#C9A84C] text-[#1B3A6B] font-bold py-4 text-center transition-all hover:bg-[#dfc07a] hover:-translate-y-1 shadow-lg"
             >
               {t('programInvestor.cta')}

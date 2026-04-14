@@ -19,7 +19,7 @@ export default async function InvestorProgramPage() {
       <LandingNav />
       <main className="min-h-screen pt-28 bg-white">
         <div className="container mx-auto px-4 md:px-6 py-20">
-          <Link href="/#programs" className="inline-flex items-center gap-2 text-[#C9A84C] hover:text-[#dfc07a] mb-8 transition-colors">
+          <Link href="/lealtis/#programs" className="inline-flex items-center gap-2 text-[#C9A84C] hover:text-[#dfc07a] mb-8 transition-colors">
             <ArrowLeft className="h-5 w-5" />
             {t('cta')}
           </Link>
@@ -46,7 +46,7 @@ export default async function InvestorProgramPage() {
               </div>
 
               <Link
-                href="/contacto"
+                href="/lealtis/contacto"
                 className="inline-block rounded-full bg-[#1B3A6B] text-white font-bold px-8 py-4 transition-all hover:bg-[#0f2447] hover:-translate-y-1 shadow-lg"
               >
                 {t('cta')}
@@ -68,7 +68,7 @@ export default async function InvestorProgramPage() {
 
           <div className="text-center py-20 bg-gradient-to-br from-[#1B3A6B] to-[#0f2447] rounded-2xl text-white">
             <Link
-              href="/contacto"
+              href="/lealtis/contacto"
               className="inline-block rounded-full bg-[#C9A84C] text-[#1B3A6B] font-bold px-8 py-4 transition-all hover:bg-[#dfc07a] hover:-translate-y-1 shadow-lg"
             >
               {t('cta')}

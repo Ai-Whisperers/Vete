@@ -1,0 +1,16 @@
+{
+  "common": {
+    "hello": "Mba'eichapa",
+    "welcome": "Oñemboja'o"
+  },
+  "auth": {
+    "login": "Ikatu",
+    "register": "Eñegistro",
+    "forgotPassword": "Oñemoĩmba'e ichupe"
+  },
+  "dashboard": {
+    "title": "Tablero",
+    "appointments": "Citas",
+    "patients": "Pacientes"
+  }
+}

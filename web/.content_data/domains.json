@@ -1,8 +1,20 @@
 {
   "$schema": "./schemas/domains.schema.json",
   "version": "1.0.0",
-  "defaultDomain": "vetic.ai-whisperers.org",
+  "defaultDomain": "paragu-ai.com",
   "domains": [
+    {
+      "domain": "paragu-ai.com",
+      "tenant": "platform",
+      "type": "primary",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "pending",
+      "createdAt": "2026-02-12T00:00:00Z"
+    },
     {
       "domain": "vetic.ai-whisperers.org",
       "tenant": "platform",
@@ -150,6 +162,18 @@
       },
       "status": "active",
       "createdAt": "2026-04-09T00:00:00Z"
+    },
+    {
+      "domain": "arasy.paragu-ai.com",
+      "tenant": "arasy",
+      "type": "subdomain",
+      "provider": "vercel",
+      "ssl": {
+        "enabled": true,
+        "autoRenew": true
+      },
+      "status": "active",
+      "createdAt": "2026-04-14T00:00:00Z"
     }
   ],
   "cloudflare": {

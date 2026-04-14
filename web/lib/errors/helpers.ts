@@ -20,7 +20,9 @@ export function forbidden(action: string = 'esta acción', context?: ErrorContex
 }
 
 export function validationError(fieldErrors: Record<string, string[]>, context?: ErrorContext) {
-  return ErrorService.validationError(fieldErrors, context)
+  return ErrorService.create('VALIDATION_ERROR', undefined, context, {
+    fieldErrors,
+  })
 }
 
 export function conflict(resource: string = 'recurso', context?: ErrorContext) {
@@ -63,7 +65,7 @@ export const apiSuccess = ErrorService.apiSuccess.bind(ErrorService)
 
 // Error handling wrappers
 export const handleApiError = ErrorService.handleApiError.bind(ErrorService)
-export const handleActionError = ErrorService.handleActionError.bind(ErrorService)
+export const handleActionError = ErrorService.handleApiError.bind(ErrorService)
 
 // Utility functions
 export const isRetryable = ErrorService.isRetryable.bind(ErrorService)

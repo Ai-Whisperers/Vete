@@ -148,48 +148,9 @@ export class ErrorService {
         ...appError,
         stack: appError.stack,
       })
-    } else {
-      logger.warn('[API] Error', {
-        code: appError.code,
-        message: appError.message,
-        requestId: appError.requestId,
-      })
     }
 
     return this.toApiResponse(appError)
-  }
-
-  /**
-   * Handle errors in server action handlers
-   */
-  static handleActionError(error: unknown, context?: ErrorContext) {
-    const appError = this.fromUnknown(error, 'SERVER_ERROR', context)
-
-    // Log critical errors
-    if (appError.severity === 'critical' || appError.severity === 'high') {
-      logger.error('[Action] Critical error', {
-        ...appError,
-        stack: appError.stack,
-      })
-    } else {
-      logger.warn('[Action] Error', {
-        code: appError.code,
-        message: appError.message,
-        requestId: appError.requestId,
-      })
-    }
-
-    return this.actionError(appError.message, appError.code)
-  }
-
-  /**
-   * Create validation error with field-level details
-   */
-  static validationError(fieldErrors: Record<string, string[]>, context?: ErrorContext): AppError {
-    return {
-      ...this.create('VALIDATION_ERROR', undefined, context),
-      fieldErrors,
-    }
   }
 
   /**

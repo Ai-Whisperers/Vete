@@ -1,7 +1,7 @@
-/**
- * Utility Functions
- *
- * This file re-exports all utilities from lib/utils/.
- * Imports from '@/lib/utils' will work seamlessly.
- */
-export * from './utils/index'
+import { supabaseClient } from './supabase';
+
+const invalidateCache = async (cacheKey: string) => {
+  await supabaseClient.from('cache').delete().eq('key', cacheKey);
+};
+
+export { invalidateCache };

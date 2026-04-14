@@ -1,0 +1,68 @@
+{
+  "id": "arasy",
+  "name": "Barrio Cerrado Arasy",
+  "tagline": "Tu hogar seguro en el corazón de Central",
+  "vertical": "realestate",
+  "slug": "arasy",
+  "language": "es",
+  "modules": {
+    "home": true,
+    "about": true,
+    "properties": true,
+    "amenities": true,
+    "location": true,
+    "contact": true,
+    "booking": false,
+    "store": false,
+    "wholesale": false,
+    "faq": true,
+    "testimonials": true,
+    "gallery": true
+  },
+  "contact": {
+    "whatsapp_number": "595981123456",
+    "phone_display": "+595 981 123 456",
+    "email": "ventas@barrioarasy.com.py",
+    "address": "Camino Luque - Areguá, Central, Paraguay",
+    "google_maps_id": ""
+  },
+  "branding": {
+    "logo_url": "",
+    "logo_width": 180,
+    "logo_height": 50,
+    "favicon_url": "/favicon.ico",
+    "hero_image_url": "",
+    "og_image_url": ""
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "properties": "Viviendas",
+      "amenities": "Amenities",
+      "location": "Ubicación",
+      "contact": "Contacto"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados."
+    },
+    "home": {
+      "visit_us": "Visítanos"
+    },
+    "properties": {
+      "title": "Nuestras Viviendas",
+      "subtitle": "Diseños modernos con espacios pensados para tu familia"
+    },
+    "amenities": {
+      "title": "Amenities",
+      "subtitle": "Todo lo que necesitás para vivir bien"
+    },
+    "location": {
+      "title": "Ubicación",
+      "subtitle": "Convenientemente ubicado"
+    },
+    "contact": {
+      "title": "Contáctanos",
+      "subtitle": "Estamos para ayudarte a encontrar tu nuevo hogar"
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "title": "Nuestras Viviendas",
+    "subtitle": "Diseños modernos con espacios pensados para tu familia"
+  },
+  "services": [
+    {
+      "id": "casa-2-dorm",
+      "visible": true,
+      "category": "property",
+      "title": "Casa 2 Dormitorios",
+      "icon": "home",
+      "summary": "Precio desde Gs. 295.000.000",
+      "details": {
+        "description": "Casa de 2 dormitorios con diseño moderno, sala y comedor integrados, cocina, bathrooms, patio con parrilla y capacidad para 2 vehículos.",
+        "area_m2": 61,
+        "land_m2": 119,
+        "includes": ["2 Dormitorios", "2 Baños", "Sala y Comedor", "Cocina", "Patio con parrilla", "2 Estacionamientos"]
+      },
+      "variants": [
+        {
+          "name": "Precio Base",
+          "price_display": "Gs. 295.000.000",
+          "price_value": 295000000,
+          "description": "Precio base para modelo estándar"
+        },
+        {
+          "name": "Financiación",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Consultá las opciones de financiación"
+        }
+      ],
+      "booking": { "online_enabled": false, "emergency_available": false }
+    },
+    {
+      "id": "casa-3-dorm",
+      "visible": true,
+      "category": "property",
+      "title": "Casa 3 Dormitorios",
+      "icon": "home",
+      "summary": "Precio desde Gs. 310.000.000",
+      "details": {
+        "description": "Casa de 3 dormitorios con suite principal, sala y comedor integrados, cocina, 2 baños, patio con parrilla y capacidad para 2 vehículos.",
+        "area_m2": 80,
+        "land_m2": 144,
+        "includes": ["3 Dormitorios (1 suite)", "2 Baños", "Sala y Comedor", "Cocina", "Patio con parrilla", "2 Estacionamientos"]
+      },
+      "variants": [
+        {
+          "name": "Precio Base",
+          "price_display": "Gs. 310.000.000",
+          "price_value": 310000000,
+          "description": "Precio base para modelo estándar"
+        },
+        {
+          "name": "Financiación",
+          "price_display": "Consultar",
+          "price_value": 0,
+          "description": "Consultá las opciones de financiación"
+        }
+      ],
+      "booking": { "online_enabled": false, "emergency_available": false }
+    }
+  ],
+  "amenities": [
+    {
+      "icon": "waves",
+      "title": "Piscina",
+      "description": "Área de piscina con solárium"
+    },
+    {
+      "icon": "flame",
+      "title": "Quinchos",
+      "description": "Quinchos con parrilla"
+    },
+    {
+      "icon": "ball",
+      "title": "Cancha Deportiva",
+      "description": "Cancha multiuso"
+    },
+    {
+      "icon": "smile",
+      "title": "Parque Infantil",
+      "description": "Área de juegos para niños"
+    },
+    {
+      "icon": "shield",
+      "title": "Seguridad 24hs",
+      "description": "Control de acceso y vigilancia"
+    },
+    {
+      "icon": "tree",
+      "title": "Áreas Verdes",
+      "description": "Jardines y senderos peatonales"
+    }
+  ],
+  "seo": {
+    "meta_title": "Viviendas - Barrio Cerrado Arasy",
+    "meta_description": "Casas de 2 y 3 dormitorios en barrio cerrado con piscina y amenities. Precios desde Gs. 295.000.000."
+  }
+}

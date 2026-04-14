@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { CheckCircle, Loader2 } from 'lucide-react'
 
 interface FormData {
@@ -11,6 +12,7 @@ interface FormData {
   programInterest: string
   objective: string
   consent: boolean
+  website: string
 }
 
 const initialFormData: FormData = {
@@ -21,43 +23,38 @@ const initialFormData: FormData = {
   programInterest: '',
   objective: '',
   consent: false,
+  website: '',
 }
 
-const countries = [
-  'Netherlands',
-  'Germany',
-  'Belgium',
-  'Austria',
-  'France',
-  'Other Europe',
-  'Other',
-]
-
 export function ContactForm() {
+  const t = useTranslations('contact.form')
   const [mounted, setMounted] = useState(false)
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [submitError, setSubmitError] = useState(false)
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
+
+  const countries = t.raw('countries') as string[]
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {}
+    const newErrors: Partial<Record<keyof FormData, string>> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = t('nameRequired')
     }
     if (!formData.email.trim() || !formData.email.includes('@')) {
-      newErrors.email = 'Valid email is required'
+      newErrors.email = t('emailRequired')
     }
     if (!formData.country) {
-      newErrors.country = 'Country is required'
+      newErrors.country = t('countryRequired')
     }
     if (!formData.consent) {
-      newErrors.consent = 'You must agree to be contacted'
+      newErrors.consent = t('consentRequired')
     }
 
     setErrors(newErrors)
@@ -90,21 +87,24 @@ export function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
+    if (formData.website) return
+
+    if (!validateForm()) return
 
     setIsSubmitting(true)
+    setSubmitError(false)
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          locale: 'en',
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          country: formData.country,
+          programInterest: formData.programInterest,
+          objective: formData.objective,
           source: 'landing_page',
         }),
       })
@@ -112,12 +112,12 @@ export function ContactForm() {
       if (response.ok) {
         setIsSubmitted(true)
         setFormData(initialFormData)
-        setTimeout(() => {
-          setIsSubmitted(false)
-        }, 5000)
+        setTimeout(() => setIsSubmitted(false), 5000)
+      } else {
+        setSubmitError(true)
       }
-    } catch (error) {
-      console.error('Error submitting form:', error)
+    } catch {
+      setSubmitError(true)
     } finally {
       setIsSubmitting(false)
     }
@@ -129,20 +129,33 @@ export function ContactForm() {
     return (
       <div className="rounded-2xl bg-green-50 border-2 border-green-200 p-8 text-center">
         <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-        <h3 className="text-2xl font-bold text-green-900 mb-2">Thank you!</h3>
-        <p className="text-green-700">
-          We've received your request. Our team will contact you within 24 hours.
-        </p>
+        <p className="text-green-700 text-lg">{t('success')}</p>
       </div>
     )
   }
 
+  const inputCls =
+    'w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#C9A84C] focus:outline-none transition-colors'
+  const labelCls = 'block text-sm font-semibold text-slate-900 mb-2'
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Name */}
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="website">Website</label>
+        <input
+          type="text"
+          id="website"
+          name="website"
+          value={formData.website}
+          onChange={handleChange}
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+
       <div>
-        <label htmlFor="name" className="block text-sm font-semibold text-slate-900 mb-2">
-          Name *
+        <label htmlFor="name" className={labelCls}>
+          {t('name')} *
         </label>
         <input
           type="text"
@@ -150,16 +163,15 @@ export function ContactForm() {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#C9A84C] focus:outline-none transition-colors"
-          placeholder="Your full name"
+          className={inputCls}
+          placeholder={t('namePlaceholder')}
         />
         {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
       </div>
 
-      {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-slate-900 mb-2">
-          Email *
+        <label htmlFor="email" className={labelCls}>
+          {t('email')} *
         </label>
         <input
           type="email"
@@ -167,16 +179,15 @@ export function ContactForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#C9A84C] focus:outline-none transition-colors"
-          placeholder="your@email.com"
+          className={inputCls}
+          placeholder={t('emailPlaceholder')}
         />
         {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
       </div>
 
-      {/* Phone */}
       <div>
-        <label htmlFor="phone" className="block text-sm font-semibold text-slate-900 mb-2">
-          Phone
+        <label htmlFor="phone" className={labelCls}>
+          {t('phone')}
         </label>
         <input
           type="tel"
@@ -184,24 +195,23 @@ export function ContactForm() {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#C9A84C] focus:outline-none transition-colors"
-          placeholder="+31 6 12345678"
+          className={inputCls}
+          placeholder={t('phonePlaceholder')}
         />
       </div>
 
-      {/* Country */}
       <div>
-        <label htmlFor="country" className="block text-sm font-semibold text-slate-900 mb-2">
-          Country *
+        <label htmlFor="country" className={labelCls}>
+          {t('country')} *
         </label>
         <select
           id="country"
           name="country"
           value={formData.country}
           onChange={handleChange}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-[#C9A84C] focus:outline-none transition-colors"
+          className={inputCls}
         >
-          <option value="">Select your country</option>
+          <option value="">{t('countryPlaceholder')}</option>
           {countries.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -211,29 +221,27 @@ export function ContactForm() {
         {errors.country && <p className="mt-1 text-sm text-red-600">{errors.country}</p>}
       </div>
 
-      {/* Program Interest */}
       <div>
-        <label htmlFor="programInterest" className="block text-sm font-semibold text-slate-900 mb-2">
-          Program Interest
+        <label htmlFor="programInterest" className={labelCls}>
+          {t('program')} *
         </label>
         <select
           id="programInterest"
           name="programInterest"
           value={formData.programInterest}
           onChange={handleChange}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-[#C9A84C] focus:outline-none transition-colors"
+          className={inputCls}
         >
-          <option value="">Select program</option>
-          <option value="Paraguay Business">Paraguay Business (USD 4,400)</option>
-          <option value="Paraguay Investor Program">Paraguay Investor Program (USD 6,900)</option>
-          <option value="Not sure yet">Not sure yet</option>
+          <option value="">{t('programPlaceholder')}</option>
+          <option value="Paraguay Business">{t('programBusiness')}</option>
+          <option value="Paraguay Investor Program">{t('programInvestor')}</option>
+          <option value="Not sure yet">{t('programUnsure')}</option>
         </select>
       </div>
 
-      {/* Objective */}
       <div>
-        <label htmlFor="objective" className="block text-sm font-semibold text-slate-900 mb-2">
-          What is your main goal in Paraguay?
+        <label htmlFor="objective" className={labelCls}>
+          {t('objective')}
         </label>
         <textarea
           id="objective"
@@ -241,12 +249,11 @@ export function ContactForm() {
           value={formData.objective}
           onChange={handleChange}
           rows={4}
-          className="w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-[#C9A84C] focus:outline-none transition-colors"
-          placeholder="Tell us about your objectives..."
+          className={inputCls}
+          placeholder={t('objectivePlaceholder')}
         />
       </div>
 
-      {/* Consent Checkbox */}
       <div className="flex items-start gap-3">
         <input
           type="checkbox"
@@ -257,12 +264,17 @@ export function ContactForm() {
           className="mt-1 h-4 w-4 rounded border-2 border-slate-300 text-[#1B3A6B] focus:border-[#C9A84C] focus:outline-none cursor-pointer"
         />
         <label htmlFor="consent" className="text-sm text-slate-600">
-          I agree to be contacted by LEALTIS regarding my enquiry *
+          {t('consent')} *
         </label>
       </div>
       {errors.consent && <p className="text-sm text-red-600">{errors.consent}</p>}
 
-      {/* Submit Button */}
+      {submitError && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+          <p className="text-sm text-red-700">{t('error')}</p>
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={isSubmitting}
@@ -271,10 +283,10 @@ export function ContactForm() {
         {isSubmitting ? (
           <>
             <Loader2 className="h-5 w-5 animate-spin" />
-            Submitting...
+            {t('submitting')}
           </>
         ) : (
-          'Send Enquiry'
+          t('submit')
         )}
       </button>
     </form>

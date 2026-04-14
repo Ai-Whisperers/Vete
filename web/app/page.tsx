@@ -8,7 +8,14 @@ import {
   HowItWorks,
   FAQSection,
   CTASection,
+  CookieConsent,
+  FloatingWhatsApp,
+  OrganizationSchema,
+  ServiceSchema,
+  FAQSchema,
+  HowToSchema,
 } from '@/components/landing'
+import { getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = {
   title: 'LEALTIS — Paraguay Establishment for Europeans',
@@ -42,32 +49,31 @@ export const metadata: Metadata = {
   },
 }
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const t = await getTranslations('faq')
+  const pt = await getTranslations('process')
+
+  const faqs = t.raw('items') as Array<{ question: string; answer: string }>
+  const steps = pt.raw('steps') as Array<{ title: string; description: string }>
+
   return (
     <main className="min-h-screen bg-white">
-      {/* Navigation - Sticky */}
+      <OrganizationSchema />
+      <ServiceSchema />
+      <FAQSchema faqs={faqs} />
+      <HowToSchema steps={steps} />
+
       <LandingNav />
-
-      {/* Hero Section */}
       <Hero />
-
-      {/* Trust Badges */}
       <TrustBadges />
-
-      {/* Pricing Section */}
       <PricingSection />
-
-      {/* How It Works */}
       <HowItWorks />
-
-      {/* FAQ */}
       <FAQSection />
-
-      {/* Final CTA */}
       <CTASection />
-
-      {/* Footer */}
       <LandingFooter />
+
+      <FloatingWhatsApp />
+      <CookieConsent />
     </main>
   )
 }

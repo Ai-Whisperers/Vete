@@ -10,18 +10,21 @@ export { CTASection } from './cta-section'
 export { ContactForm } from './contact-form'
 export { TrustBadges } from './trust-badges'
 export { FloatingWhatsApp } from './floating-whatsapp'
+export { CookieConsent } from './cookie-consent'
+export {
+  OrganizationSchema,
+  FAQSchema,
+  HowToSchema,
+  ServiceSchema,
+} from './structured-data'
 export { VeticLogo } from './vetic-logo'
 
-// Shared components for multi-page site
 export { PageHeader } from './page-header'
 export { FeatureCard } from './feature-card'
 export type { ClinicLocation } from './clinic-map'
-// ClinicMap is dynamically imported where needed to avoid SSR issues
 
-// Homepage teaser (lightweight)
 export { PricingTeaser } from './pricing-teaser'
 
-// Legacy exports (not used in main landing page)
 export { SolutionSection } from './solution-section'
 export { HowItWorks } from './how-it-works'
 export { BenefitsSection } from './benefits-section'

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ubicacion",
+    "category": "ubicacion",
+    "question": "¿Dónde está ubicado el Barrio Arasy?",
+    "answer": "Barrio Arasy está ubicado en el camino Luque - Areguá, en el departamento Central. Contamos con tres fases: Arasy I y Arasy 3 en Areguá, y Arasy II en Luque."
+  },
+  {
+    "id": "precios",
+    "category": "precios",
+    "question": "¿Cuáles son los precios de las viviendas?",
+    "answer": "Las casas de 2 dormitorios starts desde Gs. 295.000.000 y las de 3 dormitorios desde Gs. 310.000.000. Tenemos opciones de financiación disponibles."
+  },
+  {
+    "id": "financiacion",
+    "category": "financiacion",
+    "question": "¿Ofrecen financiación?",
+    "answer": "Sí, tenemos alianzas con bancos y financieras que ofrecen créditos para la vivienda. Consultá con nuestro equipo las opciones disponibles."
+  },
+  {
+    "id": "entrega",
+    "category": "entrega",
+    "question": "¿Cuál es el tiempo de entrega?",
+    "answer": "Los tiempos de entrega varían según la fase y disponibilidad. Consultá con nuestro equipo de ventas para más detalles."
+  },
+  {
+    "id": "documentacion",
+    "category": "documentacion",
+    "question": "¿Qué documentación necesito para comprar?",
+    "answer": "Generalmente se requiere Cédula de Identidad, comprobante de ingresos y otros documentos que nuestro equipo te indicará."
+  },
+  {
+    "id": "amenities",
+    "category": "amenities",
+    "question": "¿Qué amenities incluye el barrio?",
+    "answer": "El barrio cuenta con piscina, quinchos con parrilla, cancha deportiva, parque infantil, seguridad 24 horas y áreas verdes."
+  }
+]

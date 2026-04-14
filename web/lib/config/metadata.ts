@@ -5,7 +5,6 @@
  * Uses environment variables for environment-specific deployments.
  *
  * @module lib/config/metadata
- * @see REF-007: Centralize BASE_URL Configuration
  */
 
 import { env } from '@/lib/env'
@@ -17,13 +16,13 @@ export const SITE_CONFIG = {
   /** Base URL from environment or default */
   url: env.APP_URL,
   /** Site name */
-  name: 'Vetic',
+  name: 'LEALTIS',
   /** Default page title */
-  defaultTitle: 'Vetic - Plataforma Veterinaria',
+  defaultTitle: 'LEALTIS - Relocation & Investment Platform',
   /** Default description for SEO */
-  description: 'Sistema de gestión veterinaria multi-tenant para clínicas modernas',
+  description: 'Relocation and investment platform for Paraguay — programs, visas, and business opportunities',
   /** Twitter handle (without @) */
-  twitter: 'vetic_app',
+  twitter: 'lealtis_app',
   /** Default locale */
   locale: 'es_PY',
   /** Default language */
@@ -37,8 +36,8 @@ export const SITE_CONFIG = {
  * @returns Full URL string
  *
  * @example
- * getSiteUrl() // 'https://vetic.app'
- * getSiteUrl('/about') // 'https://vetic.app/about'
+ * getSiteUrl() // 'https://paragu-ai.com/lealtis'
+ * getSiteUrl('/about') // 'https://paragu-ai.com/lealtis/about'
  */
 export function getSiteUrl(path = ''): string {
   const baseUrl = SITE_CONFIG.url.replace(/\/$/, '') // Remove trailing slash
@@ -46,18 +45,18 @@ export function getSiteUrl(path = ''): string {
 }
 
 /**
- * Get canonical URL for a clinic-specific page
+ * Get canonical URL for a page
  *
- * @param clinic - Clinic slug
- * @param path - Optional path within the clinic (should start with /)
+ * @param slug - Page slug
+ * @param path - Optional path within the page (should start with /)
  * @returns Full canonical URL
  *
  * @example
- * getCanonicalUrl('terrapet') // 'https://vetic.app/terrapet'
- * getCanonicalUrl('terrapet', '/services') // 'https://vetic.app/terrapet/services'
+ * getCanonicalUrl('programas') // 'https://paragu-ai.com/lealtis/programas'
+ * getCanonicalUrl('programas', '/investor') // 'https://paragu-ai.com/lealtis/programas/investor'
  */
-export function getCanonicalUrl(clinic: string, path = ''): string {
-  return getSiteUrl(`/${clinic}${path}`)
+export function getCanonicalUrl(slug: string, path = ''): string {
+  return getSiteUrl(`/${slug}${path}`)
 }
 
 /**

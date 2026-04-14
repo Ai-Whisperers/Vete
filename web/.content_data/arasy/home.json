@@ -1,0 +1,39 @@
+{
+  "hero": {
+    "headline": "Barrio Cerrado Arasy",
+    "subhead": "Seguridad, Naturaleza y Calidad de Vida en el corazón de Central",
+    "cta_primary": "Ver Viviendas",
+    "cta_secondary": "Contáctanos"
+  },
+  "features": [
+    {
+      "icon": "shield-check",
+      "title": "Seguridad 24/7",
+      "text": "Control de acceso y vigilancia perimetral las 24 horas"
+    },
+    {
+      "icon": "waves",
+      "title": "Piscina y Amenities",
+      "text": "Áreas comunes pensadas para tu familia"
+    },
+    {
+      "icon": "trees",
+      "title": "Entorno Natural",
+      "text": "Amplios espacios verdes y senderos tranquilos"
+    }
+  ],
+  "promo_banner": {
+    "enabled": false,
+    "text": "",
+    "link": ""
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Testimonios",
+    "subtitle": "Lo que dicen nuestras familias"
+  },
+  "seo": {
+    "meta_title": "Barrio Cerrado Arasy - Viviendas en Areguá, Paraguay",
+    "meta_description": "Barrio privado en Areguá con seguridad 24hs, piscina, quinchos y amenities familiares. Tu hogar soñado en Central."
+  }
+}

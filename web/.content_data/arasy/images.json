@@ -1,0 +1,91 @@
+{
+  "$comment": "Barrio Arasy images configuration",
+  "version": "1.0",
+  "basePath": "/branding/arasy/images",
+  "images": {
+    "hero": {
+      "main": {
+        "src": "hero-bg.jpg",
+        "alt": "Barrio Cerrado Arasy - Tu hogar soñado",
+        "width": 1920,
+        "height": 1080
+      },
+      "about": {
+        "src": "about-hero.jpg",
+        "alt": "Nuestra historia",
+        "width": 1920,
+        "height": 1080
+      },
+      "properties": {
+        "src": "properties-hero.jpg",
+        "alt": "Nuestras viviendas",
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "properties": {
+      "casa-2dorm": {
+        "src": "properties/casa-2dorm.jpg",
+        "alt": "Casa 2 Dormitorios",
+        "width": 800,
+        "height": 600
+      },
+      "casa-3dorm": {
+        "src": "properties/casa-3dorm.jpg",
+        "alt": "Casa 3 Dormitorios",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "amenities": {
+      "pool": {
+        "src": "amenities/pool.jpg",
+        "alt": "Piscina",
+        "width": 800,
+        "height": 600
+      },
+      "quincho": {
+        "src": "amenities/quincho.jpg",
+        "alt": "Quinchos",
+        "width": 800,
+        "height": 600
+      },
+      "cancha": {
+        "src": "amenities/cancha.jpg",
+        "alt": "Cancha deportiva",
+        "width": 800,
+        "height": 600
+      }
+    },
+    "branding": {
+      "logo": {
+        "src": "logo.png",
+        "alt": "Barrio Arasy",
+        "width": 300,
+        "height": 112
+      },
+      "logo-dark": {
+        "src": "logo-dark.png",
+        "alt": "Barrio Arasy",
+        "width": 300,
+        "height": 112
+      },
+      "favicon": {
+        "src": "favicon.ico",
+        "alt": "Favicon",
+        "width": 32,
+        "height": 32
+      },
+      "og-image": {
+        "src": "og-image.jpg",
+        "alt": "Barrio Cerrado Arasy",
+        "width": 1200,
+        "height": 630
+      }
+    }
+  },
+  "placeholders": {
+    "property": "/images/placeholders/property-placeholder.jpg",
+    "amenity": "/images/placeholders/amenity-placeholder.jpg"
+  }
+}

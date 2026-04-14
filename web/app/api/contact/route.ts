@@ -6,6 +6,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { name, email, phone, country, programInterest, objective, locale } = body
 
+    // Honeypot check — bots that fill the hidden "website" field get a silent success
+    if (body.website) {
+      return NextResponse.json({ success: true })
+    }
+
     // Validate required fields
     if (!name || !email || !country) {
       return NextResponse.json(

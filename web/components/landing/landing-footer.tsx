@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { LealtisLogo } from '@/components/lealtis/logo'
-import { Linkedin } from 'lucide-react'
+import { Linkedin, Instagram, Youtube } from 'lucide-react'
 
 export function LandingFooter() {
   const t = useTranslations('footer')
@@ -15,14 +15,13 @@ export function LandingFooter() {
     <footer className="bg-[#1B3A6B] text-white py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-12 md:grid-cols-4 mb-12">
-          {/* Branding Column */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <LealtisLogo size="md" />
               <span className="text-xl font-bold">LEALTIS</span>
             </div>
             <p className="text-slate-300">{t('tagline')}</p>
-            <div className="mt-6">
+            <div className="mt-6 flex gap-3">
               <a
                 href="https://linkedin.com/company/lealtis"
                 target="_blank"
@@ -31,10 +30,25 @@ export function LandingFooter() {
               >
                 <Linkedin className="h-5 w-5" />
               </a>
+              <a
+                href="https://instagram.com/lealtis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="https://youtube.com/@lealtis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
             </div>
           </div>
 
-          {/* Links Column 1 */}
           <div>
             <h3 className="font-bold mb-4 text-white">Navigation</h3>
             <ul className="space-y-3">
@@ -61,7 +75,6 @@ export function LandingFooter() {
             </ul>
           </div>
 
-          {/* Links Column 2 */}
           <div>
             <h3 className="font-bold mb-4 text-white">Resources</h3>
             <ul className="space-y-3">
@@ -83,7 +96,6 @@ export function LandingFooter() {
             </ul>
           </div>
 
-          {/* Legal Column */}
           <div>
             <h3 className="font-bold mb-4 text-white">Legal</h3>
             <ul className="space-y-3">
@@ -101,7 +113,6 @@ export function LandingFooter() {
           </div>
         </div>
 
-        {/* Copyright */}
         <div className="border-t border-white/10 pt-8 text-center text-slate-400">
           <p>{t('copyright')}</p>
         </div>

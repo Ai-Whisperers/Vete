@@ -4,7 +4,7 @@
     "whyParaguay": "Por qué Paraguay",
     "howItWorks": "Cómo funciona",
     "about": "Nosotros",
-    "faq": "FAQ",
+    "faq": "Preguntas frecuentes",
     "blog": "Blog",
     "contact": "Contacto",
     "bookConsultation": "Agendar consulta gratuita"
@@ -22,16 +22,16 @@
   },
   "programBusiness": {
     "name": "Paraguay Business",
-    "tagline": "Operacional desde el primer día",
+    "tagline": "Operativo desde el primer día",
     "price": "USD 4.400",
     "description": "Para el empresario o profesional europeo que desea operar en Paraguay: residencia, empresa constituida y cuenta bancaria empresarial.",
     "includes": [
       "Residencia Paraguaya",
       "Cédula de Identidad Paraguaya",
-      "Constitución de Empresa + Registro de Impuestos (RUC)",
+      "Constitución de Empresa + Registro Tributario (RUC)",
       "Apertura de Cuenta Bancaria Empresarial",
       "Validación completa de documentos por adelantado",
-      "Día operacional (todo en una mañana)",
+      "Día operativo (todo en una mañana)",
       "Chofer exclusivo + traslados",
       "Tour estratégico de inmuebles",
       "Asesoría técnica integral"
@@ -40,7 +40,7 @@
   },
   "programInvestor": {
     "name": "Paraguay Investor Program",
-    "tagline": "Tu socio estratégico por 12 meses",
+    "tagline": "Su socio estratégico por 12 meses",
     "price": "USD 6.900",
     "description": "Todo en Paraguay Business más apoyo integral en contabilidad, asesoría legal y análisis de inversiones durante un año.",
     "includes": [
@@ -55,63 +55,197 @@
   "whyUs": {
     "title": "Por qué LEALTIS",
     "items": [
-      {
-        "title": "Un programa",
-        "description": "Sin coordinación entre múltiples proveedores"
-      },
-      {
-        "title": "Un viaje",
-        "description": "Todos los trámites en un día"
-      },
-      {
-        "title": "Precio transparente",
-        "description": "Sin costos ocultos"
-      },
-      {
-        "title": "Equipo profesional",
-        "description": "Abogados, contadores, escribanos"
-      },
-      {
-        "title": "Acceso bancario",
-        "description": "Resolvemos el mayor obstáculo para extranjeros"
-      }
+      { "title": "Un programa", "description": "Sin coordinación entre múltiples proveedores" },
+      { "title": "Un viaje", "description": "Todos los trámites en un día" },
+      { "title": "Precio transparente", "description": "Sin costos ocultos" },
+      { "title": "Equipo profesional", "description": "Abogados, contadores, escribanos" },
+      { "title": "Acceso bancario", "description": "Resolvemos el mayor obstáculo para extranjeros" }
     ]
   },
   "process": {
     "title": "El Proceso en 5 Pasos",
     "steps": [
-      {
-        "title": "Consulta Inicial",
-        "description": "Videollamada: analizar tu situación, objetivos y recomendación de programa."
-      },
-      {
-        "title": "Validación de Documentos",
-        "description": "Nuestro equipo revisa todos los documentos. Solo viajas cuando todo está en orden."
-      },
-      {
-        "title": "Día Operacional en Paraguay",
-        "description": "Todos los trámites en una mañana. Chofer exclusivo y logística completa."
-      },
-      {
-        "title": "Empresa & Banca",
-        "description": "Mientras viajas a casa: constitución, RUC, coordinación de cuenta bancaria."
-      },
-      {
-        "title": "Entrega",
-        "description": "Residencia, cédula, empresa y cuenta bancaria. Completamente operacional."
-      }
+      { "title": "Consulta Inicial", "description": "Videollamada: analice su situación, objetivos y recomendación de programa." },
+      { "title": "Validación de Documentos", "description": "Nuestro equipo revisa todos los documentos. Solo viaja cuando todo esté en orden." },
+      { "title": "Día Operativo en Paraguay", "description": "Todos los trámites en una mañana. Chofer exclusivo y logística completa." },
+      { "title": "Empresa y Banca", "description": "Mientras viaja a casa: constitución, RUC, coordinación de cuenta bancaria." },
+      { "title": "Entrega", "description": "Residencia, cédula, empresa y cuenta bancaria. Completamente operativo." }
     ]
   },
   "trust": {
-    "years": "Años de experiencia",
-    "clients": "Clientes satisfechos",
-    "team": "Equipo profesional",
-    "guarantee": "Transparencia total"
+    "title": "Señales de Confianza",
+    "items": [
+      { "label": "Años de experiencia", "icon": "years" },
+      { "label": "Clientes satisfechos", "icon": "clients" },
+      { "label": "Equipo profesional", "icon": "team" },
+      { "label": "Transparencia total", "icon": "guarantee" }
+    ]
   },
   "finalCta": {
-    "title": "Da el primer paso",
-    "subtitle": "Agenda una consulta gratuita de 30 minutos para hablar de tu situación.",
+    "title": "Dé el primer paso",
+    "subtitle": "Agende una consulta gratuita de 30 minutos para hablar de su situación.",
     "cta": "Agendar consulta gratuita"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "subtitle": "Todo lo que necesita saber sobre establecerse en Paraguay",
+    "items": [
+      { "question": "¿Qué incluye exactamente el programa?", "answer": "Residencia, cédula de identidad, constitución de empresa, registro tributario (RUC), coordinación de cuenta bancaria empresarial, pre-validación de documentos, procedimiento operativo de un día con chofer exclusivo y traslados, tour estratégico de inmuebles y asesoría técnica integral. Honorarios, IVA e impuestos migratorios oficiales están incluidos." },
+      { "question": "¿Cuánto tiempo toma todo el proceso?", "answer": "La validación inicial de documentos toma 1–2 semanas. El día operativo en Asunción toma una mañana. Constitución de empresa y registro RUC: 2–4 semanas después. Apertura de cuenta bancaria: 2–4 semanas. Entrega completa: aproximadamente 45–60 días desde su viaje." },
+      { "question": "¿Necesito estar físicamente presente en Paraguay?", "answer": "Sí, por un día. Todos los trámites presenciales (solicitud de residencia, cédula, escribano) se completan en una sola mañana. Antes y después de eso, todo se gestiona a distancia." },
+      { "question": "¿Cuál es la diferencia entre los dos programas?", "answer": "Paraguay Business (USD 4.400) cubre el establecimiento: residencia, empresa, cuenta bancaria. Paraguay Investor Program (USD 6.900) agrega 12 meses de contabilidad empresarial, asesoría legal y fiscal, y análisis de inversiones con acceso directo a nuestro equipo." },
+      { "question": "¿Está garantizada la cuenta bancaria?", "answer": "Preparamos y coordinamos el expediente bancario completo. Si bien no podemos garantizar la aprobación (esto depende de las políticas internas de cada banco), nuestro proceso de pre-validación y nuestras relaciones bancarias existentes resultan en una tasa de éxito muy alta." },
+      { "question": "¿Qué documentos necesito de mi país?", "answer": "Partida de nacimiento, certificado de antecedentes penales, partida de matrimonio (si aplica), pasaporte, comprobante de domicilio. Todos los documentos deben estar apostillados en su país de origen. Proveemos una lista detallada y pre-validamos todo antes de su viaje." },
+      { "question": "¿Necesito hablar español?", "answer": "No. Nuestro equipo gestiona todos los trámites en español y se comunica con usted en su idioma. Todas las traducciones dentro de Paraguay son gestionadas por nosotros." },
+      { "question": "¿Puede incluirse mi familia?", "answer": "La residencia familiar es posible pero se gestiona como un proceso separado con tarifas gubernamentales adicionales. Coordinamos los trámites familiares y brindamos orientación específica durante su consulta." },
+      { "question": "¿Qué sucede después de que termina el programa?", "answer": "Para clientes Business, reciben todos los documentos y operan de forma independiente. Para clientes Investor, continúan con 12 meses de contabilidad, asesoría legal y soporte de inversiones. Los servicios de renovación están disponibles por separado." },
+      { "question": "¿La residencia es permanente?", "answer": "Inicialmente recibe residencia temporal, que se convierte en residencia permanente. El plazo y las condiciones son determinados por las autoridades migratorias paraguayas. Nosotros gestionamos todo el proceso." },
+      { "question": "¿Brindan asesoría fiscal para mi país de origen?", "answer": "No. Brindamos asesoría únicamente sobre materia fiscal y legal paraguaya. Para las implicaciones fiscales en su país de residencia, recomendamos consultar con un profesional tributario local. Podemos coordinar con sus asesores." },
+      { "question": "¿Qué pasa si se deniega un trámite?", "answer": "Las denegaciones gubernamentales son extremadamente raras cuando la documentación está correctamente preparada (que es nuestra función principal). Si un banco deniega la apertura de cuenta, trabajamos con socios bancarios alternativos. Nuestro proceso de pre-validación minimiza este riesgo." },
+      { "question": "¿Cómo está estructurado el pago?", "answer": "Se requiere el pago completo antes del inicio de los servicios, mediante transferencia bancaria. Esto cubre todos los honorarios profesionales, IVA, impuestos gubernamentales y costos administrativos dentro de Paraguay. Sin cargos adicionales para el programa estándar." },
+      { "question": "¿Qué NO está incluido en el precio?", "answer": "Vuelos internacionales, alojamiento, gastos personales, traducciones juradas en su país de origen, apostillas/legalizaciones en su país de origen, servicios legales adicionales fuera del alcance del programa y renovaciones posteriores al programa." },
+      { "question": "¿Por qué Paraguay específicamente?", "answer": "Paraguay ofrece un sistema fiscal competitivo (10% de impuesto a la renta, sistema territorial), una economía en crecimiento con inflación controlada, bajo costo de vida, condiciones de inversión favorables y un proceso de residencia sencillo para extranjeros. Es uno de los países más accesibles para emprendedores europeos que buscan establecimiento operativo." }
+    ]
+  },
+  "whyParaguay": {
+    "title": "Por qué Paraguay",
+    "subtitle": "Una oportunidad real para emprendedores e inversores europeos",
+    "economy": {
+      "title": "Entorno económico favorable",
+      "items": [
+        "Crecimiento económico sostenido",
+        "Inflación controlada",
+        "Sistema fiscal competitivo (10% impuesto a la renta, sistema territorial)",
+        "Bajo costo de vida comparado con Europa Occidental"
+      ]
+    },
+    "investment": {
+      "title": "Oportunidades de inversión",
+      "items": [
+        "Mercado inmobiliario en desarrollo con retornos atractivos",
+        "Sector agroindustrial consolidado",
+        "Economía abierta con oportunidades para emprendedores",
+        "Sector financiero en crecimiento"
+      ]
+    },
+    "lifestyle": {
+      "title": "Calidad de vida",
+      "items": [
+        "Clima cálido todo el año",
+        "Cultura amable y acogedora",
+        "Comunidad expat en crecimiento",
+        "Atención médica y servicios accesibles"
+      ]
+    },
+    "honest": {
+      "title": "Lo que pocos le dirán",
+      "items": [
+        "La burocracia puede ser lenta sin la orientación adecuada",
+        "El acceso bancario es el mayor desafío para extranjeros",
+        "No todos los proveedores de servicios son confiables",
+        "El español es esencial para las operaciones diarias",
+        "La infraestructura está en desarrollo pero no es de estándar europeo en todas partes"
+      ]
+    },
+    "cta": "Agende una consulta para analizar su caso"
+  },
+  "about": {
+    "title": "Sobre LEALTIS",
+    "subtitle": "Su equipo profesional para el establecimiento en Paraguay",
+    "mission": {
+      "title": "Nuestra misión",
+      "description": "Brindar a emprendedores e inversores europeos una vía profesional, integrada y transparente hacia el establecimiento operativo en Paraguay."
+    },
+    "difference": {
+      "title": "Lo que nos diferencia",
+      "items": [
+        { "title": "Enfoque integrado", "description": "No solo procesamos documentos. Coordinamos servicios legales, financieros y operativos como un programa unificado." },
+        { "title": "Acceso bancario", "description": "Resolvemos el mayor obstáculo para extranjeros en Paraguay: la apertura de una cuenta bancaria empresarial." },
+        { "title": "Un viaje", "description": "Todos los trámites presenciales completados en una sola mañana. Sin múltiples viajes, sin tiempo perdido." },
+        { "title": "Transparencia", "description": "Precios fijos, sin costos ocultos. Sabe exactamente qué paga y qué recibe." },
+        { "title": "Perspectiva europea", "description": "Comprendemos las necesidades, inquietudes y expectativas de los clientes europeos." }
+      ]
+    },
+    "team": {
+      "title": "Nuestro equipo",
+      "description": "Un equipo multidisciplinario de abogados, contadores, escribanos y asesores financieros con experiencia real en el mercado paraguayo.",
+      "roles": [
+        { "title": "Director de Operaciones", "description": "Basado en Asunción. Coordina todos los procedimientos y garantiza una ejecución de calidad." },
+        { "title": "Director Comercial", "description": "Basado en Europa. Primer punto de contacto para clientes europeos." },
+        { "title": "Equipo Legal", "description": "Abogados paraguayos experimentados especializados en derecho migratorio, societario y bancario." },
+        { "title": "Equipo Contable", "description": "Contadores certificados para cumplimiento empresarial y asesoría tributaria." }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Contáctenos",
+    "subtitle": "Agende una consulta gratuita de 30 minutos o envíenos sus consultas",
+    "formTitle": "Agende su Consulta Gratuita",
+    "responseTitle": "Tiempo de Respuesta",
+    "responseText": "Respondemos todas las consultas en 24 horas. ¡Normalmente mucho más rápido!",
+    "emailLabel": "Email",
+    "phoneLabel": "Teléfono",
+    "locationLabel": "Ubicación",
+    "locationValue": "Asunción, Paraguay",
+    "form": {
+      "name": "Nombre completo",
+      "namePlaceholder": "Su nombre completo",
+      "nameRequired": "El nombre es obligatorio",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "su@email.com",
+      "emailRequired": "Un email válido es obligatorio",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+34 612 345 678",
+      "country": "País de residencia",
+      "countryPlaceholder": "Seleccione su país",
+      "countryRequired": "El país es obligatorio",
+      "countries": ["Países Bajos", "Alemania", "Bélgica", "Austria", "Francia", "Otros Europa", "Otro"],
+      "program": "Programa de interés",
+      "programPlaceholder": "Seleccione un programa",
+      "programBusiness": "Paraguay Business — USD 4.400",
+      "programInvestor": "Paraguay Investor Program — USD 6.900",
+      "programUnsure": "Aún no estoy seguro",
+      "objective": "Objetivo principal",
+      "objectivePlaceholder": "Describa brevemente sus objetivos",
+      "consent": "Acepto la política de privacidad y consiento ser contactado sobre los servicios de LEALTIS.",
+      "consentRequired": "Debe aceptar ser contactado",
+      "submit": "Enviar mensaje",
+      "submitting": "Enviando...",
+      "success": "¡Gracias! Hemos recibido su mensaje y nos comunicaremos con usted en un plazo de 24 horas.",
+      "error": "Algo salió mal. Por favor intente nuevamente."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Análisis y guías sobre el establecimiento en Paraguay",
+    "readMore": "Leer más",
+    "comingSoon": "Más artículos próximamente..."
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización: abril 2026"
+  },
+  "terms": {
+    "title": "Términos de servicio",
+    "lastUpdated": "Última actualización: abril 2026"
+  },
+  "cookieConsent": {
+    "message": "Utilizamos cookies para mejorar su experiencia. Al continuar visitando este sitio, acepta nuestro uso de cookies.",
+    "acceptAll": "Aceptar todas",
+    "declineNonEssential": "Rechazar no esenciales",
+    "managePreferences": "Gestionar preferencias",
+    "preferencesTitle": "Preferencias de Cookies",
+    "essentialLabel": "Cookies esenciales",
+    "essentialDescription": "Necesarias para el correcto funcionamiento del sitio web.",
+    "analyticsLabel": "Cookies de análisis",
+    "analyticsDescription": "Nos ayudan a entender cómo los visitantes interactúan con nuestro sitio.",
+    "marketingLabel": "Cookies de marketing",
+    "marketingDescription": "Utilizadas para rastrear visitantes entre sitios web con fines publicitarios.",
+    "savePreferences": "Guardar preferencias"
+  },
+  "whatsapp": {
+    "tooltip": "Chatee con nosotros por WhatsApp",
+    "ariaLabel": "Abrir chat de WhatsApp"
   },
   "footer": {
     "tagline": "Establecimiento profesional en Paraguay para europeos.",
@@ -120,7 +254,7 @@
       "whyParaguay": "Por qué Paraguay",
       "howItWorks": "Cómo funciona",
       "about": "Nosotros",
-      "faq": "FAQ",
+      "faq": "Preguntas frecuentes",
       "blog": "Blog",
       "contact": "Contacto"
     },

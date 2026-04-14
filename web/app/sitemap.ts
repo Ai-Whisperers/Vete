@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lealtis.com'
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://paragu-ai.com/lealtis'
 
 const locales = ['nl', 'en', 'de', 'es']
 
@@ -21,10 +21,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   locales.forEach((locale) => {
     pages.forEach((page) => {
-      const path = locale === 'en' ? `/${locale}${page}` : page ? `/${locale}${page}` : `/${locale}`
-      
+      const sep = page === '' ? '' : page
+      const localeSuffix = locale === 'nl' ? '' : `?locale=${locale}`
+
       entries.push({
-        url: `${baseUrl}${path}`,
+        url: `${baseUrl}${sep}${localeSuffix}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: page === '' ? 1 : 0.8,

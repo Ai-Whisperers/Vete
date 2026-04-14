@@ -1,0 +1,42 @@
+{
+  "intro": {
+    "title": "Sobre Nosotros",
+    "text": "Barrio Cerrado Arasy es un proyecto residencial que combina seguridad, naturaleza y calidad de vida. Ubicado en una de las zonas con mayor crecimiento en el departamento Central, Arasy ofrece a las familias paraguayas un entorno seguro, moderno y rodeado de naturaleza."
+  },
+  "highlights": [
+    {
+      "title": "Nuestra Visión",
+      "text": "Ser el barrio cerrado preferido de las familias paraguayas, ofreciendo un equilibrio perfecto entre seguridad, confort y conexión con la naturaleza."
+    },
+    {
+      "title": "Nuestros Valores",
+      "text": "Compromiso con la calidad, respeto por el medio ambiente, seguridad integral y comunidad organizada."
+    },
+    {
+      "title": "Nuestra Experiencia",
+      "text": "Con más de 10 años de experiencia en el desarrollo de proyectos residenciales, hemos construido más de 500 hogares felices."
+    }
+  ],
+  "history": [
+    {
+      "year": "2012",
+      "title": "Inicio del Proyecto",
+      "description": "Se lanza Arasy I en Areguá"
+    },
+    {
+      "year": "2018",
+      "title": "Ampliación",
+      "description": "Se inaugura Arasy II en Luque"
+    },
+    {
+      "year": "2023",
+      "title": "Nueva Fase",
+      "description": "Se lanza Arasy 3 en Areguá"
+    }
+  ],
+  "team": [],
+  "seo": {
+    "meta_title": "Sobre Barrio Arasy - Historia y Valores",
+    "meta_description": "Conoce la historia de Barrio Cerrado Arasy, nuestros valores y compromiso con las familias paraguayas."
+  }
+}

@@ -4,7 +4,7 @@
     "whyParaguay": "Waarom Paraguay",
     "howItWorks": "Hoe het werkt",
     "about": "Over ons",
-    "faq": "FAQ",
+    "faq": "Veelgestelde vragen",
     "blog": "Blog",
     "contact": "Contact",
     "bookConsultation": "Gratis consult boeken"
@@ -28,7 +28,7 @@
     "includes": [
       "Paraguayaanse verblijfsvergunning",
       "Paraguayaans identiteitsbewijs",
-      "Bedrijfsoprichting + KvK-registratie (RUC)",
+      "Bedrijfsoprichting + Belastingregistratie (RUC)",
       "Opening zakelijke bankrekening",
       "Volledige documentvalidatie vooraf",
       "Operationele dag (alles in één ochtend)",
@@ -55,63 +55,197 @@
   "whyUs": {
     "title": "Waarom LEALTIS",
     "items": [
-      {
-        "title": "Één programma",
-        "description": "Geen coördinatie tussen meerdere aanbieders"
-      },
-      {
-        "title": "Één reis",
-        "description": "Alle procedures in één dag"
-      },
-      {
-        "title": "Transparante prijs",
-        "description": "Geen verborgen kosten"
-      },
-      {
-        "title": "Professioneel team",
-        "description": "Advocaten, accountants, notarissen"
-      },
-      {
-        "title": "Banktoegang",
-        "description": "Wij lossen het grootste obstakel voor buitenlanders op"
-      }
+      { "title": "Één programma", "description": "Geen coördinatie tussen meerdere aanbieders" },
+      { "title": "Één reis", "description": "Alle procedures in één dag" },
+      { "title": "Transparante prijs", "description": "Geen verborgen kosten" },
+      { "title": "Professioneel team", "description": "Advocaten, accountants, notarissen" },
+      { "title": "Banktoegang", "description": "Wij lossen het grootste obstakel voor buitenlanders op" }
     ]
   },
   "process": {
     "title": "Het proces in 5 stappen",
     "steps": [
-      {
-        "title": "Eerste consult",
-        "description": "Videogesprek: situatie, doelen, programmaadvies"
-      },
-      {
-        "title": "Documentvalidatie",
-        "description": "Ons team controleert alle documenten. U reist pas als alles in orde is."
-      },
-      {
-        "title": "Operationele dag in Paraguay",
-        "description": "Alle procedures in één ochtend. Exclusieve chauffeur en begeleiding."
-      },
-      {
-        "title": "Bedrijf & bank",
-        "description": "Terwijl u naar huis reist: bedrijfsoprichting, RUC, bankrekening."
-      },
-      {
-        "title": "Oplevering",
-        "description": "Verblijfsvergunning, ID, bedrijf en rekening. Volledig operationeel."
-      }
+      { "title": "Eerste consult", "description": "Videogesprek: bespreek uw situatie, doelen en programma-advies." },
+      { "title": "Documentvalidatie", "description": "Ons team controleert alle documenten. U reist pas als alles in orde is." },
+      { "title": "Operationele dag in Paraguay", "description": "Alle procedures in één ochtend. Exclusieve chauffeur en volledige logistiek." },
+      { "title": "Bedrijf & bankinstellingen", "description": "Terwijl u naar huis reist: bedrijfsoprichting, RUC, bankrekeningcoördinatie." },
+      { "title": "Oplevering", "description": "Verblijfsvergunning, ID, bedrijf en bankrekening. Volledig operationeel." }
     ]
   },
   "trust": {
-    "years": "Jaren ervaring",
-    "clients": "Tevreden klanten",
-    "team": "Professioneel team",
-    "guarantee": "Volledige transparantie"
+    "title": "Vertrouwenssignalen",
+    "items": [
+      { "label": "Jaren ervaring", "icon": "years" },
+      { "label": "Tevreden klanten", "icon": "clients" },
+      { "label": "Professioneel team", "icon": "team" },
+      { "label": "Volledige transparantie", "icon": "guarantee" }
+    ]
   },
   "finalCta": {
     "title": "Zet de eerste stap",
     "subtitle": "Boek een gratis consult van 30 minuten om uw situatie te bespreken.",
     "cta": "Gratis consult boeken"
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "subtitle": "Alles wat u moet weten over vestiging in Paraguay",
+    "items": [
+      { "question": "Wat precies omvat het programma?", "answer": "Verblijfsvergunning, identiteitsbewijs, bedrijfsoprichting, belastingregistratie (RUC), coördinatie van zakelijke bankrekening, voorafgaande documentvalidatie, eendaagse operationele procedure met exclusieve chauffeur en transfers, strategische vastgoedtour en volledige technische advies. Honoraria, btw en officiële migratiebelastingen zijn inbegrepen." },
+      { "question": "Hoe lang duurt het hele proces?", "answer": "De initiële documentvalidatie duurt 1–2 weken. De operationele dag in Asunción duurt één ochtend. Bedrijfsoprichting en RUC-registratie: 2–4 weken daarna. Opening bankrekening: 2–4 weken. Volledige oplevering: ongeveer 45–60 dagen na uw reis." },
+      { "question": "Moet ik fysiek aanwezig zijn in Paraguay?", "answer": "Ja, voor één dag. Alle persoonlijke procedures (verblijfsvergunningaanvraag, identiteitsbewijs, notaris) worden in één ochtend afgehandeld. Voor en na die dag wordt alles op afstand behandeld." },
+      { "question": "Wat is het verschil tussen de twee programma's?", "answer": "Paraguay Business (USD 4.400) dekt de vestiging: verblijfsvergunning, bedrijf, bankrekening. Paraguay Investor Program (USD 6.900) voegt 12 maanden bedrijfsboekhouding, juridisch en fiscaal advies en investeringsanalyse toe met directe toegang tot ons team." },
+      { "question": "Is de bankrekening gegarandeerd?", "answer": "Wij bereiden en coördineren het volledige bankdossier. Hoewel wij geen goedkeuring kunnen garanderen (dit hangt af van het interne beleid van elke bank), resulteert ons voorvalidatieproces en onze bestaande bankrelaties in een zeer hoog slagingspercentage." },
+      { "question": "Welke documenten heb ik nodig uit mijn land?", "answer": "Geboorteakte, strafbladcertificaat, huwelijksakte (indien van toepassing), paspoort, bewijs van adres. Alle documenten moeten worden gelegaliseerd met een apostille in uw land van herkomst. Wij verstrekken een gedetailleerde checklist en valideren alles vooraf." },
+      { "question": "Moet ik Spaans spreken?", "answer": "Nee. Ons team behandelt alle procedures in het Spaans en communiceert met u in uw taal. Alle vertalingen binnen Paraguay worden door ons verzorgd." },
+      { "question": "Kan mijn gezin worden inbegrepen?", "answer": "Gezinsverblijf is mogelijk, maar wordt als een apart proces behandeld met aanvullende overheidskosten. Wij coördineren gezinsprocedures en geven specifieke begeleiding tijdens uw consult." },
+      { "question": "Wat gebeurt er nadat het programma eindigt?", "answer": "Voor Business-klanten ontvangt u alle documenten en werkt u onafhankelijk. Voor Investor-klanten gaat u verder met 12 maanden boekhouding, juridisch advies en investeringsondersteuning. Verlengingsservices zijn apart beschikbaar." },
+      { "question": "Is de verblijfsvergunning permanent?", "answer": "U ontvangt aanvankelijk een tijdelijke verblijfsvergunning, die omgezet wordt naar een permanente verblijfsvergunning. De termijn en voorwaarden worden bepaald door de Paraguayaanse migratieautoriteiten. Wij behandelen het hele proces." },
+      { "question": "Bieden u belastingadvies voor mijn thuisland?", "answer": "Nee. Wij geven alleen advies over Paraguayaanse belasting- en juridische zaken. Voor belastinggevolgen in uw woonland raden wij u aan een lokale belastingadviseur te raadplegen. Wij kunnen coördineren met uw adviseurs." },
+      { "question": "Wat als een procedure wordt geweigerd?", "answer": "Overheidsweigeringen zijn uiterst zeldzaam wanneer de documentatie correct is voorbereid (wat onze kernfunctie is). Als een bank de rekeningopening weigert, werken wij met alternatieve bankpartners. Ons voorvalidatieproces minimaliseert dit risico." },
+      { "question": "Hoe is de betaling gestructureerd?", "answer": "Volledige betaling is vereist voordat de diensten beginnen, via bankoverschrijving. Dit dekt alle professionele honoraria, btw, overheidstaksen en administratieve kosten binnen Paraguay. Geen extra kosten voor het standaardprogramma." },
+      { "question": "Wat is NIET inbegrepen in de prijs?", "answer": "Internationale vluchten, accommodatie, persoonlijke uitgaven, beëdigde vertalingen in uw thuisland, apostilles/legalisaties in uw thuisland, aanvullende juridische diensten buiten het programma en verlengingen na afloop van het programma." },
+      { "question": "Waarom specifiek Paraguay?", "answer": "Paraguay biedt een concurrerend belastingsstelsel (10% inkomstenbelasting, territoriaal systeem), een groeiende economie met gecontroleerde inflatie, lage levenskosten, gunstige investeringsvoorwaarden en een eenvoudig verblijfsvergunningproces voor buitenlanders. Het is een van de meest toegankelijke landen voor Europese ondernemers die operationele vestiging zoeken." }
+    ]
+  },
+  "whyParaguay": {
+    "title": "Waarom Paraguay",
+    "subtitle": "Een echte kans voor Europese ondernemers en investeerders",
+    "economy": {
+      "title": "Gunstig economisch klimaat",
+      "items": [
+        "Duurzame economische groei",
+        "Gecontroleerde inflatie",
+        "Concurrerend belastingsstelsel (10% inkomstenbelasting, territoriaal systeem)",
+        "Lage levenskosten in vergelijking met West-Europa"
+      ]
+    },
+    "investment": {
+      "title": "Investeringsmogelijkheden",
+      "items": [
+        "Ontwikkelende vastgoedmarkt met aantrekkelijke rendementen",
+        "Geconsolideerde agribusiness sector",
+        "Open economie met kansen voor ondernemers",
+        "Groeiende financiële sector"
+      ]
+    },
+    "lifestyle": {
+      "title": "Kwaliteit van leven",
+      "items": [
+        "Warm klimaat het hele jaar door",
+        "Vriendelijke en gastvrije cultuur",
+        "Groeiende expat-gemeenschap",
+        "Betaalbare gezondheidszorg en diensten"
+      ]
+    },
+    "honest": {
+      "title": "Wat weinigen u zullen vertellen",
+      "items": [
+        "Bureaucratie kan traag zijn zonder juiste begeleiding",
+        "Banktoegang is de grootste uitdaging voor buitenlanders",
+        "Niet alle serviceproviders zijn betrouwbaar",
+        "Spaans is essentieel voor dagelijkse activiteiten",
+        "Infrastructuur is in ontwikkeling, maar niet overal van Europees niveau"
+      ]
+    },
+    "cta": "Boek een consult om uw situatie te bespreken"
+  },
+  "about": {
+    "title": "Over LEALTIS",
+    "subtitle": "Uw professionele team voor vestiging in Paraguay",
+    "mission": {
+      "title": "Onze missie",
+      "description": "Europese ondernemers en investeerders een professionele, geïntegreerde en transparante weg bieden naar operationele vestiging in Paraguay."
+    },
+    "difference": {
+      "title": "Wat ons onderscheidt",
+      "items": [
+        { "title": "Geïntegreerde aanpak", "description": "Wij behandelen niet alleen papierwerk. Wij coördineren juridische, financiële en operationele diensten als één uniform programma." },
+        { "title": "Banktoegang", "description": "Wij lossen het grootste obstakel voor buitenlanders in Paraguay op: het openen van een zakelijke bankrekening." },
+        { "title": "Één reis", "description": "Alle persoonlijke procedures in één ochtend afgerond. Geen meerdere reizen, geen verspilde tijd." },
+        { "title": "Transparantie", "description": "Vaste prijzen, geen verborgen kosten. U weet precies wat u betaalt en wat u krijgt." },
+        { "title": "Europees perspectief", "description": "Wij begrijpen de behoeften, zorgen en verwachtingen van Europese klanten." }
+      ]
+    },
+    "team": {
+      "title": "Ons team",
+      "description": "Een multidisciplinair team van advocaten, accountants, notarissen en financieel adviseurs met echte ervaring in de Paraguayaanse markt.",
+      "roles": [
+        { "title": "Operationeel directeur", "description": "Gevestigd in Asunción. Coördineert alle procedures en waarborgt kwaliteitsuitvoering." },
+        { "title": "Commercieel directeur", "description": "Gevestigd in Europa. Eerste aanspreekpunt voor Europese klanten." },
+        { "title": "Juridisch team", "description": "Ervaren Paraguayaanse advocaten gespecialiseerd in migratie-, vennootschaps- en bankrecht." },
+        { "title": "Accountantsteam", "description": "Gecertificeerde accountants voor bedrijfscompliance en belastingadvies." }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Neem contact op",
+    "subtitle": "Heeft u vragen over onze programma's? Klaar om de eerste stap te zetten? Laten we praten.",
+    "formTitle": "Boek uw gratis consult",
+    "responseTitle": "Responstijd",
+    "responseText": "Wij reageren op alle aanvragen binnen 24 uur. Meestal veel sneller!",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefoon",
+    "locationLabel": "Locatie",
+    "locationValue": "Asunción, Paraguay",
+    "form": {
+      "name": "Naam",
+      "namePlaceholder": "Uw volledige naam",
+      "nameRequired": "Naam is verplicht",
+      "email": "E-mail",
+      "emailPlaceholder": "uw@email.nl",
+      "emailRequired": "Een geldig e-mailadres is verplicht",
+      "phone": "Telefoon",
+      "phonePlaceholder": "+31 6 12345678",
+      "country": "Land",
+      "countryPlaceholder": "Selecteer uw land",
+      "countryRequired": "Land is verplicht",
+      "countries": ["Nederland", "Duitsland", "België", "Oostenrijk", "Frankrijk", "Ander Europa", "Anders"],
+      "program": "Programma-interesse",
+      "programPlaceholder": "Selecteer programma",
+      "programBusiness": "Paraguay Business — USD 4.400",
+      "programInvestor": "Paraguay Investor Program — USD 6.900",
+      "programUnsure": "Nog niet zeker",
+      "objective": "Wat is uw hoofddoel in Paraguay?",
+      "objectivePlaceholder": "Vertel ons over uw doelstellingen...",
+      "consent": "Ik ga akkoord dat LEALTIS mij contacteert over mijn aanvraag",
+      "consentRequired": "U moet akkoord gaan om gecontacteerd te worden",
+      "submit": "Aanvraag versturen",
+      "submitting": "Bezig met verzenden...",
+      "success": "Bedankt! Wij hebben uw aanvraag ontvangen. Ons team neemt binnen 24 uur contact met u op.",
+      "error": "Er is iets misgegaan. Probeer het opnieuw."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Inzichten en gidsen over vestiging in Paraguay",
+    "readMore": "Lees meer",
+    "comingSoon": "Meer artikelen binnenkort..."
+  },
+  "privacy": {
+    "title": "Privacybeleid",
+    "lastUpdated": "Laatst bijgewerkt: april 2026"
+  },
+  "terms": {
+    "title": "Gebruiksvoorwaarden",
+    "lastUpdated": "Laatst bijgewerkt: april 2026"
+  },
+  "cookieConsent": {
+    "message": "Wij gebruiken cookies om uw ervaring te verbeteren. Door deze site te blijven bezoeken, accepteert u ons gebruik van cookies.",
+    "acceptAll": "Alles accepteren",
+    "declineNonEssential": "Niet-essentiële weigeren",
+    "managePreferences": "Voorkeuren beheren",
+    "preferencesTitle": "Cookie-voorkeuren",
+    "essentialLabel": "Essentiële cookies",
+    "essentialDescription": "Noodzakelijk voor de goede werking van de website.",
+    "analyticsLabel": "Analytische cookies",
+    "analyticsDescription": "Helpen ons begrijpen hoe bezoekers met onze website omgaan.",
+    "marketingLabel": "Marketing cookies",
+    "marketingDescription": "Gebruikt om bezoekers te volgen op websites voor advertentiedoeleinden.",
+    "savePreferences": "Voorkeuren opslaan"
+  },
+  "whatsapp": {
+    "tooltip": "Chat met ons via WhatsApp",
+    "ariaLabel": "WhatsApp-chat openen"
   },
   "footer": {
     "tagline": "Professionele vestiging in Paraguay voor Europeanen.",
@@ -120,7 +254,7 @@
       "whyParaguay": "Waarom Paraguay",
       "howItWorks": "Hoe het werkt",
       "about": "Over ons",
-      "faq": "FAQ",
+      "faq": "Veelgestelde vragen",
       "blog": "Blog",
       "contact": "Contact"
     },

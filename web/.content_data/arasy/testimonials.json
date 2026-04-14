@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "author": "María González",
+    "rating": 5,
+    "text": "Mudamos a Arasy hace 2 años y ha sido la mejor decisión. Los niños disfrutan mucho de la piscina y nos sentimos muy seguros.",
+    "date": "2025-12-15",
+    "source": "Google"
+  },
+  {
+    "id": 2,
+    "author": "Carlos Mendoza",
+    "rating": 5,
+    "text": "Excelente ubicación y el barrio está muy bien mantenido. La comunidad es muy amable y tranquila.",
+    "date": "2025-11-20",
+    "source": "Google"
+  },
+  {
+    "id": 3,
+    "author": "Ana López",
+    "rating": 5,
+    "text": "Encontramos nuestro hogar soñado aquí. El diseño de las casas es moderno y funcional. Recomendado!",
+    "date": "2025-10-05",
+    "source": "Referido"
+  }
+]

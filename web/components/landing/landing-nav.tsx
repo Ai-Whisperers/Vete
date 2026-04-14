@@ -14,7 +14,8 @@ export function LandingNav(): React.ReactElement {
     { href: '/programas', label: t('programs') },
     { href: '/por-que-paraguay', label: t('whyParaguay') },
     { href: '/como-funciona', label: t('howItWorks') },
-    { href: '/nosotros', label: t('about') },
+    { href: '/precios', label: 'Pricing' },
+    { href: '/comparar', label: 'Compare' },
     { href: '/faq', label: t('faq') },
     { href: '/blog', label: t('blog') },
   ]

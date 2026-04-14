@@ -89,6 +89,26 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/comparar" className="text-slate-300 hover:text-[#C9A84C] transition-colors">
+                  Compare Countries
+                </Link>
+              </li>
+              <li>
+                <Link href="/banking" className="text-slate-300 hover:text-[#C9A84C] transition-colors">
+                  Banking Access
+                </Link>
+              </li>
+              <li>
+                <Link href="/impuestos" className="text-slate-300 hover:text-[#C9A84C] transition-colors">
+                  Tax Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/guia-gratis" className="text-slate-300 hover:text-[#C9A84C] transition-colors">
+                  Free Guide
+                </Link>
+              </li>
+              <li>
                 <Link href="/contacto" className="text-slate-300 hover:text-[#C9A84C] transition-colors">
                   {links.contact}
                 </Link>

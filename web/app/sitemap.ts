@@ -14,6 +14,11 @@ const pages = [
   '/faq',
   '/blog',
   '/contacto',
+  '/comparar',
+  '/precios',
+  '/banking',
+  '/impuestos',
+  '/guia-gratis',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

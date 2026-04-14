@@ -1,0 +1,13 @@
+version: '3'
+services:
+  web:
+    build: .devcontainer
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+NEEDS_MANUAL_REVIEW

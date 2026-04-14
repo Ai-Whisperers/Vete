@@ -1,22 +1,22 @@
 {
   "version": "1.0",
-  "basePath": "/branding/bookcovers/images",
+  "basePath": "/branding/dayah/images",
   "images": {
     "hero": {
       "main": {
-        "src": "hero.jpg",
-        "alt": "Book Cover Studio - Diseño de portadas profesionales",
+        "src": "hero.svg",
+        "alt": "Dayah LitWorks - Diseño de portadas profesionales",
         "width": 1920,
         "height": 1080
       },
       "services": {
-        "src": "services-hero.jpg",
+        "src": "hero.svg",
         "alt": "Servicios de diseño de portadas",
         "width": 1920,
         "height": 1080
       },
       "portfolio": {
-        "src": "portfolio-hero.jpg",
+        "src": "hero.svg",
         "alt": "Portafolio de portadas",
         "width": 1920,
         "height": 1080
@@ -25,7 +25,7 @@
     "branding": {
       "logo": {
         "src": "logo.svg",
-        "alt": "BookCover Studio",
+        "alt": "Dayah LitWorks",
         "width": 200,
         "height": 50
       },
@@ -36,27 +36,27 @@
         "height": 32
       },
       "og-image": {
-        "src": "og-image.jpg",
-        "alt": "BookCover Studio - Portadas profesionales",
+        "src": "og-image.svg",
+        "alt": "Dayah LitWorks - Portadas profesionales",
         "width": 1200,
         "height": 630
       }
     },
     "portfolio": {
       "example-1": {
-        "src": "portfolio/example-1.jpg",
+        "src": "portfolio/romance-1.svg",
         "alt": "Portada - Romance",
         "width": 600,
         "height": 900
       },
       "example-2": {
-        "src": "portfolio/example-2.jpg",
+        "src": "portfolio/fantasy-1.svg",
         "alt": "Portada - Fantasy",
         "width": 600,
         "height": 900
       },
       "example-3": {
-        "src": "portfolio/example-3.jpg",
+        "src": "portfolio/thriller-1.svg",
         "alt": "Portada - Thriller",
         "width": 600,
         "height": 900
@@ -64,8 +64,8 @@
     },
     "team": {
       "owner": {
-        "src": "team/owner.jpg",
-        "alt": "Diseñadora de portadas",
+        "src": "team/owner.svg",
+        "alt": "Dayah - Diseñadora de portadas",
         "width": 400,
         "height": 533
       }

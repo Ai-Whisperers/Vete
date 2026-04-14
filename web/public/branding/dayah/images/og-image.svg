@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#grad)"/>
-  <text x="600" y="280" font-family="Georgia, serif" font-size="48" fill="white" text-anchor="middle">Diseño de Portadas</text>
-  <text x="600" y="340" font-family="Inter, sans-serif" font-size="20" fill="white" text-anchor="middle">Para autores independientes</text>
-  <text x="600" y="400" font-family="Inter, sans-serif" font-size="16" fill="white" text-anchor="middle">Transforma tu manuscrito en un best-seller visual</text>
+  <text x="600" y="280" font-family="Georgia, serif" font-size="48" fill="white" text-anchor="middle">Dayah LitWorks</text>
+  <text x="600" y="340" font-family="Inter, sans-serif" font-size="24" fill="white" text-anchor="middle">Diseño de Portadas para Libros</text>
+  <text x="600" y="400" font-family="Inter, sans-serif" font-size="16" fill="#e9d5ff" text-anchor="middle">Tu libro merece una portada increíble</text>
 </svg>

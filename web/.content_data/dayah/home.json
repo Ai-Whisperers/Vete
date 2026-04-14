@@ -1,26 +1,66 @@
 {
   "hero": {
-    "headline": "Portadas de Libro que Capturan Historias",
-    "subhead": "Diseño profesional de portadas para autores independientes. Haz que tu libro sea visible y atractivo desde el primer взгляд.",
+    "headline": "Tu Libro Merece una Portada Increíble",
+    "subhead": "Diseño profesional de portadas para autores independientes. Transformo tu historia en una portada que capta la atención de los lectores desde el primer vistazo.",
     "cta_primary": "Ver Portafolio",
     "cta_secondary": "Solicitar Cotización"
   },
   "features": [
     {
       "icon": "sparkles",
-      "title": "Diseño Único",
-      "text": "Cada portada es creada específicamente para tu historia, no usamos plantillas genéricas."
+      "title": "Diseño Exclusivo",
+      "text": "Cada portada es creada específicamente para tu historia, ninguna es igual a otra."
     },
     {
       "icon": "palette",
-      "title": "Genre Especializado",
-      "text": "Experiencia en Romance, Fantasy, Thriller, No Ficción y más géneros literarios."
+      "title": "Especializado en tu Género",
+      "text": "Experiencia en Romance, Fantasy, Thriller, Ciencia Ficción y más géneros."
     },
     {
       "icon": "clock",
       "title": "Entrega Rápida",
-      "text": "Primera propuesta en 5-7 días hábiles.迭代 rápida hasta que estés satisfecho."
+      "text": "Primera propuesta en 5-7 días hábiles con revisiones incluidas."
     }
+  ],
+  "promo_banner": {
+    "enabled": true,
+    "text": "📚 20% de descuento en tu primera portada - Código: PRIMERLIBRO",
+    "link": "#contact"
+  },
+  "services_section": {
+    "enabled": true,
+    "title": "Mis Servicios",
+    "subtitle": "Todo lo que necesitas para que tu libro destaque",
+    "cta": "Ver Todos los Servicios"
+  },
+  "portfolio_section": {
+    "enabled": true,
+    "title": "Trabajos Recientes",
+    "subtitle": "Mira algunos de mis diseños recientes",
+    "cta": "Ver Portafolio Completo"
+  },
+  "premade_section": {
+    "enabled": true,
+    "title": "Premade Covers",
+    "subtitle": "Diseños listos a precios accesibles. Personalizados con tu título en 48 horas.",
+    "cta": "Explorar Premades"
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Lo que dicen mis clientes",
+    "subtitle": "Autores que confiaron en mi trabajo"
+  },
+  "cta_section": {
+    "enabled": true,
+    "title": "¿Listo para dar vida a tu libro?",
+    "subtitle": "Escríbeme y hablemos sobre tu proyecto",
+    "cta": "Contactar Ahora"
+  },
+  "seo": {
+    "meta_title": "Dayah LitWorks - Diseño de Portadas de Libros",
+    "meta_description": "Diseño profesional de portadas para autores independientes. Portadas únicas que captan lectores. Cotiza tu portada hoy."
+  }
+}
   ],
   "promo_banner": {
     "enabled": true,

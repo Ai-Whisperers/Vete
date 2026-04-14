@@ -32,8 +32,8 @@
       "title": "Romance Floral",
       "category": "romance",
       "mood": "romántico, suave",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-1.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-1.svg",
       "available": true
     },
     {
@@ -41,8 +41,8 @@
       "title": "Dark Romance",
       "category": "romance",
       "mood": "oscuro, dramático",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-2.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-2.svg",
       "available": true
     },
     {
@@ -50,8 +50,8 @@
       "title": "Fantasy Epic",
       "category": "fantasy",
       "mood": "épico, majestuoso",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-3.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-3.svg",
       "available": true
     },
     {
@@ -59,8 +59,8 @@
       "title": "Fantasy Mystical",
       "category": "fantasy",
       "mood": "místico, enigmático",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-4.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-4.svg",
       "available": true
     },
     {
@@ -68,8 +68,8 @@
       "title": "Thriller Dark",
       "category": "thriller",
       "mood": "suspenso, oscuro",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-5.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-5.svg",
       "available": true
     },
     {
@@ -77,8 +77,8 @@
       "title": "Thriller Minimal",
       "category": "thriller",
       "mood": "moderno, limpio",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-6.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-6.svg",
       "available": true
     },
     {
@@ -86,8 +86,8 @@
       "title": "Literary Classic",
       "category": "literary",
       "mood": "elegante, atemporal",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-7.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-7.svg",
       "available": true
     },
     {
@@ -95,8 +95,8 @@
       "title": "Contemporary Romance",
       "category": "romance",
       "mood": "moderno, vibrante",
-      "price": 60,
-      "image": "/branding/bookcovers/premades/premade-8.svg",
+      "price": 75,
+      "image": "/branding/dayah/premades/premade-8.svg",
       "available": true
     }
   ],

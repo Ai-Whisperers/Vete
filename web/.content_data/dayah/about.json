@@ -1,25 +1,25 @@
 {
   "intro": {
-    "title": "Mi Historia",
-    "text": "Me apasiona transformar historias en portadas que cuentan mucho más que un libro. Con más de 5 años de experiencia en diseño editorial, he ayudado a cientos de autores independientes a dar el primer impacto visual que sus libros merecen."
+    "title": "Sobre Dayah LitWorks",
+    "text": "Me dedico a crear portadas de libros que cuentan historias antes de que el lector abra la primera página. Como diseñadora especializada en portadas para autores independientes, entiendo que la portada es la primera impresión y puede determinar el éxito de tu libro. Cada proyecto es único, y trabajo contigo para crear una portada que capture la esencia de tu historia y conecte con tu audiencia objetivo."
   },
   "process": {
     "title": "Mi Proceso de Trabajo",
     "steps": [
       {
         "step": 1,
-        "title": "Briefing",
-        "description": "Conversamos sobre tu historia, género, público objetivo y visión."
+        "title": "Consulta Inicial",
+        "description": "Conversamos sobre tu libro, género, público objetivo y visión creativa."
       },
       {
         "step": 2,
         "title": "Investigación",
-        "description": "Analizo el mercado y competidores para posicionar tu libro."
+        "description": "Analizo las tendencias del género y competidores para posicionar tu libro."
       },
       {
         "step": 3,
         "title": "Propuestas",
-        "description": "Te presento 3 opciones iniciales basadas en tu historia."
+        "description": "Te presento varias opciones iniciales basadas en tu historia."
       },
       {
         "step": 4,
@@ -29,13 +29,15 @@
       {
         "step": 5,
         "title": "Entrega",
-        "description": "Recibes todos los archivos listos para publicar."
+        "description": "Recibes todos los archivos listos para publicar en cualquier plataforma."
       }
     ]
   },
-  "certifications": [
-    "Diseñador Gráfico Certificado",
-    "Especializado en Book Cover Design",
-    "Experiencia con Amazon KDP, IngramSpark, Draft2Digital"
+  "specialties": [
+    "Romance (Contemporary, Historical, Dark, Paranormal)",
+    "Fantasy (Epic, Urban, Paranormal)",
+    "Thriller / Suspense",
+    "Science Fiction",
+    "No Ficción"
   ]
 }

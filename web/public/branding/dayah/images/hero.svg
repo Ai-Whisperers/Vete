@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="1920" height="1080" fill="url(#heroGrad)"/>
-  <text x="960" y="480" font-family="Georgia, serif" font-size="72" fill="white" text-anchor="middle" font-weight="bold">Portadas que</text>
-  <text x="960" y="560" font-family="Georgia, serif" font-size="72" fill="white" text-anchor="middle" font-weight="bold">Capturan Historias</text>
-  <text x="960" y="640" font-family="Inter, sans-serif" font-size="24" fill="white" text-anchor="middle">Diseño profesional para autores independientes</text>
+  <text x="960" y="480" font-family="Georgia, serif" font-size="72" fill="white" text-anchor="middle" font-weight="bold">Tu Libro Merece</text>
+  <text x="960" y="560" font-family="Georgia, serif" font-size="72" fill="white" text-anchor="middle" font-weight="bold">una Portada Increíble</text>
+  <text x="960" y="640" font-family="Inter, sans-serif" font-size="24" fill="#e9d5ff" text-anchor="middle">Diseño profesional de portadas para autores independientes</text>
 </svg>

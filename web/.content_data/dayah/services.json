@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Servicios de Diseño de Portadas",
-    "subtitle": "Soluciones profesionales para autores independientes"
+    "subtitle": "Diseño profesional para autores independientes"
   },
   "services": [
     {
@@ -12,35 +12,35 @@
       "icon": "paintbrush",
       "summary": "Diseño único creado desde cero para tu historia",
       "details": {
-        "description": "Diseño de portada 100% personalizado basado en tu historia, género y visión. Incluye直到 3 revisiones y todos los archivos necesarios para publicación (Amazon, KDP, IngramSpark, etc.).",
+        "description": "Diseño de portada 100% personalizado basado en tu historia, género y visión. Incluye hasta 3 revisiones y todos los archivos necesarios para publicación en Amazon KDP, IngramSpark, Draft2Digital y más.",
         "duration_minutes": 4800,
         "includes": [
           "Briefing detallado de tu historia y visión",
           "Investigación de mercado y competidores",
           "3 propuestas iniciales",
-          "Hasta 3 rounds de revisiones",
+          "Hasta 3 rondas de revisiones",
           "Archivos finales: PDF, PNG, JPG (300dpi)",
-          "Contraportada opcional",
+          "Contraportada",
           "Spine para tapa dura"
         ]
       },
       "variants": [
         {
           "name": "Ebook Only",
-          "price_display": "$150 USD",
-          "price_value": 150,
+          "price_display": "$180 USD",
+          "price_value": 180,
           "description": "Solo tapa (ebook/Kindle)"
         },
         {
           "name": "Ebook + Print",
-          "price_display": "$200 USD",
-          "price_value": 200,
+          "price_display": "$250 USD",
+          "price_value": 250,
           "description": "Tapa + contraportada + spine"
         },
         {
           "name": "Full Package",
-          "price_display": "$280 USD",
-          "price_value": 280,
+          "price_display": "$350 USD",
+          "price_value": 350,
           "description": "Paquete completo + diseño de redes sociales"
         }
       ],
@@ -54,7 +54,7 @@
       "icon": "layer",
       "summary": "Diseños pre-diseñados que personalizo con tu título",
       "details": {
-        "description": "Diseños exclusivos disponibles para compra inmediata. Personalized con tu título, nombre de autor y colores en 48-72 horas. Perfecto para autores con presupuesto limitado.",
+        "description": "Diseños exclusivos disponibles para compra inmediata. Personalizado con tu título, nombre de autor y colores en 48-72 horas. Perfecto para autores con presupuesto limitado.",
         "duration_minutes": 1440,
         "includes": [
           "Selección de diseño premade",
@@ -67,20 +67,20 @@
       "variants": [
         {
           "name": "Basic Premade",
-          "price_display": "$60 USD",
-          "price_value": 60,
+          "price_display": "$75 USD",
+          "price_value": 75,
           "description": "Solo tapa, entrega en 72h"
         },
         {
           "name": "Full Premade",
-          "price_display": "$80 USD",
-          "price_value": 80,
+          "price_display": "$100 USD",
+          "price_value": 100,
           "description": "Tapa + contraportada + spine"
         },
         {
           "name": "Genre Bundle",
-          "price_display": "$150 USD",
-          "price_value": 150,
+          "price_display": "$180 USD",
+          "price_value": 180,
           "description": "3 portadas para diferentes géneros"
         }
       ],
@@ -109,20 +109,20 @@
       "variants": [
         {
           "name": "Hardcover",
-          "price_display": "$350 USD",
-          "price_value": 350,
+          "price_display": "$400 USD",
+          "price_value": 400,
           "description": "Diseño completo para tapa dura"
         },
         {
           "name": "Special Edition",
-          "price_display": "$450 USD",
-          "price_value": 450,
+          "price_display": "$550 USD",
+          "price_value": 550,
           "description": "Incluye end pages y box design"
         },
         {
           "name": "Kickstarter Bundle",
-          "price_display": "$600 USD",
-          "price_value": 600,
+          "price_display": "$750 USD",
+          "price_value": 750,
           "description": "Paquete completo + mockups + stretch goals"
         }
       ],
@@ -134,7 +134,7 @@
       "category": "video",
       "title": "Video 3D / Book Mockup",
       "icon": "video",
-      "summary": "Videos profesionales para展示 tu libro en redes",
+      "summary": "Videos profesionales para展示 tu libro en redes sociales",
       "details": {
         "description": "Videos 3D animados de tu portada para usar en Instagram, TikTok, Facebook o tu landing page. Puedes elegir un template o solicitar un video custom.",
         "duration_minutes": 2880,
@@ -149,20 +149,20 @@
       "variants": [
         {
           "name": "Template Video",
-          "price_display": "$40 USD",
-          "price_value": 40,
+          "price_display": "$50 USD",
+          "price_value": 50,
           "description": "Elige de mis templates disponibles"
         },
         {
           "name": "Custom Animation",
-          "price_display": "$100 USD",
-          "price_value": 100,
+          "price_display": "$120 USD",
+          "price_value": 120,
           "description": "Animación personalizada única"
         },
         {
           "name": "Social Bundle",
-          "price_display": "$120 USD",
-          "price_value": 120,
+          "price_display": "$150 USD",
+          "price_value": 150,
           "description": "3 videos para diferentes plataformas"
         }
       ],
@@ -188,14 +188,14 @@
       "variants": [
         {
           "name": "Rediseño Básico",
-          "price_display": "$120 USD",
-          "price_value": 120,
+          "price_display": "$150 USD",
+          "price_value": 150,
           "description": "Nueva tapa + contraportada"
         },
         {
           "name": "Rediseño Completo",
-          "price_display": "$180 USD",
-          "price_value": 180,
+          "price_display": "$220 USD",
+          "price_value": 220,
           "description": "Incluye diseño de redes sociales"
         }
       ],

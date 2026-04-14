@@ -5,7 +5,7 @@
  */
 
 export interface InvoiceEmailData {
-  clinicName: string
+  tenantName: string
   clinicLogo?: string
   clinicAddress?: string
   clinicPhone?: string
@@ -38,7 +38,7 @@ export interface InvoiceEmailData {
  */
 export function generateInvoiceEmail(data: InvoiceEmailData): string {
   const {
-    clinicName,
+    tenantName,
     clinicLogo,
     clinicAddress,
     clinicPhone,
@@ -93,8 +93,8 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
           <!-- Header -->
           <tr>
             <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
-              ${clinicLogo ? `<img src="${clinicLogo}" alt="${clinicName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${clinicName}</h1>
+              ${clinicLogo ? `<img src="${clinicLogo}" alt="${tenantName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${tenantName}</h1>
               ${clinicAddress ? `<p style="margin: 8px 0 0; color: #e0e0e0; font-size: 14px;">${clinicAddress}</p>` : ''}
               <div style="margin-top: 12px;">
                 ${clinicPhone ? `<span style="color: #e0e0e0; font-size: 14px; margin-right: 15px;">📞 ${clinicPhone}</span>` : ''}
@@ -291,7 +291,7 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
  */
 export function generateInvoiceEmailText(data: InvoiceEmailData): string {
   const {
-    clinicName,
+    tenantName,
     ownerName,
     petName,
     invoiceNumber,
@@ -325,8 +325,8 @@ export function generateInvoiceEmailText(data: InvoiceEmailData): string {
     })
   }
 
-  let text = `${clinicName}\n`
-  text += `${'='.repeat(clinicName.length)}\n\n`
+  let text = `${tenantName}\n`
+  text += `${'='.repeat(tenantName.length)}\n\n`
   text += `Hola ${ownerName},\n\n`
   text += `Adjuntamos la factura por los servicios prestados a ${petName}.\n\n`
   text += `FACTURA Nº: ${invoiceNumber}\n`

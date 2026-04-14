@@ -14,7 +14,7 @@ export function CommandPalette({
   isOpen,
   onClose,
 }: CommandPaletteProps): React.ReactElement | null {
-  const { clinic } = useParams() as { clinic: string }
+  const { tenant } = useParams() as { tenant: string }
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const { query, setQuery, groupedCommands, flatCommands } = useCommandSearch({

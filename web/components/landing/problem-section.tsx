@@ -41,7 +41,7 @@ export function ProblemSection() {
             Tu día a día, <span className="text-3xl md:text-4xl lg:text-5xl text-[var(--landing-primary)]">ordenado.</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-slate-600">
-            Menos administrador, más veterinario. Elimina el caos de las agendas en papel.
+            Menos administrador, más profesional. Elimina el caos de las agendas en papel.
           </p>
         </div>
 

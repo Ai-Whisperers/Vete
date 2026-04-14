@@ -10,7 +10,7 @@
  * ```typescript
  * import { useInventoryList, useInventoryStats } from '@/lib/queries/inventory'
  *
- * function InventoryPage({ clinic }: { clinic: string }) {
+ * function InventoryPage({ tenant }: { tenant: string }) {
  *   const { data: products, isLoading } = useInventoryList(clinic)
  *   const { data: stats } = useInventoryStats(clinic)
  *

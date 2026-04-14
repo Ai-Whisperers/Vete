@@ -53,7 +53,7 @@ function generateRejectionEmailHtml(data: AmbassadorRejectionEmailData): string 
               </p>
               <ul style="margin: 0 0 20px; padding-left: 20px; color: #666666; font-size: 14px; line-height: 1.6;">
                 <li style="margin-bottom: 8px;">Conexión activa con clínicas veterinarias</li>
-                <li style="margin-bottom: 8px;">Experiencia en el sector veterinario</li>
+                <li style="margin-bottom: 8px;">Experiencia en el sector profesional</li>
                 <li>Disponibilidad para promover la plataforma</li>
               </ul>
               <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.5;">

@@ -112,12 +112,12 @@ export function getFileSizeError(limit: number): string {
 // USER ROLES
 // =============================================================================
 
-export const USER_ROLES = ['owner', 'vet', 'admin'] as const
+export const USER_ROLES = ['client', 'practitioner', 'admin'] as const
 export type UserRole = (typeof USER_ROLES)[number]
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
   owner: 'Dueño de Mascota',
-  vet: 'Veterinario',
+  practitioner: 'Profesional',
   admin: 'Administrador',
 }
 

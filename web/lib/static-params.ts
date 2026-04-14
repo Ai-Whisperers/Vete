@@ -2,23 +2,23 @@ import fs from 'fs'
 import path from 'path'
 
 // Cache for clinic slugs
-let clinicSlugsCache: string[] | null = null
+let tenantSlugsCache: string[] | null = null
 
 /**
  * Get all active clinic slugs from the content directory
  */
 export function getClinicSlugs(): string[] {
-  if (clinicSlugsCache) return clinicSlugsCache
+  if (tenantSlugsCache) return tenantSlugsCache
 
   const contentDir = path.join(process.cwd(), '.content_data')
 
   try {
     const entries = fs.readdirSync(contentDir, { withFileTypes: true })
-    clinicSlugsCache = entries
+    tenantSlugsCache = entries
       .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
       .map((entry) => entry.name)
 
-    return clinicSlugsCache
+    return tenantSlugsCache
   } catch (_error: unknown) {
     // Fallback to known clinics
     return ['terrapet', 'petlife']
@@ -31,7 +31,7 @@ export function getClinicSlugs(): string[] {
  */
 export async function generateClinicParams() {
   const slugs = getClinicSlugs()
-  return slugs.map((clinic) => ({ clinic }))
+  return slugs.map((clinic) => ({ tenant }))
 }
 
 /**

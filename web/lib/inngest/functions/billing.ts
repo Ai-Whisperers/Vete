@@ -319,7 +319,7 @@ async function handleSuccessfulCharge(
     .from('profiles')
     .select('id')
     .eq('tenant_id', invoice.tenant_id)
-    .eq('role', 'admin')
+    .eq('role','client' | 'practitioner' | 'admin')
     .limit(1)
     .single()
 

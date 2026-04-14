@@ -108,7 +108,7 @@ export function CostBreakdownSection({
 
               {/* Clarification */}
               <p className="text-[10px] text-amber-600 mt-2 pt-2 border-t border-amber-200">
-                La comision aplica solo a ventas de la tienda online, no a consultas ni servicios veterinarios.
+                La comision aplica solo a ventas de la tienda online, no a consultas ni servicios profesionals.
               </p>
             </div>
           </div>

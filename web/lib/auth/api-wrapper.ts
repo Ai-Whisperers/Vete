@@ -103,7 +103,7 @@ type ApiHandlerWithParams<P> = (context: ApiHandlerContextWithParams<P>) => Prom
  *     const data = await supabase.from('pets').select('*')
  *     return NextResponse.json(data)
  *   },
- *   { roles: ['vet', 'admin'] }
+ *   { roles: ['practitioner', 'admin'] }
  * )
  * ```
  */
@@ -295,7 +295,7 @@ export function withApiAuth(
  *     const data = await supabase.from('pets').select('*').eq('id', params.id)
  *     return NextResponse.json(data)
  *   },
- *   { roles: ['vet', 'admin'] }
+ *   { roles: ['practitioner', 'admin'] }
  * )
  * ```
  */

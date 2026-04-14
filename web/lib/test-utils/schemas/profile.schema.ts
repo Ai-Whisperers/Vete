@@ -8,7 +8,7 @@ export const ProfileSchema = z
   .object({
     id: z.string().uuid().optional(),
     tenant_id: z.string().min(1).optional().nullable(),
-    role: z.enum(['owner', 'vet', 'admin']),
+    role: z.enum(['client', 'practitioner', 'admin']),
     full_name: z.string().min(1).optional().nullable(),
     email: z.string().email().optional().nullable(),
     phone: z.string().min(6).optional().nullable(),
@@ -25,7 +25,7 @@ export const ProfileSchema = z
   .refine(
     (data) => {
       // Staff (vet/admin) require full_name and email
-      if (data.role === 'vet' || data.role === 'admin') {
+      if (data.role ==='client' | 'practitioner' | 'admin'|| data.role ==='client' | 'practitioner' | 'admin') {
         return data.full_name && data.email
       }
       return true
@@ -43,7 +43,7 @@ export type Profile = z.output<typeof ProfileSchema>
 export const ClinicProfileSchema = z.object({
   profile_id: z.string().uuid(),
   tenant_id: z.string().min(1),
-  role: z.enum(['owner', 'vet', 'admin']),
+  role: z.enum(['client', 'practitioner', 'admin']),
   is_primary: z.boolean().default(false),
   created_at: z.string().datetime().optional(),
 })

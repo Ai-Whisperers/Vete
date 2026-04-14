@@ -3,13 +3,13 @@ export function generateAppointmentConfirmationEmail({
   petName,
   reason,
   dateTime,
-  clinicName,
+  tenantName,
 }: {
   userName: string
   petName: string
   reason: string
   dateTime: string
-  clinicName: string
+  tenantName: string
 }) {
   return `
     Hola ${userName},
@@ -19,7 +19,7 @@ export function generateAppointmentConfirmationEmail({
     Mascota: ${petName}
     Motivo: ${reason}
     Fecha y Hora: ${dateTime}
-    Clínica: ${clinicName}
+    Clínica: ${tenantName}
 
     ¡Gracias por confiar en nosotros!
 
@@ -38,7 +38,7 @@ export function generateBookingRequestEmail({
   estimatedDuration,
   preferences,
   notes,
-  clinicName,
+  tenantName,
 }: {
   userName: string
   petName: string
@@ -46,7 +46,7 @@ export function generateBookingRequestEmail({
   estimatedDuration: number
   preferences: string | null
   notes: string | null
-  clinicName: string
+  tenantName: string
 }) {
   let preferencesSection = ''
   if (preferences) {
@@ -71,7 +71,7 @@ export function generateBookingRequestEmail({
     Mascota: ${petName}
     Servicio(s): ${services}
     Duración estimada: ${estimatedDuration} minutos
-    Clínica: ${clinicName}
+    Clínica: ${tenantName}
     ${preferencesSection}${notesSection}
 
     ¿Qué sigue?
@@ -84,7 +84,7 @@ export function generateBookingRequestEmail({
     ¡Gracias por confiar en nosotros!
 
     Saludos,
-    El equipo de ${clinicName}
+    El equipo de ${tenantName}
   `
 }
 
@@ -98,7 +98,7 @@ export function generateSchedulingConfirmationEmail({
   dateTime,
   duration,
   vetName,
-  clinicName,
+  tenantName,
   clinicAddress,
   clinicPhone,
 }: {
@@ -108,7 +108,7 @@ export function generateSchedulingConfirmationEmail({
   dateTime: string
   duration: number
   vetName: string | null
-  clinicName: string
+  tenantName: string
   clinicAddress: string | null
   clinicPhone: string | null
 }) {
@@ -133,7 +133,7 @@ export function generateSchedulingConfirmationEmail({
     Fecha y Hora: ${dateTime}
     Duración: ${duration} minutos
     ${vetName ? `Veterinario: ${vetName}` : ''}
-    Clínica: ${clinicName}
+    Clínica: ${tenantName}
     ${locationSection}
 
     Recordatorio:
@@ -144,6 +144,6 @@ export function generateSchedulingConfirmationEmail({
     ¡Te esperamos!
 
     Saludos,
-    El equipo de ${clinicName}
+    El equipo de ${tenantName}
   `
 }

@@ -9,7 +9,7 @@ import { sendEmail } from '../client'
 export interface AmbassadorNewReferralEmailData {
   to: string
   ambassadorName: string
-  clinicName: string
+  tenantName: string
   clinicEmail: string
   referralCode: string
   totalReferrals: number
@@ -19,7 +19,7 @@ export interface AmbassadorNewReferralEmailData {
  * Generate ambassador new referral email HTML
  */
 function generateNewReferralEmailHtml(data: AmbassadorNewReferralEmailData): string {
-  const { ambassadorName, clinicName, totalReferrals, referralCode } = data
+  const { ambassadorName, tenantName, totalReferrals, referralCode } = data
   const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://vetic.com'}/ambassador/referrals`
 
   return `
@@ -73,7 +73,7 @@ function generateNewReferralEmailHtml(data: AmbassadorNewReferralEmailData): str
                   Nueva clínica registrada:
                 </div>
                 <div style="color: #0c4a6e; font-size: 20px; font-weight: 700; margin-bottom: 4px;">
-                  ${clinicName}
+                  ${tenantName}
                 </div>
                 <div style="color: #0369a1; font-size: 14px;">
                   Estado: <strong style="color: #f59e0b;">En período de prueba</strong>
@@ -140,7 +140,7 @@ function generateNewReferralEmailHtml(data: AmbassadorNewReferralEmailData): str
 export async function sendAmbassadorNewReferralEmail(data: AmbassadorNewReferralEmailData) {
   return sendEmail({
     to: data.to,
-    subject: `🎯 ¡${data.clinicName} se registró con tu código!`,
+    subject: `🎯 ¡${data.tenantName} se registró con tu código!`,
     html: generateNewReferralEmailHtml(data),
   })
 }

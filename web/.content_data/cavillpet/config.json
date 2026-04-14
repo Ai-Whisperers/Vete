@@ -1,5 +1,7 @@
 {
   "id": "cavillpet",
+  "vertical": "clinic",
+  "subVertical": "pet",
   "name": "CavillPet",
   "tagline": "Cercanía y trato familiar",
   "contact": {

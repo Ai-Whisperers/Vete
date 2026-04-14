@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import ClinicHomePage from '@/app/[clinic]/page'
-import { getClinicData } from '@/lib/clinics'
-import type { ClinicData } from '@/lib/types/clinic-config'
+import { getTenantData } from '@/lib/tenant-content'
+import type { TenantData } from '@/lib/types/tenant-config'
 
-// Mock the getClinicData function
+// Mock the getTenantData function
 vi.mock('@/lib/clinics', () => ({
-  getClinicData: vi.fn(),
-  getClinicImageUrl: vi.fn((images, category, key) => {
+  getTenantData: vi.fn(),
+  getTenantImageUrl: vi.fn((images, category, key) => {
     if (!images?.images?.[category]?.[key]) return null
     return `${images.basePath}/${images.images[category][key].src}`
   }),
@@ -34,14 +34,14 @@ vi.mock('@/components/home/clinic-location-map', () => ({
 }))
 
 describe('TerraPet Homepage Component Tests', () => {
-  let mockClinicData: ClinicData
+  let mockTenantData: TenantData
 
   beforeEach(() => {
     // Reset mocks before each test
     vi.clearAllMocks()
 
     // Setup comprehensive mock clinic data
-    mockClinicData = {
+    mockTenantData = {
       config: {
         id: 'terrapet',
         name: 'TerraPet',
@@ -284,10 +284,10 @@ describe('TerraPet Homepage Component Tests', () => {
           service: '/images/placeholders/service-placeholder.jpg',
         },
       },
-    } as ClinicData
+    } as TenantData
 
     // Setup mock to return clinic data
-    vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+    vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
   })
 
   describe('Component Rendering', () => {
@@ -300,14 +300,14 @@ describe('TerraPet Homepage Component Tests', () => {
       expect(container).toBeTruthy()
     })
 
-    it('should call getClinicData with correct clinic slug', async () => {
+    it('should call getTenantData with correct clinic slug', async () => {
       const params = Promise.resolve({ clinic: 'terrapet' })
       const searchParams = Promise.resolve({})
 
       await ClinicHomePage({ params, searchParams })
 
-      expect(getClinicData).toHaveBeenCalledWith('terrapet')
-      expect(getClinicData).toHaveBeenCalledTimes(1)
+      expect(getTenantData).toHaveBeenCalledWith('terrapet')
+      expect(getTenantData).toHaveBeenCalledTimes(1)
     })
 
     it('should render the PublicHero component with correct data', async () => {
@@ -336,8 +336,8 @@ describe('TerraPet Homepage Component Tests', () => {
     })
 
     it('should NOT render promo banner when disabled', async () => {
-      mockClinicData.home.promo_banner!.enabled = false
-      vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+      mockTenantData.home.promo_banner!.enabled = false
+      vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
 
       const params = Promise.resolve({ clinic: 'terrapet' })
       const searchParams = Promise.resolve({})
@@ -442,8 +442,8 @@ describe('TerraPet Homepage Component Tests', () => {
     })
 
     it('should NOT render interactive tools section when missing', async () => {
-      mockClinicData.home.interactive_tools_section = undefined
-      vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+      mockTenantData.home.interactive_tools_section = undefined
+      vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
 
       const params = Promise.resolve({ clinic: 'terrapet' })
       const searchParams = Promise.resolve({})
@@ -490,8 +490,8 @@ describe('TerraPet Homepage Component Tests', () => {
     })
 
     it('should NOT render testimonials section when disabled', async () => {
-      mockClinicData.home.testimonials_section!.enabled = false
-      vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+      mockTenantData.home.testimonials_section!.enabled = false
+      vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
 
       const params = Promise.resolve({ clinic: 'terrapet' })
       const searchParams = Promise.resolve({})
@@ -583,7 +583,7 @@ describe('TerraPet Homepage Component Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle missing clinic data gracefully', async () => {
-      vi.mocked(getClinicData).mockResolvedValue(null)
+      vi.mocked(getTenantData).mockResolvedValue(null)
 
       const params = Promise.resolve({ clinic: 'nonexistent' })
       const searchParams = Promise.resolve({})

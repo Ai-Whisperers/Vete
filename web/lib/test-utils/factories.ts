@@ -76,7 +76,7 @@ export function createMockProfile(overrides: Partial<Profile> = {}): Profile {
     full_name: `Test User ${id}`,
     phone: `+595981${Math.random().toString().slice(2, 8)}`,
     secondary_phone: null,
-    role: 'owner',
+    role: 'client',
     avatar_url: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

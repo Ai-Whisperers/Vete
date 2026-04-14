@@ -26,7 +26,7 @@ export const EXPORTABLE_TABLES = [
   'prescriptions',
   'lab_orders',
   'lab_results',
-  'clients', // profiles with role='owner'
+  'clients', // profiles with role='client'
   'products', // store_products
   'inventory', // store_inventory
 ] as const

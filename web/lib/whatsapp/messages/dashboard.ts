@@ -4,7 +4,7 @@
  * Messages for staff dashboard features, billing, and administrative tasks.
  */
 
-import type { ClinicBillingParams } from '../types'
+import type { TenantBillingParams } from '../types'
 
 export const dashboardMessages = {
   // ============ Billing & Subscription ============
@@ -37,14 +37,14 @@ export const dashboardMessages = {
   /**
    * Plan inquiry with clinic name
    */
-  planInquiry: ({ clinicName }: ClinicBillingParams) =>
-    `Hola! Soy de ${clinicName} y quiero consultar sobre mi plan de Vetic`,
+  planInquiry: ({ tenantName }: TenantBillingParams) =>
+    `Hola! Soy de ${tenantName} y quiero consultar sobre mi plan de Vetic`,
 
   /**
    * Billing support with clinic name
    */
-  billingSupport: ({ clinicName }: ClinicBillingParams) =>
-    `Hola! Tengo una consulta sobre facturacion de Vetic para la clinica ${clinicName}`,
+  billingSupport: ({ tenantName }: TenantBillingParams) =>
+    `Hola! Tengo una consulta sobre facturacion de Vetic para la clinica ${tenantName}`,
 
   // ============ Staff Management ============
 

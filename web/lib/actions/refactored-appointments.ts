@@ -26,7 +26,7 @@ export const cancelAppointment = withActionAuth(
         appointmentId,
         user.id,
         reason,
-        profile.role === 'vet' || profile.role === 'admin'
+        profile.role ==='client' | 'practitioner' | 'admin'|| profile.role ==='client' | 'practitioner' | 'admin'
       )
 
       // Revalidate relevant paths
@@ -72,7 +72,7 @@ export const checkInAppointment = withActionAuth(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['practitioner', 'admin'] }
 )
 
 /**
@@ -101,7 +101,7 @@ export const startAppointment = withActionAuth(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['practitioner', 'admin'] }
 )
 
 /**
@@ -132,19 +132,19 @@ export const completeAppointment = withActionAuth(
       })
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['practitioner', 'admin'] }
 )
 
 /**
  * Get owner appointments
  */
 export const getOwnerAppointments = withActionAuth(
-  async ({ user, profile, supabase }, clinicSlug: string) => {
+  async ({ user, profile, supabase }, tenantSlug: string) => {
     try {
       const domainFactory = getDomainFactory(supabase)
       const appointmentService = domainFactory.createAppointmentService()
 
-      // Get appointments for this user's pets in this clinic
+      // Get appointments for this user's pets in this tenant
       const appointments = await appointmentService.getAppointments({
         pet_id: undefined,
         status: undefined,
@@ -152,7 +152,7 @@ export const getOwnerAppointments = withActionAuth(
 
       // Filter for owner's pets (domain service should handle this better)
       const ownerAppointments = appointments.filter(
-        (apt) => apt.pet?.owner_id === user.id && apt.tenant_id === clinicSlug
+        (apt) => apt.pet?.owner_id === user.id && apt.tenant_id === tenantSlug
       )
 
       // Split into upcoming and past

@@ -18,7 +18,7 @@ export interface TenantContext {
   profile: {
     id: string;
     tenant_id: TenantId;
-    role: 'owner' | 'vet' | 'admin';
+    role: 'client' | 'practitioner' | 'admin';
     full_name: string;
     email: string;
   };
@@ -32,7 +32,7 @@ export interface TenantContext {
  */
 export function createTenantContext(
   tenantId: TenantId = getTestTenant(),
-  role: 'owner' | 'vet' | 'admin' = 'vet'
+  role: 'client' | 'practitioner' | 'admin' = 'practitioner'
 ): TenantContext {
   return {
     tenantId,
@@ -52,11 +52,11 @@ export function createTenantContext(
  * @example
  * const [terrapetVet, petlifeVet] = createMultiTenantContexts([
  *   [TENANT_IDS.ADRIS, 'vet'],
- *   [TENANT_IDS.PETLIFE, 'vet'],
+ *   [TENANT_IDS.PETLIFE, 'practitioner'],
  * ]);
  */
 export function createMultiTenantContexts(
-  configs: Array<[TenantId, 'owner' | 'vet' | 'admin']>
+  configs: Array<[TenantId, 'client' | 'practitioner' | 'admin']>
 ): TenantContext[] {
   return configs.map(([tenantId, role]) => createTenantContext(tenantId, role));
 }

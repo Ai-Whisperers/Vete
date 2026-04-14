@@ -1,6 +1,9 @@
 /**
  * Domain layer
- * Contains all business domains with their repositories and services
+ * Organized into core platform domains and vertical-specific domains.
+ *
+ * CORE: Generic business logic used by ALL tenants (scheduling, billing, store, etc.)
+ * VERTICALS: Industry-specific logic (clinic, retail, services, etc.)
  */
 
 // ===========================================================================
@@ -10,30 +13,15 @@
 export { DomainFactory, getDomainFactory } from './factory'
 
 // ===========================================================================
-// CORE DOMAINS
+// CORE DOMAINS — Used by ALL tenants regardless of vertical
 // ===========================================================================
 
-export * from './appointments'
-export * from './pets'
-export * from './invoices'
-export * from './payments'
-export * from './users'
+export * from './core/appointments'
+export * from './core/invoices'
+export * from './core/payments'
+export * from './core/users'
 
-// ===========================================================================
-// CLINICAL DOMAINS
-// ===========================================================================
-
-export * from './medical-records'
-export * from './hospitalizations'
-export * from './lab'
-export * from './vaccines'
-export * from './clinical-tools'
-
-// ===========================================================================
-// OPERATIONAL DOMAINS
-// ===========================================================================
-
-export { InventoryRepository, InventoryService, createInventoryService } from './inventory'
+export { InventoryRepository, InventoryService, createInventoryService } from './core/inventory'
 export type {
   TransactionType,
   Inventory,
@@ -50,8 +38,9 @@ export type {
   ExpiryItem,
   StockValuation,
   TransactionSummary,
-} from './inventory'
-export { ConsentRepository, ConsentService, createConsentService } from './consent'
+} from './core/inventory'
+
+export { ConsentRepository, ConsentService, createConsentService } from './core/consent'
 export type {
   ConsentCategory,
   ConsentPreferenceType,
@@ -73,8 +62,9 @@ export type {
   TemplateFilters,
   DocumentFilters,
   ConsentAnalytics,
-} from './consent'
-export { StoreRepository, StoreService } from './store'
+} from './core/consent'
+
+export { StoreRepository, StoreService } from './core/store'
 export type {
   OrderStatus,
   CartItemType,
@@ -94,17 +84,19 @@ export type {
   CartSummary,
   OrderStats,
   ProductAnalytics,
-} from './store'
+} from './core/store'
+
+export * from './core/messaging'
+export * from './core/reminders'
 
 // ===========================================================================
-// COMMUNICATION DOMAINS
+// CLINIC VERTICAL — Pet clinics and human medical clinics
 // ===========================================================================
 
-export * from './messaging'
-export * from './reminders'
-
-// ===========================================================================
-// PUBLIC HEALTH DOMAINS
-// ===========================================================================
-
-export * from './safety'
+export * from './verticals/clinic/pets'
+export * from './verticals/clinic/medical-records'
+export * from './verticals/clinic/hospitalizations'
+export * from './verticals/clinic/lab'
+export * from './verticals/clinic/vaccines'
+export * from './verticals/clinic/clinical-tools'
+export * from './verticals/clinic/safety'

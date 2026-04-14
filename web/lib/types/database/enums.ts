@@ -11,7 +11,7 @@ export type { AppointmentStatus, InvoiceStatus }
 // User & Profile
 // =============================================================================
 
-export type UserRole = 'owner' | 'vet' | 'admin'
+export type UserRole = 'client' | 'practitioner' | 'admin'
 
 // =============================================================================
 // Pet

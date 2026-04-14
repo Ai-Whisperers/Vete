@@ -17,7 +17,7 @@
 /**
  * User role in the system
  */
-export type UserRole = 'owner' | 'vet' | 'admin'
+export type UserRole = 'client' | 'practitioner' | 'admin'
 
 /**
  * Base Profile entity - matches database schema exactly
@@ -121,21 +121,21 @@ export interface AuthProfile {
  * Check if profile is staff (vet or admin)
  */
 export function isStaff(profile: { role: UserRole } | null | undefined): boolean {
-  return profile?.role === 'vet' || profile?.role === 'admin'
+  return profile?.role ==='client' | 'practitioner' | 'admin'|| profile?.role ==='client' | 'practitioner' | 'admin'
 }
 
 /**
  * Check if profile is admin
  */
 export function isAdmin(profile: { role: UserRole } | null | undefined): boolean {
-  return profile?.role === 'admin'
+  return profile?.role ==='client' | 'practitioner' | 'admin'
 }
 
 /**
  * Check if profile is pet owner
  */
 export function isOwner(profile: { role: UserRole } | null | undefined): boolean {
-  return profile?.role === 'owner'
+  return profile?.role === 'client'
 }
 
 /**
@@ -144,7 +144,7 @@ export function isOwner(profile: { role: UserRole } | null | undefined): boolean
 export function getRoleLabel(role: UserRole): string {
   const labels: Record<UserRole, string> = {
     owner: 'Propietario',
-    vet: 'Veterinario',
+    practitioner: 'Profesional',
     admin: 'Administrador',
   }
   return labels[role] || role

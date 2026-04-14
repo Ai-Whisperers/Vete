@@ -35,7 +35,7 @@ export type NotificationType =
 
 export type NotificationChannel = 'email' | 'in_app' | 'sms' | 'push'
 
-export type RecipientType = 'owner' | 'staff' | 'clinic' | 'user'
+export type RecipientType = 'client' | 'practitioner' | 'admin'| 'staff' | 'clinic' | 'user'
 
 // =============================================================================
 // Notification Payload

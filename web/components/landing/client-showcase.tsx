@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
-interface ClinicShowcase {
+interface TenantShowcase {
   id: string
   name: string
   tagline: string
@@ -41,7 +41,7 @@ interface ClinicShowcase {
   coordinates: { lat: number; lng: number }
 }
 
-const clinics: ClinicShowcase[] = [
+const clinics: TenantShowcase[] = [
   {
     id: 'terrapet',
     name: 'Veterinaria Adris',
@@ -92,7 +92,7 @@ const clinics: ClinicShowcase[] = [
   },
 ]
 
-function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
+function TenantCard({ tenant }: { clinic: TenantShowcase }) {
   return (
     <div className="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:border-teal-200 hover:shadow-md md:p-8">
       {/* Header */}
@@ -275,7 +275,7 @@ export function ClientShowcase() {
         {/* Clinic Cards Grid */}
         <div className="mx-auto mb-16 grid max-w-4xl gap-6 md:grid-cols-2">
           {clinics.map((clinic) => (
-            <ClinicCard key={clinic.id} clinic={clinic} />
+            <TenantCard key={clinic.id} clinic={clinic} />
           ))}
         </div>
 

@@ -68,15 +68,15 @@ export function hasProperties<K extends string>(
 /**
  * Type guard for checking if a value matches a UserRole
  */
-export function isUserRole(value: unknown): value is 'owner' | 'vet' | 'admin' {
-  return value === 'owner' || value === 'vet' || value === 'admin'
+export function isUserRole(value: unknown): value is 'client' | 'practitioner' | 'admin' {
+  return value === 'client' | 'practitioner' | 'admin'|| value ==='client' | 'practitioner' | 'admin'|| value ==='client' | 'practitioner' | 'admin'
 }
 
 /**
  * Type guard for checking if profile has staff role
  */
-export function isStaffRole(role: unknown): role is 'vet' | 'admin' {
-  return role === 'vet' || role === 'admin'
+export function isStaffRole(role: unknown): role is'client' | 'practitioner' | 'admin'|'client' | 'practitioner' | 'admin' {
+  return role ==='client' | 'practitioner' | 'admin'|| role ==='client' | 'practitioner' | 'admin'
 }
 
 /**

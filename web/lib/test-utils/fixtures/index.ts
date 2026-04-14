@@ -51,7 +51,7 @@ export const ALL_TENANT_IDS = Object.values(TENANTS).map((t) => t.id)
 // Users
 // =============================================================================
 
-export type UserRole = 'owner' | 'vet' | 'admin'
+export type UserRole = 'client' | 'practitioner' | 'admin'
 
 export interface UserFixture {
   id: string
@@ -83,7 +83,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Juan Pérez',
     phone: '+595981123456',
-    role: 'owner' as const,
+    role: 'client' | 'practitioner' | 'admin'as const,
     tenantId: TENANTS.ADRIS.id,
   },
   OWNER_MARIA: {
@@ -92,7 +92,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'María López',
     phone: '+595981234567',
-    role: 'owner' as const,
+    role: 'client' | 'practitioner' | 'admin'as const,
     tenantId: TENANTS.ADRIS.id,
   },
   OWNER_PETLIFE: {
@@ -101,7 +101,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Carlos PetLife',
     phone: '+595981345678',
-    role: 'owner' as const,
+    role: 'client' | 'practitioner' | 'admin'as const,
     tenantId: TENANTS.PETLIFE.id,
   },
 
@@ -112,7 +112,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Dr. Carlos Rodríguez',
     phone: '+595981456789',
-    role: 'vet' as const,
+    role:'client' | 'practitioner' | 'admin'as const,
     tenantId: TENANTS.ADRIS.id,
   },
   VET_ANA: {
@@ -121,7 +121,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Dra. Ana García',
     phone: '+595981567890',
-    role: 'vet' as const,
+    role:'client' | 'practitioner' | 'admin'as const,
     tenantId: TENANTS.ADRIS.id,
   },
 
@@ -132,7 +132,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Admin Principal',
     phone: '+595981678901',
-    role: 'admin' as const,
+    role:'client' | 'practitioner' | 'admin' as const,
     tenantId: TENANTS.ADRIS.id,
   },
   ADMIN_PETLIFE: {
@@ -141,7 +141,7 @@ const USERS_BASE = {
     password: TEST_PASSWORD,
     fullName: 'Admin PetLife',
     phone: '+595981789012',
-    role: 'admin' as const,
+    role:'client' | 'practitioner' | 'admin' as const,
     tenantId: TENANTS.PETLIFE.id,
   },
 } as const satisfies Record<string, UserFixture>

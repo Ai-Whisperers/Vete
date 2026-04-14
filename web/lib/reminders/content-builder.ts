@@ -117,43 +117,43 @@ function getDefaultContent(
 ): { subject: string; body: string } {
   const ownerName = variables.owner_name || 'Cliente'
   const petName = variables.pet_name || 'tu mascota'
-  const clinicName = variables.clinic_name || 'Veterinaria'
+  const tenantName = variables.clinic_name || 'Veterinaria'
 
   switch (reminderType) {
     case 'vaccine_reminder':
       return {
         subject: `Recordatorio de Vacuna para ${petName}`,
-        body: `Hola ${ownerName},\n\nTe recordamos que ${petName} tiene una vacuna próxima: ${variables.vaccine_name || 'vacuna programada'}.\n\nFecha: ${variables.vaccine_due_date || 'próximamente'}\n\nPor favor agenda una cita con nosotros.\n\nSaludos,\n${clinicName}`,
+        body: `Hola ${ownerName},\n\nTe recordamos que ${petName} tiene una vacuna próxima: ${variables.vaccine_name || 'vacuna programada'}.\n\nFecha: ${variables.vaccine_due_date || 'próximamente'}\n\nPor favor agenda una cita con nosotros.\n\nSaludos,\n${tenantName}`,
       }
 
     case 'vaccine_overdue':
       return {
         subject: `Vacuna vencida: ${petName}`,
-        body: `Hola ${ownerName},\n\n${petName} tiene una vacuna vencida: ${variables.vaccine_name || 'vacuna'}.\n\nEs importante mantener al día las vacunas de tu mascota. Por favor contáctanos para agendar una cita.\n\nSaludos,\n${clinicName}`,
+        body: `Hola ${ownerName},\n\n${petName} tiene una vacuna vencida: ${variables.vaccine_name || 'vacuna'}.\n\nEs importante mantener al día las vacunas de tu mascota. Por favor contáctanos para agendar una cita.\n\nSaludos,\n${tenantName}`,
       }
 
     case 'appointment_reminder':
       return {
-        subject: `Recordatorio de Cita - ${clinicName}`,
-        body: `Hola ${ownerName},\n\nTe recordamos tu cita para ${petName}:\n\nFecha: ${variables.appointment_date || ''}\nHora: ${variables.appointment_time || ''}\n\n¡Te esperamos!\n\n${clinicName}`,
+        subject: `Recordatorio de Cita - ${tenantName}`,
+        body: `Hola ${ownerName},\n\nTe recordamos tu cita para ${petName}:\n\nFecha: ${variables.appointment_date || ''}\nHora: ${variables.appointment_time || ''}\n\n¡Te esperamos!\n\n${tenantName}`,
       }
 
     case 'birthday':
       return {
         subject: `¡Feliz Cumpleaños ${petName}! 🎂`,
-        body: `Hola ${ownerName},\n\n¡Hoy es un día especial! ${petName} cumple años.\n\nTodo el equipo de ${clinicName} le desea un feliz cumpleaños.\n\n🐾 ¡Que tenga un día lleno de cariño y premios!`,
+        body: `Hola ${ownerName},\n\n¡Hoy es un día especial! ${petName} cumple años.\n\nTodo el equipo de ${tenantName} le desea un feliz cumpleaños.\n\n🐾 ¡Que tenga un día lleno de cariño y premios!`,
       }
 
     case 'follow_up':
       return {
         subject: `¿Cómo está ${petName}?`,
-        body: `Hola ${ownerName},\n\nQueremos saber cómo se encuentra ${petName} después de su última visita.\n\nSi tienes alguna pregunta o preocupación, no dudes en contactarnos.\n\nSaludos,\n${clinicName}`,
+        body: `Hola ${ownerName},\n\nQueremos saber cómo se encuentra ${petName} después de su última visita.\n\nSi tienes alguna pregunta o preocupación, no dudes en contactarnos.\n\nSaludos,\n${tenantName}`,
       }
 
     default:
       return {
-        subject: `Recordatorio de ${clinicName}`,
-        body: `Hola ${ownerName},\n\nTienes un recordatorio pendiente para ${petName}.\n\nSaludos,\n${clinicName}`,
+        subject: `Recordatorio de ${tenantName}`,
+        body: `Hola ${ownerName},\n\nTienes un recordatorio pendiente para ${petName}.\n\nSaludos,\n${tenantName}`,
       }
   }
 }
@@ -162,7 +162,7 @@ function getDefaultContent(
 // EMAIL TEMPLATE
 // =============================================================================
 
-function wrapInEmailTemplate(content: string, clinicName: string): string {
+function wrapInEmailTemplate(content: string, tenantName: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -180,13 +180,13 @@ function wrapInEmailTemplate(content: string, clinicName: string): string {
 </head>
 <body>
   <div class="header">
-    <h1>${clinicName}</h1>
+    <h1>${tenantName}</h1>
   </div>
   <div class="content">
     ${content.replace(/\n/g, '<br>')}
   </div>
   <div class="footer">
-    <p>Este es un mensaje automático de ${clinicName}.</p>
+    <p>Este es un mensaje automático de ${tenantName}.</p>
     <p>Si no deseas recibir estos recordatorios, puedes configurar tus preferencias en tu portal de cliente.</p>
   </div>
 </body>
@@ -205,14 +205,14 @@ export async function buildReminderContent(
   reminder: Reminder,
   client: ClientInfo,
   pet: PetInfo | null,
-  clinicName: string,
+  tenantName: string,
   templateMap: Map<string, MessageTemplate>
 ): Promise<ReminderContent> {
   // Use custom content if provided
   if (reminder.custom_subject && reminder.custom_body) {
     return {
       subject: reminder.custom_subject,
-      htmlBody: wrapInEmailTemplate(reminder.custom_body, clinicName),
+      htmlBody: wrapInEmailTemplate(reminder.custom_body, tenantName),
       textBody: reminder.custom_body,
     }
   }
@@ -232,7 +232,7 @@ export async function buildReminderContent(
     owner_name: client.full_name || 'Cliente',
     pet_name: pet?.name || 'tu mascota',
     pet_species: pet?.species || '',
-    clinic_name: clinicName,
+    clinic_name: tenantName,
     ...referenceData,
   }
 
@@ -251,7 +251,7 @@ export async function buildReminderContent(
 
     return {
       subject,
-      htmlBody: wrapInEmailTemplate(htmlContent, clinicName),
+      htmlBody: wrapInEmailTemplate(htmlContent, tenantName),
       textBody: content,
     }
   }
@@ -260,7 +260,7 @@ export async function buildReminderContent(
   const { subject, body } = getDefaultContent(reminder.type, variables)
   return {
     subject,
-    htmlBody: wrapInEmailTemplate(body, clinicName),
+    htmlBody: wrapInEmailTemplate(body, tenantName),
     textBody: body,
   }
 }

@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { getClinicData } from '@/lib/clinics'
+import { getTenantData } from '@/lib/tenant-content'
 
 describe('TerraPet Security Tests', () => {
   describe('Authentication Requirements', () => {
@@ -264,7 +264,7 @@ describe('TerraPet Security Tests', () => {
     it('path traversal prevented in file access', async () => {
       // Clinic slug should not allow path traversal
       const maliciousSlug = '../../../etc/passwd'
-      const data = await getClinicData(maliciousSlug)
+      const data = await getTenantData(maliciousSlug)
       
       // Should return null, not access filesystem
       expect(data).toBeNull()
@@ -273,7 +273,7 @@ describe('TerraPet Security Tests', () => {
     it('file paths validated', async () => {
       // Only valid clinic slugs allowed
       const validSlug = 'terrapet'
-      const data = await getClinicData(validSlug)
+      const data = await getTenantData(validSlug)
       
       expect(data).toBeDefined()
       expect(data?.config.tenant_id).toBe('terrapet')
@@ -282,7 +282,7 @@ describe('TerraPet Security Tests', () => {
     it('directory listing prevented', async () => {
       // Cannot list directory contents
       const directorySlug = '.'
-      const data = await getClinicData(directorySlug)
+      const data = await getTenantData(directorySlug)
       
       expect(data).toBeNull()
     })

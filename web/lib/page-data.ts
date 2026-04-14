@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
-import { getClinicData } from '@/lib/clinics'
+import { getTenantData } from '@/lib/tenant-content'
 import { redirect, notFound } from 'next/navigation'
 
 import type { User } from '@supabase/supabase-js'
 
 export interface PageContext {
-  clinicData: Awaited<ReturnType<typeof getClinicData>>
+  tenantData: Awaited<ReturnType<typeof getTenantData>>
   user: User | null
   profile: {
     id: string
@@ -18,19 +18,19 @@ export interface PageContext {
 }
 
 /**
- * Get common page context (clinic data + optional user)
+ * Get common page context (tenant data + optional user)
  */
-export async function getPageContext(clinic: string): Promise<PageContext> {
+export async function getPageContext(tenant: string): Promise<PageContext> {
   const supabase = await createClient()
 
   const [
-    clinicData,
+    tenantData,
     {
       data: { user },
     },
-  ] = await Promise.all([getClinicData(clinic), supabase.auth.getUser()])
+  ] = await Promise.all([getTenantData(clinic), supabase.auth.getUser()])
 
-  if (!clinicData) {
+  if (!tenantData) {
     notFound()
   }
 
@@ -46,18 +46,18 @@ export async function getPageContext(clinic: string): Promise<PageContext> {
       .single()
 
     profile = data
-    isStaff = profile ? ['vet', 'admin'].includes(profile.role) : false
-    isAdmin = profile?.role === 'admin'
+    isStaff = profile ? ['practitioner', 'admin'].includes(profile.role) : false
+    isAdmin = profile?.role ==='client' | 'practitioner' | 'admin'
   }
 
-  return { clinicData, user, profile, isStaff, isAdmin }
+  return { tenantData, user, profile, isStaff, isAdmin }
 }
 
 /**
  * Get dashboard context - requires staff authentication
  */
-export async function getDashboardContext(clinic: string) {
-  const context = await getPageContext(clinic)
+export async function getDashboardContext(tenant: string) {
+  const context = await getPageContext(tenant)
 
   if (!context.user || !context.profile) {
     redirect(`/${clinic}/portal/login`)
@@ -81,8 +81,8 @@ export async function getDashboardContext(clinic: string) {
 /**
  * Get portal context - requires any authentication
  */
-export async function getPortalContext(clinic: string) {
-  const context = await getPageContext(clinic)
+export async function getPortalContext(tenant: string) {
+  const context = await getPageContext(tenant)
 
   if (!context.user || !context.profile) {
     redirect(`/${clinic}/portal/login`)
@@ -101,8 +101,8 @@ export async function getPortalContext(clinic: string) {
 /**
  * Get admin context - requires admin role
  */
-export async function getAdminContext(clinic: string) {
-  const context = await getDashboardContext(clinic)
+export async function getAdminContext(tenant: string) {
+  const context = await getDashboardContext(tenant)
 
   if (!context.isAdmin) {
     redirect(`/${clinic}/dashboard`)

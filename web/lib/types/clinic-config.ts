@@ -2,7 +2,7 @@
  * Comprehensive TypeScript type definitions for clinic configuration
  *
  * NOTE: This file re-exports from split modules for backward compatibility.
- * For new code, prefer importing directly from '@/lib/types/clinic-config/'
+ * For new code, prefer importing directly from '@/lib/types/tenant-config/'
  *
  * Types are organized into:
  * - labels.ts - UI label interfaces
@@ -13,4 +13,4 @@
  * - content.ts - JSON-CMS content types
  */
 
-export * from './clinic-config/index'
+export * from './tenant-config/index'

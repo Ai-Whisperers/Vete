@@ -17,7 +17,7 @@
  *   headers={[
  *     { key: 'name', label: 'Nombre', sortable: true },
  *     { key: 'species', label: 'Especie' },
- *     { key: 'owner', label: 'Dueño' },
+ *     { key: 'client', label: 'Cliente' },
  *   ]}
  *   rows={pets.map(pet => ({
  *     id: pet.id,

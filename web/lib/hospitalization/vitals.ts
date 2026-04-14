@@ -222,7 +222,7 @@ export function isValidPainScore(score: number): boolean {
  * Checks if a role can record vitals
  */
 export function canRecordVitals(role: string): boolean {
-  return ['vet', 'admin'].includes(role)
+  return ['practitioner', 'admin'].includes(role)
 }
 
 // Trending Analysis

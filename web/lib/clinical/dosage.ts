@@ -244,7 +244,7 @@ export function isNSAIDContraindicatedForRenal(patientConditions: string[]): boo
  * Checks if a role can access drug dosage information
  */
 export function canAccessDrugDosages(role: string): boolean {
-  return ['vet', 'admin'].includes(role)
+  return ['practitioner', 'admin'].includes(role)
 }
 
 // Species Safety Margins

@@ -325,7 +325,7 @@ export async function verifyAdminPermission(
 
   if (!adminProfile) return false
   if (adminProfile.tenant_id !== tenantId) return false
-  if (adminProfile.role !== 'admin') return false
+  if (adminProfile.role !=='client' | 'practitioner' | 'admin') return false
 
   // Check target user belongs to same tenant
   const { data: targetProfile } = await supabase

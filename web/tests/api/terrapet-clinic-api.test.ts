@@ -11,32 +11,32 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { getClinicData } from '@/lib/clinics'
+import { getTenantData } from '@/lib/tenant-content'
 import { TENANT_IDS } from '@/lib/constants/tenants'
 
 describe('TerraPet Clinic API - Data Loading', () => {
   describe('GET clinic data for TerraPet', () => {
     it('returns clinic data for terrapet slug', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data).toBeDefined()
       expect(data).not.toBeNull()
     })
 
     it('returns correct tenant_id: terrapet', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.config.tenant_id).toBe('terrapet')
     })
 
     it('returns clinic name from config', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.config.name).toBe('TerraPet')
     })
 
     it('returns contact information', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.config.contact).toBeDefined()
       expect(data?.config.contact.phone).toBeDefined()
@@ -45,7 +45,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns operating hours (7 days, 9-6)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data).toBeDefined()
       expect(data?.config.hours).toBeDefined()
@@ -66,7 +66,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns module settings (online_store, qr_tags)', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.config.modules).toBeDefined()
       
@@ -78,7 +78,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns theme configuration', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.theme).toBeDefined()
       expect(data?.theme.colors).toBeDefined()
@@ -88,7 +88,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns home page data', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.home).toBeDefined()
       expect(data?.home.hero).toBeDefined()
@@ -97,7 +97,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns services data', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.services).toBeDefined()
       expect(data?.services.list).toBeDefined()
@@ -105,7 +105,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns about page data', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.about).toBeDefined()
       expect(data?.about.team).toBeDefined()
@@ -113,7 +113,7 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('returns FAQ data', async () => {
-      const data = await getClinicData('terrapet')
+      const data = await getTenantData('terrapet')
 
       expect(data?.faq).toBeDefined()
       expect(data?.faq.items).toBeDefined()
@@ -123,19 +123,19 @@ describe('TerraPet Clinic API - Data Loading', () => {
 
   describe('GET clinic data - Error Handling', () => {
     it('returns null for invalid clinic slug', async () => {
-      const data = await getClinicData('invalid-clinic-xyz')
+      const data = await getTenantData('invalid-clinic-xyz')
 
       expect(data).toBeNull()
     })
 
     it('returns null for empty slug', async () => {
-      const data = await getClinicData('')
+      const data = await getTenantData('')
 
       expect(data).toBeNull()
     })
 
     it('returns null for template folder', async () => {
-      const data = await getClinicData('_TEMPLATE')
+      const data = await getTenantData('_TEMPLATE')
 
       // Template might exist but shouldn't be served
       // Check if it has proper config or is treated as invalid
@@ -145,13 +145,13 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('handles special characters in slug gracefully', async () => {
-      const data = await getClinicData('../etc/passwd') // Path traversal attempt
+      const data = await getTenantData('../etc/passwd') // Path traversal attempt
 
       expect(data).toBeNull()
     })
 
     it('handles malformed slugs gracefully', async () => {
-      const data = await getClinicData('terra@pet#123')
+      const data = await getTenantData('terra@pet#123')
 
       expect(data).toBeNull()
     })
@@ -159,8 +159,8 @@ describe('TerraPet Clinic API - Data Loading', () => {
 
   describe('GET clinic data - Tenant Isolation', () => {
     it('terrapet data is isolated from terrapet', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       expect(terrapetData?.config.tenant_id).toBe('terrapet')
       expect(terrapetData?.config.tenant_id).toBe(TENANT_IDS.ADRIS)
@@ -171,8 +171,8 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('terrapet services are distinct from terrapet services', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       // TerraPet has 9 services, Adris may have different count
       expect(terrapetData?.services.list.length).toBe(9)
@@ -187,8 +187,8 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('terrapet contact info differs from terrapet', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       // Different phone numbers
       expect(terrapetData?.config.contact.phone).not.toBe(terrapetData?.config.contact.phone)
@@ -198,8 +198,8 @@ describe('TerraPet Clinic API - Data Loading', () => {
     })
 
     it('each clinic has unique theme colors', async () => {
-      const terrapetData = await getClinicData('terrapet')
-      const terrapetData = await getClinicData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
+      const terrapetData = await getTenantData('terrapet')
 
       // TerraPet: Earth tones (#78866B, #C19A6B, #E8A87C)
       expect(terrapetData?.theme.colors.primary).toBe('#78866B')

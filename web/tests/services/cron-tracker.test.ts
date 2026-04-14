@@ -19,7 +19,7 @@ import {
   completeCronRun,
   failCronRun,
   type CronJobStatus,
-} from '@/lib/services/cron-tracker'
+} from '@/lib/infrastructure'
 import { createMockSupabaseClient, type MockSupabaseClient } from './__mocks__/supabase-mock'
 
 // Mock dependencies

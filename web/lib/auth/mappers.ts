@@ -50,7 +50,7 @@ function validateRole(role: string): UserRole {
   }
   // Default to owner if invalid role (shouldn't happen with DB constraints)
   logger.warn('[Auth] Invalid role encountered, defaulting to owner', { invalidRole: role })
-  return 'owner'
+  return 'client'
 }
 
 /**

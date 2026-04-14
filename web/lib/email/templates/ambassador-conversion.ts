@@ -9,7 +9,7 @@ import { sendEmail } from '../client'
 export interface AmbassadorConversionEmailData {
   to: string
   ambassadorName: string
-  clinicName: string
+  tenantName: string
   subscriptionAmount: number
   commissionRate: number
   commissionAmount: number
@@ -31,7 +31,7 @@ const TIER_LABELS: Record<string, string> = {
 function generateConversionEmailHtml(data: AmbassadorConversionEmailData): string {
   const {
     ambassadorName,
-    clinicName,
+    tenantName,
     subscriptionAmount,
     commissionRate,
     commissionAmount,
@@ -98,7 +98,7 @@ function generateConversionEmailHtml(data: AmbassadorConversionEmailData): strin
                 Hola <strong>${ambassadorName}</strong>,
               </p>
               <p style="margin: 0; color: #666666; font-size: 16px; line-height: 1.5;">
-                ¡Excelentes noticias! <strong>${clinicName}</strong> acaba de convertirse en cliente de pago y has ganado una comisión.
+                ¡Excelentes noticias! <strong>${tenantName}</strong> acaba de convertirse en cliente de pago y has ganado una comisión.
               </p>
             </td>
           </tr>

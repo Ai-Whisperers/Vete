@@ -111,8 +111,8 @@ export const hexColorSchema = z.string().regex(hexColorRegex, 'Color invalido. U
 /**
  * Step 1: Clinic Info
  */
-export const clinicInfoSchema = z.object({
-  clinicName: z
+export const tenantInfoSchema = z.object({
+  tenantName: z
     .string()
     .min(3, 'El nombre debe tener al menos 3 caracteres')
     .max(100, 'El nombre no puede tener mas de 100 caracteres')
@@ -174,7 +174,7 @@ export const brandingSchema = z.object({
  */
 export const signupRequestSchema = z.object({
   // Step 1: Clinic Info
-  clinicName: z
+  tenantName: z
     .string()
     .min(3, 'El nombre debe tener al menos 3 caracteres')
     .max(100, 'El nombre no puede tener mas de 100 caracteres')
@@ -235,7 +235,7 @@ export function validateStep(
   data: Record<string, unknown>
 ): { success: true; data: unknown } | { success: false; errors: Record<string, string> } {
   const schemas: Record<number, z.ZodSchema> = {
-    1: clinicInfoSchema,
+    1: tenantInfoSchema,
     2: contactSchema,
     3: adminAccountSchema,
     4: brandingSchema,

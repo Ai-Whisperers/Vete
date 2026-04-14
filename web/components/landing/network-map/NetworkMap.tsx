@@ -9,21 +9,21 @@
 import { useState, useMemo } from 'react'
 import { MapPin } from 'lucide-react'
 import { getWhatsAppUrl } from '@/lib/whatsapp'
-import { clinicLocations } from './data'
-import { ClinicListItem } from './ClinicListItem'
+import { tenantLocations } from './data'
+import { TenantListItem } from './TenantListItem'
 import { SearchFilters } from './SearchFilters'
 import { MapDisplay } from './MapDisplay'
-import type { ClinicLocation } from './types'
+import type { TenantLocation } from './types'
 
 export function NetworkMap() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null)
-  const [selectedClinic, setSelectedClinic] = useState<ClinicLocation | null>(null)
+  const [selectedClinic, setSelectedClinic] = useState<TenantLocation | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
   const filteredClinics = useMemo(() => {
-    return clinicLocations.filter((clinic) => {
+    return tenantLocations.filter((clinic) => {
       const matchesSearch =
         searchQuery === '' ||
         clinic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -93,7 +93,7 @@ export function NetworkMap() {
             <div className="scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent max-h-[500px] space-y-3 overflow-y-auto pr-2">
               {filteredClinics.length > 0 ? (
                 filteredClinics.map((clinic) => (
-                  <ClinicListItem
+                  <TenantListItem
                     key={clinic.id}
                     clinic={clinic}
                     isSelected={selectedClinic?.id === clinic.id}

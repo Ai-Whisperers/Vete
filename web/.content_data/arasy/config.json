@@ -3,6 +3,7 @@
   "name": "Barrio Cerrado Arasy",
   "tagline": "Tu hogar seguro en el corazón de Central",
   "vertical": "realestate",
+  "subVertical": "gated-community",
   "slug": "arasy",
   "language": "es",
   "modules": {

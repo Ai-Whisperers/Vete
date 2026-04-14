@@ -1,5 +1,7 @@
 {
   "id": "clinica-duerksen",
+  "vertical": "clinic",
+  "subVertical": "human",
   "name": "Clínica Duerksen",
   "tagline": "Odontología de excelencia en Asunción",
   "contact": {

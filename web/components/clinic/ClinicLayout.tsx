@@ -1,7 +1,7 @@
-import type { ClinicData } from '@/lib/clinics'
+import type { TenantData } from '@/lib/tenant-content'
 
 interface Props {
-  data: ClinicData
+  data: TenantData
 }
 
 export function ClinicLayout({ data }: Props) {

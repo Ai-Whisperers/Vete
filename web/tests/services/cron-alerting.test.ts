@@ -14,7 +14,7 @@ import {
   checkAndAlertUnhealthyJobs,
   alertOnCronFailure,
   type AlertPayload,
-} from '@/lib/services/cron-alerting'
+} from '@/lib/infrastructure'
 import { createMockSupabaseClient, type MockSupabaseClient } from './__mocks__/supabase-mock'
 
 // Mock dependencies

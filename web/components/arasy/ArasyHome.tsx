@@ -18,10 +18,10 @@ import {
 } from 'lucide-react'
 
 interface ArasyHomeProps {
-  clinicData?: any
+  tenantData?: any
 }
 
-export function ArasyHome({ clinicData }: ArasyHomeProps) {
+export function ArasyHome({ tenantData }: ArasyHomeProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   const navItems = [

@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import ServicesPage from '@/app/[clinic]/services/page'
-import { getClinicData } from '@/lib/clinics'
-import type { ClinicData } from '@/lib/types/clinic-config'
+import { getTenantData } from '@/lib/tenant-content'
+import type { TenantData } from '@/lib/types/tenant-config'
 
-// Mock the getClinicData function
+// Mock the getTenantData function
 vi.mock('@/lib/clinics', () => ({
-  getClinicData: vi.fn(),
+  getTenantData: vi.fn(),
 }))
 
 // Mock the ServicesGrid component
@@ -31,13 +31,13 @@ vi.mock('@/lib/config', () => ({
 }))
 
 describe('TerraPet Services Page Component Tests', () => {
-  let mockClinicData: ClinicData
+  let mockTenantData: TenantData
 
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Setup comprehensive mock clinic data with all 9 TerraPet services
-    mockClinicData = {
+    mockTenantData = {
       config: {
         id: 'terrapet',
         name: 'TerraPet',
@@ -376,9 +376,9 @@ describe('TerraPet Services Page Component Tests', () => {
         values: [],
         team: [],
       },
-    } as ClinicData
+    } as TenantData
 
-    vi.mocked(getClinicData).mockResolvedValue(mockClinicData)
+    vi.mocked(getTenantData).mockResolvedValue(mockTenantData)
   })
 
   describe('Page Structure', () => {
@@ -388,11 +388,11 @@ describe('TerraPet Services Page Component Tests', () => {
       expect(container).toBeTruthy()
     })
 
-    it('should call getClinicData with correct clinic slug', async () => {
+    it('should call getTenantData with correct clinic slug', async () => {
       const params = Promise.resolve({ clinic: 'terrapet' })
       await ServicesPage({ params })
-      expect(getClinicData).toHaveBeenCalledWith('terrapet')
-      expect(getClinicData).toHaveBeenCalledTimes(1)
+      expect(getTenantData).toHaveBeenCalledWith('terrapet')
+      expect(getTenantData).toHaveBeenCalledTimes(1)
     })
 
     it('should render the page title from services meta', async () => {
@@ -550,14 +550,14 @@ describe('TerraPet Services Page Component Tests', () => {
 
   describe('Service Variants', () => {
     it('should have Consulta a Domicilio variant in consultation service', () => {
-      const consultationService = mockClinicData.services.services.find((s) => s.id === 'consultation')
+      const consultationService = mockTenantData.services.services.find((s) => s.id === 'consultation')
       const homeVisitVariant = consultationService?.variants?.find((v) => v.name === 'Consulta a Domicilio')
       expect(homeVisitVariant).toBeDefined()
       expect(homeVisitVariant?.description).toBe('Atención veterinaria en la comodidad de tu hogar')
     })
 
     it('should have 3 vaccination variants', () => {
-      const vaccinationService = mockClinicData.services.services.find((s) => s.id === 'vaccination')
+      const vaccinationService = mockTenantData.services.services.find((s) => s.id === 'vaccination')
       expect(vaccinationService?.variants).toHaveLength(3)
       expect(vaccinationService?.variants?.map((v) => v.name)).toEqual([
         'Antirrábica',
@@ -567,7 +567,7 @@ describe('TerraPet Services Page Component Tests', () => {
     })
 
     it('should have 2 deworming variants', () => {
-      const dewormingService = mockClinicData.services.services.find((s) => s.id === 'deworming')
+      const dewormingService = mockTenantData.services.services.find((s) => s.id === 'deworming')
       expect(dewormingService?.variants).toHaveLength(2)
       expect(dewormingService?.variants?.map((v) => v.name)).toEqual([
         'Desparasitación Interna',
@@ -576,7 +576,7 @@ describe('TerraPet Services Page Component Tests', () => {
     })
 
     it('should have 2 certificate variants', () => {
-      const certificatesService = mockClinicData.services.services.find((s) => s.id === 'certificates')
+      const certificatesService = mockTenantData.services.services.find((s) => s.id === 'certificates')
       expect(certificatesService?.variants).toHaveLength(2)
       expect(certificatesService?.variants?.map((v) => v.name)).toEqual([
         'Certificado de Salud',
@@ -587,19 +587,19 @@ describe('TerraPet Services Page Component Tests', () => {
 
   describe('Online Booking Configuration', () => {
     it('should mark 8 services as online booking enabled', () => {
-      const onlineServices = mockClinicData.services.services.filter(
+      const onlineServices = mockTenantData.services.services.filter(
         (s) => s.booking?.online_enabled === true
       )
       expect(onlineServices).toHaveLength(8)
     })
 
     it('should mark euthanasia as NOT online booking enabled', () => {
-      const euthanasiaService = mockClinicData.services.services.find((s) => s.id === 'euthanasia')
+      const euthanasiaService = mockTenantData.services.services.find((s) => s.id === 'euthanasia')
       expect(euthanasiaService?.booking?.online_enabled).toBe(false)
     })
 
     it('should have no services marked as emergency available', () => {
-      const emergencyServices = mockClinicData.services.services.filter(
+      const emergencyServices = mockTenantData.services.services.filter(
         (s) => s.booking?.emergency_available === true
       )
       expect(emergencyServices).toHaveLength(0)
@@ -634,13 +634,13 @@ describe('TerraPet Services Page Component Tests', () => {
 
   describe('Service Details', () => {
     it('should have duration specified for all services', () => {
-      mockClinicData.services.services.forEach((service) => {
+      mockTenantData.services.services.forEach((service) => {
         expect(service.details?.duration_minutes).toBeGreaterThan(0)
       })
     })
 
     it('should have includes array for all services', () => {
-      mockClinicData.services.services.forEach((service) => {
+      mockTenantData.services.services.forEach((service) => {
         expect(service.details?.includes).toBeDefined()
         expect(Array.isArray(service.details?.includes)).toBe(true)
         expect(service.details!.includes!.length).toBeGreaterThan(0)
@@ -648,7 +648,7 @@ describe('TerraPet Services Page Component Tests', () => {
     })
 
     it('should have description for all services', () => {
-      mockClinicData.services.services.forEach((service) => {
+      mockTenantData.services.services.forEach((service) => {
         expect(service.details?.description).toBeDefined()
         expect(service.details?.description?.length).toBeGreaterThan(0)
       })
@@ -686,7 +686,7 @@ describe('TerraPet Services Page Component Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle missing clinic data gracefully', async () => {
-      vi.mocked(getClinicData).mockResolvedValue(null)
+      vi.mocked(getTenantData).mockResolvedValue(null)
 
       const params = Promise.resolve({ clinic: 'nonexistent' })
 

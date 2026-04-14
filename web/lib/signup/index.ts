@@ -13,7 +13,7 @@ export {
   whatsappSchema,
   passwordSchema,
   hexColorSchema,
-  clinicInfoSchema,
+  tenantInfoSchema,
   contactSchema,
   adminAccountSchema,
   brandingSchema,
@@ -53,5 +53,5 @@ export {
   generateLegal,
   generateAllContent,
   deleteClinicContent,
-  clinicContentExists,
+  tenantContentExists,
 } from './content-generator'

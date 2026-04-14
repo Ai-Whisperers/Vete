@@ -199,12 +199,12 @@ export function getSuggestedMonitoring(
  * Checks if a role can admit patients
  */
 export function canAdmitPatients(role: string): boolean {
-  return ['vet', 'admin'].includes(role)
+  return ['practitioner', 'admin'].includes(role)
 }
 
 /**
  * Checks if a role can discharge patients
  */
 export function canDischargePatients(role: string): boolean {
-  return ['vet', 'admin'].includes(role)
+  return ['practitioner', 'admin'].includes(role)
 }

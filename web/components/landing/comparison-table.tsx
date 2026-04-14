@@ -84,12 +84,12 @@ const comparisonData: ComparisonRow[] = [
   },
 ]
 
-function CellValue({ value, isVetic = false }: { value: string | boolean; isVetic?: boolean }) {
+function CellValue({ value, isPractitioneric = false }: { value: string | boolean; isPractitioneric?: boolean }) {
   if (value === true) {
     return (
       <div className="flex justify-center">
         <div
-          className={`flex h-6 w-6 items-center justify-center rounded-full ${isVetic ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}
+          className={`flex h-6 w-6 items-center justify-center rounded-full ${isPractitioneric ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}
         >
           <Check className="h-4 w-4 text-[var(--primary)]" />
         </div>
@@ -124,7 +124,7 @@ function CellValue({ value, isVetic = false }: { value: string | boolean; isVeti
   }
   return (
     <span
-      className={`text-xs font-medium md:text-sm ${isVetic ? 'text-[var(--primary)]' : 'text-white'}`}
+      className={`text-xs font-medium md:text-sm ${isPractitioneric ? 'text-[var(--primary)]' : 'text-white'}`}
     >
       {value}
     </span>
@@ -290,7 +290,7 @@ export function ComparisonTable() {
                 >
                   <td className="px-4 py-3 text-sm text-white/70">{row.feature}</td>
                   <td className="bg-[var(--primary)]/5 px-4 py-3 text-center">
-                    <CellValue value={row.Vetic} isVetic />
+                    <CellValue value={row.Vetic} isPractitioneric />
                   </td>
                   <td className="px-4 py-3 text-center">
                     <CellValue value={row.traditional} />

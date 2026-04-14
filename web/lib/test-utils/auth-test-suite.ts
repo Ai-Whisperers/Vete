@@ -33,7 +33,7 @@ import { mockState, AuthScenario } from './mock-presets'
 // Types
 // =============================================================================
 
-export type Role = 'owner' | 'vet' | 'admin'
+export type Role = 'client' | 'practitioner' | 'admin'
 
 export interface AuthTestConfig {
   /**
@@ -121,7 +121,7 @@ export function testAuthorizationScenarios(config: AuthTestConfig): void {
     }
 
     if (!skip.roleTests) {
-      const roles: Role[] = ['owner', 'vet', 'admin']
+      const roles: Role[] = ['client', 'practitioner', 'admin']
 
       roles.forEach((role) => {
         const scenario = role.toUpperCase() as AuthScenario
@@ -177,7 +177,7 @@ export function testStaffOnlyEndpoint(
     handler,
     createRequest,
     createContext,
-    allowedRoles: ['vet', 'admin'],
+    allowedRoles: ['practitioner', 'admin'],
     resourceName,
   })
 }
@@ -213,7 +213,7 @@ export function testAuthenticatedEndpoint(
     handler,
     createRequest,
     createContext,
-    allowedRoles: ['owner', 'vet', 'admin'],
+    allowedRoles: ['client', 'practitioner', 'admin'],
     resourceName,
     skip: { roleTests: true }, // All roles allowed, skip role-specific tests
   })
@@ -232,7 +232,7 @@ export function testOwnerOnlyEndpoint(
     handler,
     createRequest,
     createContext,
-    allowedRoles: ['owner'],
+    allowedRoles: ['client'],
     resourceName,
   })
 }

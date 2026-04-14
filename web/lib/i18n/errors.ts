@@ -32,7 +32,7 @@ export const AUTH_ERRORS = {
   EMAIL_ALREADY_EXISTS: 'Este correo electrónico ya está registrado.',
   FORBIDDEN_TENANT: 'No puede acceder a datos de otra clínica.',
   OWNER_ONLY: 'Solo el dueño de la mascota puede realizar esta acción.',
-  STAFF_ONLY: 'Esta acción solo está disponible para veterinarios y administradores.',
+  STAFF_ONLY: 'Esta acción solo está disponible para profesionales y administradores.',
   ADMIN_ONLY: 'Esta acción solo está disponible para administradores.',
 } as const;
 
@@ -132,7 +132,7 @@ export const BUSINESS_ERRORS = {
   PRESCRIPTION_EXPIRED: 'Esta receta ha expirado.',
   PRESCRIPTION_ALREADY_DISPENSED: 'Esta receta ya fue dispensada.',
   REFILLS_EXHAUSTED: 'No quedan recargas disponibles para esta receta.',
-  REQUIRES_VET_APPROVAL: 'Requiere aprobación del veterinario.',
+  REQUIRES_VET_APPROVAL: 'Requiere aprobación del profesional.',
   
   // Hospitalization
   KENNEL_OCCUPIED: 'Esta jaula está ocupada.',

@@ -21,7 +21,7 @@ interface OwnerData {
   email: string
   full_name: string
   phone: string
-  role: 'owner' | 'vet' | 'admin'
+  role: 'client' | 'practitioner' | 'admin'
   avatar_url: string | null
   address?: string
   city?: string
@@ -100,7 +100,7 @@ export class OwnerFactory {
     this.data = {
       id: generateId(),
       tenant_id: TENANT_IDS.ADRIS,
-      role: 'owner',
+      role: 'client',
       avatar_url: null,
     }
   }

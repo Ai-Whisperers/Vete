@@ -8,7 +8,7 @@ import { getSiteUrl, getCanonicalUrl } from '@/lib/config'
 // Service Schema for veterinary services
 export interface ServiceSchemaProps {
   clinic: string
-  clinicName: string
+  tenantName: string
   service: {
     id: string
     title: string
@@ -21,7 +21,7 @@ export interface ServiceSchemaProps {
   }
 }
 
-export function ServiceSchema({ clinic, clinicName, service }: ServiceSchemaProps) {
+export function ServiceSchema({ clinic, tenantName, service }: ServiceSchemaProps) {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -31,7 +31,7 @@ export function ServiceSchema({ clinic, clinicName, service }: ServiceSchemaProp
     provider: {
       '@type': 'VeterinaryCare',
       '@id': `${getCanonicalUrl(clinic)}#organization`,
-      name: clinicName,
+      name: tenantName,
     },
     serviceType: 'Veterinary Service',
     category: service.category || 'Veterinary Medicine',
@@ -66,7 +66,7 @@ export function ServiceSchema({ clinic, clinicName, service }: ServiceSchemaProp
 // Product Schema for store products
 export interface ProductSchemaProps {
   clinic: string
-  clinicName: string
+  tenantName: string
   product: {
     id: string
     name: string
@@ -83,7 +83,7 @@ export interface ProductSchemaProps {
   }
 }
 
-export function ProductSchema({ clinic, clinicName, product }: ProductSchemaProps) {
+export function ProductSchema({ clinic, tenantName, product }: ProductSchemaProps) {
   const availability =
     product.stock_quantity && product.stock_quantity > 0
       ? 'https://schema.org/InStock'
@@ -110,7 +110,7 @@ export function ProductSchema({ clinic, clinicName, product }: ProductSchemaProp
       seller: {
         '@type': 'VeterinaryCare',
         '@id': `${getCanonicalUrl(clinic)}#organization`,
-        name: clinicName,
+        name: tenantName,
       },
     },
     ...(product.rating &&
@@ -238,11 +238,11 @@ export interface TeamMember {
 
 export interface TeamSchemaProps {
   clinic: string
-  clinicName: string
+  tenantName: string
   members: TeamMember[]
 }
 
-export function TeamSchema({ clinic, clinicName, members }: TeamSchemaProps) {
+export function TeamSchema({ clinic, tenantName, members }: TeamSchemaProps) {
   const structuredData = {
     '@context': 'https://schema.org',
     '@graph': members.map((member, index) => ({
@@ -261,7 +261,7 @@ export function TeamSchema({ clinic, clinicName, members }: TeamSchemaProps) {
       worksFor: {
         '@type': 'VeterinaryCare',
         '@id': `${getCanonicalUrl(clinic)}#organization`,
-        name: clinicName,
+        name: tenantName,
       },
     })),
   }

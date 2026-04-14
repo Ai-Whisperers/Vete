@@ -303,14 +303,14 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Redirect authenticated users away from login page
   // Only redirect if they have a profile for this clinic to avoid loops
   if (user && path.endsWith('/portal/login')) {
-    const clinicSlug = path.split('/')[1]
+    const tenantSlug = path.split('/')[1]
     
     // Check if user has a profile for this clinic
     const { data: profile } = await supabase
       .from('profiles')
       .select('tenant_id')
       .eq('id', user.id)
-      .eq('tenant_id', clinicSlug)
+      .eq('tenant_id', tenantSlug)
       .maybeSingle()
 
     if (!profile) {
@@ -332,7 +332,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
 
     // Redirect to /portal which handles role-based routing
-    url.pathname = `/${clinicSlug}/portal`
+    url.pathname = `/${tenantSlug}/portal`
 
     const duration = Math.round(performance.now() - startTime)
     middlewareLog('info', 'Authenticated user redirected from login', {
@@ -366,10 +366,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const isAuthPage = path.endsWith('/portal/login') || path.endsWith('/portal/signup')
   if (isProtected && !user && !isAuthPage) {
     const parts = path.split('/').filter(Boolean)
-    const clinicSlug = parts[0]
+    const tenantSlug = parts[0]
 
     // Redirect to the actual login page, not the home page
-    url.pathname = `/${clinicSlug}/portal/login`
+    url.pathname = `/${tenantSlug}/portal/login`
     url.searchParams.set('returnTo', path)
 
     const duration = Math.round(performance.now() - startTime)
@@ -404,11 +404,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         .single()
     const role = _profile?.role
 
-    if (!['vet', 'admin'].includes(role)) {
+    if (!['practitioner', 'admin'].includes(role)) {
       // Forbidden: Redirect to portal or home
       const parts = path.split('/').filter(Boolean)
-      const clinicSlug = parts[0]
-      url.pathname = `/${clinicSlug}/portal` // Send them to the owner portal
+      const tenantSlug = parts[0]
+      url.pathname = `/${tenantSlug}/portal` // Send them to the owner portal
 
       const duration = Math.round(performance.now() - startTime)
       middlewareLog('warn', 'Insufficient role for dashboard access', {

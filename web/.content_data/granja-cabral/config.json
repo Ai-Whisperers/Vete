@@ -1,5 +1,7 @@
 {
   "id": "granja-cabral",
+  "vertical": "retail",
+  "subVertical": "agriculture",
   "name": "Granja Cabral",
   "tagline": "Del campo a tu mesa",
   "contact": {

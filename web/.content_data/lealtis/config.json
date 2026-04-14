@@ -1,0 +1,38 @@
+{
+  "id": "lealtis",
+  "name": "LEALTIS",
+  "tagline": "Paraguay Establishment for Europeans",
+  "vertical": "services",
+  "subVertical": "relocation",
+  "contact": {
+    "whatsapp_number": "595900000000",
+    "phone_display": "+595 900 000 000",
+    "email": "info@paragu-ai.com",
+    "address": "Asunción, Paraguay"
+  },
+  "settings": {
+    "currency": "EUR",
+    "modules": {
+      "store": false,
+      "clinical": false,
+      "hospitalization": false,
+      "lab": false,
+      "booking": false
+    }
+  },
+  "branding": {
+    "logo_url": "",
+    "favicon_url": "/favicon.ico"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Home",
+      "services": "Programs",
+      "about": "About",
+      "book_btn": "Get Started"
+    },
+    "footer": {
+      "rights": "All rights reserved."
+    }
+  }
+}

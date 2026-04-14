@@ -52,7 +52,7 @@ export interface WithAuthOptions {
    * Required roles to access this route
    * If empty or undefined, any authenticated user can access
    */
-  roles?: Array<'owner' | 'vet' | 'admin'>
+  roles?: Array<'client' | 'practitioner' | 'admin'>
   /**
    * Require a specific tenant ID (from URL params)
    * If true, validates user belongs to that tenant
@@ -128,7 +128,7 @@ type AuthHandlerWithParams<P> = (ctx: AuthContext, context: RouteContext<P>) => 
  *     const { data } = await scoped.insert('invoices', body);
  *     return NextResponse.json(data);
  *   },
- *   { roles: ['vet', 'admin'], rateLimit: 'financial' }
+ *   { roles: ['practitioner', 'admin'], rateLimit: 'financial' }
  * );
  * ```
  */

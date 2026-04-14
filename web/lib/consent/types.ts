@@ -152,12 +152,12 @@ export interface ConsentAnalytics {
 export const CONSENT_DESCRIPTIONS: Record<ConsentType, { label: string; description: string }> = {
   [CONSENT_TYPES.MEDICAL_TREATMENT]: {
     label: 'Tratamiento médico',
-    description: 'Autorizo el tratamiento médico de mis mascotas según las recomendaciones del veterinario.',
+    description: 'Autorizo el tratamiento médico de mis mascotas según las recomendaciones del profesional.',
   },
   [CONSENT_TYPES.DATA_PROCESSING]: {
     label: 'Procesamiento de datos',
     description:
-      'Autorizo el procesamiento de mis datos personales para la gestión de citas y servicios veterinarios.',
+      'Autorizo el procesamiento de mis datos personales para la gestión de citas y servicios profesionals.',
   },
   [CONSENT_TYPES.MARKETING_EMAIL]: {
     label: 'Correos promocionales',

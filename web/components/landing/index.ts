@@ -21,7 +21,7 @@ export { VeticLogo } from './vetic-logo'
 
 export { PageHeader } from './page-header'
 export { FeatureCard } from './feature-card'
-export type { ClinicLocation } from './clinic-map'
+export type { TenantLocation } from './tenant-map'
 
 export { PricingTeaser } from './pricing-teaser'
 

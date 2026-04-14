@@ -334,7 +334,7 @@ export async function getPolicyWithStats(policyId: string): Promise<PrivacyPolic
     .from('profiles')
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', policy.tenant_id)
-    .eq('role', 'owner')
+    .eq('role', 'client')
 
   const acceptances = acceptanceCount || 0
   const users = totalUsers || 0

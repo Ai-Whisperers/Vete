@@ -9,7 +9,7 @@ import type { User } from '@supabase/supabase-js'
  */
 export function useAuthRedirect() {
   const router = useRouter()
-  const { clinic } = useParams<{ clinic: string }>()
+  const { tenant } = useParams<{ tenant: string }>()
   const supabase = createClient()
 
   const [user, setUser] = useState<User | null>(null)

@@ -21,7 +21,7 @@ export interface FetcherOptions {
  *
  * useQuery({
  *   queryKey: queryKeys.inventory.list(clinic),
- *   queryFn: () => fetchInventory({ clinic }),
+ *   queryFn: () => fetchInventory({ tenant }),
  * })
  * ```
  */

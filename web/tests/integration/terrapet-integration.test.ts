@@ -13,14 +13,14 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
-import {getClinicData, getAllClinics, getClinicImageUrl } from '@/lib/clinics'
-import type { ClinicData } from '@/lib/types/clinic-config'
+import {getTenantData, getAllTenants, getTenantImageUrl } from '@/lib/tenant-content'
+import type { TenantData } from '@/lib/types/tenant-config'
 
 describe('TerraPet Data Loading Integration', () => {
-  let terraData: ClinicData | null
+  let terraData: TenantData | null
 
   beforeAll(async () => {
-    terraData = await getClinicData('terrapet')
+    terraData = await getTenantData('terrapet')
   })
 
   describe('Core Data Loading', () => {
@@ -54,17 +54,17 @@ describe('TerraPet Data Loading Integration', () => {
     })
 
     it('should return null for invalid clinic slug', async () => {
-      const invalidData = await getClinicData('nonexistent-clinic-xyz')
+      const invalidData = await getTenantData('nonexistent-clinic-xyz')
       expect(invalidData).toBeNull()
     })
 
     it('should return null for empty slug', async () => {
-      const emptyData = await getClinicData('')
+      const emptyData = await getTenantData('')
       expect(emptyData).toBeNull()
     })
 
     it('should handle special characters in slug gracefully', async () => {
-      const specialData = await getClinicData('../../../etc/passwd')
+      const specialData = await getTenantData('../../../etc/passwd')
       expect(specialData).toBeNull()
     })
   })
@@ -402,31 +402,31 @@ describe('TerraPet Data Loading Integration', () => {
   })
 
   describe('Image URL Helper Integration', () => {
-    it('should return image URL from getClinicImageUrl', () => {
-      const logoUrl = getClinicImageUrl(terraData?.images, 'branding', 'logo')
+    it('should return image URL from getTenantImageUrl', () => {
+      const logoUrl = getTenantImageUrl(terraData?.images, 'branding', 'logo')
       expect(logoUrl).toBeTruthy()
       expect(logoUrl).toMatch(/^(https?:\/\/|\/)/i)
     })
 
     it('should return null for non-existent image', () => {
-      const invalidUrl = getClinicImageUrl(terraData?.images, 'invalid', 'nonexistent')
+      const invalidUrl = getTenantImageUrl(terraData?.images, 'invalid', 'nonexistent')
       expect(invalidUrl).toBeNull()
     })
 
     it('should handle undefined images gracefully', () => {
-      const url = getClinicImageUrl(undefined, 'branding', 'logo')
+      const url = getTenantImageUrl(undefined, 'branding', 'logo')
       expect(url).toBeNull()
     })
   })
 })
 
 describe('Multi-Tenant Isolation Integration', () => {
-  let terraData: ClinicData | null
-  let terrapetData: ClinicData | null
+  let terraData: TenantData | null
+  let terrapetData: TenantData | null
 
   beforeAll(async () => {
-    terraData = await getClinicData('terrapet')
-    terrapetData = await getClinicData('terrapet')
+    terraData = await getTenantData('terrapet')
+    terrapetData = await getTenantData('terrapet')
   })
 
   it('should load different data for different clinics', () => {
@@ -488,24 +488,24 @@ describe('Multi-Tenant Isolation Integration', () => {
 
 describe('Clinic Discovery Integration', () => {
   it('should list all available clinics', async () => {
-    const clinics = await getAllClinics()
+    const clinics = await getAllTenants()
     
     expect(Array.isArray(clinics)).toBe(true)
     expect(clinics.length).toBeGreaterThan(0)
   })
 
   it('should include terrapet in clinic list', async () => {
-    const clinics = await getAllClinics()
+    const clinics = await getAllTenants()
     expect(clinics).toContain('terrapet')
   })
 
   it('should include terrapet in clinic list', async () => {
-    const clinics = await getAllClinics()
+    const clinics = await getAllTenants()
     expect(clinics).toContain('terrapet')
   })
 
   it('should not include template folders', async () => {
-    const clinics = await getAllClinics()
+    const clinics = await getAllTenants()
     
     // Should not include _TEMPLATE or hidden folders
     expect(clinics).not.toContain('_TEMPLATE')
@@ -514,11 +514,11 @@ describe('Clinic Discovery Integration', () => {
   })
 
   it('should only include valid clinic directories', async () => {
-    const clinics = await getAllClinics()
+    const clinics = await getAllTenants()
     
     // Each clinic should have config.json and theme.json
     for (const clinic of clinics) {
-      const data = await getClinicData(clinic)
+      const data = await getTenantData(clinic)
       expect(data).not.toBeNull()
       expect(data?.config).toBeDefined()
       expect(data?.theme).toBeDefined()
@@ -529,34 +529,34 @@ describe('Clinic Discovery Integration', () => {
 describe('Error Handling Integration', () => {
   it('should handle missing config.json gracefully', async () => {
     // Try to load a directory that might exist but lacks config.json
-    const data = await getClinicData('..') // Parent directory
+    const data = await getTenantData('..') // Parent directory
     expect(data).toBeNull()
   })
 
   it('should handle corrupted JSON files gracefully', async () => {
-    // getClinicData should handle JSON parse errors
+    // getTenantData should handle JSON parse errors
     // This test verifies the function doesn't crash
     expect(async () => {
-      await getClinicData('terrapet')
+      await getTenantData('terrapet')
     }).not.toThrow()
   })
 
   it('should return null for path traversal attempts', async () => {
-    const maliciousData = await getClinicData('../../../etc')
+    const maliciousData = await getTenantData('../../../etc')
     expect(maliciousData).toBeNull()
   })
 
   it('should handle special characters in slug', async () => {
-    const specialData = await getClinicData('terra<script>alert(1)</script>pet')
+    const specialData = await getTenantData('terra<script>alert(1)</script>pet')
     expect(specialData).toBeNull()
   })
 })
 
 describe('Data Validation Integration', () => {
-  let terraData: ClinicData | null
+  let terraData: TenantData | null
 
   beforeAll(async () => {
-    terraData = await getClinicData('terrapet')
+    terraData = await getTenantData('terrapet')
   })
 
   it('should have non-empty required strings', () => {

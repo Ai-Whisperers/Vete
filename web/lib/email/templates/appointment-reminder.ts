@@ -5,7 +5,7 @@
  */
 
 export interface AppointmentReminderEmailData {
-  clinicName: string
+  tenantName: string
   clinicLogo?: string
   clinicAddress?: string
   clinicPhone?: string
@@ -31,7 +31,7 @@ export interface AppointmentReminderEmailData {
  */
 export function generateAppointmentReminderEmail(data: AppointmentReminderEmailData): string {
   const {
-    clinicName,
+    tenantName,
     clinicLogo,
     clinicAddress,
     clinicPhone,
@@ -82,8 +82,8 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
           <!-- Header -->
           <tr>
             <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px 8px 0 0;">
-              ${clinicLogo ? `<img src="${clinicLogo}" alt="${clinicName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${clinicName}</h1>
+              ${clinicLogo ? `<img src="${clinicLogo}" alt="${tenantName}" style="max-width: 150px; height: auto; margin-bottom: 20px;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">${tenantName}</h1>
               ${clinicAddress ? `<p style="margin: 8px 0 0; color: #d1fae5; font-size: 14px;">${clinicAddress}</p>` : ''}
               <div style="margin-top: 12px;">
                 ${clinicPhone ? `<span style="color: #d1fae5; font-size: 14px; margin-right: 15px;">📞 ${clinicPhone}</span>` : ''}
@@ -297,7 +297,7 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
  */
 export function generateAppointmentReminderEmailText(data: AppointmentReminderEmailData): string {
   const {
-    clinicName,
+    tenantName,
     clinicAddress,
     clinicPhone,
     clinicEmail,
@@ -329,8 +329,8 @@ export function generateAppointmentReminderEmailText(data: AppointmentReminderEm
     return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
-  let text = `${clinicName}\n`
-  text += `${'='.repeat(clinicName.length)}\n`
+  let text = `${tenantName}\n`
+  text += `${'='.repeat(tenantName.length)}\n`
   if (clinicAddress) text += `${clinicAddress}\n`
   if (clinicPhone || clinicEmail) {
     text += `${clinicPhone ? `Tel: ${clinicPhone}` : ''} ${clinicPhone && clinicEmail ? '|' : ''} ${clinicEmail ? `Email: ${clinicEmail}` : ''}\n`

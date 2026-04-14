@@ -47,7 +47,7 @@ export interface PlanInterestParams {
  */
 export interface ContactFormParams {
   contactName: string
-  clinicName: string
+  tenantName: string
 }
 
 /**
@@ -63,7 +63,7 @@ export interface TierCtaParams {
 export interface AppointmentBookingParams {
   petName?: string
   serviceName?: string
-  clinicName?: string
+  tenantName?: string
 }
 
 /**
@@ -85,6 +85,6 @@ export interface SupportTicketParams {
 /**
  * Clinic billing inquiry params
  */
-export interface ClinicBillingParams {
-  clinicName: string
+export interface TenantBillingParams {
+  tenantName: string
 }

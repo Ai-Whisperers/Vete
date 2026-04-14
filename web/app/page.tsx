@@ -4,37 +4,37 @@ import {
   LandingFooter,
   Hero,
   TrustBadges,
-  PricingTeaser,
+  PricingSection,
+  HowItWorks,
+  FAQSection,
   CTASection,
-  FloatingWhatsApp,
 } from '@/components/landing'
 
 export const metadata: Metadata = {
-  title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
+  title: 'LEALTIS — Paraguay Establishment for Europeans',
   description:
-    'Software de gestión veterinaria diseñado para Paraguay. Agenda, historial clínico y recordatorios automáticos por WhatsApp. Simple, rápido y eficiente.',
+    'Professional relocation to Paraguay: residency, company formation, and bank account in one integrated program. Two programs for entrepreneurs and investors.',
   keywords: [
-    'software veterinario',
-    'gestión veterinaria',
-    'historial clínico digital',
-    'agenda veterinaria',
-    'veterinaria paraguay',
-    'sistema veterinario',
-    'Vetic',
+    'Paraguay residency',
+    'business relocation',
+    'Paraguay company formation',
+    'investment Paraguay',
+    'European relocation',
+    'Paraguay bank account',
   ],
-  authors: [{ name: 'Vetic' }],
+  authors: [{ name: 'LEALTIS' }],
   openGraph: {
-    title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
+    title: 'LEALTIS — Paraguay Establishment for Europeans',
     description:
-      'Software de gestión veterinaria diseñado para Paraguay. Agenda, historial clínico y recordatorios automáticos por WhatsApp.',
+      'Professional relocation to Paraguay: residency, company formation, and bank account in one integrated program.',
     type: 'website',
-    locale: 'es_PY',
-    siteName: 'Vetic',
+    locale: 'en_US',
+    siteName: 'LEALTIS',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
-    description: 'Software de gestión veterinaria diseñado para Paraguay.',
+    title: 'LEALTIS — Paraguay Establishment for Europeans',
+    description: 'Professional Paraguay relocation program for European entrepreneurs.',
   },
   robots: {
     index: true,
@@ -44,27 +44,30 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-white">
       {/* Navigation - Sticky */}
       <LandingNav />
 
-      {/* Hero Section - The Promise */}
+      {/* Hero Section */}
       <Hero />
 
-      {/* Trust Bar - Social Proof */}
+      {/* Trust Badges */}
       <TrustBadges />
 
-      {/* Pricing Teaser - Simple 3-plan preview */}
-      <PricingTeaser />
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* Final CTA */}
       <CTASection />
 
       {/* Footer */}
       <LandingFooter />
-
-      {/* Floating WhatsApp Button */}
-      <FloatingWhatsApp />
     </main>
   )
 }

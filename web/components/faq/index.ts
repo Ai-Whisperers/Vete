@@ -1,1 +1,0 @@
-export { FAQSection } from './FAQSection'

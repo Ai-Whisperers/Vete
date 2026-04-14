@@ -1,28 +1,27 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Playfair_Display, Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
-import { WebVitalsTracker } from '@/components/analytics/WebVitalsTracker'
 import { getMetadataBaseUrl } from '@/lib/config'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const playfairDisplay = Playfair_Display({
+  variable: '--font-playfair',
   subsets: ['latin'],
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Vetic - La Red Veterinaria Digital de Paraguay',
-    template: '%s | Vetic',
+    default: 'LEALTIS — Paraguay Establishment for Europeans',
+    template: '%s | LEALTIS',
   },
   description:
-    'Sitios web profesionales para veterinarias paraguayas. Una plataforma, múltiples clínicas.',
+    'Professional relocation to Paraguay: residency, company formation, and bank account in one integrated program.',
   metadataBase: getMetadataBaseUrl(),
 }
 
@@ -36,9 +35,8 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${playfairDisplay.variable} ${inter.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-        <WebVitalsTracker />
       </body>
     </html>
   )

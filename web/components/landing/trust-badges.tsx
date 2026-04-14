@@ -1,44 +1,49 @@
-import { Shield, Lock, Database, Wifi } from 'lucide-react'
+'use client'
 
-const trustItems = [
-  {
-    icon: Shield,
-    title: 'Cumplimiento SET',
-    description: 'Facturación electrónica',
-  },
-  {
-    icon: Lock,
-    title: 'Datos Encriptados',
-    description: 'SSL 256-bit',
-  },
-  {
-    icon: Database,
-    title: 'Backup Diario',
-    description: 'Tus datos seguros',
-  },
-  {
-    icon: Wifi,
-    title: 'Optimizado Tigo/Claro',
-    description: 'Carga rápida',
-  },
-]
+import { Award, Users, Zap, Shield } from 'lucide-react'
 
 export function TrustBadges() {
+  const items = [
+    {
+      icon: Award,
+      title: 'Years of Experience',
+      description: 'Proven track record in the Paraguayan market',
+    },
+    {
+      icon: Users,
+      title: 'Professional Team',
+      description: 'Multidisciplinary experts: lawyers, accountants, notaries',
+    },
+    {
+      icon: Zap,
+      title: 'Proven Process',
+      description: 'Refined system with successful international clients',
+    },
+    {
+      icon: Shield,
+      title: 'Complete Transparency',
+      description: 'Full-price transparency — no hidden fees',
+    },
+  ]
+
   return (
-    <section className="border-y border-slate-200 bg-white py-8">
+    <section className="py-16 md:py-24 bg-white border-y border-slate-200">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
-          {trustItems.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-teal-50">
-                <item.icon className="h-5 w-5 text-teal-600" />
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {items.map((item, idx) => {
+            const Icon = item.icon
+            return (
+              <div key={idx} className="text-center">
+                <div className="mb-4 flex justify-center">
+                  <div className="rounded-full bg-[#C9A84C]/10 p-4">
+                    <Icon className="h-8 w-8 text-[#C9A84C]" />
+                  </div>
+                </div>
+                <h3 className="mb-2 font-bold text-slate-900">{item.title}</h3>
+                <p className="text-sm text-slate-600">{item.description}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">{item.title}</p>
-                <p className="text-xs text-slate-500">{item.description}</p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

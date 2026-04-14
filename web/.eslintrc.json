@@ -1,0 +1,56 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "warn",
+    "@next/next/no-html-link-for-pages": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "jsx-a11y/anchor-is-valid": "warn",
+    "jsx-a11y/label-has-associated-control": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/no-noninteractive-element-interactions": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "jsx-a11y/role-supports-aria-props": "warn",
+    "jsx-a11y/aria-props": "warn",
+    "jsx-a11y/aria-role": "warn",
+    "jsx-a11y/aria-unique": "warn",
+    "import/no-unresolved": "warn",
+    "import/no-extraneous-dependencies": "warn",
+    "import/no-unused-modules": "warn",
+    "import/no-duplicates": "warn",
+    "import/newline-after-import": "warn",
+    "import/prefer-default-export": "off",
+    "import/no-named-as-default": "off",
+    "import/no-named-as-default-member": "off",
+    "import/no-default-export": "off",
+    "import/no-anonymous-default-export": "off"
+  },
+  "maxWarnings": 0
+}

@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "programs": "Programma's",
+    "whyParaguay": "Waarom Paraguay",
+    "howItWorks": "Hoe het werkt",
+    "about": "Over ons",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "contact": "Contact",
+    "bookConsultation": "Gratis consult boeken"
+  },
+  "hero": {
+    "badge": "Professionele vestiging in Paraguay",
+    "title": "Gevestigd in Paraguay. Professioneel, geïntegreerd, zonder verrassingen.",
+    "subtitle": "Verblijfsvergunning, bedrijf en bankrekening — alles in één programma, één reis, één team van professionals.",
+    "cta": "Gratis consult boeken",
+    "ctaSecondary": "Bekijk programma's"
+  },
+  "programs": {
+    "title": "Onze programma's",
+    "subtitle": "Twee integrale oplossingen voor Europese ondernemers"
+  },
+  "programBusiness": {
+    "name": "Paraguay Business",
+    "tagline": "Operationeel gevestigd vanaf dag één",
+    "price": "USD 4.400",
+    "description": "Voor de Europese ondernemer of professional die operationeel wil functioneren in Paraguay: verblijfsvergunning, opgericht bedrijf en een zakelijke bankrekening.",
+    "includes": [
+      "Paraguayaanse verblijfsvergunning",
+      "Paraguayaans identiteitsbewijs",
+      "Bedrijfsoprichting + KvK-registratie (RUC)",
+      "Opening zakelijke bankrekening",
+      "Volledige documentvalidatie vooraf",
+      "Operationele dag (alles in één ochtend)",
+      "Exclusieve chauffeur + transfers",
+      "Strategische vastgoedtour",
+      "Integraal technisch advies"
+    ],
+    "cta": "Meer informatie"
+  },
+  "programInvestor": {
+    "name": "Paraguay Investor Program",
+    "tagline": "Uw strategische partner gedurende 12 maanden",
+    "price": "USD 6.900",
+    "description": "Alles uit Paraguay Business plus volledige ondersteuning voor boekhouden, juridisch advies en investeringsanalyse gedurende één jaar.",
+    "includes": [
+      "Alles uit Paraguay Business",
+      "12 maanden bedrijfsboekhouding",
+      "12 maanden juridisch + fiscaal advies",
+      "12 maanden investeringsanalyse",
+      "Directe toegang tot het LEALTIS-team"
+    ],
+    "cta": "Meer informatie"
+  },
+  "whyUs": {
+    "title": "Waarom LEALTIS",
+    "items": [
+      {
+        "title": "Één programma",
+        "description": "Geen coördinatie tussen meerdere aanbieders"
+      },
+      {
+        "title": "Één reis",
+        "description": "Alle procedures in één dag"
+      },
+      {
+        "title": "Transparante prijs",
+        "description": "Geen verborgen kosten"
+      },
+      {
+        "title": "Professioneel team",
+        "description": "Advocaten, accountants, notarissen"
+      },
+      {
+        "title": "Banktoegang",
+        "description": "Wij lossen het grootste obstakel voor buitenlanders op"
+      }
+    ]
+  },
+  "process": {
+    "title": "Het proces in 5 stappen",
+    "steps": [
+      {
+        "title": "Eerste consult",
+        "description": "Videogesprek: situatie, doelen, programmaadvies"
+      },
+      {
+        "title": "Documentvalidatie",
+        "description": "Ons team controleert alle documenten. U reist pas als alles in orde is."
+      },
+      {
+        "title": "Operationele dag in Paraguay",
+        "description": "Alle procedures in één ochtend. Exclusieve chauffeur en begeleiding."
+      },
+      {
+        "title": "Bedrijf & bank",
+        "description": "Terwijl u naar huis reist: bedrijfsoprichting, RUC, bankrekening."
+      },
+      {
+        "title": "Oplevering",
+        "description": "Verblijfsvergunning, ID, bedrijf en rekening. Volledig operationeel."
+      }
+    ]
+  },
+  "trust": {
+    "years": "Jaren ervaring",
+    "clients": "Tevreden klanten",
+    "team": "Professioneel team",
+    "guarantee": "Volledige transparantie"
+  },
+  "finalCta": {
+    "title": "Zet de eerste stap",
+    "subtitle": "Boek een gratis consult van 30 minuten om uw situatie te bespreken.",
+    "cta": "Gratis consult boeken"
+  },
+  "footer": {
+    "tagline": "Professionele vestiging in Paraguay voor Europeanen.",
+    "links": {
+      "programs": "Programma's",
+      "whyParaguay": "Waarom Paraguay",
+      "howItWorks": "Hoe het werkt",
+      "about": "Over ons",
+      "faq": "FAQ",
+      "blog": "Blog",
+      "contact": "Contact"
+    },
+    "legal": {
+      "privacy": "Privacybeleid",
+      "terms": "Gebruiksvoorwaarden"
+    },
+    "copyright": "© 2026 LEALTIS. Alle rechten voorbehouden."
+  }
+}

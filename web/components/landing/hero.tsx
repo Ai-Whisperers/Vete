@@ -1,24 +1,24 @@
 'use client'
 
-import { ArrowRight, Play, MapPin, Shield } from 'lucide-react'
-
-import Image from 'next/image'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
+import { useTranslations } from 'next-intl'
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(false)
+  const t = useTranslations('hero')
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
   return (
-    <section className="relative min-h-[90svh] overflow-hidden bg-slate-50 pt-20 md:pt-0">
-      {/* Background Decor */}
+    <section className="relative min-h-[90svh] overflow-hidden bg-gradient-to-br from-[#1B3A6B] to-[#0f2447] pt-28 md:pt-0">
+      {/* Decorative background elements */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute -left-[10%] -top-[10%] h-[500px] w-[500px] rounded-full bg-teal-100/40 blur-[100px]" />
-        <div className="absolute -right-[10%] -bottom-[10%] h-[500px] w-[500px] rounded-full bg-blue-100/40 blur-[100px]" />
+        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-[#C9A84C]/10 blur-3xl" />
+        <div className="absolute -left-40 -bottom-40 h-96 w-96 rounded-full bg-[#C9A84C]/5 blur-3xl" />
       </div>
 
       {/* Content */}
@@ -28,47 +28,32 @@ export function Hero() {
           <div className="text-center lg:text-left">
             {/* Badge */}
             <div
-              className={`mb-6 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-1.5 transition-all duration-700 md:mb-8 ${
+              className={`mb-6 inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 transition-all duration-700 md:mb-8 ${
                 isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
               }`}
             >
-              <MapPin className="h-4 w-4 text-teal-600" />
-              <span className="text-sm font-semibold text-teal-700">
-                Disponible en todo Paraguay
-              </span>
+              <div className="h-2 w-2 rounded-full bg-[#C9A84C]" />
+              <span className="text-sm font-semibold text-[#C9A84C]">{t('badge')}</span>
             </div>
 
             {/* Headline */}
             <h1
-              className={`mb-6 text-4xl font-extrabold leading-tight text-[var(--landing-text-primary)] transition-all delay-100 duration-700 md:text-5xl lg:text-6xl ${
+              className={`mb-6 text-4xl font-bold leading-tight text-white transition-all delay-100 duration-700 md:text-5xl lg:text-6xl ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
               }`}
+              style={{ fontFamily: 'var(--font-playfair)' }}
             >
-              Gestiona tu veterinaria{' '}
-              <span className="text-4xl md:text-5xl lg:text-6xl text-[var(--landing-primary)]">sin complicaciones.</span>
+              {t('title')}
             </h1>
 
             {/* Subheadline */}
             <p
-              className={`mx-auto mb-6 max-w-xl text-lg leading-relaxed text-slate-600 transition-all delay-200 duration-700 lg:mx-0 md:text-xl ${
+              className={`mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-200 transition-all delay-200 duration-700 lg:mx-0 md:text-xl ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
               }`}
             >
-              Agenda, historial clínico y web propia en una sola plataforma.
-              Diseñado específicamente para Paraguay.
+              {t('subtitle')}
             </p>
-
-            {/* ROI Guarantee Badge */}
-            <div
-              className={`mb-8 flex justify-center lg:justify-start transition-all delay-250 duration-700 ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-              }`}
-            >
-              <div className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700">
-                <Shield className="h-4 w-4" />
-                <span>Garantía: 6 clientes nuevos en 6 meses o 6 meses GRATIS</span>
-              </div>
-            </div>
 
             {/* CTAs */}
             <div
@@ -76,46 +61,66 @@ export function Hero() {
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
               }`}
             >
-              <a
-                href={getWhatsAppUrl(landingMessages.startFree())}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-teal-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-teal-600/25 transition-all hover:-translate-y-1 hover:bg-teal-700 hover:shadow-teal-600/40"
+              <Link
+                href="/contacto"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 text-base font-bold text-[#1B3A6B] shadow-lg shadow-[#C9A84C]/25 transition-all hover:-translate-y-1 hover:bg-[#dfc07a] hover:shadow-[#C9A84C]/40"
               >
-                Empezar Gratis
+                {t('cta')}
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </a>
+              </Link>
 
-              <a
-                href="#demo"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-1 hover:bg-slate-50 hover:shadow-md"
+              <Link
+                href="#programs"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-8 py-4 text-base font-bold text-white shadow-sm ring-1 ring-white/20 transition-all hover:-translate-y-1 hover:bg-white/20 hover:shadow-md"
               >
-                <Play className="h-5 w-5 fill-slate-700 text-slate-700" />
-                Ver Demo
-              </a>
+                {t('ctaSecondary')}
+              </Link>
             </div>
           </div>
 
-          {/* Right Column - Hero Image */}
+          {/* Right Column - Key Points */}
           <div
-            className={`relative hidden lg:block transition-all delay-400 duration-700 ${
+            className={`hidden space-y-6 lg:block transition-all delay-400 duration-700 ${
               isVisible ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
             }`}
           >
-            <div className="relative z-10 overflow-hidden rounded-2xl shadow-2xl shadow-slate-200/50">
-              <Image
-                src="/vetic-hero.png"
-                alt="Veterinaria usando Vetic en tablet"
-                width={800}
-                height={800}
-                className="h-full w-full object-cover"
-                priority
-              />
+            <div className="space-y-4">
+              <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <CheckCircle2 className="h-6 w-6 text-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">One Trip</h3>
+                    <p className="text-sm text-slate-300">All procedures in one morning</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <CheckCircle2 className="h-6 w-6 text-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">One Team</h3>
+                    <p className="text-sm text-slate-300">No coordination between providers</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <CheckCircle2 className="h-6 w-6 text-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">One Price</h3>
+                    <p className="text-sm text-slate-300">Transparent, no hidden costs</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            {/* Decorative Elements */}
-            <div className="absolute -right-12 -top-12 -z-10 h-64 w-64 rounded-full bg-teal-50 blur-3xl" />
-            <div className="absolute -bottom-12 -left-12 -z-10 h-64 w-64 rounded-full bg-blue-50 blur-3xl" />
           </div>
         </div>
       </div>

@@ -12,30 +12,29 @@
 
   /* ----------------------------------------
    * 1. PRIMARY & SECONDARY COLORS
-   * (Overridden by clinic themes)
+   * LEALTIS: Navy primary, Gold accent
    * ---------------------------------------- */
-  /* Primary: Teal #2DCEA3 */
-  --primary: #2dcea3;
-  --primary-light: #5debc5;
-  --primary-dark: #0f766e;
+  /* Primary: Navy #1B3A6B */
+  --primary: #1b3a6b;
+  --primary-light: #2d5a9e;
+  --primary-dark: #0f2447;
   --primary-contrast: #ffffff;
-  --primary-50: #f0fdf9;
-  --primary-100: #ccfbf1;
-  --primary-200: #99f6e4;
-  --primary-300: #5eead4;
-  --primary-400: #2dcea3;
-  --primary-500: #14b8a6;
-  --primary-600: #0d9488;
-  --primary-700: #0f766e;
-  --primary-800: #115e59;
-  --primary-900: #134e4a;
   /* RGB for opacity manipulation */
-  --primary-rgb: 45, 206, 163;
+  --primary-rgb: 27, 58, 107;
 
-  /* Secondary: Navy Blue #0F172A */
-  --secondary: #0f172a;
-  --secondary-light: #334155;
-  --secondary-dark: #020617;
+  /* Accent: Gold #C9A84C */
+  --accent: #c9a84c;
+  --accent-light: #dfc07a;
+  --accent-dark: #a67c2e;
+
+  /* Landing page colors */
+  --landing-primary: #1b3a6b;
+  --landing-primary-rgb: 27, 58, 107;
+
+  /* Secondary: Slate for backgrounds */
+  --secondary: #64748b;
+  --secondary-light: #94a3b8;
+  --secondary-dark: #334155;
   --secondary-contrast: #ffffff;
   --secondary-50: #f8fafc;
   --secondary-100: #f1f5f9;
@@ -47,7 +46,7 @@
   --secondary-700: #334155;
   --secondary-800: #1e293b;
   --secondary-900: #0f172a;
-  --secondary-rgb: 15, 23, 42;
+  --secondary-rgb: 100, 116, 139;
 
   /* ----------------------------------------
    * 2. NEUTRAL/GRAY PALETTE

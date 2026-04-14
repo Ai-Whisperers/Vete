@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "programs": "Programme",
+    "whyParaguay": "Warum Paraguay",
+    "howItWorks": "Wie es funktioniert",
+    "about": "Über uns",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "contact": "Kontakt",
+    "bookConsultation": "Kostenlose Beratung buchen"
+  },
+  "hero": {
+    "badge": "Professionelle Niederlassung in Paraguay",
+    "title": "In Paraguay etabliert. Professionell, integriert, keine Überraschungen.",
+    "subtitle": "Aufenthaltserlaubnis, Unternehmen und Bankkonto — alles in einem Programm, einer Reise, einem Team von Fachleuten.",
+    "cta": "Kostenlose Beratung buchen",
+    "ctaSecondary": "Programme anzeigen"
+  },
+  "programs": {
+    "title": "Unsere Programme",
+    "subtitle": "Zwei umfassende Lösungen für europäische Unternehmer"
+  },
+  "programBusiness": {
+    "name": "Paraguay Business",
+    "tagline": "Von Anfang an betriebsbereit",
+    "price": "USD 4.400",
+    "description": "Für den europäischen Unternehmer oder Profi, der in Paraguay tätig sein möchte: Aufenthaltserlaubnis, gegründetes Unternehmen und Geschäftskonto.",
+    "includes": [
+      "Paraguayische Aufenthaltserlaubnis",
+      "Paraguayischer Personalausweis",
+      "Unternehmensgründung + Steuernummer (RUC)",
+      "Eröffnung Geschäftskonto",
+      "Vollständige vorherige Dokumentprüfung",
+      "Betriebstag (alles an einem Morgen)",
+      "Exklusiver Chauffeur + Transfers",
+      "Strategische Immobilientour",
+      "Umfassende technische Beratung"
+    ],
+    "cta": "Mehr erfahren"
+  },
+  "programInvestor": {
+    "name": "Paraguay Investor Program",
+    "tagline": "Ihr strategischer Partner für 12 Monate",
+    "price": "USD 6.900",
+    "description": "Alles aus Paraguay Business plus umfassende Unterstützung bei Buchhaltung, Rechtsberatung und Investitionsanalyse für ein Jahr.",
+    "includes": [
+      "Alles aus Paraguay Business",
+      "12 Monate Buchhaltung",
+      "12 Monate Rechts- + Steuerberatung",
+      "12 Monate Investitionsanalyse",
+      "Direkter Zugang zum LEALTIS-Team"
+    ],
+    "cta": "Mehr erfahren"
+  },
+  "whyUs": {
+    "title": "Warum LEALTIS",
+    "items": [
+      {
+        "title": "Ein Programm",
+        "description": "Keine Abstimmung zwischen mehreren Anbietern"
+      },
+      {
+        "title": "Eine Reise",
+        "description": "Alle Verfahren an einem Tag"
+      },
+      {
+        "title": "Transparente Preisgestaltung",
+        "description": "Keine versteckten Kosten"
+      },
+      {
+        "title": "Professionelles Team",
+        "description": "Anwälte, Buchhalter, Notare"
+      },
+      {
+        "title": "Bankzugang",
+        "description": "Wir lösen das größte Hindernis für Ausländer"
+      }
+    ]
+  },
+  "process": {
+    "title": "Der Prozess in 5 Schritten",
+    "steps": [
+      {
+        "title": "Erstgespräch",
+        "description": "Videoanruf: Besprechen Sie Ihre Situation, Ziele und Programmempfehlung."
+      },
+      {
+        "title": "Dokumentenprüfung",
+        "description": "Unser Team überprüft alle Dokumente. Sie reisen nur, wenn alles in Ordnung ist."
+      },
+      {
+        "title": "Betriebstag in Paraguay",
+        "description": "Alle Verfahren an einem Morgen. Exklusiver Chauffeur und vollständige Logistik."
+      },
+      {
+        "title": "Unternehmen & Bankeinrichtung",
+        "description": "Während Sie nach Hause reisen: Unternehmensgründung, RUC, Bankkontoabstimmung."
+      },
+      {
+        "title": "Übergabe",
+        "description": "Aufenthaltserlaubnis, Ausweis, Unternehmen und Bankkonto. Vollständig betriebsbereit."
+      }
+    ]
+  },
+  "trust": {
+    "years": "Jahre Erfahrung",
+    "clients": "Zufriedene Kunden",
+    "team": "Professionelles Team",
+    "guarantee": "Vollständige Transparenz"
+  },
+  "finalCta": {
+    "title": "Machen Sie den ersten Schritt",
+    "subtitle": "Buchen Sie eine kostenlose 30-minütige Beratung, um Ihre Situation zu besprechen.",
+    "cta": "Kostenlose Beratung buchen"
+  },
+  "footer": {
+    "tagline": "Professionelle Niederlassung in Paraguay für Europäer.",
+    "links": {
+      "programs": "Programme",
+      "whyParaguay": "Warum Paraguay",
+      "howItWorks": "Wie es funktioniert",
+      "about": "Über uns",
+      "faq": "FAQ",
+      "blog": "Blog",
+      "contact": "Kontakt"
+    },
+    "legal": {
+      "privacy": "Datenschutzrichtlinie",
+      "terms": "Nutzungsbedingungen"
+    },
+    "copyright": "© 2026 LEALTIS. Alle Rechte vorbehalten."
+  }
+}

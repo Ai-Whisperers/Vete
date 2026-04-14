@@ -2,20 +2,24 @@
  * i18n Configuration
  *
  * Supported locales for the application.
- * Default is Spanish (es) as the primary market is Paraguay.
+ * Default is Dutch (nl) as the primary market is European (Dutch, German, English, Spanish).
  */
 
-export const locales = ['es', 'en'] as const
+export const locales = ['nl', 'en', 'de', 'es'] as const
 export type Locale = (typeof locales)[number]
 
-export const defaultLocale: Locale = 'es'
+export const defaultLocale: Locale = 'nl'
 
 export const localeNames: Record<Locale, string> = {
-  es: 'Español',
+  nl: 'Nederlands',
   en: 'English',
+  de: 'Deutsch',
+  es: 'Español',
 }
 
 export const localeFlags: Record<Locale, string> = {
-  es: '🇵🇾',
-  en: '🇺🇸',
+  nl: '🇳🇱',
+  en: '🇬🇧',
+  de: '🇩🇪',
+  es: '🇪🇸',
 }

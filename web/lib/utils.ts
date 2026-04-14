@@ -1,7 +1,8 @@
-/**
- * Utility Functions
- *
- * This file re-exports all utilities from lib/utils/.
- * Imports from '@/lib/utils' will work seamlessly.
- */
-export * from './utils/index'
+import { useRouter } from 'next/router'
+
+export function useLocale() {
+  const router = useRouter()
+  const { locale } = router
+
+  return locale
+}

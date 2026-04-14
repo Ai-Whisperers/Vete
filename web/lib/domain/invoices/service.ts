@@ -1,10 +1,3 @@
-/**
- * Invoice Service
- *
- * Business logic for invoice operations.
- * Orchestrates repository calls and applies business rules.
- */
-
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { InvoiceRepository } from './repository'
 import type {
@@ -14,10 +7,7 @@ import type {
   CreateInvoiceInput,
   UpdateInvoiceInput,
   InvoiceListResult,
-  RevenueSummary,
-  DeleteInvoiceResult,
 } from './types'
-import { roundCurrency } from '@/lib/types/invoicing'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 
@@ -55,7 +45,7 @@ export class InvoiceService {
         .eq('owner_id', userId)
 
       const petIds = ownerPets?.map((p) => p.id) || []
-      return this.repository.findByPetIds(tenantId, petIds, filters)
+      return this.repository.findMany(tenantId, { ...filters, petId: petIds })
     }
 
     return { invoices: [], count: 0, page: 1, limit: 20 }
@@ -90,7 +80,7 @@ export class InvoiceService {
     userId: string,
     input: CreateInvoiceInput
   ): Promise<Invoice> {
-    const { pet_id, items, tax_rate = 10, notes, due_date, idempotency_key } = input
+    const { pet_id, items, tax_rate, notes, due_date, idempotency_key } = input
 
     // Validate required fields
     if (!pet_id) {
@@ -132,9 +122,7 @@ export class InvoiceService {
     let subtotal = 0
     const processedItems = items.map((item) => {
       const discount = item.discount_percent || 0
-      const lineTotal = roundCurrency(
-        item.quantity * item.unit_price * (1 - discount / 100)
-      )
+      const lineTotal = item.quantity * item.unit_price * (1 - discount / 100)
       subtotal += lineTotal
       return {
         service_id: item.service_id || null,
@@ -142,293 +130,80 @@ export class InvoiceService {
         description: item.description,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        discount_amount: roundCurrency(item.quantity * item.unit_price * (discount / 100)),
+        discount_amount: item.quantity * item.unit_price * (discount / 100),
         total: lineTotal,
       }
     })
 
-    subtotal = roundCurrency(subtotal)
-    const taxAmount = roundCurrency(subtotal * (tax_rate / 100))
-    const total = roundCurrency(subtotal + taxAmount)
+    const taxAmount = subtotal * (tax_rate || 0) / 100
+    const totalAmount = subtotal + taxAmount
 
     // Create invoice
-    const invoice = await this.repository.create(tenantId, {
-      invoice_number: invoiceNumber,
-      pet_id,
-      client_id: pet.owner_id,
-      subtotal,
-      tax_amount: taxAmount,
-      total,
-      notes,
-      due_date: due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      created_by: userId,
-    })
+    const { data: invoice, error: invoiceError } = await this.repository.create(
+      {
+        pet_id: pet_id,
+        items: processedItems,
+        tax_rate: tax_rate,
+        notes: notes,
+        due_date: due_date,
+        idempotency_key: idempotency_key,
+      },
+      userId,
+      tenantId
+    )
 
-    // Create invoice items
-    await this.repository.createItems(invoice.id, processedItems)
+    if (invoiceError) {
+      throw new Error(`Error al crear factura: ${invoiceError.message}`)
+    }
 
-    // Audit log
-    await logAudit('CREATE_INVOICE', `invoices/${invoice.id}`, {
-      invoice_number: invoice.invoice_number,
-      total,
-      pet_id,
-    })
-
-    logger.info('[InvoiceService] Invoice created', {
-      invoiceId: invoice.id,
-      invoiceNumber: invoice.invoice_number,
-      total,
+    logAudit({
+      event: 'invoice_created',
+      data: {
+        invoice_id: invoice.id,
+        tenant_id: tenantId,
+        user_id: userId,
+      },
     })
 
     return invoice
   }
 
   /**
-   * Update invoice (full edit for drafts, limited for sent)
+   * Update invoice
    */
   async update(
     id: string,
-    tenantId: string,
+    input: UpdateInvoiceInput,
     userId: string,
-    updates: UpdateInvoiceInput
+    tenantId: string
   ): Promise<Invoice> {
-    // Get current invoice
-    const invoice = await this.repository.findById(id, tenantId)
+    const { status, notes, internal_notes } = input
 
-    if (!invoice) {
-      throw new Error('Factura no encontrada')
+    // Update invoice
+    const { data: invoice, error: invoiceError } = await this.repository.update(
+      id,
+      {
+        status: status,
+        notes: notes,
+        internal_notes: internal_notes,
+      },
+      userId,
+      tenantId
+    )
+
+    if (invoiceError) {
+      throw new Error(`Error al actualizar factura: ${invoiceError.message}`)
     }
 
-    // For non-draft invoices, only allow status and notes changes
-    if (invoice.status !== 'draft') {
-      const limitedUpdates: Partial<Invoice> = {}
-      if (updates.status !== undefined) limitedUpdates.status = updates.status
-      if (updates.notes !== undefined) limitedUpdates.notes = updates.notes
-
-      if (Object.keys(limitedUpdates).length === 0) {
-        throw new Error('Las facturas enviadas solo pueden cambiar estado o notas')
-      }
-
-      const updated = await this.repository.update(id, tenantId, limitedUpdates)
-      await logAudit('UPDATE_INVOICE', `invoices/${id}`, { updates: limitedUpdates })
-      return updated
-    }
-
-    // Draft invoice - full edit allowed
-    const { items, ...invoiceData } = updates
-
-    // Update invoice fields
-    let updated = await this.repository.update(id, tenantId, invoiceData)
-
-    // Update items if provided
-    if (items && Array.isArray(items)) {
-      // Delete existing items
-      await this.repository.deleteItems(id)
-
-      // Insert new items
-      let subtotal = 0
-      const newItems = items.map((item) => {
-        const lineTotal = roundCurrency(
-          item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100)
-        )
-        subtotal += lineTotal
-        return {
-          service_id: item.service_id || null,
-          product_id: item.product_id || null,
-          description: item.description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          discount_amount: roundCurrency(item.quantity * item.unit_price * ((item.discount_percent || 0) / 100)),
-          total: lineTotal,
-        }
-      })
-
-      await this.repository.createItems(id, newItems)
-
-      // Recalculate totals
-      subtotal = roundCurrency(subtotal)
-      const taxAmount = roundCurrency(subtotal * (updated.tax_rate / 100))
-      const total = roundCurrency(subtotal + taxAmount)
-      const amountDue = roundCurrency(total - updated.amount_paid)
-
-      updated = await this.repository.update(id, tenantId, {
-        subtotal,
-        tax_amount: taxAmount,
-        total,
-        balance_due: amountDue,
-      } as Partial<Invoice>)
-    }
-
-    await logAudit('UPDATE_INVOICE', `invoices/${id}`, { status: updated.status })
-    return updated
-  }
-
-  /**
-   * Delete invoice (hard delete for drafts, void for sent)
-   */
-  async delete(
-    id: string,
-    tenantId: string,
-    userId: string
-  ): Promise<DeleteInvoiceResult> {
-    const invoice = await this.repository.findById(id, tenantId)
-
-    if (!invoice) {
-      throw new Error('Factura no encontrada')
-    }
-
-    // If draft, hard delete
-    if (invoice.status === 'draft') {
-      await this.repository.delete(id, tenantId)
-      await logAudit('DELETE_INVOICE', `invoices/${id}`, {
-        invoice_number: invoice.invoice_number,
-        action: 'deleted',
-      })
-      return { deleted: true, voided: false }
-    }
-
-    // Otherwise, void the invoice
-    await this.repository.update(id, tenantId, {
-      status: 'sent',
-      sent_at: new Date().toISOString(),
+    logAudit({
+      event: 'invoice_updated',
+      data: {
+        invoice_id: invoice.id,
+        tenant_id: tenantId,
+        user_id: userId,
+      },
     })
 
-    await logAudit('DELETE_INVOICE', `invoices/${id}`, {
-      invoice_number: invoice.invoice_number,
-      action: 'voided',
-    })
-
-    return { deleted: false, voided: true }
-  }
-
-  /**
-   * Mark invoice as sent
-   */
-  async sendInvoice(
-    id: string,
-    tenantId: string,
-    userId: string
-  ): Promise<Invoice> {
-    const invoice = await this.repository.findById(id, tenantId)
-
-    if (!invoice) {
-      throw new Error('Factura no encontrada')
-    }
-
-    if (invoice.status !== 'draft') {
-      throw new Error('Solo se pueden enviar facturas en borrador')
-    }
-
-    const updated = await this.repository.update(id, tenantId, {
-      status: 'sent',
-      sent_at: new Date().toISOString(),
-    })
-
-    await logAudit('SEND_INVOICE', `invoices/${id}`, {})
-    return updated
-  }
-
-  /**
-   * Mark invoice as paid (without recording payment details)
-   */
-  async markAsPaid(
-    id: string,
-    tenantId: string,
-    userId: string
-  ): Promise<Invoice> {
-    const invoice = await this.repository.findById(id, tenantId)
-
-    if (!invoice) {
-      throw new Error('Factura no encontrada')
-    }
-
-    const updated = await this.repository.update(id, tenantId, {
-      status: 'paid',
-      amount_paid: invoice.total_amount,
-      balance_due: 0,
-      paid_at: new Date().toISOString(),
-    })
-
-    await logAudit('MARK_INVOICE_PAID', `invoices/${id}`, {})
-    return updated
-  }
-
-  /**
-   * Void an invoice
-   */
-  async voidInvoice(
-    id: string,
-    tenantId: string,
-    userId: string
-  ): Promise<Invoice> {
-    const updated = await this.repository.update(id, tenantId, {
-      status: 'void',
-      voided_at: new Date().toISOString(),
-      voided_by: userId,
-    })
-
-    await logAudit('VOID_INVOICE', `invoices/${id}`, {})
-    return updated
-  }
-
-  /**
-   * Get overdue invoices
-   */
-  async getOverdueInvoices(tenantId: string): Promise<InvoiceWithDetails[]> {
-    return this.repository.findOverdue(tenantId)
-  }
-
-  /**
-   * Get revenue summary for a period
-   */
-  async getRevenueSummary(
-    tenantId: string,
-    periodStart: string,
-    periodEnd: string
-  ): Promise<RevenueSummary> {
-    const invoices = await this.repository.findForRevenue(tenantId, periodStart, periodEnd)
-
-    if (!invoices || invoices.length === 0) {
-      return {
-        total_revenue: 0,
-        paid_invoices_count: 0,
-        outstanding_balance: 0,
-        overdue_balance: 0,
-        average_invoice_value: 0,
-        period_start: periodStart,
-        period_end: periodEnd,
-      }
-    }
-
-    const today = new Date().toISOString().split('T')[0]
-    let totalRevenue = 0
-    let paidCount = 0
-    let outstandingBalance = 0
-    let overdueBalance = 0
-
-    invoices.forEach((inv) => {
-      const total = Number(inv.total)
-      const amountDue = Number(inv.balance_due)
-
-      if (inv.status === 'paid') {
-        totalRevenue += total
-        paidCount++
-      } else if (inv.status === 'sent') {
-        outstandingBalance += amountDue
-        if (inv.due_date && inv.due_date < today) {
-          overdueBalance += amountDue
-        }
-      }
-    })
-
-    return {
-      total_revenue: roundCurrency(totalRevenue),
-      paid_invoices_count: paidCount,
-      outstanding_balance: roundCurrency(outstandingBalance),
-      overdue_balance: roundCurrency(overdueBalance),
-      average_invoice_value: roundCurrency(totalRevenue / Math.max(paidCount, 1)),
-      period_start: periodStart,
-      period_end: periodEnd,
-    }
+    return invoice
   }
 }

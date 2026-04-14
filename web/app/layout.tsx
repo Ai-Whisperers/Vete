@@ -3,7 +3,6 @@ import { Playfair_Display, Inter } from 'next/font/google'
 import Script from 'next/script'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
-import { getMetadataBaseUrl } from '@/lib/config'
 import './globals.css'
 
 const playfairDisplay = Playfair_Display({
@@ -12,32 +11,20 @@ const playfairDisplay = Playfair_Display({
 })
 
 const inter = Inter({
-  variable: '--font-inter',
+ variable: '--font-inter',
   subsets: ['latin'],
 })
 
 const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
 
-const baseUrl = 'https://paragu-ai.com/lealtis'
-
 export const metadata: Metadata = {
   title: {
-    default: 'LEALTIS — Paraguay Establishment for Europeans',
-    template: '%s | LEALTIS',
+    default: 'paragu.ai — Multi-Brand Platform',
+    template: '%s | paragu.ai',
   },
   description:
-    'Professional relocation to Paraguay: residency, company formation, and bank account in one integrated program.',
-  metadataBase: getMetadataBaseUrl(),
-  alternates: {
-    canonical: '/',
-    languages: {
-      'nl': `${baseUrl}`,
-      'en': `${baseUrl}?locale=en`,
-      'de': `${baseUrl}?locale=de`,
-      'es': `${baseUrl}?locale=es`,
-      'x-default': `${baseUrl}`,
-    },
-  },
+    'Your gateway to services and brands in Paraguay.',
+  metadataBase: new URL('https://paragu-ai.com'),
 }
 
 export default async function RootLayout({

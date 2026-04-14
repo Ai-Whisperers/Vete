@@ -7,11 +7,12 @@
     "phone_display": "+595 981 487 236",
     "email": "dayah.litworks@gmail.com",
     "city": "Asunción",
-    "country": "Paraguay"
+    "country": "Paraguay",
+    "address": "Asunción, Paraguay"
   },
   "social": {
     "facebook": "",
-    "instagram": "dayah.litworks",
+    "instagram": "https://instagram.com/dayah.litworks",
     "tiktok": "",
     "threads": ""
   },
@@ -32,8 +33,17 @@
       "custom_covers": true,
       "special_editions": true,
       "book_mockups": true,
-      "portfolio": true
-    }
+      "portfolio": true,
+      "toxic_checker": false,
+      "age_calculator": false,
+      "growth_charts": false,
+      "vaccine_tracker": false,
+      "qr_tags": false,
+      "loyalty_program": false,
+      "online_store": false,
+      "booking": false
+    },
+    "accepts_insurance": false
   },
   "branding": {
     "logo_url": "/branding/dayah/images/logo.svg",
@@ -79,21 +89,6 @@
       "special_edition": "Special Edition",
       "book_mockup": "Video 3D"
     },
-    "portfolio": {
-      "title": "Nuestro Portafolio",
-      "subtitle": "Trabajos recientes",
-      "filter_all": "Todos",
-      "filter_romance": "Romance",
-      "filter_fantasy": "Fantasy",
-      "filter_thriller": "Thriller",
-      "filter_non_fiction": "No Ficción"
-    },
-    "premade": {
-      "title": "Premade Covers",
-      "subtitle": "Diseños listos para personalizar con tu título y nombre de autor.",
-      "cta": "Personalizar",
-      "learn_more": "Más información"
-    },
     "booking": {
       "title": "Solicitar Cotización",
       "select_service": "Selecciona un Servicio",
@@ -109,84 +104,180 @@
       "loading": "Cargando...",
       "error": "Ocurrió un error",
       "retry": "Reintentar"
-    }
-  }
-}
-  },
-  "branding": {
-    "logo_url": "/branding/bookcovers/images/logo.svg",
-    "logo_width": 200,
-    "logo_height": 50,
-    "favicon_url": "/branding/bookcovers/images/favicon.ico",
-    "hero_image_url": "/branding/bookcovers/images/hero.svg",
-    "og_image_url": "/branding/bookcovers/images/og-image.svg"
-  },
-  "ui_labels": {
-    "nav": {
-      "home": "Inicio",
-      "services": "Servicios",
-      "portfolio": "Portafolio",
-      "premade": "Premades",
-      "about": "Nosotros",
-      "contact": "Contacto",
-      "book_btn": "Cotizar"
     },
-    "footer": {
-      "rights": "Todos los derechos reservados.",
-      "privacy": "Política de Privacidad",
-      "terms": "Términos y Condiciones",
-      "contact_us": "Contáctanos",
-      "follow_us": "Síguenos"
+    "auth": {
+      "login": "Iniciar Sesión",
+      "signup": "Registrarse",
+      "logout": "Cerrar Sesión",
+      "email": "Email",
+      "password": "Contraseña",
+      "confirm_password": "Confirmar Contraseña",
+      "forgot_password": "¿Olvidaste tu contraseña?",
+      "reset_password": "Restablecer Contraseña",
+      "no_account": "¿No tienes cuenta?",
+      "has_account": "¿Ya tienes cuenta?"
     },
-    "home": {
-      "hero_title": "Portadas de Libro que Capturan Historias",
-      "hero_subtitle": "Diseño profesional de portadas para autores independientes. Haz que tu libro sea visible y atractivo desde el primer взгляд.",
-      "hero_cta_primary": "Ver Portafolio",
-      "hero_cta_secondary": "Solicitar Cotización",
-      "features_badge": "Por Qué Elegirnos",
-      "features_title": "Transforma tu Manuscrito en un Best-Seller visual",
-      "features_subtitle": "Más de 5 años creando portadas que destacan en el mercado.",
-      "testimonials_badge": "Testimonios",
-      "visit_us": "Contáctanos"
+    "errors": {
+      "generic": "Ocurrió un error",
+      "not_found": "No encontrado",
+      "unauthorized": "No autorizado",
+      "network": "Error de conexión",
+      "validation": "Error de validación"
     },
-    "services": {
-      "meta_title": "Servicios de Diseño",
-      "meta_subtitle": "Soluciones profesionales para tu libro.",
-      "custom_cover": "Portada Custom",
-      "premade": "Premade",
-      "special_edition": "Special Edition",
-      "book_mockup": "Video 3D"
+    "about": {
+      "team_title": "Nuestro Equipo",
+      "intro_badge": "Nuestra Historia",
+      "mission_title": "Nuestra Misión",
+      "vision_title": "Nuestra Visión",
+      "values_title": "Nuestros Valores",
+      "certifications_title": "Certificaciones",
+      "facilities_title": "Nuestras Instalaciones"
     },
-    "portfolio": {
-      "title": "Nuestro Portafolio",
-      "subtitle": "Trabajos recientes",
-      "filter_all": "Todos",
-      "filter_romance": "Romance",
-      "filter_fantasy": "Fantasy",
-      "filter_thriller": "Thriller",
-      "filter_non_fiction": "No Ficción"
+    "checkout": {
+      "title": "Resumen del Pedido",
+      "empty": "No hay productos en el carrito.",
+      "customer_info": "Datos del Cliente",
+      "delivery_info": "Datos de Entrega",
+      "payment_method": "Método de Pago",
+      "order_summary": "Resumen",
+      "print_btn": "Imprimir Comprobante",
+      "whatsapp_btn": "Confirmar por WhatsApp",
+      "back_cart": "Volver al Carrito",
+      "order_notes": "Notas Adicionales",
+      "order_notes_placeholder": "Indicaciones especiales para tu pedido..."
     },
-    "premade": {
-      "title": "Premade Covers",
-      "subtitle": "Diseños listos para personalizar con tu título y nombre de autor.",
-      "cta": "Personalizar",
-      "learn_more": "Más información"
+    "cart": {
+      "title": "Mi Carrito",
+      "empty": "Tu carrito está vacío.",
+      "empty_cta": "Explorar Tienda",
+      "item_service": "Servicio",
+      "item_product": "Producto",
+      "quantity": "Cantidad",
+      "unit_price": "Precio Unitario",
+      "subtotal": "Subtotal",
+      "clear_btn": "Vaciar Carrito",
+      "total_label": "Total:",
+      "continue_shopping": "Seguir Comprando",
+      "checkout_btn": "Proceder al Pago",
+      "delivery_note": "Delivery gratis en compras mayores a 150.000 Gs en zonas habilitadas."
     },
-    "booking": {
-      "title": "Solicitar Cotización",
-      "select_service": "Selecciona un Servicio",
-      "your_info": "Tus Datos",
-      "book_title": "Título del Libro",
-      "book_genre": "Género",
-      "book_synopsis": "Breve descripción de la historia",
-      "confirm_btn": "Enviar Solicitud",
-      "success_title": "¡Solicitud Enviada!",
-      "success_message": "Te contactaré pronto."
+    "tools": {
+      "toxic_food": {
+        "title": "Verificador de Alimentos Tóxicos",
+        "subtitle": "Consulta si un alimento es seguro para tu mascota.",
+        "search_placeholder": "Escribe el nombre del alimento...",
+        "safe": "SEGURO",
+        "toxic": "TÓXICO",
+        "caution": "PRECAUCIÓN",
+        "disclaimer": "Esta herramienta es orientativa. Ante cualquier duda o emergencia, consulta inmediatamente con un veterinario."
+      },
+      "age_calculator": {
+        "title": "Calculadora de Edad",
+        "subtitle": "Descubre la edad humana equivalente de tu mascota.",
+        "pet_age_label": "Edad de tu mascota (años)",
+        "pet_size_label": "Tamaño",
+        "size_small": "Pequeño (<10kg)",
+        "size_medium": "Mediano (10-25kg)",
+        "size_large": "Grande (>25kg)",
+        "result_prefix": "Tu mascota tiene",
+        "result_suffix": "años humanos"
+      }
     },
-    "common": {
-      "loading": "Cargando...",
-      "error": "Ocurrió un error",
-      "retry": "Reintentar"
+    "portal": {
+      "dashboard": {
+        "staff_title": "Portal Veterinario",
+        "owner_title": "Mis Mascotas",
+        "welcome": "Bienvenido/a, {name}",
+        "quick_actions": "Acciones Rápidas",
+        "recent_activity": "Actividad Reciente",
+        "stats": {
+          "patients": "Pacientes Totales",
+          "vaccines": "Vacunas Pendientes",
+          "upcoming_appointments": "Citas Programadas",
+          "loyalty_points": "Puntos Acumulados"
+        }
+      },
+      "empty_states": {
+        "no_pets": "Aún no tienes mascotas registradas",
+        "no_pets_desc": "Registra a tu primera mascota para llevar su historial médico completo.",
+        "add_pet_btn": "Registrar Mascota",
+        "no_vaccines": "Sin vacunas registradas aún.",
+        "no_appointments": "No tienes citas programadas.",
+        "no_records": "Sin historial médico disponible."
+      },
+      "pet_card": {
+        "weight": "Peso",
+        "chip": "Microchip",
+        "age": "Edad",
+        "breed": "Raza",
+        "vaccines": "Vacunas",
+        "next_vaccine": "Próxima Vacuna",
+        "add_vaccine": "Agregar Vacuna",
+        "view_history": "Ver Historial",
+        "download_pdf": "Descargar Carnet PDF",
+        "edit_pet": "Editar Datos",
+        "qr_code": "Código QR"
+      },
+      "appointment_widget": {
+        "title": "Mis Próximas Citas",
+        "empty": "No hay citas programadas",
+        "new_appointment": "Nueva Cita",
+        "status": {
+          "confirmed": "Confirmada",
+          "pending": "Pendiente",
+          "cancelled": "Cancelada",
+          "completed": "Completada"
+        }
+      },
+      "forms": {
+        "pet_name": "Nombre de la Mascota",
+        "pet_species": "Especie",
+        "pet_breed": "Raza",
+        "pet_birthdate": "Fecha de Nacimiento",
+        "pet_weight": "Peso (kg)",
+        "pet_color": "Color",
+        "pet_gender": "Sexo",
+        "pet_neutered": "¿Esterilizado/a?",
+        "pet_microchip": "Número de Microchip",
+        "species_dog": "Perro",
+        "species_cat": "Gato",
+        "species_bird": "Ave",
+        "species_rabbit": "Conejo",
+        "species_other": "Otro",
+        "gender_male": "Macho",
+        "gender_female": "Hembra",
+        "yes": "Sí",
+        "no": "No"
+      }
+    },
+    "store": {
+      "title": "Tienda",
+      "back_home": "Volver al Inicio",
+      "hero_title": "Lo Mejor para tu Mascota",
+      "hero_subtitle": "Encuentra alimentos premium, accesorios y medicamentos recomendados por nuestros veterinarios. Delivery gratis en compras mayores a 150.000 Gs.",
+      "search_placeholder": "Buscar productos...",
+      "all_categories": "Todas las categorías",
+      "empty_state": "No hay productos disponibles en esta categoría.",
+      "no_results": "No se encontraron productos.",
+      "sort_by": "Ordenar por",
+      "sort_popular": "Más Populares",
+      "sort_price_low": "Menor Precio",
+      "sort_price_high": "Mayor Precio",
+      "sort_newest": "Más Nuevos",
+      "product_card": {
+        "add": "Agregar",
+        "added": "Agregado",
+        "out_of_stock": "Agotado",
+        "view_details": "Ver Detalles"
+      },
+      "categories": {
+        "all": "Todos",
+        "food": "Alimentos",
+        "medicine": "Medicamentos",
+        "accessories": "Accesorios",
+        "hygiene": "Higiene",
+        "toys": "Juguetes"
+      }
     }
   }
 }

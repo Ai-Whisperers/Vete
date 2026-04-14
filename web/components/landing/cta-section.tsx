@@ -19,7 +19,7 @@ export function CTASection() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/lealtis/contacto"
             className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 text-lg font-bold text-[#1B3A6B] shadow-lg shadow-[#C9A84C]/25 transition-all hover:-translate-y-1 hover:bg-[#dfc07a] hover:shadow-[#C9A84C]/40"
           >
             {t('cta')}

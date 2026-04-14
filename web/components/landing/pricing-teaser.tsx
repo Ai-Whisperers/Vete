@@ -108,7 +108,7 @@ export function PricingTeaser(): React.ReactElement {
         {/* CTA to full pricing */}
         <div className="mt-10 text-center">
           <Link
-            href="/precios"
+            href="/lealtis/precios"
             className="inline-flex items-center gap-2 rounded-full bg-[var(--landing-primary)] px-8 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[var(--landing-primary-hover)]"
           >
             Ver todos los planes y comparar

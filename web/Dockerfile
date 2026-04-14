@@ -28,7 +28,7 @@ RUN apk add --no-cache libc6-compat python3 make g++
 COPY package.json package-lock.json* ./
 
 # Install all dependencies
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder

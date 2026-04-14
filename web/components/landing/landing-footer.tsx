@@ -133,6 +133,31 @@ export function LandingFooter() {
           </div>
         </div>
 
+        <div className="border-t border-white/10 pt-8 mb-8">
+          <div className="max-w-md mx-auto text-center">
+            <h3 className="font-bold text-white mb-2">Stay Updated</h3>
+            <p className="text-slate-400 text-sm mb-4">Get Paraguay insights and relocation tips in your inbox.</p>
+            <form action="/api/contact" method="POST" className="flex gap-2">
+              <input type="hidden" name="country" value="newsletter" />
+              <input type="hidden" name="program_interest" value="newsletter" />
+              <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
+              <input
+                type="email"
+                name="email"
+                placeholder="your@email.com"
+                required
+                className="flex-1 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-slate-400 px-4 py-2 text-sm focus:outline-none focus:border-[#C9A84C]"
+              />
+              <button
+                type="submit"
+                className="rounded-full bg-[#C9A84C] px-6 py-2 text-sm font-bold text-white hover:bg-[#a67c2e] transition-colors"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+
         <div className="border-t border-white/10 pt-8 text-center text-slate-400">
           <p>{t('copyright')}</p>
         </div>

@@ -65,6 +65,18 @@ export default async function LandingPage() {
 
       <LandingNav />
       <Hero />
+
+      <section className="py-8 border-b border-slate-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <p className="text-center text-sm text-slate-400 mb-6 uppercase tracking-wider">Trusted by entrepreneurs from</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            {['Netherlands', 'Germany', 'Belgium', 'Austria', 'Spain', 'Switzerland'].map((country) => (
+              <span key={country} className="text-lg font-semibold text-slate-300">{country}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <TrustBadges />
       <PricingSection />
       <HowItWorks />

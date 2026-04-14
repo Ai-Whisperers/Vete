@@ -75,7 +75,6 @@ const securityHeaders = [
 const nextConfig = {
   // Enable standalone output for Docker deployments
   // This creates a minimal server.js in .next/standalone
-  basePath: '/lealtis',
   output: 'standalone',
 
   // Set workspace root to web directory to fix multiple lockfiles warning

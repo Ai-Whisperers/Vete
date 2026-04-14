@@ -86,6 +86,27 @@ export default async function ContactPage() {
               <ContactForm />
             </div>
           </div>
+
+          <div className="mt-12 p-8 bg-slate-50 rounded-2xl">
+            <h2 className="text-2xl font-bold text-[#1B3A6B] mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+              {t('schedule') || 'Schedule a Consultation'}
+            </h2>
+            <p className="text-slate-600 mb-6">{t('scheduleDesc') || 'Book a free 30-minute video call to discuss your situation.'}</p>
+            {process.env.NEXT_PUBLIC_CALENDLY_URL ? (
+              <iframe
+                src={`${process.env.NEXT_PUBLIC_CALENDLY_URL}?hide_gdpr_banner=1`}
+                width="100%"
+                height="630"
+                frameBorder="0"
+                title="Schedule a consultation"
+                className="rounded-xl"
+              />
+            ) : (
+              <div className="text-center py-8 text-slate-500">
+                <p>Calendly integration coming soon. Please use the form above or email info@lealtis.com</p>
+              </div>
+            )}
+          </div>
         </div>
       </main>
       <LandingFooter />

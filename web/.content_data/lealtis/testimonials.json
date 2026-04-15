@@ -1,0 +1,44 @@
+{
+  "testimonials": [
+    {
+      "name": "Klaus Weber",
+      "country": "Germany",
+      "service": "Residence Visa",
+      "quote": "After 3 months in Germany trying to figure out the Paraguayan immigration system, LEALTIS sorted everything in 6 weeks. Incredible service.",
+      "rating": 5,
+      "date": "2024-08"
+    },
+    {
+      "name": "Marie Dubois",
+      "country": "France",
+      "service": "Business Setup",
+      "quote": "They set up my SRL while I was still in Paris. When I arrived, my company was ready to operate. Outstanding pre-establishment support.",
+      "rating": 5,
+      "date": "2024-06"
+    },
+    {
+      "name": "Thomas Andersen",
+      "country": "Denmark",
+      "service": "Digital Nomad Visa",
+      "quote": "The remote worker visa process was much simpler with LEALTIS handling the details. Now I work from Asunción full-time.",
+      "rating": 5,
+      "date": "2024-07"
+    },
+    {
+      "name": "Sophie\nMartin",
+      "country": "Belgium",
+      "service": "Real Estate",
+      "quote": "Found our dream home within 2 weeks. They knew exactly what to look for and handled all the negotiations in Spanish.",
+      "rating": 5,
+      "date": "2024-05"
+    },
+    {
+      "name": "Pedro Santos",
+      "country": "Portugal",
+      "service": "Tax Planning",
+      "quote": "The tax filing service saved me so much time. Professional, accurate, and good value.",
+      "rating": 4,
+      "date": "2024-04"
+    }
+  ]
+}

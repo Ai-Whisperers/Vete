@@ -1,7 +1,5 @@
 {
   "id": "terrapet",
-  "vertical": "clinic",
-  "subVertical": "pet",
   "name": "Terra Pet",
   "tagline": "Para Nosotros, Ellos Son Familia",
   "contact": {
@@ -59,8 +57,8 @@
     "logo_width": 150,
     "logo_height": 56,
     "favicon_url": "/branding/terrapet/images/favicon.ico",
-    "hero_image_url": "/branding/terrapet/images/hero-bg.jpg",
-    "og_image_url": "/branding/terrapet/images/og-image.jpg",
+    "hero_image_url": "/branding/terrapet/images/hero-bg.svg",
+    "og_image_url": "/branding/terrapet/images/og-image.svg",
     "apple_touch_icon": "/branding/terrapet/images/apple-touch-icon.png"
   },
   "ui_labels": {

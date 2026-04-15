@@ -2,38 +2,51 @@
   "id": "arasy",
   "name": "Barrio Cerrado Arasy",
   "tagline": "Tu hogar seguro en el corazón de Central",
-  "vertical": "realestate",
-  "subVertical": "gated-community",
-  "slug": "arasy",
-  "language": "es",
-  "modules": {
-    "home": true,
-    "about": true,
-    "properties": true,
-    "amenities": true,
-    "location": true,
-    "contact": true,
-    "booking": false,
-    "store": false,
-    "wholesale": false,
-    "faq": true,
-    "testimonials": true,
-    "gallery": true
-  },
   "contact": {
     "whatsapp_number": "595981123456",
     "phone_display": "+595 981 123 456",
     "email": "ventas@barrioarasy.com.py",
     "address": "Camino Luque - Areguá, Central, Paraguay",
+    "city": "Areguá",
+    "country": "Paraguay",
     "google_maps_id": ""
   },
+  "social": {
+    "facebook": "https://facebook.com/barrioarasy",
+    "instagram": "https://instagram.com/barrioarasy",
+    "tiktok": ""
+  },
+  "hours": {
+    "weekdays": "08:00 - 18:00",
+    "saturday": "09:00 - 14:00",
+    "sunday": "Cerrado"
+  },
+  "settings": {
+    "currency": "PYG",
+    "currency_symbol": "Gs",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "accepts_insurance": false,
+    "delivery_enabled": false,
+    "modules": {
+      "toxic_checker": false,
+      "age_calculator": false,
+      "growth_charts": false,
+      "vaccine_tracker": false,
+      "qr_tags": false,
+      "loyalty_program": false,
+      "online_store": false,
+      "booking": false
+    }
+  },
   "branding": {
-    "logo_url": "",
+    "logo_url": "/branding/arasy/images/logo.svg",
     "logo_width": 180,
     "logo_height": 50,
     "favicon_url": "/favicon.ico",
-    "hero_image_url": "",
-    "og_image_url": ""
+    "hero_image_url": "/branding/arasy/images/hero-bg.svg",
+    "og_image_url": "/branding/arasy/images/og-image.svg"
   },
   "ui_labels": {
     "nav": {
@@ -49,21 +62,24 @@
     "home": {
       "visit_us": "Visítanos"
     },
-    "properties": {
-      "title": "Nuestras Viviendas",
-      "subtitle": "Diseños modernos con espacios pensados para tu familia"
+    "services": {
+      "title": "Nuestros Servicios"
     },
-    "amenities": {
-      "title": "Amenities",
-      "subtitle": "Todo lo que necesitás para vivir bien"
+    "about": {
+      "title": "Sobre Nosotros"
     },
-    "location": {
-      "title": "Ubicación",
-      "subtitle": "Convenientemente ubicado"
+    "portal": {},
+    "store": {},
+    "cart": {},
+    "checkout": {},
+    "booking": {},
+    "common": {
+      "loading": "Cargando...",
+      "error": "Error"
     },
-    "contact": {
-      "title": "Contáctanos",
-      "subtitle": "Estamos para ayudarte a encontrar tu nuevo hogar"
+    "auth": {},
+    "errors": {
+      "404_title": "No encontrado"
     }
   }
 }

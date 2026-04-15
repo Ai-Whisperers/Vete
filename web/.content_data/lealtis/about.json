@@ -1,0 +1,65 @@
+{
+  "intro": {
+    "badge": "Nuestra Historia",
+    "title": "Tu Puente Entre Europa y Paraguay",
+    "content": "LEALTIS nació de la experiencia personal de europeos que encontraron en Paraguay un nuevo hogar. Sabemos los desafíos, los trámites y las oportunidades porque los hemos vivido. Nuestro objetivo es hacer tu transición lo más fluida posible."
+  },
+  "mission": {
+    "title": "Misión",
+    "content": "Proporcionar a ciudadanos europeos una ruta clara y confiable para establecerse en Paraguay, eliminando la burocracia y el estrés del proceso migratorio."
+  },
+  "vision": {
+    "title": "Visión",
+    "content": "Ser la plataforma de referencia para europeos que buscan hacer de Paraguay su nuevo hogar, siendo reconocidos por nuestra excelencia en servicio y compromiso con cada cliente."
+  },
+  "values": [
+    {
+      "title": "Transparencia",
+      "description": "Precios claros, procesos claros, expectativas claras. Sin letra pequeña."
+    },
+    {
+      "title": "Confianza",
+      "description": "Cada cliente es único. Tratamos tu proceso como si fuera nuestro."
+    },
+    {
+      "title": "Experiencia",
+      "description": "Años de experiencia navegando el sistema Paraguayo. Sabemos cómo funcionan las cosas."
+    },
+    {
+      "title": "Seguimiento",
+      "description": "No te dejamos solo. Estamos contigo en cada paso del camino."
+    }
+  ],
+  "team": [
+    {
+      "name": "Hans Müller",
+      "role": "Fundador & Director",
+      "bio": "Alemán establecido en Paraguay desde 2015. Conoce el sistema desde ambos lados.",
+      "image": "/branding/lealtis/images/team/hans.jpg"
+    },
+    {
+      "name": "María González",
+      "role": "Directora Legal",
+      "bio": "Abogada Paraguaya con especialización en derecho migratorio. Matrícula #8421.",
+      "image": "/branding/lealtis/images/team/maria.jpg"
+    },
+    {
+      "name": "Pierre Dubois",
+      "role": "Asesor de Negocios",
+      "bio": "Francés con 15 años creando empresas en Paraguay. Comparte su experiencia.",
+      "image": "/branding/lealtis/images/team/pierre.jpg"
+    },
+    {
+      "name": "Ana Ruiz",
+      "role": "Coordinadora de Clientes",
+      "bio": "Tu primer contacto.确保 tu experiencia sea fluida.",
+      "image": "/branding/lealtis/images/team/ana.jpg"
+    }
+  ],
+  "stats": [
+    { "value": "500+", "label": "Clientes Establecidos" },
+    { "value": "10+", "label": "Años de Experiencia" },
+    { "value": "98%", "label": "Tasa de Éxito" },
+    { "value": "24h", "label": "Tiempo de Respuesta" }
+  ]
+}

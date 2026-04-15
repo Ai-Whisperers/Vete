@@ -1,7 +1,5 @@
 {
   "id": "clinica-duerksen",
-  "vertical": "clinic",
-  "subVertical": "human",
   "name": "Clínica Duerksen",
   "tagline": "Odontología de excelencia en Asunción",
   "contact": {
@@ -14,11 +12,11 @@
     "google_maps_id": ""
   },
   "social": {
-    "facebook": "",
-    "instagram": "",
-    "linkedin": "",
-    "tiktok": "",
-    "youtube": ""
+    "facebook": "https://facebook.com/Clinicaduerksen",
+    "instagram": "https://instagram.com/clinicaduerksen",
+    "linkedin": "https://linkedin.com/company/clinica-duerksen",
+    "youtube": "",
+    "tiktok": ""
   },
   "hours": {
     "weekdays": "08:00 - 12:00 / 14:30 - 18:00",
@@ -57,12 +55,12 @@
   },
   "branding": {
     "logo_url": "/branding/clinica-duerksen/images/logo.svg",
-    "logo_dark_url": "/branding/clinica-duerksen/images/logo-white.svg",
+    "logo_dark_url": "/branding/clinica-duerksen/images/logo-dark.svg",
     "logo_width": 180,
     "logo_height": 48,
-    "favicon_url": "/branding/clinica-duerksen/images/favicon.ico",
-    "hero_image_url": "/branding/clinica-duerksen/images/hero-bg.jpg",
-    "og_image_url": "/branding/clinica-duerksen/images/og-image.jpg"
+    "favicon_url": "/favicon.ico",
+    "hero_image_url": "/branding/clinica-duerksen/images/hero-bg.svg",
+    "og_image_url": "/branding/clinica-duerksen/images/og-image.svg"
   },
   "ui_labels": {
     "nav": {

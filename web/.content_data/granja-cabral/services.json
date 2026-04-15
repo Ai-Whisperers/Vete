@@ -21,22 +21,52 @@
       },
       "variants": [
         {
-          "name": "Mediano (M)",
-          "price_display": "Consultar",
-          "price_value": 0,
+          "name": "Mediano (M) - x30",
+          "price_display": "Gs. 28.000",
+          "price_value": 28000,
           "description": "Tamaño estándar"
         },
         {
-          "name": "Grande (L)",
-          "price_display": "Consultar",
-          "price_value": 0,
-          "description": "Tamaño grande"
+          "name": "Grande (L) - x30",
+          "price_display": "Gs. 32.000",
+          "price_value": 32000,
+          "description": "Tamaño grande - premium"
         },
         {
-          "name": "Extra Grande (XL)",
-          "price_display": "Consultar",
-          "price_value": 0,
+          "name": "Extra Grande (XL) - x30",
+          "price_display": "Gs. 38.000",
+          "price_value": 38000,
           "description": "Tamaño jumbo"
+        }
+      ]
+    },
+    {
+      "id": "eggs-pack",
+      "visible": true,
+      "category": "eggs",
+      "title": "Pack Familiar (10 maples)",
+      "icon": "egg",
+      "summary": "Pack ahorro — ideal para familias grandes",
+      "details": {
+        "description": "Pack de 10 maples (300 huevos) con descuento del 15%.",
+        "includes": [
+          "10 maples de 30",
+          "Entrega gratuita zona urbana",
+          "Descuento 15%"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Pack M (300 uds)",
+          "price_display": "Gs. 238.000",
+          "price_value": 238000,
+          "description": "Ahorro Gs. 42.000"
+        },
+        {
+          "name": "Pack L (300 uds)",
+          "price_display": "Gs. 272.000",
+          "price_value": 272000,
+          "description": "Ahorro Gs. 48.000"
         }
       ]
     },
@@ -46,16 +76,22 @@
       "category": "eggs",
       "title": "Venta Mayorista",
       "icon": "boxes-stacked",
-      "summary": "Pedidos por cajas — supermercados, panaderías, hoteles, restaurantes",
+      "summary": "Por cajas — supermercados, panaderías, hoteles, restaurantes",
       "details": {
         "description": "Servicio mayorista con entrega regular. Precios preferenciales por volumen. Ideal para negocios en Coronel Oviedo y Ruta 2."
       },
       "variants": [
         {
-          "name": "Por caja (360 uds)",
-          "price_display": "Consultar",
-          "price_value": 0,
-          "description": "Precio según volumen"
+          "name": "Caja Pequeña (12 maples)",
+          "price_display": "Gs. 280.000",
+          "price_value": 280000,
+          "description": "360 huevos"
+        },
+        {
+          "name": "Caja Grande (24 maples)",
+          "price_display": "Gs. 520.000",
+          "price_value": 520000,
+          "description": "720 huevos - mejor precio"
         }
       ]
     },
@@ -65,16 +101,28 @@
       "category": "meat",
       "title": "Pollos de Carne",
       "icon": "drumstick-bite",
-      "summary": "Pollos criados en la granja, listos para faena",
+      "summary": "Pollos criados en la granja — frescos",
       "details": {
-        "description": "Pollos de carne de nuestra propia crianza."
+        "description": "Pollos de carne de nuestra propia crianza, alimentados con balanceado de calidad."
       },
       "variants": [
         {
-          "name": "Por unidad",
-          "price_display": "Consultar",
-          "price_value": 0,
-          "description": ""
+          "name": "Por unidad (~2.5 kg)",
+          "price_display": "Gs. 25.000",
+          "price_value": 25000,
+          "description": "Listo para consumo"
+        },
+        {
+          "name": "Por media res",
+          "price_display": "Gs. 55.000",
+          "price_value": 55000,
+          "description": "~5 kg"
+        },
+        {
+          "name": "Por res entera",
+          "price_display": "Gs. 100.000",
+          "price_value": 100000,
+          "description": "~10 kg"
         }
       ]
     },
@@ -84,16 +132,41 @@
       "category": "agro",
       "title": "Fertilizante Orgánico",
       "icon": "leaf",
-      "summary": "Guano procesado de gallinero — fertilizante natural",
+      "summary": "Guano procesado — fertilizante natural",
       "details": {
         "description": "Abono orgánico de alta calidad proveniente de nuestro gallinero. Ideal para cultivos y huertas."
       },
       "variants": [
         {
-          "name": "Por bolsa",
-          "price_display": "Consultar",
+          "name": "Bolsa small (5 kg)",
+          "price_display": "Gs. 15.000",
+          "price_value": 15000,
+          "description": "Para Huerta"
+        },
+        {
+          "name": "Bolsa grande (20 kg)",
+          "price_display": "Gs. 45.000",
+          "price_value": 45000,
+          "description": "Para cultivos"
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "visible": true,
+      "category": "service",
+      "title": "Delivery a Domicilio",
+      "icon": "truck",
+      "summary": "Te llevamos a casa — gratis en compras mayores a Gs. 150.000",
+      "details": {
+        "description": "Delivery gratis en Coronel Oviedo. Para otras zonas, consultá el alcance."
+      },
+      "variants": [
+        {
+          "name": "Delivery gratis",
+          "price_display": "Gs. 0",
           "price_value": 0,
-          "description": ""
+          "description": "En compras mayores a Gs. 150.000"
         }
       ]
     }

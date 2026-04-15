@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="t3bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D0D0D"/>
+      <stop offset="100%" style="stop-color:#1A0A0A"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#t3bg)"/>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">ASESINATO</text>
+  <text x="200" y="290" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">A</text>
+  <text x="200" y="330" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="#B71C1C">MEDIANOCHE</text>
+  <text x="200" y="390" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#E57373">Clara Mystery</text>
+  <text x="200" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#E57373" letter-spacing="3">THRILLER</text>
+</svg>

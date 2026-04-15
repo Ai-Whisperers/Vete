@@ -34,25 +34,85 @@
       "title": "Corazón de Hielo",
       "genre": "romance",
       "year": "2025",
+      "author": "María González",
       "image": "/branding/dayah/portfolio/romance-1.svg"
     },
     {
       "title": "El Último Reino",
       "genre": "fantasy",
       "year": "2025",
+      "author": "Carlos Rivera",
       "image": "/branding/dayah/portfolio/fantasy-1.svg"
     },
     {
       "title": "Sombras en la Noche",
       "genre": "thriller",
       "year": "2025",
+      "author": "Ana López",
       "image": "/branding/dayah/portfolio/thriller-1.svg"
     },
     {
       "title": "Despertar",
       "genre": "scifi",
       "year": "2024",
+      "author": "Roberto Díaz",
       "image": "/branding/dayah/portfolio/scifi-1.svg"
+    },
+    {
+      "title": "Amor Prohibido",
+      "genre": "romance",
+      "year": "2024",
+      "author": "Laura Mendoza",
+      "image": "/branding/dayah/portfolio/romance-2.svg"
+    },
+    {
+      "title": "El Mago Oscuro",
+      "genre": "fantasy",
+      "year": "2024",
+      "author": "Jorge Santos",
+      "image": "/branding/dayah/portfolio/fantasy-2.svg"
+    },
+    {
+      "title": "El Secreto del Río",
+      "genre": "thriller",
+      "year": "2024",
+      "author": "Sofia Benitez",
+      "image": "/branding/dayah/portfolio/thriller-2.svg"
+    },
+    {
+      "title": "Manual del Autor",
+      "genre": "non-fiction",
+      "year": "2024",
+      "author": "Pedro Weiss",
+      "image": "/branding/dayah/portfolio/nonfiction-1.svg"
+    },
+    {
+      "title": "Estrellas de Fuego",
+      "genre": "scifi",
+      "year": "2023",
+      "author": "Miguel Ángel",
+      "image": "/branding/dayah/portfolio/scifi-2.svg"
+    },
+    {
+      "title": "Pasión en la Habana",
+      "genre": "romance",
+      "year": "2023",
+      "author": "Isabel Cuba",
+      "image": "/branding/dayah/portfolio/romance-3.svg"
+    },
+    {
+      "title": "Dragonblood",
+      "genre": "fantasy",
+      "year": "2023",
+      "author": "Tomás Dragón",
+      "image": "/branding/dayah/portfolio/fantasy-3.svg"
+    },
+    {
+      "title": "Asesinato a Medianoche",
+      "genre": "thriller",
+      "year": "2023",
+      "author": "Clara Mystery",
+      "image": "/branding/dayah/portfolio/thriller-3.svg"
     }
   ]
 }

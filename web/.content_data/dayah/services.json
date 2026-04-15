@@ -200,6 +200,31 @@
         }
       ],
       "booking": { "online_enabled": true, "emergency_available": false }
+    },
+    {
+      "id": "rush-order",
+      "visible": true,
+      "category": "extras",
+      "title": "Servicio Rush",
+      "icon": "bolt",
+      "summary": "Entrega prioritaria en 3-5 días",
+      "details": {
+        "description": "¿Necesitas tu portada ayer? El servicio rush te da prioridad absoluta y entrega en 3-5 días en lugar de 7-10. Subject a disponibilidad.",
+        "includes": [
+          "Prioridad en la cola",
+          "Comunicación preferente",
+          "Entrega exprés"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Rush (3-5 días)",
+          "price_display": "+50%",
+          "price_value": 0,
+          "description": "50% surcharge sobre paquete elegido"
+        }
+      ],
+      "booking": { "online_enabled": false }
     }
   ]
 }

@@ -25,7 +25,7 @@ export * from './content'
 
 import type { TenantConfig } from './config'
 import type { TenantTheme } from './theme'
-import type { TenantImages, HomeData, ServicesData, AboutData, TestimonialsData, FaqData, LegalData } from './content'
+import type { TenantImages, HomeData, ServicesData, AboutData, TestimonialsData, FaqData, LegalData, PortfolioData } from './content'
 
 export interface TenantData {
   config: TenantConfig
@@ -37,4 +37,5 @@ export interface TenantData {
   testimonials?: TestimonialsData
   faq?: FaqData
   legal?: LegalData
+  portfolio?: PortfolioData
 }

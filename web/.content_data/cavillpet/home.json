@@ -50,9 +50,14 @@
     "expires": ""
   },
   "stats_section": {
-    "enabled": false,
-    "title": "Números que nos respaldan",
-    "stats": []
+    "enabled": true,
+    "title": "Lo que nos respaldan",
+    "stats": [
+      { "value": "5+", "label": "Años de Experiencia" },
+      { "value": "3.000+", "label": "Mascotas Atendidas" },
+      { "value": "4.8", "label": "Rating Google" },
+      { "value": "24/7", "label": "Urgencias" }
+    ]
   },
   "interactive_tools_section": {
     "enabled": true,
@@ -85,15 +90,20 @@
     "cta_text": "Ver Todos los Servicios"
   },
   "testimonials_section": {
-    "enabled": false,
+    "enabled": true,
     "title": "Lo que dicen nuestros clientes",
     "subtitle": "Historias reales de mascotas felices y dueños satisfechos.",
     "show_count": 3
   },
   "partners_section": {
-    "enabled": false,
+    "enabled": true,
     "title": "Marcas que Trabajamos",
-    "logos": []
+    "logos": [
+      { "name": "Royal Canin", "image": "/brands/royal-canin.png" },
+      { "name": "Purina", "image": "/brands/purina.png" },
+      { "name": "Merial", "image": "/brands/merial.png" },
+      { "name": "Zoetis", "image": "/brands/zoetis.png" }
+    ]
   },
   "cta_section": {
     "enabled": true,

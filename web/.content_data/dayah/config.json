@@ -1,7 +1,5 @@
 {
   "id": "dayah",
-  "vertical": "services",
-  "subVertical": "design",
   "name": "Dayah LitWorks",
   "tagline": "Diseño de portadas de libros que cuentan historias",
   "contact": {
@@ -13,9 +11,9 @@
     "address": "Asunción, Paraguay"
   },
   "social": {
-    "facebook": "",
+    "facebook": "https://facebook.com/DayahLitWorks",
     "instagram": "https://instagram.com/dayah.litworks",
-    "tiktok": "",
+    "tiktok": "https://tiktok.com/@dayah.litworks",
     "threads": ""
   },
   "hours": {
@@ -36,14 +34,14 @@
       "special_editions": true,
       "book_mockups": true,
       "portfolio": true,
+      "booking": true,
       "toxic_checker": false,
       "age_calculator": false,
       "growth_charts": false,
       "vaccine_tracker": false,
       "qr_tags": false,
       "loyalty_program": false,
-      "online_store": false,
-      "booking": false
+      "online_store": false
     },
     "accepts_insurance": false
   },

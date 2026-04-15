@@ -1,7 +1,17 @@
-<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
-  <rect width="600" height="900" fill="#18181b"/>
-  <rect x="50" y="50" width="500" height="800" fill="#27272a"/>
-  <circle cx="300" cy="350" r="120" fill="#3b82f6" opacity="0.5"/>
-  <text x="300" y="400" font-family="Georgia, serif" font-size="36" fill="#3b82f6" text-anchor="middle" font-weight="bold">Despertar</text>
-  <text x="300" y="750" font-family="Inter, sans-serif" font-size="18" fill="#3b82f6" text-anchor="middle">Ciencia Ficción</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="s1bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#051B2C"/>
+      <stop offset="100%" style="stop-color:#0A2E4A"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#29B6F6"/>
+      <stop offset="100%" style="stop-color:#0288D1"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#s1bg)"/>
+  <polygon points="200,140 250,250 200,360 150,250" fill="none" stroke="url(#cyan)" stroke-width="1.5" opacity="0.5"/>
+  <text x="200" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" fill="#29B6F6">DESPERTAR</text>
+  <text x="200" y="340" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#81D4FA">Roberto Díaz</text>
+  <text x="200" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#29B6F6" letter-spacing="3">CIENCIA FICCIÓN</text>
 </svg>

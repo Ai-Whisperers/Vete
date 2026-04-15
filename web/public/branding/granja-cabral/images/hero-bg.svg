@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D5233;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1A331D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#grad)"/>
+  <rect x="400" y="150" width="400" height="300" fill="#FFFFFF" opacity="0.1" rx="10"/>
+  <text x="600" y="280" font-family="Inter, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Granja Cabral</text>
+  <text x="600" y="340" font-family="Inter, sans-serif" font-size="20" fill="#A7F3D0" text-anchor="middle">Huevos Frescos del Campo</text>
+</svg>

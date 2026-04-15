@@ -47,7 +47,7 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <body className={`${playfairDisplay.variable} ${inter.variable} antialiased`}>
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

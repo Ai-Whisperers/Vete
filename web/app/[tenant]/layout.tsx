@@ -100,13 +100,12 @@ export default async function TenantLayout({ children, params }: Props) {
 
   return (
     <html lang="es" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} antialiased`}
-        style={cssVars as React.CSSProperties}
-      >
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+      <body className="antialiased font-sans">
+        <div id="app" style={cssVars as React.CSSProperties}>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </div>
       </body>
     </html>
   )

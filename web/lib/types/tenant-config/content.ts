@@ -335,3 +335,31 @@ export interface TenantImages {
     service?: string
   }
 }
+
+// ============================================================================
+// Portfolio Data Types
+// ============================================================================
+
+export interface PortfolioItem {
+  title: string
+  genre: string
+  year: string
+  author: string
+  image: string
+}
+
+export interface PortfolioCategory {
+  id: string
+  name: string
+}
+
+export interface PortfolioIntro {
+  title: string
+  text: string
+}
+
+export interface PortfolioData {
+  intro: PortfolioIntro
+  categories: PortfolioCategory[]
+  items: PortfolioItem[]
+}

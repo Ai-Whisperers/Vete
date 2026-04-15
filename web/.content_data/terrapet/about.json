@@ -1,7 +1,7 @@
 {
   "intro": {
     "title": "Más que una Veterinaria, una Familia",
-    "text": "Veterinaria Adris nació en 2015 del sueño de la Dra. Adriana Benítez: crear un espacio donde cada mascota recibiera atención médica de primer nivel con el amor de un hogar. Lo que comenzó como una pequeña clínica en Santa Teresa se ha convertido en uno de los centros veterinarios más completos de Asunción, atendiendo a más de 15.000 mascotas y sus familias.\n\nNuestra filosofía es simple: tratamos a cada paciente como si fuera nuestro propio compañero. Combinamos tecnología de punta con el trato humano y cercano que nos caracteriza. Desde un simple baño hasta una cirugía compleja, cada visita a Adris es una experiencia de confianza y cariño.",
+    "text": "Terra Pet nació en 2015 del sueño de la Dra. Adriana Benítez: crear un espacio donde cada mascota recibiera atención médica de primer nivel con el amor de un hogar. Lo que comenzó como una pequeña clínica en Santa Teresa se ha convertido en uno de los centros veterinarios más completos de Asunción, atendiendo a más de 15.000 mascotas y sus familias.\n\nNuestra filosofía es simple: tratamos a cada paciente como si fuera nuestro propio compañero. Combinamos tecnología de punta con el trato humano y cercano que nos caracteriza. Desde un simple baño hasta una cirugía compleja, cada visita a Terra Pet es una experiencia de confianza y cariño.",
     "founded_year": 2015,
     "image": "/branding/terrapet/images/about-hero.jpg"
   },
@@ -40,7 +40,7 @@
       "name": "Dra. Adriana Benítez",
       "role": "Directora Médica & Fundadora",
       "image": "/branding/terrapet/images/team/adriana.jpg",
-      "bio": "Médica Veterinaria egresada de la UNA con más de 14 años de experiencia. Especialista en medicina interna de pequeños animales. Fundó Veterinaria Adris con la visión de ofrecer atención de primer nivel con calidez humana. Apasionada por la educación continua y el bienestar animal.",
+      "bio": "Médica Veterinaria egresada de la UNA con más de 14 años de experiencia. Especialista en medicina interna de pequeños animales. Fundó Terra Pet con la visión de ofrecer atención de primer nivel con calidez humana. Apasionada por la educación continua y el bienestar animal.",
       "specialties": ["Medicina Interna", "Geriatría", "Cardiología"],
       "education": [
         "Universidad Nacional de Asunción (UNA)",
@@ -135,7 +135,7 @@
     }
   ],
   "timeline": [
-    { "year": "2015", "event": "Fundación de Veterinaria Adris en Av. Santa Teresa" },
+    { "year": "2015", "event": "Fundación de Terra Pet en Av. Santa Teresa" },
     { "year": "2017", "event": "Inauguración del área de diagnóstico por imágenes" },
     { "year": "2019", "event": "Apertura del Spa & Grooming Premium" },
     { "year": "2021", "event": "Lanzamiento del sistema de Carnet Digital" },

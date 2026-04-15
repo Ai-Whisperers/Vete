@@ -46,5 +46,17 @@
     "category": "premades",
     "question": "¿Qué puedo personalizar en un premade?",
     "answer": "Puedes personalizar: título, nombre de autor, subtítulo, colores (dentro de lo posible), y algunas imágenes secundarias. El diseño base no se modifica."
+  },
+  {
+    "id": "rush-order",
+    "category": "urgencia",
+    "question": "¿Necesito mi portada con urgencia?",
+    "answer": "Ofrezco servicio rush subject availability. El surcharge es 50% adicional sobre el precio del paquete. available para proyectos de 3-5 días. Consulta disponibilidad antes de ordenar."
+  },
+  {
+    "id": "reorder",
+    "category": "descuentos",
+    "question": "¿Ofrecen descuentos por múltiples libros?",
+    "answer": "¡Sí! Si tienes una serie o necesitas múltiples portadas, tengo descuentos significativos: 2 portadas = 15% off, 3+ portadas = 25% off. Contáctame para un quote corporativo."
   }
 ]

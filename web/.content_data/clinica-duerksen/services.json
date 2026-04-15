@@ -22,10 +22,22 @@
       },
       "variants": [
         {
-          "name": "Consulta general",
-          "price_display": "Consultar",
-          "price_value": 0,
-          "description": ""
+          "name": "Limpieza dental",
+          "price_display": "Gs. 350.000",
+          "price_value": 350000,
+          "description": "Limpieza profesional con Ultrasonido"
+        },
+        {
+          "name": "Consulta inicial",
+          "price_display": "Gs. 150.000",
+          "price_value": 150000,
+          "description": "Evaluación y plan de tratamiento"
+        },
+        {
+          "name": "Blanqueamiento",
+          "price_display": "Gs. 1.200.000",
+          "price_value": 1200000,
+          "description": "Láser - sesión completa"
         }
       ],
       "booking": {
@@ -51,19 +63,18 @@
       },
       "variants": [
         {
-          "name": "Implante unitario",
-          "price_display": "Consultar",
-          "price_value": 0,
-          "description": ""
+          "name": "Implante + Corona",
+          "price_display": "Gs. 4.500.000",
+          "price_value": 4500000,
+          "description": "Implante con corona de zirconio"
+        },
+        {
+          "name": "Solo implante",
+          "price_display": "Gs. 3.200.000",
+          "price_value": 3200000,
+          "description": "Implant + surgery"
         }
       ],
-      "booking": {
-        "online_enabled": true,
-        "emergency_available": false
-      }
-    },
-    {
-      "id": "ortodoncia",
       "visible": true,
       "category": "specialty",
       "title": "Ortodoncia",

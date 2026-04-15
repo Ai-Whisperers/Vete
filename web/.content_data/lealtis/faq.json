@@ -1,0 +1,54 @@
+{
+  "faq": [
+    {
+      "category": "visa",
+      "question": "¿Cuánto tiempo tarda el proceso de visa de residencia?",
+      "answer": "El proceso típico toma 2-4 meses desde la presentación hasta la obtención del cédula. El tiempo exacto depende del tipo de visa y la carga de trabajo de Migraciones."
+    },
+    {
+      "category": "visa",
+      "question": "¿Necesito viajar a Paraguay para obtener la residencia?",
+      "answer": "Para la mayoría de visas de residencia, sí debes estar presente en Paraguay para el trámite de cedulación. Algunos tipos de visa permiten gestión mediante representante legal."
+    },
+    {
+      "category": "visa",
+      "question": "¿Cuánto dinero necesito invertir para una visa de inversor?",
+      "answer": "El mínimo requerido es aproximadamente USD 70,000 en inversiones verificables en Paraguay. Esto puede ser en bienes raíces, negocio, o depósitos bancarios."
+    },
+    {
+      "category": "business",
+      "question": "¿Puedo crear una empresa siendo extranjero?",
+      "answer": "Sí,完全是. Los extranjeros pueden crear empresas en Paraguay con los mismos derechos que los nacionales. Solo necesitas tu pasaporte vigente y algún documento de identidad local."
+    },
+    {
+      "category": "business",
+      "question": "¿Cuánto tarda crear una empresa en Paraguay?",
+      "answer": "El processo típico toma 2-3 semanas para una SA o SRL, incluyendo obtención del RUC y constitución formal."
+    },
+    {
+      "category": "tax",
+      "question": "¿Como residente debo pagar impuestos en Paraguay?",
+      "answer": "Los residentes que permanecen más de 183 días al año en Paraguay se consideran residentes fiscales y deben declarar ingresos globales. Hay tratados de doble imposición con varios países."
+    },
+    {
+      "category": "realestate",
+      "question": "¿Puedo comprar propiedad siendo extranjero?",
+      "answer": "Sí, los extranjeros pueden comprar propiedad en Paraguay sin restricciones. No se requiere residencia para comprar bienes raíces."
+    },
+    {
+      "category": "living",
+      "question": "¿Es Paraguay seguro para vivir?",
+      "answer": "Paraguay es uno de los países más seguros de Latinoamérica. Asunción tiene índices de criminalidad comparables a ciudades europeas similares."
+    },
+    {
+      "category": "living",
+      "question": "¿Cuál es el costo de vida en Paraguay?",
+      "answer": "El costo de vida es significativamente menor que en Europa. Un estilo de vida cómodo puede cost entre €1,500-2,500/mes para una familia, dependiendo del estándar."
+    },
+    {
+      "category": "living",
+      "question": "¿Habla la gente inglés?",
+      "answer": "En Asunción y áreas urbanas, muchos profesionales hablan inglés. En zonas rurales, menos. Aprender español es muy recomendado para la integración completa."
+    }
+  ]
+}

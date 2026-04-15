@@ -88,9 +88,79 @@ export type {
 } from './types/tenant-config'
 
 import type {
-  TenantData,
-  UiLabels,
   TenantConfig,
+  ContactInfo,
+  SocialLinks,
+  HoursInfo,
+  ModuleSettings,
+  TenantSettings,
+  BrandingAssets,
+  StatsInfo,
+
+  // UI Labels types
+  UiLabels,
+  NavLabels,
+  FooterLabels,
+  HomeLabels,
+  ServicesLabels,
+  AboutLabels,
+  PortalLabels,
+  StoreLabels,
+  CartLabels,
+  CheckoutLabels,
+  BookingLabels,
+  CommonLabels,
+  AuthLabels,
+  ToolsLabels,
+  ErrorLabels,
+
+  // Home data types
+  HomeData,
+  HeroSection,
+  FeatureItem,
+  PromoBanner,
+  StatsSection,
+  InteractiveToolsSection,
+  ServicesPreview,
+  TestimonialsSection,
+  PartnersSection,
+  CtaSection,
+  SeoMetadata,
+
+  // Services data types
+  ServicesData,
+  Service,
+  ServiceVariant,
+  ServiceDetails,
+  ServiceBooking,
+
+  // About data types
+  AboutData,
+  TeamMember,
+  ValueItem,
+  FacilitiesInfo,
+  Certification,
+  TimelineEvent,
+
+  // Testimonials types
+  TestimonialsData,
+  Testimonial,
+
+  // FAQ types
+  FaqData,
+  FaqItem,
+
+  // Legal types
+  LegalData,
+  PrivacyPolicy,
+  TermsOfService,
+  CookiePolicy,
+
+  // Portfolio types
+  PortfolioData,
+  PortfolioItem,
+
+  // Theme types
   TenantTheme,
   TenantImages,
   TenantImage,
@@ -160,6 +230,7 @@ const _getTenantData = async (slug: string): Promise<TenantData | null> => {
   const testimonials = readJson<TestimonialsData>('testimonials.json')
   const faq = readJson<FaqData>('faq.json')
   const legal = readJson<LegalData>('legal.json')
+  const portfolio = readJson<PortfolioData>('portfolio.json')
 
   // Load global UI labels
   const globalUiLabelsPath = path.join(CONTENT_DIR, 'ui_labels.json')
@@ -195,6 +266,7 @@ const _getTenantData = async (slug: string): Promise<TenantData | null> => {
     testimonials: testimonials || undefined,
     faq: faq || undefined,
     legal: legal || undefined,
+    portfolio: portfolio || undefined,
   }
 }
 

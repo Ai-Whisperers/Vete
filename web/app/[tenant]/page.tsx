@@ -36,7 +36,7 @@ export default async function TenantPage({ params }: Props) {
     notFound()
   }
 
-  const { config, theme, home, about, services, faq, testimonials } = data
+  const { config, theme, home, about, services, faq, testimonials, portfolio } = data
   const colors = theme?.colors || {}
   
   const primaryColor = getColor(colors.primary)
@@ -95,6 +95,34 @@ export default async function TenantPage({ params }: Props) {
                 <div key={i} className="p-6 rounded-xl text-center" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
                   <h4 className="text-lg font-bold mb-2" style={{ color: text.primary }}>{f.title}</h4>
                   <p style={{ color: text.secondary }}>{f.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {portfolio?.items?.length > 0 && (
+        <section id="portfolio" className="py-16 px-6">
+          <div className="max-w-6xl mx-auto">
+            <h3 className="text-3xl font-bold text-center mb-4" style={{ color: text.primary }}>
+              {portfolio?.intro?.title || 'Portafolio'}
+            </h3>
+            <p className="text-center mb-12" style={{ color: text.secondary }}>
+              {portfolio?.intro?.text || 'Una selección de mis trabajos recientes'}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {portfolio.items.slice(0, 12).map((item: any, i: number) => (
+                <div key={i} className="rounded-lg overflow-hidden" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-full aspect-[2/3] object-cover"
+                  />
+                  <div className="p-3">
+                    <h4 className="font-medium text-sm" style={{ color: text.primary }}>{item.title}</h4>
+                    <p className="text-xs" style={{ color: text.secondary }}>{item.author}</p>
+                  </div>
                 </div>
               ))}
             </div>

@@ -1,10 +1,10 @@
 {
   "hero": {
-    "badge_text": "Envio Discreto",
+    "badge_text": "Envío Discreto",
     "headline": "Tu Tienda de Placer",
-    "subhead": "Hace tus compras online o veni a visitarnos. Delivery a todo el pais con total discrecion.",
+    "subhead": "Haz tus compras online o vení a visitarnos. Delivery a todo el país con total discreción.",
     "cta_primary": "Explorar Tienda",
-    "cta_secondary": "Contactanos",
+    "cta_secondary": "Contáctanos",
     "cta_secondary_link": "whatsapp",
     "trust_badges": [
       { "icon": "truck", "text": "Envio a Todo el Pais" },
@@ -16,21 +16,21 @@
     {
       "icon": "lock",
       "title": "100% Discreto",
-      "text": "Empaque neutro, facturacion discreta y envio confidencial garantizado."
+      "text": "Empaque нейтральный, facturación discreta y envío confidencial garantizado."
     },
     {
       "icon": "truck",
-      "title": "Delivery a Todo el Pais",
-      "text": "Envios rapidos y seguros a cualquier punto de Paraguay."
+      "title": "Delivery a Todo el País",
+      "text": "Envíos rápidos y seguros a cualquier punto de Paraguay."
     },
     {
       "icon": "shield-check",
       "title": "Productos de Calidad",
-      "text": "Seleccion de las mejores marcas con garantia de calidad."
+      "text": "Selección de las mejores marcas con garantía de calidad."
     },
     {
       "icon": "heart",
-      "title": "Atencion Personalizada",
+      "title": "Atención Personalizada",
       "text": "Te asesoramos para encontrar el producto perfecto para vos."
     }
   ],
@@ -42,12 +42,12 @@
   },
   "stats_section": {
     "enabled": true,
-    "title": "Numeros que nos respaldan",
+    "title": "Números que nos respaldan",
     "stats": [
-      { "value": "7+", "label": "Anos de Experiencia" },
+      { "value": "7+", "label": "Años de Experiencia" },
       { "value": "5.000+", "label": "Clientes Satisfechos" },
       { "value": "200+", "label": "Productos Disponibles" },
-      { "value": "100%", "label": "Envio Discreto" }
+      { "value": "100%", "label": "Envío Discreto" }
     ]
   },
   "interactive_tools_section": {

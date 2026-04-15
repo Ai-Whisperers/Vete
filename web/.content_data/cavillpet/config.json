@@ -1,12 +1,10 @@
 {
   "id": "cavillpet",
-  "vertical": "clinic",
-  "subVertical": "pet",
   "name": "CavillPet",
   "tagline": "Cercanía y trato familiar",
   "contact": {
-    "whatsapp_number": "0991965767",
-    "phone_display": "+595 991 965 767",
+    "whatsapp_number": "09919657670",
+    "phone_display": "+595 991 965 7670",
     "email": "contacto@cavillpet.com",
     "address": "San Juan Bautista y Silvio Pettirossi",
     "city": "San Lorenzo",

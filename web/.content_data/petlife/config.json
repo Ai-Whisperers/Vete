@@ -1,7 +1,5 @@
 {
   "id": "petlife",
-  "vertical": "clinic",
-  "subVertical": "pet",
   "name": "PetLife Center",
   "tagline": "Tecnología y Salud Animal de Vanguardia",
   "contact": {
@@ -53,14 +51,13 @@
     }
   },
   "branding": {
-    "logo_url": "/branding/petlife/logo.png",
-    "logo_dark_url": "/branding/petlife/logo-dark.png",
+    "logo_url": "/branding/petlife/images/logo.svg",
+    "logo_dark_url": "/branding/petlife/images/logo-dark.svg",
     "logo_width": 160,
     "logo_height": 50,
-    "favicon_url": "/branding/petlife/favicon.ico",
-    "hero_image_url": "/branding/petlife/hero-bg.jpg",
-    "og_image_url": "/branding/petlife/og-image.jpg",
-    "apple_touch_icon": "/branding/petlife/apple-touch-icon.png"
+    "favicon_url": "/favicon.ico",
+    "hero_image_url": "/branding/petlife/images/hero-bg.svg",
+    "og_image_url": "/branding/petlife/images/og-image.svg"
   },
   "ui_labels": {
     "nav": {

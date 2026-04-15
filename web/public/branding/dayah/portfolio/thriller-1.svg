@@ -1,8 +1,15 @@
-<svg width="600" height="900" xmlns="http://www.w3.org/2000/svg">
-  <rect width="600" height="900" fill="#0a0a0a"/>
-  <rect x="50" y="50" width="500" height="800" fill="#1a1a1a"/>
-  <rect x="100" y="200" width="400" height="8" fill="#ef4444"/>
-  <text x="300" y="400" font-family="Georgia, serif" font-size="28" fill="white" text-anchor="middle" font-weight="bold">Sombras en</text>
-  <text x="300" y="440" font-family="Georgia, serif" font-size="28" fill="white" text-anchor="middle" font-weight="bold">la Noche</text>
-  <text x="300" y="750" font-family="Inter, sans-serif" font-size="18" fill="#ef4444" text-anchor="middle">Thriller</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="t1bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D0D0D"/>
+      <stop offset="100%" style="stop-color:#1A1A1A"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#t1bg)"/>
+  <line x1="40" y1="200" x2="360" y2="200" stroke="#B71C1C" stroke-width="2"/>
+  <line x1="40" y1="380" x2="360" y2="380" stroke="#B71C1C" stroke-width="2"/>
+  <text x="200" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" fill="#FFFFFF">SOMBRAS</text>
+  <text x="200" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" fill="#FFFFFF">EN LA NOCHE</text>
+  <text x="200" y="350" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#B71C1C">Ana López</text>
+  <text x="200" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#B71C1C" letter-spacing="3">THRILLER</text>
 </svg>

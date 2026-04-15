@@ -1,7 +1,15 @@
 {
   "intro": {
     "title": "Sobre Dayah LitWorks",
-    "text": "Me dedico a crear portadas de libros que cuentan historias antes de que el lector abra la primera página. Como diseñadora especializada en portadas para autores independientes, entiendo que la portada es la primera impresión y puede determinar el éxito de tu libro. Cada proyecto es único, y trabajo contigo para crear una portada que capture la esencia de tu historia y conecte con tu audiencia objetivo."
+    "badge": "Diseñadora de Portadas",
+    "text": "Me dedico a crear portadas de libros que cuentan historias antes de que el lector abra la primera página. Como diseñadora especializada en portadas para autores independientes, entiendo que la portada es la primera impresión y puede determinar el éxito de tu libro. Cada proyecto es único, y trabajo contigo para crear una portada que capture la esencia de tu historia y conecte con tu audiencia objetivo.",
+    "image": "/branding/dayah/images/designer.jpg"
+  },
+  "designer": {
+    "name": "Dayah",
+    "role": "Fundadora & Diseñadora",
+    "bio": "más de 8 años creando portadas para autores independientes en español. He diseñado más de 200 portadas para escritores independiente.",
+    "highlight": "Más de 200 libros publicados con mis portadas"
   },
   "process": {
     "title": "Mi Proceso de Trabajo",
@@ -31,6 +39,22 @@
         "title": "Entrega",
         "description": "Recibes todos los archivos listos para publicar en cualquier plataforma."
       }
+    ]
+  },
+  "stats": [
+    { "value": "200+", "label": "Portadas Creadas" },
+    { "value": "8+", "label": "Años de Experiencia" },
+    { "value": "4.9", "label": "Rating Promedio" },
+    { "value": "48h", "label": "Tiempo Premade" }
+  ],
+  "trust": {
+    "title": "Plataformas donde publican mis clientes",
+    "logos": [
+      { "name": "Amazon KDP", "url": "https://amazon.com" },
+      { "name": "IngramSpark", "url": "https://ingarspark.com" },
+      { "name": "Draft2Digital", "url": "https://draft2digital.com" },
+      { "name": "Kobo", "url": "https://kobo.com" },
+      { "name": "Apple Books", "url": "https://books.apple.com" }
     ]
   },
   "specialties": [

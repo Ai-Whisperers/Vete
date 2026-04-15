@@ -1,7 +1,5 @@
 {
   "id": "stroopwafel-huis",
-  "vertical": "retail",
-  "subVertical": "food",
   "name": "Stroopwafel Huis",
   "tagline": "Verse Stroopwafels & Specialty Coffee",
   "contact": {
@@ -54,8 +52,8 @@
     "logo_width": 180,
     "logo_height": 48,
     "favicon_url": "/branding/stroopwafel-huis/images/favicon.ico",
-    "hero_image_url": "/branding/stroopwafel-huis/images/hero-bg.jpg",
-    "og_image_url": "/branding/stroopwafel-huis/images/og-image.jpg"
+    "hero_image_url": "/branding/stroopwafel-huis/images/hero-bg.svg",
+    "og_image_url": "/branding/stroopwafel-huis/images/og-image.svg"
   },
   "ui_labels": {
     "nav": {

@@ -1,0 +1,237 @@
+{
+  "meta": {
+    "title": "Programas de Establecimiento",
+    "subtitle": "Soluciones integrales para tu nueva vida en Paraguay. Te acompañamos en cada paso del proceso."
+  },
+  "services": [
+    {
+      "id": "residence-visa",
+      "visible": true,
+      "category": "immigration",
+      "title": "Visa de Residencia",
+      "icon": "passport",
+      "summary": "Asesoramiento completo para obtener tu residencia en Paraguay.",
+      "details": {
+        "description": "Te guiamos a través de todo el proceso de solicitud de visa de residencia, desde la documentación inicial hasta la obtención del cédula.",
+        "duration_months": "2-4",
+        "includes": [
+          "Asesoramiento inicial",
+          "Revisión de documentos",
+          "Gestión ante Migraciones",
+          "Seguimiento del proceso",
+          "Cédula de identidad extrapoljie"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Visa de Inversionista",
+          "price_display": "€2,500",
+          "price_value": 2500,
+          "description": "Para quienes inversieen USD 70,000+ en Paraguay"
+        },
+        {
+          "name": "Visa de Rentista",
+          "price_display": "€1,800",
+          "price_value": 1800,
+          "description": "Para pensiones o ingresos mínimos USD 1,000/mes"
+        },
+        {
+          "name": "Visa de Trabajo",
+          "price_display": "€1,200",
+          "price_value": 1200,
+          "description": "Con oferta laboral validada"
+        },
+        {
+          "name": "Visa de Universidad",
+          "price_display": "€800",
+          "price_value": 800,
+          "description": "Matrículauniversitaria vigente"
+        }
+      ],
+      "booking": { "online_enabled": true }
+    },
+    {
+      "id": "digital-nomad",
+      "visible": true,
+      "category": "immigration",
+      "title": "Visa Remote Worker",
+      "icon": "laptop",
+      "summary": "Nueva visa para trabajadores remotos.",
+      "details": {
+        "description": "Asistencia para visa de nómade digital - válida por hasta 2 años para quienes trabajan remotamente para empresas fuera de Paraguay.",
+        "duration_months": "1-2",
+        "includes": [
+          "Evaluación de elegibilidad",
+          "Preparación de documentación",
+          "Solicitud a Migraciones",
+          "Renovación提醒"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Solicitud Completa",
+          "price_display": "€1,200",
+          "price_value": 1200,
+          "description": "Todo el proceso"
+        },
+        {
+          "name": "Solo Asesoramiento",
+          "price_display": "€300",
+          "price_value": 300,
+          "description": "Evaluación y guía sin gestión"
+        }
+      ],
+      "booking": { "online_enabled": true }
+    },
+    {
+      "id": "business-setup",
+      "visible": true,
+      "category": "business",
+      "title": "Creación de Empresa",
+      "icon": "briefcase",
+      "summary": "Establece tu negocio en Paraguay de forma legal y rápida.",
+      "details": {
+        "description": "Fundamos tu empresa Paraguaya. Nos encargamos de toda la paperwork para que puedas enfocarte en hacer negocio.",
+        "duration_weeks": "2-3",
+        "includes": [
+          "Asesoría legal",
+          "Escritura pública",
+          "Inscripción en RCP",
+          "CUIT/RUC",
+          " Apertura de cuenta bancaria"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Sociedad Anónima (SA)",
+          "price_display": "€1,800",
+          "price_value": 1800,
+          "description": "Acciones al portador o nominativas"
+        },
+        {
+          "name": "Sociedad de Responsabilidad Limitada (SRL)",
+          "price_display": "€1,400",
+          "price_value": 1400,
+          "description": "Más común para kecil negocio"
+        },
+        {
+          "name": "Empresa Individual",
+          "price_display": "€600",
+          "price_value": 600,
+          "description": "Para entrepreneurs"
+        }
+      ],
+      "booking": { "online_enabled": true }
+    },
+    {
+      "id": "real-estate",
+      "visible": true,
+      "category": "investment",
+      "title": "Bienes Raíces",
+      "icon": "home",
+      "summary": "Encuentra tu hogar ideal con asesoría especializada.",
+      "details": {
+        "description": "Te ayudamos a encontrar, verificar y adquirir propiedad en Paraguay. Desde departamentos en Asunción hasta estancias.",
+        "duration_weeks": "4-8",
+        "includes": [
+          "Búsqueda personalizada",
+          "Verificación de títulos",
+          "Due diligence",
+          "Negociación",
+          "Gestión de escritura"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Búsqueda + Gestión",
+          "price_display": "€1,500",
+          "price_value": 1500,
+          "description": "Todo el proceso"
+        },
+        {
+          "name": "Solo Asesoramiento",
+          "price_display": "€500",
+          "price_value": 500,
+          "description": "Sin gestión de compra"
+        },
+        {
+          "name": "Property Management",
+          "price_display": "€200/mes",
+          "price_value": 200,
+          "description": "Gestión de propiedad"
+        }
+      ],
+      "booking": { "online_enabled": false }
+    },
+    {
+      "id": "tax-filing",
+      "visible": true,
+      "category": "legal",
+      "title": "Declaración de Impuestos",
+      "icon": "calculator",
+      "summary": "Asesoría fiscal para residentes y empresas.",
+      "details": {
+        "description": "Cumplimiento tributario en Paraguay. Declaraciones anuales, optimización fiscal.",
+        "duration_months": "Anual",
+        "includes": [
+          "Planificación fiscal",
+          "Declaración anual",
+          "Asesoría continua"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Persona Física",
+          "price_display": "€300/año",
+          "price_value": 300,
+          "description": "Para residentes"
+        },
+        {
+          "name": "Persona Jurídica",
+          "price_display": "€800/año",
+          "price_value": 800,
+          "description": "Para empresas"
+        },
+        {
+          "name": "Paquete Pyme",
+          "price_display": "€1,200/año",
+          "price_value": 1200,
+          "description": "Contabilidad completa"
+        }
+      ],
+      "booking": { "online_enabled": false }
+    },
+    {
+      "id": "concierge",
+      "visible": true,
+      "category": "services",
+      "title": "Servicio de Concierge",
+      "icon": "concierge",
+      "summary": "Soporte continuo para tu comodidad.",
+      "details": {
+        "description": "Tu asistente personal en Paraguay. Desde citas médicas hasta papelerías.",
+        "duration_months": "Mensual",
+        "includes": [
+          "Gestión de citas",
+          " assistance telefónica",
+          "Coordinación de servicios"
+        ]
+      },
+      "variants": [
+        {
+          "name": "Paquete Básico",
+          "price_display": "€150/mes",
+          "price_value": 150,
+          "description": "10 horas/mes"
+        },
+        {
+          "name": "Paquete Completo",
+          "price_display": "€400/mes",
+          "price_value": 400,
+          "description": "Ilimitado"
+        }
+      ],
+      "booking": { "online_enabled": true }
+    }
+  ]
+}

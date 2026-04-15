@@ -2,37 +2,183 @@
   "id": "lealtis",
   "name": "LEALTIS",
   "tagline": "Paraguay Establishment for Europeans",
-  "vertical": "services",
-  "subVertical": "relocation",
   "contact": {
-    "whatsapp_number": "595900000000",
-    "phone_display": "+595 900 000 000",
-    "email": "info@paragu-ai.com",
-    "address": "Asunción, Paraguay"
+    "whatsapp_number": "595981500500",
+    "phone_display": "+595 981 500 500",
+    "email": "info@lealtis.com.py",
+    "address": "Av. Olga Stamateris 557, Asunción",
+    "city": "Asunción",
+    "country": "Paraguay",
+    "google_maps_id": "ChIJN1t_tDeuEmsRUsoyG83frY4"
+  },
+  "social": {
+    "facebook": "https://facebook.com/lealtispy",
+    "instagram": "https://instagram.com/lealtis_py",
+    "youtube": "https://youtube.com/@LEALTISpy",
+    "linkedin": "https://linkedin.com/company/lealtis",
+    "tiktok": ""
+  },
+  "hours": {
+    "weekdays": "09:00 - 18:00",
+    "saturday": "09:00 - 13:00",
+    "sunday": "Cerrado",
+    "holidays": "Cerrado"
   },
   "settings": {
     "currency": "EUR",
+    "currency_symbol": "€",
+    "locale": "es-PY",
+    "timezone": "America/Asuncion",
+    "emergency_24h": false,
+    "accepts_insurance": false,
+    "delivery_enabled": false,
     "modules": {
-      "store": false,
-      "clinical": false,
-      "hospitalization": false,
-      "lab": false,
-      "booking": false
+      "toxic_checker": false,
+      "age_calculator": false,
+      "growth_charts": false,
+      "vaccine_tracker": false,
+      "qr_tags": false,
+      "loyalty_program": false,
+      "online_store": false,
+      "booking": true,
+      "telemedicine": false
     }
   },
   "branding": {
-    "logo_url": "",
-    "favicon_url": "/favicon.ico"
+    "logo_url": "/branding/lealtis/images/logo.svg",
+    "logo_dark_url": "/branding/lealtis/images/logo-dark.svg",
+    "logo_width": 180,
+    "logo_height": 50,
+    "favicon_url": "/favicon.ico",
+    "hero_image_url": "/branding/lealtis/images/hero-bg.svg",
+    "og_image_url": "/branding/lealtis/images/og-image.svg"
   },
   "ui_labels": {
     "nav": {
-      "home": "Home",
-      "services": "Programs",
-      "about": "About",
-      "book_btn": "Get Started"
+      "home": "Inicio",
+      "services": "Programas",
+      "about": "Nosotros",
+      "contact": "Contacto",
+      "book_btn": "Consultar"
     },
     "footer": {
-      "rights": "All rights reserved."
+      "rights": "Todos los derechos reservados.",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "contact_us": "Contacto",
+      "follow_us": "Síguenos"
+    },
+    "home": {
+      "hero_title": "Tu Nuevo Comienzo en Paraguay",
+      "hero_subtitle": "Te acompañamos en todo el proceso de establecimiento. Desde la visa hasta encontrar tu hogar.",
+      "hero_cta_primary": "Ver Programas",
+      "hero_cta_secondary": "Contactar",
+      "features_title": "¿Por Qué Paraguay?",
+      "features_subtitle": "Uno de los países con mejor calidad de vida en Latinoamérica",
+      "features_badge": "Ventajas",
+      "visit_us": "Visítanos"
+    },
+    "services": {
+      "meta_title": "Programas de Establecimiento",
+      "meta_subtitle": "Soluciones integrales para tu nueva vida en Paraguay",
+      "online_badge": "Disponible Online",
+      "description_label": "Descripción:",
+      "includes_label": "Incluye:",
+      "duration_label": "Duración:",
+      "table_variant": "Programa",
+      "table_price": "Precio",
+      "book_floating_btn": "Solicitar Información",
+      "filter_all": "Todos",
+      "filter_immigration": "Immigration",
+      "filter_business": "Negocios",
+      "filter_legal": "Legal",
+      "filter_realestate": "Bienes Raíces",
+      "view_details": "Ver Detalles",
+      "book_now": "Solicitar",
+      "contact_for_price": "Consultar Precio"
+    },
+    "about": {
+      "team_title": "Nuestro Equipo",
+      "intro_badge": "Nuestra Historia",
+      "mission_title": "Misión",
+      "vision_title": "Visión",
+      "values_title": "Valores"
+    },
+    "portal": {
+      "dashboard": {
+        "staff_title": "Portal LEALTIS",
+        "owner_title": "Mi Expediente",
+        "welcome": "Bienvenido/a, {name}",
+        "quick_actions": "Acciones Rápidas"
+      }
+    },
+    "store": {
+      "title": "Tienda",
+      "hero_title": "Productos",
+      "hero_subtitle": "Próximamente."
+    },
+    "cart": {
+      "title": "Carrito",
+      "empty": "Carrito vacío."
+    },
+    "checkout": {
+      "title": "Resumen"
+    },
+    "booking": {
+      "title": "Solicitar Consulta",
+      "select_service": "Selecciona un Programa",
+      "select_date": "Fecha Preferida",
+      "select_time": "Horario",
+      "your_info": "Tus Datos",
+      "confirm_btn": "Confirmar Solicitud",
+      "success_title": "¡Solicitud Enviada!",
+      "success_message": "Te contactaremos en 24 horas.",
+      "available_slots": "Horarios Disponibles",
+      "no_slots": "Contáctanos directamente."
+    },
+    "common": {
+      "loading": "Cargando...",
+      "error": "Ocurrió un error",
+      "retry": "Reintentar",
+      "actions": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirm": "Confirmar",
+        "close": "Cerrar",
+        "back": "Volver",
+        "next": "Siguiente",
+        "submit": "Enviar",
+        "search": "Buscar"
+      },
+      "validation": {
+        "required": "Campo obligatorio",
+        "invalid_email": "Email inválido",
+        "invalid_phone": "Teléfono inválido",
+        "min_length": "Mínimo {n} caracteres",
+        "max_length": "Máximo {n} caracteres"
+      }
+    },
+    "auth": {
+      "login_title": "Acceder",
+      "signup_title": "Registrarse",
+      "email_label": "Email",
+      "password_label": "Contraseña",
+      "confirm_password": "Confirmar Contraseña",
+      "forgot_password": "¿Olvidaste tu contraseña?",
+      "login_btn": "Ingresar",
+      "signup_btn": "Registrarse",
+      "no_account": "¿No tienes cuenta?",
+      "has_account": "¿Ya tienes cuenta?",
+      "logout": "Salir"
+    },
+    "errors": {
+      "404_title": "No encontrado",
+      "404_message": "La página solicitada no existe.",
+      "500_title": "Error interno",
+      "500_message": "Ocurrió un problema. Intenta más tarde.",
+      "go_home": "Ir al Inicio"
     }
   }
 }

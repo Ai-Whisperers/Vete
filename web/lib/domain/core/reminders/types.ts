@@ -1,12 +1,4 @@
-/**
- * Reminders Domain Types
- *
- * Types for reminder rules, reminders, and notification queue.
- */
-
-// ===========================================================================
-// ENUMS & CONSTANTS
-// ===========================================================================
+// ... existing types
 
 export type ReminderType =
   | 'vaccine_reminder'
@@ -22,32 +14,7 @@ export type ReminderType =
   | 'lab_results_ready'
   | 'hospitalization_update'
   | 'custom'
-
-export type ReminderStatus = 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'skipped'
-
-export type RuleType =
-  | 'vaccine_due'
-  | 'vaccine_overdue'
-  | 'appointment_before'
-  | 'appointment_after'
-  | 'birthday'
-  | 'wellness_checkup'
-  | 'medication_refill'
-  | 'custom'
-
-export type NotificationChannel = 'email' | 'sms' | 'whatsapp' | 'push' | 'in_app'
-
-export type NotificationStatus =
-  | 'queued'
-  | 'sending'
-  | 'sent'
-  | 'delivered'
-  | 'failed'
-  | 'bounced'
-
-// ===========================================================================
-// CORE ENTITIES
-// ===========================================================================
+  | 'appointment_reminder' // Added type for appointment reminders
 
 export interface ReminderRule {
   id: string
@@ -56,7 +23,7 @@ export interface ReminderRule {
   description: string | null
   type: RuleType
   days_offset: number
-  hours_offset: number
+  hours_offset: number | null
   time_of_day: string
   channels: NotificationChannel[]
   template_id: string | null
@@ -88,60 +55,6 @@ export interface Reminder {
   updated_at: string
 }
 
-export interface ReminderWithRelations extends Reminder {
-  client?: {
-    id: string
-    full_name: string
-    email: string
-    phone: string | null
-  }
-  pet?: {
-    id: string
-    name: string
-    species: string
-  }
-}
-
-export interface Notification {
-  id: string
-  tenant_id: string
-  reminder_id: string | null
-  client_id: string
-  channel_type: NotificationChannel
-  destination: string
-  subject: string | null
-  body: string
-  status: NotificationStatus
-  sent_at: string | null
-  delivered_at: string | null
-  opened_at: string | null
-  clicked_at: string | null
-  error_code: string | null
-  error_message: string | null
-  created_at: string
-}
-
-// ===========================================================================
-// INPUT TYPES
-// ===========================================================================
-
-export interface CreateRuleInput {
-  name: string
-  description?: string
-  type: RuleType
-  days_offset: number
-  hours_offset?: number
-  time_of_day?: string
-  channels: NotificationChannel[]
-  template_id?: string
-  conditions?: Record<string, unknown>
-  priority?: number
-}
-
-export interface UpdateRuleInput extends Partial<CreateRuleInput> {
-  is_active?: boolean
-}
-
 export interface CreateReminderInput {
   client_id: string
   pet_id?: string
@@ -153,18 +66,9 @@ export interface CreateReminderInput {
   custom_body?: string
 }
 
-export interface QueueNotificationInput {
-  reminder_id?: string
-  client_id: string
-  channel_type: NotificationChannel
-  destination: string
-  subject?: string
-  body: string
+export interface UpdateReminderInput extends Partial<CreateReminderInput> {
+  status?: ReminderStatus
 }
-
-// ===========================================================================
-// FILTER TYPES
-// ===========================================================================
 
 export interface ReminderFilters {
   client_id?: string
@@ -175,19 +79,6 @@ export interface ReminderFilters {
   to_date?: string
   pending_only?: boolean
 }
-
-export interface NotificationFilters {
-  reminder_id?: string
-  client_id?: string
-  channel_type?: NotificationChannel
-  status?: NotificationStatus
-  from_date?: string
-  to_date?: string
-}
-
-// ===========================================================================
-// STATISTICS
-// ===========================================================================
 
 export interface ReminderStats {
   pending_count: number

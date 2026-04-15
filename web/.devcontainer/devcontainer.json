@@ -1,0 +1,18 @@
+{
+  "image": "mcr.microsoft.com/vscode/devcontainers/base:alpine",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": [
+    "pip3 install --upgrade pip",
+    "pip3 install 'python-dev'",
+    "apt-get update",
+    "apt-get install -y libssl-dev libffi-dev python3-dev build-essential"
+  ],
+  "vscode": {
+    "extensions": [
+      "ms-python.python",
+      "ms-vscode-remote.remote-devcontainers"
+    ]
+  }
+}

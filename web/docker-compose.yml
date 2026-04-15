@@ -1,0 +1,10 @@
+version: '3'
+services:
+  devcontainer:
+    build: .devcontainer
+    volumes:
+      - .:/workspace
+    ports:
+      - "80:80"
+    command: bash
+These files will set up a devcontainer for the project, with the necessary dependencies and configurations for development. The devcontainer will use an Alpine Linux base image, install the required dependencies, and expose port 80. The VS Code settings will configure the Python interpreter, linter, and formatter. The extensions.json file will recommend the necessary extensions for development. The docker-compose.yml file will define a service for the devcontainer, mapping the local workspace folder to the container and exposing port 80.

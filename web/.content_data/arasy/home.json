@@ -1,8 +1,8 @@
 {
   "hero": {
-    "headline": "Barrio Cerrado Arasy",
-    "subhead": "Seguridad, Naturaleza y Calidad de Vida en el corazón de Central",
-    "cta_primary": "Ver Viviendas",
+    "headline": "Tu Casa Propia, Lista para Mudarte",
+    "subhead": "Viviendas desde Gs. 2.349.000. Seguidores, piscina, quinchos y más en Areguá, Central.",
+    "cta_primary": "Ver Proyectos",
     "cta_secondary": "Contáctanos"
   },
   "features": [
@@ -12,20 +12,25 @@
       "text": "Control de acceso y vigilancia perimetral las 24 horas"
     },
     {
-      "icon": "waves",
-      "title": "Piscina y Amenities",
-      "text": "Áreas comunes pensadas para tu familia"
+      "icon": "home",
+      "title": "Casas de 68m²",
+      "text": "3 dormitorios, 2 baños, patio y garage para 2 vehículos"
     },
     {
-      "icon": "trees",
-      "title": "Entorno Natural",
-      "text": "Amplios espacios verdes y senderos tranquilos"
+      "icon": "waves",
+      "title": "Amenities Familiares",
+      "text": "Piscina, quincho, parque infantil y cancha multiuso"
+    },
+    {
+      "icon": "credit-card",
+      "title": "Financiación Flexible",
+      "text": "Cuotas desde Gs. 2.349.000 sin entrega inicial"
     }
   ],
   "promo_banner": {
-    "enabled": false,
-    "text": "",
-    "link": ""
+    "enabled": true,
+    "text": "📍 Ubicados en Areguá - A 200m de ruta Luque-Areguá",
+    "link": "#location"
   },
   "testimonials_section": {
     "enabled": true,
@@ -33,15 +38,15 @@
     "subtitle": "Lo que dicen nuestras familias"
   },
   "seo": {
-    "meta_title": "Barrio Cerrado Arasy - Viviendas en Areguá, Paraguay",
-    "meta_description": "Barrio privado en Areguá con seguridad 24hs, piscina, quinchos y amenities familiares. Tu hogar soñado en Central.",
+    "meta_title": "Barrio Arasy - Casas en Venta en Areguá, Paraguay",
+    "meta_description": "Barrio cerrado en Areguá con seguridad 24hs, piscinas, quinchos y financiación desde Gs. 2.349.000. Tu casa propia espera.",
     "keywords": [
       "barrio cerrado Paraguay",
       "casa en venta Areguá",
       "inmobiliaria Central",
       "vivienda segura Paraguay",
       "barrio privado Asunción",
-      "lotes en venta"
+      "casa 3 dormitorios Paraguay"
     ]
   }
 }

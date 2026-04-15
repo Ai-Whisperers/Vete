@@ -1,20 +1,20 @@
 {
   "id": "arasy",
-  "name": "Barrio Cerrado Arasy",
-  "tagline": "Tu hogar seguro en el corazón de Central",
+  "name": "Barrio Arasy",
+  "tagline": "Tu sueño de casa propia comienza aquí",
   "contact": {
-    "whatsapp_number": "595981123456",
-    "phone_display": "+595 981 123 456",
-    "email": "ventas@barrioarasy.com.py",
+    "whatsapp_number": "595974424313",
+    "phone_display": "+595 974 424 313",
+    "email": "ventas@barriosarasy.com.py",
     "address": "Camino Luque - Areguá, Central, Paraguay",
     "city": "Areguá",
     "country": "Paraguay",
     "google_maps_id": ""
   },
   "social": {
-    "facebook": "https://facebook.com/barrioarasy",
-    "instagram": "https://instagram.com/barrioarasy",
-    "tiktok": ""
+    "facebook": "https://facebook.com/BarrioArasy",
+    "instagram": "https://instagram.com/barrio_arasy",
+    "tiktok": "https://tiktok.com/@barrio_arasy"
   },
   "hours": {
     "weekdays": "08:00 - 18:00",
@@ -41,7 +41,7 @@
     }
   },
   "branding": {
-    "logo_url": "/branding/arasy/images/logo.svg",
+    "logo_url": "/branding/arasy/images/arasy_logo_oficial_neg.svg",
     "logo_width": 180,
     "logo_height": 50,
     "favicon_url": "/favicon.ico",

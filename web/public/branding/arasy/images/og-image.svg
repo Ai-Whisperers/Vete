@@ -1,14 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#334155;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1E293B;stop-opacity:1" />
+    <linearGradient id="ogGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D5A27"/>
+      <stop offset="100%" style="stop-color:#11120c"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#grad)"/>
-  <rect x="350" y="100" width="500" height="430" fill="#FFFFFF" opacity="0.1" rx="10"/>
-  <rect x="400" y="200" width="400" height="200" fill="#22C55E" opacity="0.2" rx="5"/>
-  <text x="600" y="280" font-family="Inter, sans-serif" font-size="56" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Barrio Cerrado Arasy</text>
-  <text x="600" y="350" font-family="Inter, sans-serif" font-size="24" fill="#22C55E" text-anchor="middle">Tu Hogar Seguro en Central</text>
-  <text x="600" y="550" font-family="Inter, sans-serif" font-size="16" fill="#9CA3AF" text-anchor="middle">arasy.com.py</text>
+  <rect width="1200" height="630" fill="url(#ogGrad)"/>
+  <circle cx="600" cy="315" r="250" fill="#4A7C44" opacity="0.2"/>
+  <g transform="translate(350, 180)">
+    <rect x="0" y="0" width="500" height="270" fill="#FFFFFF" rx="8"/>
+    <polygon points="0,0 250,-100 500,0" fill="#6d340e"/>
+    <rect x="80" y="100" width="100" height="100" fill="#2D5A27" rx="4"/>
+    <rect x="320" y="100" width="100" height="100" fill="#2D5A27" rx="4"/>
+  </g>
+  <text x="600" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#FFFFFF">BARRIO ARASY</text>
+  <text x="600" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#c3d7af">Viviendas desde Gs. 2.349.000</text>
+  <text x="600" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#87af5f">📍 Areguá, Central | 🏠 3 Dormitorios | 🔒 Seguridad 24hs</text>
+  <g transform="translate(550, 520)">
+    <circle cx="30" cy="30" r="20" fill="#87af5f"/>
+    <circle cx="90" cy="30" r="20" fill="#c3d7af"/>
+    <circle cx="150" cy="30" r="20" fill="#4A7C44"/>
+  </g>
 </svg>

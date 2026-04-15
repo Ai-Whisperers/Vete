@@ -1,13 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#334155;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1E293B;stop-opacity:1" />
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D5A27"/>
+      <stop offset="60%" style="stop-color:#1E3D1A"/>
+      <stop offset="100%" style="stop-color:#11120c"/>
+    </linearGradient>
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6d340e"/>
+      <stop offset="100%" style="stop-color:#8B4513"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="600" fill="url(#grad)"/>
-  <rect x="350" y="100" width="500" height="400" fill="#FFFFFF" opacity="0.1" rx="10"/>
-  <rect x="400" y="200" width="400" height="200" fill="#22C55E" opacity="0.2" rx="5"/>
-  <text x="600" y="280" font-family="Inter, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Barrio Cerrado Arasy</text>
-  <text x="600" y="340" font-family="Inter, sans-serif" font-size="20" fill="#22C55E" text-anchor="middle">Tu Hogar Seguro en Central</text>
+  <rect width="1200" height="630" fill="url(#heroGrad)"/>
+  <g opacity="0.15">
+    <circle cx="100" cy="100" r="200" fill="#4A7C44"/>
+    <circle cx="1100" cy="500" r="300" fill="#4A7C44"/>
+  </g>
+  <g transform="translate(80, 280)">
+    <rect x="0" y="0" width="200" height="150" fill="#f5f5f5" rx="4"/>
+    <polygon points="0,0 100,-60 200,0" fill="url(#roofGrad)"/>
+    <rect x="30" y="60" width="50" height="60" fill="#2D5A27" rx="2"/>
+    <rect x="30" y="120" width="50" height="-40" fill="#87af5f"/>
+    <rect x="120" y="60" width="50" height="60" fill="#2D5A27" rx="2"/>
+    <rect x="120" y="120" width="50" height="60" fill="#87af5f"/>
+    <rect x="85" y="30" width="30" height="30" fill="#a5672e" rx="2"/>
+  </g>
+  <g transform="translate(350, 320)">
+    <rect x="0" y="0" width="180" height="130" fill="#f5f5f5" rx="4"/>
+    <polygon points="0,0 90,-50 180,0" fill="url(#roofGrad)"/>
+    <rect x="25" y="50" width="45" height="55" fill="#2D5A27" rx="2"/>
+    <rect x="110" y="50" width="45" height="55" fill="#2D5A27" rx="2"/>
+  </g>
+  <g transform="translate(600, 260)">
+    <rect x="0" y="0" width="220" height="160" fill="#f5f5f5" rx="4"/>
+    <polygon points="0,0 110,-70 220,0" fill="url(#roofGrad)"/>
+    <rect x="35" y="70" width="55" height="65" fill="#2D5A27" rx="2"/>
+    <rect x="35" y="135" width="55" height="25" fill="#c3d7af"/>
+    <rect x="105" y="70" width="55" height="65" fill="#2D5A27" rx="2"/>
+    <rect x="105" y="135" width="55" height="25" fill="#c3d7af"/>
+    <rect x="165" y="70" width="20" height="20" fill="#a5672e" rx="2"/>
+  </g>
+  <g transform="translate(900, 300)">
+    <rect x="0" y="0" width="200" height="140" fill="#f5f5f5" rx="4"/>
+    <polygon points="0,0 100,-55 200,0" fill="url(#roofGrad)"/>
+    <rect x="30" y="55" width="60" height="60" fill="#2D5A27" rx="2"/>
+    <rect x="110" y="55" width="60" height="60" fill="#2D5A27" rx="2"/>
+  </g>
+  <text x="600" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">BARRIO ARASY</text>
+  <text x="600" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#c3d7af">Tu sueño de casa propia comienza aquí</text>
+  <g transform="translate(520, 500)">
+    <circle cx="30" cy="30" r="20" fill="#87af5f"/>
+    <circle cx="90" cy="30" r="20" fill="#c3d7af"/>
+    <circle cx="150" cy="30" r="20" fill="#4A7C44"/>
+  </g>
+  <text x="600" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#FFFFFF" opacity="0.8">🏠 Arasy I • Arasy II • Arasy 3 | 📍 Areguá, Central</text>
 </svg>

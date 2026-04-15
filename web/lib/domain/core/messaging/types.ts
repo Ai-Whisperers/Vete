@@ -1,9 +1,3 @@
-/**
- * Messaging Domain Types
- *
- * Types for conversations, messages, and templates.
- */
-
 // ===========================================================================
 // ENUMS & CONSTANTS
 // ===========================================================================
@@ -149,7 +143,7 @@ export interface SendMessageInput {
   metadata?: Record<string, unknown>
 }
 
-export interface CreateTemplateInput {
+export interface CreateMessageTemplateInput {
   code: string
   name: string
   category: TemplateCategory
@@ -158,15 +152,26 @@ export interface CreateTemplateInput {
   content_html?: string
   variables?: string[]
   channels?: MessageChannel[]
-  language?: string
+  sms_approved: boolean
+  whatsapp_template_id?: string
+  language: string
 }
 
-export interface UpdateTemplateInput extends Partial<CreateTemplateInput> {
+export interface UpdateMessageTemplateInput {
+  name?: string
+  subject?: string
+  content?: string
+  content_html?: string
+  variables?: string[]
+  channels?: MessageChannel[]
+  sms_approved?: boolean
+  whatsapp_template_id?: string
+  language?: string
   is_active?: boolean
 }
 
 // ===========================================================================
-// FILTER TYPES
+// FILTERS
 // ===========================================================================
 
 export interface ConversationFilters {
@@ -176,7 +181,6 @@ export interface ConversationFilters {
   client_id?: string
   pet_id?: string
   assigned_to?: string
-  unassigned?: boolean
   has_unread?: boolean
   search?: string
 }

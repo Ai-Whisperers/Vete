@@ -1,9 +1,3 @@
-/**
- * Messaging Repository
- *
- * Data access layer for conversations, messages, and templates.
- */
-
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createSearchPattern } from '@/lib/utils/search'
 import type {
@@ -17,8 +11,8 @@ import type {
   SendMessageInput,
   MessageTemplate,
   TemplateFilters,
-  CreateTemplateInput,
-  UpdateTemplateInput,
+  CreateMessageTemplateInput,
+  UpdateMessageTemplateInput,
 } from './types'
 
 export class MessagingRepository {
@@ -69,16 +63,12 @@ export class MessagingRepository {
       query = query.eq('assigned_to', filters.assigned_to)
     }
 
-    if (filters.unassigned) {
-      query = query.is('assigned_to', null)
-    }
-
     if (filters.has_unread) {
       query = query.gt('unread_staff_count', 0)
     }
 
     if (filters.search) {
-      const safePattern = createSearchPattern(filters.search);
+      const safePattern = createSearchPattern(filters.search)
       query = query.ilike('subject', safePattern)
     }
 
@@ -148,50 +138,22 @@ export class MessagingRepository {
   ): Promise<Conversation> {
     const { data, error } = await this.supabase
       .from('conversations')
-      .update({ status })
-      .eq('id', conversationId)
-      .eq('tenant_id', tenantId)
-      .select()
-      .single()
-
-    if (error) throw new Error(`Error al actualizar estado: ${error.message}`)
-    return data as Conversation
-  }
-
-  async updateConversationAssignment(
-    conversationId: string,
-    tenantId: string,
-    assignedTo: string | null
-  ): Promise<Conversation> {
-    const { data, error } = await this.supabase
-      .from('conversations')
       .update({
-        assigned_to: assignedTo,
-        assigned_at: assignedTo ? new Date().toISOString() : null,
+        status,
       })
       .eq('id', conversationId)
       .eq('tenant_id', tenantId)
-      .select()
+      .is('deleted_at', null)
+      .select(
+        `
+        *,
+        client:profiles!client_id(id, full_name, email),
+        pet:pets(id, name)
+      `
+      )
       .single()
 
-    if (error) throw new Error(`Error al asignar conversación: ${error.message}`)
-    return data as Conversation
-  }
-
-  async updateConversationPriority(
-    conversationId: string,
-    tenantId: string,
-    priority: ConversationPriority
-  ): Promise<Conversation> {
-    const { data, error } = await this.supabase
-      .from('conversations')
-      .update({ priority })
-      .eq('id', conversationId)
-      .eq('tenant_id', tenantId)
-      .select()
-      .single()
-
-    if (error) throw new Error(`Error al actualizar prioridad: ${error.message}`)
+    if (error) throw new Error(`Error al actualizar conversación: ${error.message}`)
     return data as Conversation
   }
 
@@ -210,12 +172,14 @@ export class MessagingRepository {
       .select(
         `
         *,
-        sender:profiles!sender_id(id, full_name)
+        sender:profiles!sender_id(id, full_name),
+        reply_to:messages!reply_to_id(*)
       `
       )
       .eq('conversation_id', conversationId)
       .eq('tenant_id', tenantId)
-      .order('created_at', { ascending: true })
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true, nullsFirst: false })
       .limit(limit)
 
     if (filters.sender_type) {
@@ -253,80 +217,62 @@ export class MessagingRepository {
         sender_id: input.sender_id,
         sender_type: input.sender_type,
         sender_name: input.sender_name,
-        message_type: input.message_type || 'text',
+        message_type: input.message_type,
         content: input.content,
         content_html: input.content_html,
-        attachments: input.attachments || [],
+        attachments: input.attachments,
         card_data: input.card_data,
         reply_to_id: input.reply_to_id,
-        metadata: input.metadata || {},
-        status: 'sent',
+        metadata: input.metadata,
       })
       .select(
         `
         *,
-        sender:profiles!sender_id(id, full_name)
+        sender:profiles!sender_id(id, full_name),
+        reply_to:messages!reply_to_id(*)
       `
       )
       .single()
 
-    if (error) throw new Error(`Error al enviar mensaje: ${error.message}`)
+    if (error) throw new Error(`Error al crear mensaje: ${error.message}`)
     return data as Message
-  }
-
-  async markConversationRead(
-    conversationId: string,
-    userType: 'client' | 'staff'
-  ): Promise<void> {
-    const { error } = await this.supabase.rpc('mark_conversation_read', {
-      p_conversation_id: conversationId,
-      p_user_type: userType,
-    })
-
-    if (error) throw new Error(`Error al marcar como leído: ${error.message}`)
-  }
-
-  async getUnreadCount(tenantId: string): Promise<number> {
-    const { data, error } = await this.supabase
-      .from('conversations')
-      .select('unread_staff_count')
-      .eq('tenant_id', tenantId)
-      .is('deleted_at', null)
-      .neq('status', 'closed')
-      .neq('status', 'spam')
-
-    if (error) throw new Error(`Error al obtener mensajes no leídos: ${error.message}`)
-
-    return data?.reduce((sum, c) => sum + (c.unread_staff_count || 0), 0) || 0
   }
 
   // ===========================================================================
   // TEMPLATES
   // ===========================================================================
 
-  async findTemplates(tenantId: string, filters: TemplateFilters = {}): Promise<MessageTemplate[]> {
+  async findTemplates(
+    tenantId: string,
+    filters: TemplateFilters = {}
+  ): Promise<MessageTemplate[]> {
     let query = this.supabase
       .from('message_templates')
-      .select('*')
-      .or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
+      .select(
+        `
+        *,
+        variables:json
+      `
+      )
+      .eq('tenant_id', tenantId)
       .is('deleted_at', null)
-      .order('name')
+      .order('name', { ascending: true, nullsFirst: false })
 
     if (filters.category) {
       query = query.eq('category', filters.category)
     }
 
     if (filters.channel) {
-      query = query.contains('channels', [filters.channel])
+      query = query.eq('channels', filters.channel)
     }
 
-    if (filters.is_active !== undefined) {
+    if (filters.is_active) {
       query = query.eq('is_active', filters.is_active)
     }
 
     if (filters.search) {
-      const safePattern = createSearchPattern(filters.search);
-      query = query.or(`name.ilike.${safePattern},code.ilike.${safePattern}`)
+      const safePattern = createSearchPattern(filters.search)
+      query = query.ilike('name', safePattern)
     }
 
     const { data, error } = await query
@@ -335,26 +281,32 @@ export class MessagingRepository {
     return (data || []) as MessageTemplate[]
   }
 
-  async findTemplateByCode(code: string, tenantId: string): Promise<MessageTemplate | null> {
+  async findTemplateById(
+    templateId: string,
+    tenantId: string
+  ): Promise<MessageTemplate | null> {
     const { data, error } = await this.supabase
       .from('message_templates')
-      .select('*')
-      .eq('code', code)
-      .or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
+      .select(
+        `
+        *,
+        variables:json
+      `
+      )
+      .eq('id', templateId)
+      .eq('tenant_id', tenantId)
       .is('deleted_at', null)
-      .order('tenant_id', { ascending: false, nullsFirst: false })
-      .limit(1)
       .single()
 
     if (error) {
       if (error.code === 'PGRST116') return null
-      throw new Error(`Error al obtener plantilla: ${error.message}`)
+      throw new Error(`Error al cargar plantilla: ${error.message}`)
     }
 
     return data as MessageTemplate
   }
 
-  async createTemplate(tenantId: string, input: CreateTemplateInput): Promise<MessageTemplate> {
+  async createMessageTemplate(tenantId: string, input: CreateMessageTemplateInput): Promise<MessageTemplate> {
     const { data, error } = await this.supabase
       .from('message_templates')
       .insert({
@@ -366,82 +318,55 @@ export class MessagingRepository {
         content: input.content,
         content_html: input.content_html,
         variables: input.variables,
-        channels: input.channels || ['in_app'],
-        language: input.language || 'es',
-        is_active: true,
+        channels: input.channels,
+        sms_approved: input.sms_approved,
+        whatsapp_template_id: input.whatsapp_template_id,
+        language: input.language,
+        is_active: input.is_active,
       })
-      .select()
+      .select(
+        `
+        *,
+        variables:json
+      `
+      )
       .single()
 
     if (error) throw new Error(`Error al crear plantilla: ${error.message}`)
     return data as MessageTemplate
   }
 
-  async updateTemplate(
+  async updateMessageTemplate(
     templateId: string,
     tenantId: string,
-    updates: UpdateTemplateInput
+    input: UpdateMessageTemplateInput
   ): Promise<MessageTemplate> {
     const { data, error } = await this.supabase
       .from('message_templates')
-      .update(updates)
+      .update({
+        name: input.name,
+        subject: input.subject,
+        content: input.content,
+        content_html: input.content_html,
+        variables: input.variables,
+        channels: input.channels,
+        sms_approved: input.sms_approved,
+        whatsapp_template_id: input.whatsapp_template_id,
+        language: input.language,
+        is_active: input.is_active,
+      })
       .eq('id', templateId)
       .eq('tenant_id', tenantId)
-      .select()
+      .is('deleted_at', null)
+      .select(
+        `
+        *,
+        variables:json
+      `
+      )
       .single()
 
     if (error) throw new Error(`Error al actualizar plantilla: ${error.message}`)
     return data as MessageTemplate
-  }
-
-  async softDeleteTemplate(templateId: string, tenantId: string, deletedBy: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('message_templates')
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: deletedBy,
-      })
-      .eq('id', templateId)
-      .eq('tenant_id', tenantId)
-
-    if (error) throw new Error(`Error al eliminar plantilla: ${error.message}`)
-  }
-
-  // ===========================================================================
-  // STATISTICS
-  // ===========================================================================
-
-  async getConversationsForStats(
-    tenantId: string
-  ): Promise<
-    Array<{
-      status: string
-      unread_staff_count: number
-      created_at: string
-      last_staff_message_at: string | null
-      last_client_message_at: string | null
-    }>
-  > {
-    const { data, error } = await this.supabase
-      .from('conversations')
-      .select(
-        'status, unread_staff_count, created_at, last_staff_message_at, last_client_message_at'
-      )
-      .eq('tenant_id', tenantId)
-      .is('deleted_at', null)
-
-    if (error) throw new Error(`Error al obtener estadísticas: ${error.message}`)
-    return data || []
-  }
-
-  async getMessageCountForDate(tenantId: string, fromDate: string): Promise<number> {
-    const { count, error } = await this.supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('tenant_id', tenantId)
-      .gte('created_at', fromDate)
-
-    if (error) throw new Error(`Error al contar mensajes: ${error.message}`)
-    return count || 0
   }
 }

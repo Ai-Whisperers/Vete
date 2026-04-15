@@ -3,28 +3,38 @@
     "headline": "Tu Casa Propia, Lista para Mudarte",
     "subhead": "Viviendas desde Gs. 2.349.000. Seguidores, piscina, quinchos y más en Areguá, Central.",
     "cta_primary": "Ver Proyectos",
-    "cta_secondary": "Contáctanos"
+    "cta_secondary": "Contáctanos",
+    "trust_badges": [
+      { "icon": "shield-check", "text": "Seguridad 24/7" },
+      { "icon": "home", "text": "68m²" },
+      { "icon": "waves", "text": "Piscina" }
+    ]
   },
+  "trust_bar": [
+    { "value": "50+", "label": "Viviendas" },
+    { "value": "24/7", "label": "Seguridad" },
+    { "value": "15 has", "label": "Área Total" }
+  ],
   "features": [
     {
       "icon": "shield-check",
       "title": "Seguridad 24/7",
-      "text": "Control de acceso y vigilancia perimetral las 24 horas"
+      "description": "Control de acceso y vigilancia perimetral las 24 horas"
     },
     {
       "icon": "home",
       "title": "Casas de 68m²",
-      "text": "3 dormitorios, 2 baños, patio y garage para 2 vehículos"
+      "description": "3 dormitorios, 2 baños, patio y garage para 2 vehículos"
     },
     {
       "icon": "waves",
       "title": "Amenities Familiares",
-      "text": "Piscina, quincho, parque infantil y cancha multiuso"
+      "description": "Piscina, quincho, parque infantil y cancha multiuso"
     },
     {
       "icon": "credit-card",
       "title": "Financiación Flexible",
-      "text": "Cuotas desde Gs. 2.349.000 sin entrega inicial"
+      "description": "Cuotas desde Gs. 2.349.000 sin entrega inicial"
     }
   ],
   "promo_banner": {
@@ -36,6 +46,14 @@
     "enabled": true,
     "title": "Testimonios",
     "subtitle": "Lo que dicen nuestras familias"
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "items": [
+      { "question": "¿Cuál es el precio de las viviendas?", "answer": "Los precios varían según el modelo y tamaño. Contáctanos para una cotización personalizada." },
+      { "question": "¿El barrio cuenta con servicios públicos?", "answer": "Sí, todas las viviendas incluyen conexión a agua, luz y fibra óptica." },
+      { "question": "¿Se permiten mascotas?", "answer": "Sí, Arasy es un barrio pet-friendly con áreas verdes exclusivas para mascotas." }
+    ]
   },
   "seo": {
     "meta_title": "Barrio Arasy - Casas en Venta en Areguá, Paraguay",

@@ -91,6 +91,8 @@ export interface BrandingAssets {
   logo_height?: number
   favicon_url?: string
   hero_image_url?: string
+  hero_image_mobile_url?: string
+  about_hero_url?: string
   og_image_url?: string
   apple_touch_icon?: string
 }

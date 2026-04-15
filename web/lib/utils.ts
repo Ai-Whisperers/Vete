@@ -1,7 +1,29 @@
+import { createClient } from '@supabase/supabase-js'
+
 /**
- * Utility Functions
- *
- * This file re-exports all utilities from lib/utils/.
- * Imports from '@/lib/utils' will work seamlessly.
+ * Log query execution time
  */
-export * from './utils/index'
+export function logQuery(query: string, executionTime: number): void {
+  console.log(`Query executed in ${executionTime}ms: ${query}`)
+}
+
+/**
+ * Create a Supabase client with logging
+ */
+export function createClientWithLogging(): SupabaseClient {
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      hooks: {
+        query: {
+          handled: (query, { executionTime }) => {
+            logQuery(query, executionTime)
+          },
+        },
+      },
+    }
+  )
+
+  return supabase
+}

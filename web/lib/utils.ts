@@ -1,7 +1,9 @@
-/**
- * Utility Functions
- *
- * This file re-exports all utilities from lib/utils/.
- * Imports from '@/lib/utils' will work seamlessly.
- */
-export * from './utils/index'
+import { createClient } from '@/lib/supabase/client'
+
+const supabase = createClient()
+
+export async function sendAlert(message: string) {
+  // Implement alert sending logic here
+  // For example, using a notification service or email
+  console.log(`Sending alert: ${message}`)
+}

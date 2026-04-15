@@ -1,51 +1,107 @@
-/**
- * Payment Domain Types
- *
- * Type definitions for the payment domain layer.
- * Re-exports base types from entities and adds domain-specific types.
- */
+import { z } from 'zod'
 
-// Re-export base entity types
-export type {
-  Payment,
-  PaymentWithDetails,
-  RecordPaymentInput,
-  Refund,
-  RefundSummary,
-} from '@/lib/types/entities/invoice'
+export const PaymentStatus = z.enum(['pending', 'completed', 'failed', 'refunded', 'cancelled'])
+export type PaymentStatus = z.infer<typeof PaymentStatus>
 
-/**
- * Filters for listing payments
- */
+export const PaymentMethod = z.enum(['cash', 'card', 'transfer', 'check', 'credit', 'other'])
+export type PaymentMethod = z.infer<typeof PaymentMethod>
+
+export interface Payment {
+  id: string
+  tenant_id: string
+  invoice_id: string
+  amount: number
+  payment_method: PaymentMethod
+  payment_reference: string | null
+  status: PaymentStatus
+  payment_date: string
+  received_by: string
+  notes: string | null
+}
+
+export interface PaymentWithDetails {
+  id: string
+  tenant_id: string
+  invoice_id: string
+  amount: number
+  payment_method: PaymentMethod
+  payment_reference: string | null
+  status: PaymentStatus
+  payment_date: string
+  received_by: string
+  notes: string | null
+  invoice: {
+    id: string
+    tenant_id: string
+    client_id: string
+    pet_id: string | null
+    invoice_number: string
+    appointment_id: string | null
+    medical_record_id: string | null
+    hospitalization_id: string | null
+    subtotal: number
+    discount_amount: number
+    discount_reason: string | null
+    tax_rate: number
+    tax_amount: number
+    total_amount: number
+    amount_paid: number
+    balance_due: number
+    status: string
+    due_date: string
+    paid_at: string | null
+    sent_at: string | null
+    voided_at: string | null
+    voided_by: string | null
+    notes: string | null
+    internal_notes: string | null
+    created_by: string
+    created_at: string
+    updated_at: string
+  }
+}
+
+export interface Refund {
+  id: string
+  tenant_id: string
+  payment_id: string
+  invoice_id: string
+  amount: number
+  reason: string
+  refund_method: PaymentMethod
+  refund_reference: string | null
+  status: PaymentStatus
+  refunded_at: string
+  processed_by: string
+  notes: string | null
+}
+
 export interface PaymentListFilters {
-  /** Filter by invoice ID */
   invoiceId?: string
-  /** Filter by payment status */
-  status?: 'pending' | 'completed' | 'failed' | 'refunded'
-  /** Filter by payment method */
-  paymentMethod?: string
-  /** Filter by date range (paid_at >= fromDate) */
+  status?: PaymentStatus
+  paymentMethod?: PaymentMethod
   fromDate?: string
-  /** Filter by date range (paid_at <= toDate) */
   toDate?: string
-  /** Pagination: page number (1-based) */
   page?: number
-  /** Pagination: items per page */
   limit?: number
 }
 
-/**
- * Refund input data
- */
-export interface ProcessRefundInput {
-  paymentId: string
-  amount: number
-  reason: string
+export interface PaymentListResult {
+  payments: Payment[]
+  count: number
+  page: number
+  limit: number
 }
 
-/**
- * Payment summary for reporting
- */
+export interface RecordPaymentInput {
+  invoice_id: string
+  amount: number
+  payment_method: PaymentMethod
+  payment_reference?: string | null
+  notes?: string | null
+  paid_at?: string
+}
+
 export interface PaymentSummary {
   total_collected: number
   total_refunded: number
@@ -54,14 +110,4 @@ export interface PaymentSummary {
   refund_count: number
   period_start: string
   period_end: string
-}
-
-/**
- * Paginated payment list result
- */
-export interface PaymentListResult {
-  payments: import('@/lib/types/entities/invoice').Payment[]
-  count: number
-  page: number
-  limit: number
 }

@@ -1,10 +1,3 @@
-/**
- * Payment Service
- *
- * Business logic for payment operations.
- * Orchestrates repository calls and applies business rules.
- */
-
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { PaymentRepository } from './repository'
 import type {
@@ -54,16 +47,14 @@ export class PaymentService {
     userId: string,
     input: RecordPaymentInput
   ): Promise<Payment> {
-    const { invoice_id, amount, payment_method, reference_number, notes, paid_at } = input
-
     // Validate required fields
-    if (!invoice_id) {
+    if (!input.invoice_id) {
       throw new Error('Se requiere factura')
     }
-    if (!amount || amount <= 0) {
+    if (!input.amount || input.amount <= 0) {
       throw new Error('El monto del pago debe ser mayor a cero')
     }
-    if (!payment_method) {
+    if (!input.payment_method) {
       throw new Error('Se requiere método de pago')
     }
 
@@ -71,7 +62,7 @@ export class PaymentService {
     const { data: invoice, error: invoiceError } = await this.supabase
       .from('invoices')
       .select('id, tenant_id, total, amount_paid, balance_due, status')
-      .eq('id', invoice_id)
+      .eq('id', input.invoice_id)
       .eq('tenant_id', tenantId)
       .single()
 
@@ -79,23 +70,23 @@ export class PaymentService {
       throw new Error('Factura no encontrada')
     }
 
-    if (amount > invoice.balance_due) {
+    if (input.amount > invoice.balance_due) {
       throw new Error('El monto del pago excede el saldo pendiente')
     }
 
     const payment = await this.repository.create(tenantId, {
-      invoice_id,
-      amount,
-      payment_method_name: payment_method,
-      payment_reference: reference_number || null,
+      invoice_id: input.invoice_id,
+      amount: input.amount,
+      payment_method: input.payment_method,
+      payment_reference: input.payment_reference || null,
       status: 'completed',
-      payment_date: paid_at || new Date().toISOString(),
+      payment_date: input.payment_date || new Date().toISOString(),
       received_by: userId,
-      notes: notes || null,
+      notes: input.notes || null,
     })
 
     // Update invoice amounts
-    const newAmountPaid = roundCurrency(invoice.amount_paid + amount)
+    const newAmountPaid = roundCurrency(invoice.amount_paid + input.amount)
     const newBalanceDue = roundCurrency(invoice.total - newAmountPaid)
     const isPaid = newBalanceDue === 0
 
@@ -107,18 +98,18 @@ export class PaymentService {
         status: isPaid ? 'paid' : invoice.status,
         paid_at: isPaid ? new Date().toISOString() : null,
       })
-      .eq('id', invoice_id)
+      .eq('id', input.invoice_id)
 
     await logAudit('RECORD_PAYMENT', `payments/${payment.id}`, {
-      invoice_id,
-      amount,
-      payment_method,
+      invoice_id: input.invoice_id,
+      amount: input.amount,
+      payment_method: input.payment_method,
     })
 
     logger.info('[PaymentService] Payment recorded', {
       paymentId: payment.id,
-      invoiceId: invoice_id,
-      amount,
+      invoiceId: input.invoice_id,
+      amount: input.amount,
     })
 
     return payment
@@ -155,41 +146,9 @@ export class PaymentService {
       throw new Error('Pago no encontrado')
     }
 
-    if (amount > payment.amount) {
-      throw new Error('El monto del reembolso excede el monto del pago')
-    }
+    const refund = await this.repository.refund(tenantId, paymentId, amount, reason)
 
-    // Create refund
-    const refund = await this.repository.createRefund(tenantId, {
-      payment_id: paymentId,
-      amount,
-      reason,
-      status: 'completed',
-      processed_by: userId,
-    })
-
-    // Update invoice amounts
-    const { data: invoice } = await this.supabase
-      .from('invoices')
-      .select('total, amount_paid')
-      .eq('id', payment.invoice_id)
-      .single()
-
-    if (invoice) {
-      const newAmountPaid = roundCurrency(invoice.amount_paid - amount)
-      const newAmountDue = roundCurrency(invoice.total - newAmountPaid)
-
-      await this.supabase
-        .from('invoices')
-        .update({
-          amount_paid: newAmountPaid,
-          amount_due: newAmountDue,
-          status: newAmountDue > 0 ? 'sent' : 'paid',
-        })
-        .eq('id', payment.invoice_id)
-    }
-
-    await logAudit('PROCESS_REFUND', `refunds/${refund.id}`, {
+    await logAudit('REFUND_PAYMENT', `refunds/${refund.id}`, {
       payment_id: paymentId,
       amount,
       reason,
@@ -197,21 +156,11 @@ export class PaymentService {
 
     logger.info('[PaymentService] Refund processed', {
       refundId: refund.id,
-      paymentId,
+      paymentId: paymentId,
       amount,
     })
 
     return refund
-  }
-
-  /**
-   * Get refunds for an invoice
-   */
-  async getRefundsByInvoice(
-    invoiceId: string,
-    tenantId: string
-  ): Promise<Refund[]> {
-    return this.repository.findRefundsByInvoiceId(invoiceId, tenantId)
   }
 
   /**

@@ -1,10 +1,3 @@
-/**
- * Payment Repository
- *
- * Data access layer for payment operations.
- * Handles CRUD operations without business logic.
- */
-
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   Payment,
@@ -28,7 +21,35 @@ export class PaymentRepository {
       .from('payments')
       .select(`
         *,
-        receiver:profiles!payments_received_by_fkey(full_name)
+        invoice:invoices!payments_invoice_id_fkey(
+          id,
+          tenant_id,
+          client_id,
+          pet_id,
+          invoice_number,
+          appointment_id,
+          medical_record_id,
+          hospitalization_id,
+          subtotal,
+          discount_amount,
+          discount_reason,
+          tax_rate,
+          tax_amount,
+          total_amount,
+          amount_paid,
+          balance_due,
+          status,
+          due_date,
+          paid_at,
+          sent_at,
+          voided_at,
+          voided_by,
+          notes,
+          internal_notes,
+          created_by,
+          created_at,
+          updated_at
+        )
       `)
       .eq('id', id)
       .eq('tenant_id', tenantId)
@@ -91,7 +112,7 @@ export class PaymentRepository {
       query = query.eq('status', status)
     }
     if (paymentMethod) {
-      query = query.eq('payment_method_name', paymentMethod)
+      query = query.eq('payment_method', paymentMethod)
     }
     if (fromDate) {
       query = query.gte('payment_date', fromDate)
@@ -122,9 +143,9 @@ export class PaymentRepository {
     data: {
       invoice_id: string
       amount: number
-      payment_method_name: string
+      payment_method: PaymentMethod
       payment_reference?: string | null
-      status: string
+      status: PaymentStatus
       payment_date: string
       received_by: string
       notes?: string | null
@@ -152,11 +173,13 @@ export class PaymentRepository {
   async updateStatus(
     id: string,
     tenantId: string,
-    status: string
+    status: PaymentStatus
   ): Promise<Payment> {
-    const { data: payment, error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('payments')
-      .update({ status })
+      .update({
+        status,
+      })
       .eq('id', id)
       .eq('tenant_id', tenantId)
       .select()
@@ -166,144 +189,33 @@ export class PaymentRepository {
       throw new Error(`Error al actualizar pago: ${error.message}`)
     }
 
-    return payment as Payment
+    return data as Payment
   }
 
   /**
-   * Find refund by ID
+   * Process a refund for a payment
    */
-  async findRefundById(
-    id: string,
-    tenantId: string
-  ): Promise<Refund | null> {
-    const { data, error } = await this.supabase
-      .from('refunds')
-      .select('*')
-      .eq('id', id)
-      .eq('tenant_id', tenantId)
-      .single()
-
-    if (error || !data) return null
-    return data as Refund
-  }
-
-  /**
-   * List refunds for an invoice
-   */
-  async findRefundsByInvoiceId(
-    invoiceId: string,
-    tenantId: string
-  ): Promise<Refund[]> {
-    const { data: payments, error: paymentsError } = await this.supabase
-      .from('payments')
-      .select('id')
-      .eq('invoice_id', invoiceId)
-      .eq('tenant_id', tenantId)
-
-    if (paymentsError) {
-      throw new Error(`Error al cargar reembolsos: ${paymentsError.message}`)
-    }
-
-    if (!payments || payments.length === 0) {
-      return []
-    }
-
-    const paymentIds = payments.map((p) => p.id)
-
-    const { data, error } = await this.supabase
-      .from('refunds')
-      .select('*')
-      .in('payment_id', paymentIds)
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      throw new Error(`Error al cargar reembolsos: ${error.message}`)
-    }
-
-    return (data || []) as Refund[]
-  }
-
-  /**
-   * Create a refund record
-   */
-  async createRefund(
+  async refund(
     tenantId: string,
-    data: {
-      payment_id: string
-      amount: number
-      reason: string
-      status: string
-      processed_by: string
-      notes?: string | null
-    }
+    paymentId: string,
+    amount: number,
+    reason: string
   ): Promise<Refund> {
-    const { data: refund, error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('refunds')
       .insert({
         tenant_id: tenantId,
-        ...data,
+        payment_id: paymentId,
+        amount,
+        reason,
       })
       .select()
       .single()
 
     if (error) {
-      throw new Error(`Error al crear reembolso: ${error.message}`)
+      throw new Error(`Error al procesar reembolso: ${error.message}`)
     }
 
-    return refund as Refund
-  }
-
-  /**
-   * Get payment totals for a period
-   */
-  async getPaymentTotals(
-    tenantId: string,
-    periodStart: string,
-    periodEnd: string
-  ): Promise<{ total_paid: number; payment_count: number }> {
-    const { data, error } = await this.supabase
-      .from('payments')
-      .select('amount')
-      .eq('tenant_id', tenantId)
-      .eq('status', 'completed')
-      .gte('payment_date', periodStart)
-      .lte('payment_date', periodEnd)
-
-    if (error) {
-      throw new Error(`Error al calcular totales: ${error.message}`)
-    }
-
-    const payments = data || []
-    return {
-      total_paid: payments.reduce((sum, p) => sum + Number(p.amount), 0),
-      payment_count: payments.length,
-    }
-  }
-
-  /**
-   * Get refund totals for a period
-   */
-  async getRefundTotals(
-    tenantId: string,
-    periodStart: string,
-    periodEnd: string
-  ): Promise<{ total_refunded: number; refund_count: number }> {
-    const { data, error } = await this.supabase
-      .from('refunds')
-      .select('amount')
-      .eq('tenant_id', tenantId)
-      .eq('status', 'completed')
-      .gte('created_at', periodStart)
-      .lte('created_at', periodEnd)
-
-    if (error) {
-      throw new Error(`Error al calcular reembolsos: ${error.message}`)
-    }
-
-    const refunds = data || []
-    return {
-      total_refunded: refunds.reduce((sum, r) => sum + Number(r.amount), 0),
-      refund_count: refunds.length,
-    }
+    return data as Refund
   }
 }

@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import { LandingNav, LandingFooter, CookieConsent, FloatingWhatsApp } from '@/components/landing'
-import { getTranslations } from 'next-intl/server'
 import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 

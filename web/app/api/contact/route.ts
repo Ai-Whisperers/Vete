@@ -29,10 +29,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Store lead in Supabase
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase environment variables')
+      return NextResponse.json({ error: 'Configuration error' }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
     const { error: dbError } = await supabase.from('leads').insert({
       name: name.trim(),

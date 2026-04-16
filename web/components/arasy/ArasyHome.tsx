@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 interface ArasyHomeProps {
-  tenantData?: any
+  tenantData?: Record<string, unknown>
 }
 
 export function ArasyHome({ tenantData }: ArasyHomeProps) {

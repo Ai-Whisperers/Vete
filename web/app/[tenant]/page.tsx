@@ -21,10 +21,67 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function getColor(obj: any): string {
+interface ThemeColors {
+  primary?: string
+  secondary?: string
+  main?: string
+  contrast?: string
+}
+
+interface Theme {
+  colors?: {
+    primary?: ThemeColors
+    secondary?: ThemeColors
+    background?: {
+      default?: string
+      paper?: string
+      subtle?: string
+    }
+    text?: {
+      primary?: string
+      secondary?: string
+      muted?: string
+    }
+    border?: {
+      light?: string
+    }
+  }
+}
+
+interface ServiceItem {
+  title?: string
+  summary?: string
+  description?: string
+}
+
+interface TestimonialItem {
+  text?: string
+  author?: string
+}
+
+interface FaqItem {
+  question?: string
+  answer?: string
+}
+
+interface FeatureItem {
+  title?: string
+  text?: string
+}
+
+interface PortfolioItem {
+  image?: string
+  title?: string
+  author?: string
+}
+
+function getColor(obj: unknown): string {
   if (!obj) return '#ffffff'
   if (typeof obj === 'string') return obj
-  if (typeof obj === 'object' && typeof obj.main === 'string') return obj.main
+  if (typeof obj === 'object') {
+    const o = obj as Record<string, unknown>
+    if (typeof o.main === 'string') return o.main
+  }
   return '#ffffff'
 }
 
@@ -91,7 +148,7 @@ export default async function TenantPage({ params }: Props) {
         <section className="py-16 px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {home.features.map((f: any, i: number) => (
+              {home.features.map((f: FeatureItem, i: number) => (
                 <div key={i} className="p-6 rounded-xl text-center" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
                   <h4 className="text-lg font-bold mb-2" style={{ color: text.primary }}>{f.title}</h4>
                   <p style={{ color: text.secondary }}>{f.text}</p>
@@ -112,7 +169,7 @@ export default async function TenantPage({ params }: Props) {
               {portfolio?.intro?.text || 'Una selección de mis trabajos recientes'}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {portfolio.items.slice(0, 12).map((item: any, i: number) => (
+              {portfolio.items.slice(0, 12).map((item: PortfolioItem, i: number) => (
                 <div key={i} className="rounded-lg overflow-hidden" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
                   <img 
                     src={item.image} 
@@ -135,7 +192,7 @@ export default async function TenantPage({ params }: Props) {
           <div className="max-w-6xl mx-auto">
             <h3 className="text-3xl font-bold text-center mb-12" style={{ color: text.primary }}>Servicios</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {serviceList.slice(0, 6).map((s: any, i: number) => (
+              {serviceList.slice(0, 6).map((s: ServiceItem, i: number) => (
                 <div key={i} className="p-6 rounded-xl" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
                   <h4 className="text-lg font-bold mb-2" style={{ color: text.primary }}>{s.title}</h4>
                   <p style={{ color: text.secondary }}>{s.summary || s.description}</p>
@@ -160,7 +217,7 @@ export default async function TenantPage({ params }: Props) {
           <div className="max-w-6xl mx-auto">
             <h3 className="text-3xl font-bold text-center mb-12" style={{ color: text.primary }}>Testimonios</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonialList.slice(0, 3).map((t: any, i: number) => (
+              {testimonialList.slice(0, 3).map((t: TestimonialItem, i: number) => (
                 <div key={i} className="p-6 rounded-xl" style={{ backgroundColor: bg.paper, border: `1px solid ${border}` }}>
                   <p className="mb-4" style={{ color: text.secondary }}>"{t.text}"</p>
                   <p className="font-medium" style={{ color: text.primary }}>— {t.author}</p>
@@ -176,7 +233,7 @@ export default async function TenantPage({ params }: Props) {
           <div className="max-w-4xl mx-auto">
             <h3 className="text-3xl font-bold text-center mb-8" style={{ color: text.primary }}>Preguntas Frecuentes</h3>
             <div className="space-y-4">
-              {faqList.slice(0, 5).map((f: any, i: number) => (
+              {faqList.slice(0, 5).map((f: FaqItem, i: number) => (
                 <div key={i} className="p-4 rounded-lg" style={{ backgroundColor: bg.paper }}>
                   <h4 className="font-medium mb-2" style={{ color: text.primary }}>{f.question}</h4>
                   <p style={{ color: text.secondary }}>{f.answer}</p>

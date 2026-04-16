@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { LandingNav, LandingFooter, CookieConsent, FloatingWhatsApp } from '@/components/landing'
-import { ArrowRight, MapPin, DollarSign, Users, Star } from 'lucide-react'
+import { ArrowRight, MapPin, DollarSign, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

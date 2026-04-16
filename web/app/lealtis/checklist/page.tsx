@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { LandingNav, LandingFooter, CookieConsent, FloatingWhatsApp } from '@/components/landing'
-import { ArrowRight, CheckSquare, Square, Clock, FileText, Plane, Calendar, Home } from 'lucide-react'
+import { ArrowRight, Square, Clock, FileText, Plane, Calendar, Home } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

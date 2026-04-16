@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { LandingNav, LandingFooter, CookieConsent, FloatingWhatsApp } from '@/components/landing'
-import { ArrowRight, Users, DollarSign, Handshake, FileText, CheckCircle2 } from 'lucide-react'
-import Link from 'next/link'
+import { Users, DollarSign, Handshake, FileText, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'LEALTIS Partner Program — Earn Referral Commissions',

@@ -11,13 +11,13 @@ export function LandingNav(): React.ReactElement {
   const t = useTranslations('nav')
 
   const navLinks = [
-    { href: '/programas', label: t('programs') },
-    { href: '/por-que-paraguay', label: t('whyParaguay') },
-    { href: '/como-funciona', label: t('howItWorks') },
-    { href: '/precios', label: 'Pricing' },
-    { href: '/comparar', label: 'Compare' },
-    { href: '/faq', label: t('faq') },
-    { href: '/blog', label: t('blog') },
+    { href: '/lealtis/programas', label: t('programs') },
+    { href: '/lealtis/por-que-paraguay', label: t('whyParaguay') },
+    { href: '/lealtis/como-funciona', label: t('howItWorks') },
+    { href: '/lealtis/precios', label: 'Pricing' },
+    { href: '/lealtis/comparar', label: 'Compare' },
+    { href: '/lealtis/faq', label: t('faq') },
+    { href: '/lealtis/blog', label: t('blog') },
   ]
 
   return (

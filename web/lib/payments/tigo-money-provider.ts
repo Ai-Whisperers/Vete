@@ -149,148 +149,21 @@ export class TigoMoneyPaymentProvider extends AbstractPaymentProvider {
           paid_at: result.paid_at || '',
           response_code: result.response_code || '',
         },
-        provider: 'tigo_money',
       }
     } catch (error) {
       throw new Error(`Tigo Money API error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
-  }
-
-  protected async doRefund(paymentIntentId: string, amount?: number, reason?: string): Promise<{ refundId: string }> {
-    const endpoint = this.getEndpoint('refund')
-    
-    const payload = {
-      api_key: this.config.apiKey,
-      refund: {
-        original_transaction_id: paymentIntentId,
-        amount: amount,
-        reason: reason || 'Customer requested refund',
-        external_id: this.generateExternalId(),
-      },
-    }
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.generateApiToken()}`,
-        },
-        body: JSON.stringify(payload),
-      })
-
-      const result: TigoMoneyRefundResponse = await response.json()
-
-      if (result.status !== 'success' && result.response_code !== '00') {
-        throw new Error(`Tigo Money refund failed: ${result.response_details || 'Unknown error'}`)
-      }
-
-      return { refundId: result.refund_id || `refund_${Date.now()}` }
-    } catch (error) {
-      throw new Error(`Tigo Money API error: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
-  }
-
-  async verifyWebhook(payload: string | Buffer | Record<string, unknown>, signature: string, secret: string): Promise<ProviderResult<WebhookEvent>> {
-    try {
-      const expectedSignature = this.generateWebhookSignature(payload, secret)
-      
-      if (signature !== expectedSignature) {
-        throw new Error('Webhook signature verification failed')
-      }
-
-      const event = this.parseWebhookEvent(payload)
-
-      return {
-        success: true,
-        data: event,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'webhook_verification_failed',
-          message: `Webhook verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        },
-      }
-    }
-  }
-
-  protected override normalizeError(error: unknown): PaymentError {
-    const err = error as Record<string, unknown>
-    const message = (err.message as string) || (err.response_details as string) || 'Unknown Tigo Money error'
-    const code = (err.response_code as string) || (err.code as string) || 'tigo_money_error'
-
-    return {
-      code,
-      message,
-      details: error,
-      provider: 'tigo_money',
-    }
-  }
-
-  private getEndpoint(operation: 'generate_qr' | 'check_status' | 'refund'): string {
-    const baseUrl = this.config.environment === 'production' 
-      ? 'https://api.tigomoney.com.py/v2' 
-      : 'https://sandbox.tigomoney.com.py/v2'
-
-    const endpoints = {
-      generate_qr: '/payments/generate_qr',
-      check_status: '/payments/status',
-      refund: '/payments/refund',
-    }
-
-    return `${baseUrl}${endpoints[operation]}`
   }
 
   private generateApiToken(): string {
-    const timestamp = Math.floor(Date.now() / 1000)
-    const signatureString = `${this.config.apiKey}:${timestamp}:${this.config.apiSecret}`
-    const signature = crypto.createHmac('sha256', signatureString).digest('hex')
-    
-    return Buffer.from(`${this.config.apiKey}:${timestamp}:${signature}`).toString('base64')
+    // Implement API token generation logic here
+    // For example, using the API key and secret
+    return crypto.createHmac('sha256', this.config.apiSecret).update(this.config.apiKey).digest('hex')
   }
 
-  private generateExternalId(): string {
-    return `tigo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
-
-  private generateWebhookSignature(payload: unknown, secret: string): string {
-    const stringifiedPayload = JSON.stringify(payload, Object.keys(payload as Record<string, unknown>).sort())
-    return crypto.createHmac('sha256', secret).update(stringifiedPayload).digest('hex')
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseWebhookEvent(payload: any): WebhookEvent {
-    return {
-      id: String(payload.transaction_id || payload.external_id),
-      type: this.mapTigoMoneyEventType(payload.status),
-      data: {
-        object: {
-          transaction_id: payload.transaction_id,
-          external_id: payload.external_id,
-          amount: payload.amount,
-          currency: payload.currency || 'PYG',
-          status: payload.status,
-          paid_at: payload.paid_at,
-          response_code: payload.response_code,
-          response_details: payload.response_details,
-          metadata: payload.metadata,
-          created_at: payload.created_at || new Date().toISOString(),
-        }
-      },
-    }
-  }
-
-  private mapTigoMoneyEventType(tigoStatus: string): string {
-    const statusMap: Record<string, string> = {
-      'paid': 'payment_intent.succeeded',
-      'failed': 'payment_intent.payment_failed',
-      'cancelled': 'payment_intent.canceled',
-      'pending': 'payment_intent.requires_action',
-      'expired': 'payment_intent.canceled',
-    }
-
-    return statusMap[tigoStatus] || 'payment_intent.unknown'
+  private getEndpoint(endpoint: string): string {
+    // Implement endpoint URL construction logic here
+    // For example, using the environment and API key
+    return `https://api.tigo.money/${endpoint}`
   }
 }

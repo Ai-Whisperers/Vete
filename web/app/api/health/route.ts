@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import { withRateLimit } from '../../lib/middleware/rate-limit'
 
-export async function GET() {
-  return NextResponse.json({ status: 'ok', service: 'paragu-ai', timestamp: new Date().toISOString() })
+export async function GET(request: Request) {
+  // No rate limiting for health check
+  return new NextResponse('OK', { status: 200 })
 }

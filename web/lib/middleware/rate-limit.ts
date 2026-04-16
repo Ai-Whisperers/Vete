@@ -1,12 +1,13 @@
-/**
- * Rate limiting middleware
- * Prevents abuse by limiting request frequency
- */
-
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 import { logger } from '@/lib/logger'
+import { RATE_LIMITS } from './rate-limit'
+
+/**
+ * Rate limiting middleware
+ * Prevents abuse by limiting request frequency
+ */
 
 // Rate limiters for different endpoints
 const authLimiter = new Ratelimit({

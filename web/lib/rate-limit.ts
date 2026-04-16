@@ -1,11 +1,6 @@
-/**
- * Rate Limiting Utility
- * Implements sliding window rate limiting with in-memory storage
- * Optionally supports Redis for distributed environments
- */
-
 import { NextRequest, NextResponse } from 'next/server'
-import type { ApiErrorResponse } from './api/errors'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 import { logger } from '@/lib/logger'
 
 /**
@@ -147,395 +142,61 @@ class RateLimitStore {
 
     entriesToDelete.forEach((id) => this.store.delete(id))
   }
-
-  /**
-   * Clear all entries (for testing)
-   */
-  clear(): void {
-    this.store.clear()
-  }
-
-  /**
-   * Cleanup on shutdown
-   */
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval)
-      this.cleanupInterval = null
-    }
-    this.clear()
-  }
 }
 
-/**
- * Global in-memory store instance
- */
 const inMemoryStore = new RateLimitStore()
 
 /**
- * Redis client type (from redis package)
+ * Check rate limit for an identifier
  */
-type RedisClientType = {
-  connect(): Promise<void>
-  get(key: string): Promise<string | null>
-  setEx(key: string, ttl: number, value: string): Promise<void>
-  del(key: string): Promise<number>
-}
-
-/**
- * Redis-based rate limit store (optional)
- * Falls back to in-memory if Redis is not available
- */
-class RedisStore {
-  private client: RedisClientType | null = null
-  private isConnected: boolean = false
-
-  async connect(): Promise<void> {
-    if (this.isConnected) return
-
-    // Only attempt Redis connection if URL is provided
-    const redisUrl = process.env.REDIS_URL
-    if (!redisUrl) {
-      // Using in-memory rate limiting
-      return
-    }
-
-    // Skip Redis in test environment
-    if (process.env.NODE_ENV === 'test') {
-      return
-    }
-
-    try {
-      // Dynamically import Redis client if available
-      // Using variable to prevent Webpack from trying to bundle redis
-      const redisModuleName = 'redis'
-      const redisModule = await import(/* webpackIgnore: true */ redisModuleName).catch(() => null)
-      if (!redisModule) {
-        return // Redis not installed, use in-memory
-      }
-
-      const { createClient } = redisModule as {
-        createClient: (config: { url: string }) => RedisClientType
-      }
-      this.client = createClient({ url: redisUrl })
-      await this.client.connect()
-      this.isConnected = true
-      // Redis rate limiting enabled
-    } catch (error: unknown) {
-      logger.warn('[RateLimit] Redis connection failed, falling back to in-memory store', {
-        error: error instanceof Error ? error.message : String(error),
-      })
-      this.isConnected = false
-    }
-  }
-
-  async get(key: string): Promise<number[]> {
-    if (!this.isConnected || !this.client) {
-      return inMemoryStore.get(key)
-    }
-
-    try {
-      const data = await this.client.get(key)
-      return data ? JSON.parse(data) : []
-    } catch (error: unknown) {
-      logger.error('[RateLimit] Redis get error', {
-        error: error instanceof Error ? error.message : String(error),
-        key,
-      })
-      return inMemoryStore.get(key)
-    }
-  }
-
-  async add(key: string, timestamp: number, ttlSeconds: number): Promise<void> {
-    if (!this.isConnected || !this.client) {
-      inMemoryStore.add(key, timestamp)
-      return
-    }
-
-    try {
-      const timestamps = await this.get(key)
-      timestamps.push(timestamp)
-      await this.client.setEx(key, ttlSeconds, JSON.stringify(timestamps))
-    } catch (error: unknown) {
-      logger.error('[RateLimit] Redis add error', {
-        error: error instanceof Error ? error.message : String(error),
-        key,
-      })
-      inMemoryStore.add(key, timestamp)
-    }
-  }
-
-  async prune(key: string, windowStart: number, ttlSeconds: number): Promise<void> {
-    if (!this.isConnected || !this.client) {
-      inMemoryStore.prune(key, windowStart)
-      return
-    }
-
-    try {
-      const timestamps = await this.get(key)
-      const filtered = timestamps.filter((ts) => ts > windowStart)
-
-      if (filtered.length === 0) {
-        await this.client.del(key)
-      } else {
-        await this.client.setEx(key, ttlSeconds, JSON.stringify(filtered))
-      }
-    } catch (error: unknown) {
-      logger.error('[RateLimit] Redis prune error', {
-        error: error instanceof Error ? error.message : String(error),
-        key,
-      })
-      inMemoryStore.prune(key, windowStart)
-    }
-  }
-}
-
-const redisStore = new RedisStore()
-
-/**
- * Get identifier for rate limiting
- * Prefers user ID if authenticated, falls back to IP address
- */
-function getIdentifier(request: NextRequest, userId?: string): string {
-  if (userId) {
-    return `user:${userId}`
-  }
-
-  // Try to get real IP from various headers (considering proxies/load balancers)
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const ip = forwarded?.split(',')[0] || realIp || 'unknown'
-
-  return `ip:${ip}`
-}
-
-/**
- * Check if request exceeds rate limit using sliding window algorithm
- *
- * @param identifier - Unique identifier (user ID or IP)
- * @param limitType - Type of rate limit to apply
- * @returns Object with isLimited flag and retry-after seconds
- */
-async function checkRateLimit(
+export async function checkRateLimit(
   identifier: string,
-  limitType: RateLimitType = 'default'
-): Promise<{ isLimited: boolean; retryAfter: number; remaining: number }> {
-  // Initialize Redis connection if not already done
-  await redisStore.connect()
-
-  const config = RATE_LIMITS[limitType]
+  type: RateLimitType = 'default'
+): Promise<{
+  isLimited: boolean
+  retryAfter: number
+}> {
+  const config = RATE_LIMITS[type]
   const now = Date.now()
   const windowStart = now - config.windowMs
 
-  // Create a unique key for this identifier + limit type
-  const key = `ratelimit:${limitType}:${identifier}`
-
   // Get existing timestamps
-  const timestamps = await redisStore.get(key)
+  const timestamps = inMemoryStore.get(identifier)
 
-  // Remove timestamps outside the current window
-  await redisStore.prune(key, windowStart, Math.ceil(config.windowMs / 1000))
-
-  // Get fresh timestamps after pruning
-  const currentTimestamps = await redisStore.get(key)
+  // Prune old timestamps
+  inMemoryStore.prune(identifier, windowStart)
 
   // Check if limit exceeded
-  if (currentTimestamps.length >= config.maxRequests) {
-    // Calculate retry-after based on oldest request in window
-    const oldestTimestamp = Math.min(...currentTimestamps)
+  if (timestamps.length >= config.maxRequests) {
+    const oldestTimestamp = Math.min(...timestamps)
     const retryAfterMs = oldestTimestamp + config.windowMs - now
-    const retryAfterSeconds = Math.ceil(retryAfterMs / 1000)
+    const retryAfter = Math.ceil(retryAfterMs / 1000)
 
     return {
       isLimited: true,
-      retryAfter: Math.max(1, retryAfterSeconds),
-      remaining: 0,
-    }
-  }
-
-  // Add current request timestamp
-  await redisStore.add(key, now, Math.ceil(config.windowMs / 1000))
-
-  return {
-    isLimited: false,
-    retryAfter: 0,
-    remaining: Math.max(0, config.maxRequests - currentTimestamps.length - 1),
-  }
-}
-
-/**
- * Rate limiting result
- */
-export interface RateLimitResult {
-  success: true
-  remaining: number
-}
-
-export interface RateLimitError {
-  success: false
-  response: NextResponse<ApiErrorResponse>
-}
-
-/**
- * Apply rate limiting to a request
- *
- * @param request - NextRequest object
- * @param limitType - Type of rate limit to apply
- * @param userId - Optional user ID for authenticated requests
- * @returns Result object or error response
- *
- * @example
- * ```typescript
- * // In an API route
- * const rateLimitResult = await rateLimit(request, 'auth');
- * if (!rateLimitResult.success) {
- *   return rateLimitResult.response;
- * }
- *
- * // Continue with request handling...
- * ```
- */
-export async function rateLimit(
-  request: NextRequest,
-  limitType: RateLimitType = 'default',
-  userId?: string
-): Promise<RateLimitResult | RateLimitError> {
-  const identifier = getIdentifier(request, userId)
-  const { isLimited, retryAfter, remaining } = await checkRateLimit(identifier, limitType)
-
-  if (isLimited) {
-    const config = RATE_LIMITS[limitType]
-    return {
-      success: false,
-      response: NextResponse.json(
-        {
-          error: `${config.message} ${retryAfter} segundos.`,
-          code: 'RATE_LIMITED',
-          details: {
-            retryAfter,
-            limitType,
-            maxRequests: config.maxRequests,
-            windowMs: config.windowMs,
-          },
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': retryAfter.toString(),
-            'X-RateLimit-Limit': config.maxRequests.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': new Date(Date.now() + retryAfter * 1000).toISOString(),
-          },
-        }
-      ),
-    }
-  }
-
-  return {
-    success: true,
-    remaining,
-  }
-}
-
-/**
- * Higher-order function to wrap API handlers with rate limiting
- *
- * @param handler - The API route handler
- * @param limitType - Type of rate limit to apply
- * @param getUserId - Optional function to extract user ID from request
- * @returns Wrapped handler with rate limiting
- *
- * @example
- * ```typescript
- * export const POST = withRateLimit(
- *   async (request) => {
- *     // Your handler logic
- *     return NextResponse.json({ success: true });
- *   },
- *   'write'
- * );
- * ```
- */
-export function withRateLimit<T, TContext extends unknown[] = []>(
-  handler: (request: NextRequest, ...args: TContext) => Promise<NextResponse<T>>,
-  limitType: RateLimitType = 'default',
-  getUserId?: (request: NextRequest) => Promise<string | undefined>
-): (request: NextRequest, ...args: TContext) => Promise<NextResponse<T | ApiErrorResponse>> {
-  return async (request: NextRequest, ...args: TContext) => {
-    // Get user ID if function provided
-    const userId = getUserId ? await getUserId(request) : undefined
-
-    // Check rate limit
-    const rateLimitResult = await rateLimit(request, limitType, userId)
-
-    if (!rateLimitResult.success) {
-      return rateLimitResult.response as NextResponse<ApiErrorResponse>
-    }
-
-    // Add rate limit headers to response
-    const response = await handler(request, ...args)
-
-    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString())
-
-    return response
-  }
-}
-
-/**
- * Rate limit result for server actions (without NextResponse)
- */
-export interface ActionRateLimitResult {
-  success: boolean
-  error?: string
-  retryAfter?: number
-}
-
-/**
- * Apply rate limiting to a server action using user ID
- * SEC-027: Rate limiting for server actions where NextRequest is not available
- *
- * @param userId - User ID to rate limit
- * @param limitType - Type of rate limit to apply
- * @returns Result object with success flag and optional error message
- *
- * @example
- * ```typescript
- * // In a server action
- * const rateLimitResult = await rateLimitByUser(user.id, 'booking');
- * if (!rateLimitResult.success) {
- *   return { success: false, error: rateLimitResult.error };
- * }
- * ```
- */
-export async function rateLimitByUser(
-  userId: string,
-  limitType: RateLimitType = 'default'
-): Promise<ActionRateLimitResult> {
-  const identifier = `user:${userId}`
-  const { isLimited, retryAfter } = await checkRateLimit(identifier, limitType)
-
-  if (isLimited) {
-    const config = RATE_LIMITS[limitType]
-    return {
-      success: false,
-      error: `${config.message} ${retryAfter} segundos.`,
       retryAfter,
     }
   }
 
-  return { success: true }
+  // Add current request timestamp
+  inMemoryStore.add(identifier, now)
+
+  return {
+    isLimited: false,
+    retryAfter: 0,
+  }
 }
 
 /**
  * Clear all rate limit data (for testing)
  */
 export function clearRateLimits(): void {
-  inMemoryStore.clear()
+  inMemoryStore.store.clear()
 }
 
 /**
  * Cleanup resources on shutdown
  */
 export function shutdown(): void {
-  inMemoryStore.destroy()
+  inMemoryStore.cleanupInterval && clearInterval(inMemoryStore.cleanupInterval)
 }

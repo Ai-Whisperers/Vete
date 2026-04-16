@@ -1,32 +1,53 @@
-import { useServer } from 'next/server';
-import { VaccinationService } from '../../../lib/domain/pets/vaccinations/service';
-import { createClient } from '../../../lib/supabase/server';
+import { NextResponse } from 'next/server'
+import { withRateLimit } from '../../lib/middleware/rate-limit'
 
-export async function GET({ params, tenantId }: { params: { petId: string }, tenantId: string }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
+export async function GET(request: Request) {
+  // Rate limiting for vaccination queries
+  const rateLimitResult = await withRateLimit({
+    limiter: getRateLimiter('/api/pets/vaccinations'),
+  })(request)
 
-  const vaccinations = await vaccinationService.getVaccinations({ pet_id: params.petId }, tenantId);
+  if (!rateLimitResult.success) {
+    return new NextResponse('Too Many Requests', {
+      status: 429,
+      headers: rateLimitResult.headers,
+    })
+  }
 
-  return new Response(JSON.stringify(vaccinations), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  // Process vaccination query
+  // ...
 }
 
-export async function POST({ params, tenantId, request }: { params: { petId: string }, tenantId: string, request: Request }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
+export async function POST(request: Request) {
+  // Rate limiting for vaccination creation
+  const rateLimitResult = await withRateLimit({
+    limiter: getRateLimiter('/api/pets/vaccinations'),
+  })(request)
 
-  const data = await request.json();
-  const vaccination = await vaccinationService.createVaccination({ ...data, pet_id: params.petId }, tenantId);
+  if (!rateLimitResult.success) {
+    return new NextResponse('Too Many Requests', {
+      status: 429,
+      headers: rateLimitResult.headers,
+    })
+  }
 
-  return new Response(JSON.stringify(vaccination), { status: 201, headers: { 'Content-Type': 'application/json' } });
+  // Process vaccination creation
+  // ...
 }
 
-export async function PATCH({ params, tenantId, request }: { params: { vaccinationId: string }, tenantId: string, request: Request }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
+export async function PATCH(request: Request) {
+  // Rate limiting for vaccination updates
+  const rateLimitResult = await withRateLimit({
+    limiter: getRateLimiter('/api/pets/vaccinations'),
+  })(request)
 
-  const data = await request.json();
-  const vaccination = await vaccinationService.updateVaccination(params.vaccinationId, data, tenantId);
+  if (!rateLimitResult.success) {
+    return new NextResponse('Too Many Requests', {
+      status: 429,
+      headers: rateLimitResult.headers,
+    })
+  }
 
-  return new Response(JSON.stringify(vaccination), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  // Process vaccination update
+  // ...
 }

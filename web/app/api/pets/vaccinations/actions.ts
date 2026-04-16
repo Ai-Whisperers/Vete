@@ -1,32 +1,21 @@
-import { useServer } from 'next/server';
-import { VaccinationService } from '../../../lib/domain/pets/vaccinations/service';
-import { createClient } from '../../../lib/supabase/server';
+import { useServer } from 'next/server'
+import { logApiError, logApiInfo } from '@/lib/logger/api-helpers'
+import { createClient } from '@/lib/supabase/server'
 
-export async function GET({ params, tenantId }: { params: { petId: string }, tenantId: string }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
+export async function GET() {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from('vaccinations').select('*')
 
-  const vaccinations = await vaccinationService.getVaccinations({ pet_id: params.petId }, tenantId);
+    if (error) {
+      logApiError('pets/vaccinations', 'Failed to fetch vaccinations', {}, error)
+      return new Response('Error fetching vaccinations', { status: 500 })
+    }
 
-  return new Response(JSON.stringify(vaccinations), { status: 200, headers: { 'Content-Type': 'application/json' } });
-}
-
-export async function POST({ params, tenantId, request }: { params: { petId: string }, tenantId: string, request: Request }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
-
-  const data = await request.json();
-  const vaccination = await vaccinationService.createVaccination({ ...data, pet_id: params.petId }, tenantId);
-
-  return new Response(JSON.stringify(vaccination), { status: 201, headers: { 'Content-Type': 'application/json' } });
-}
-
-export async function PATCH({ params, tenantId, request }: { params: { vaccinationId: string }, tenantId: string, request: Request }) {
-  const supabase = createClient();
-  const vaccinationService = new VaccinationService(supabase);
-
-  const data = await request.json();
-  const vaccination = await vaccinationService.updateVaccination(params.vaccinationId, data, tenantId);
-
-  return new Response(JSON.stringify(vaccination), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    logApiInfo('pets/vaccinations', 'Fetched vaccinations successfully')
+    return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  } catch (error) {
+    logApiError('pets/vaccinations', 'Error fetching vaccinations', {}, error)
+    return new Response('Error fetching vaccinations', { status: 500 })
+  }
 }

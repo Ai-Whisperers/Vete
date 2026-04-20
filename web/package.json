@@ -170,7 +170,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.3",
     "react-big-calendar": "^1.19.4",
-    "react-dom": "^19.2.3",
+    "react-dom": "^19.2.5",
     "react-hook-form": "^7.69.0",
     "react-is": "^19.2.5",
     "react-leaflet": "^5.0.0",
